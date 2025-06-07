@@ -1,0 +1,46 @@
+{
+    "name" : "jokes",
+    "threads" :
+    {
+        "Alice" : 
+        [
+            { "task" : "Alice tells a joke" },
+            {
+                "task" : "laugh",
+                "wait" : "Charlie:Charlie tells a joke"
+            },
+            {
+                "task" : "laugh",
+                "wait" : "Bob:Bob tells a joke"
+            }
+        ],
+        "Bob" :  
+        [
+            {
+                "task" : "laugh",
+                "wait" : "Alice:Alice tells a joke"
+            }
+        ],
+        "Charlie" : 
+        [ 
+            {
+                "task" : "laugh",
+                "wait" : "Alice:Alice tells a joke"
+            }
+        ],
+        "Dan" : 
+        [ 
+            {
+                "task" : "laugh",
+                "wait" : "Alice:Alice tells a joke"
+            }
+        ],
+        "Erin" : 
+        [ 
+            {
+                "task" : "laugh",
+                "wait" : "Alice:Alice tells a joke"
+            }
+        ]
+    }
+}

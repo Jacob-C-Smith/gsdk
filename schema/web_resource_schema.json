@@ -1,0 +1,35 @@
+{
+    "$schema" : "http://json-schema.org/draft-07/schema#",
+    "title" : "web resource",
+    "type" : "object",
+    "description" : "Describes a web resource",
+    "properties" :
+    {
+        "name" :
+        {
+            "title" : "name",
+            "type" : "string",
+            "default" : "name",
+            "minLength" : 1,
+            "maxLength" : 255,
+            "description" : "The name of the web resource"
+        },
+        "path" :
+        {
+            "title" : "path",
+            "type" : "string",
+            "minLength": 1,
+            "maxLength": 2047,
+            "default" : "/path/to/resource",
+            "description" : "Path to the http resource"
+        },
+        "cache" :
+        {
+            "title" : "cache",
+            "type" : "boolean",
+            "description" : "Hold the resource in memory",
+            "default" : true
+        }
+    },
+    "required" : [ "name", "path" ]
+}
