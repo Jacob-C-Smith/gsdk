@@ -1,0 +1,231 @@
+# Compiler
+CC = clang
+
+# Compiler flags
+CFLAGS = -fPIC -Wall -Wextra -O2 -Iinclude
+
+# Linux specific 
+SONAME_FLAGS = -shared -Wl,-soname,$(@F)
+RPATH_FLAGS = -Wl,-rpath,'$$ORIGIN/../lib'
+
+# Link against pthreads
+LDFLAGS = -lpthread -lm
+
+# Build directories
+BUILD_DIR         = build
+BUILD_LIB_DIR     = $(BUILD_DIR)/lib
+BUILD_EXAMPLE_DIR = $(BUILD_DIR)/examples
+BUILD_TEST_DIR    = $(BUILD_DIR)/tests
+
+# Directories
+SRC_DIR      = src
+EXAMPLES_DIR = $(SRC_DIR)/examples
+TESTS_DIR    = $(SRC_DIR)/test
+ROOT_DIR     = $(shell pwd)
+
+# Core libraries
+CORE_LIBS = log sync pack crypto interfaces hash_cache socket
+
+# Data structure libraries
+DATA_LIBS = array circular_buffer dict tree tuple priority_queue queue stack
+
+# Reflection
+REFLECTION_LIBS = base64 json
+
+# Performance libraries
+PERFORMANCE_LIBS = parallel
+
+# Lists of libraries
+LIBS = $(CORE_LIBS) $(DATA_LIBS) $(REFLECTION_LIBS) $(PERFORMANCE_LIBS)
+
+# Lists of tests
+TESTS = $(DATA_LIBS) $(REFLECTION_LIBS)
+
+.PHONY: all clean
+
+#############
+# Libraries #
+#############
+all: $(addprefix $(BUILD_LIB_DIR)/, $(addsuffix .so, $(LIBS)))
+
+$(BUILD_LIB_DIR):
+	@mkdir -p $(BUILD_LIB_DIR)
+
+# Core 
+$(BUILD_LIB_DIR)/log.so: $(wildcard $(SRC_DIR)/core/log/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SONAME_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^
+
+$(BUILD_LIB_DIR)/sync.so: $(wildcard $(SRC_DIR)/core/sync/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SONAME_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so
+
+$(BUILD_LIB_DIR)/pack.so: $(wildcard $(SRC_DIR)/reflection/pack/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SONAME_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so
+
+$(BUILD_LIB_DIR)/crypto.so: $(wildcard $(SRC_DIR)/core/crypto/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SONAME_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.so
+
+$(BUILD_LIB_DIR)/hash_cache.so: $(wildcard $(SRC_DIR)/core/hash_cache/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SONAME_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.so
+
+$(BUILD_LIB_DIR)/socket.so: $(wildcard $(SRC_DIR)/core/socket/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SONAME_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so
+
+$(BUILD_LIB_DIR)/interfaces.so: $(wildcard $(SRC_DIR)/core/interfaces/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SONAME_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^
+
+# Data structures
+$(BUILD_LIB_DIR)/array.so: $(wildcard $(SRC_DIR)/data/array/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SONAME_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.so
+
+$(BUILD_LIB_DIR)/circular_buffer.so: $(wildcard $(SRC_DIR)/data/circular_buffer/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SONAME_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so
+
+$(BUILD_LIB_DIR)/dict.so: $(wildcard $(SRC_DIR)/data/dict/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SONAME_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash_cache.so
+
+$(BUILD_LIB_DIR)/tree.so: $(wildcard $(SRC_DIR)/data/tree/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SONAME_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so
+
+$(BUILD_LIB_DIR)/tuple.so: $(wildcard $(SRC_DIR)/data/tuple/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SONAME_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.so
+
+$(BUILD_LIB_DIR)/priority_queue.so: $(wildcard $(SRC_DIR)/data/priority_queue/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SONAME_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so
+
+$(BUILD_LIB_DIR)/queue.so: $(wildcard $(SRC_DIR)/data/queue/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SONAME_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so
+
+$(BUILD_LIB_DIR)/stack.so: $(wildcard $(SRC_DIR)/data/stack/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SONAME_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so
+
+# Reflection 
+$(BUILD_LIB_DIR)/base64.so: $(wildcard $(SRC_DIR)/reflection/base64/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SONAME_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so
+
+$(BUILD_LIB_DIR)/json.so: $(wildcard $(SRC_DIR)/reflection/json/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SONAME_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash_cache.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/array.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/dict.so
+
+# Performance
+$(BUILD_LIB_DIR)/parallel.so: $(wildcard $(SRC_DIR)/performance/parallel/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SONAME_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash_cache.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/array.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/dict.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/json.so
+
+############
+# Examples #
+############
+
+# Add examples to the all target
+all: $(addprefix $(BUILD_EXAMPLE_DIR)/, $(addsuffix _example, $(LIBS)))
+
+$(BUILD_EXAMPLE_DIR):
+	@mkdir -p $(BUILD_EXAMPLE_DIR)
+
+# Core 
+$(BUILD_EXAMPLE_DIR)/log_example: $(EXAMPLES_DIR)/log_example.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so
+
+$(BUILD_EXAMPLE_DIR)/crypto_example: $(EXAMPLES_DIR)/crypto_example.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/crypto.so
+
+$(BUILD_EXAMPLE_DIR)/sync_example: $(EXAMPLES_DIR)/sync_example.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so
+
+$(BUILD_EXAMPLE_DIR)/hash_cache_example: $(EXAMPLES_DIR)/hash_cache_example.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash_cache.so
+
+$(BUILD_EXAMPLE_DIR)/socket_example: $(EXAMPLES_DIR)/socket_example.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/socket.so
+
+$(BUILD_EXAMPLE_DIR)/interfaces_example: $(EXAMPLES_DIR)/interfaces_example.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.so
+
+$(BUILD_EXAMPLE_DIR)/pack_example: $(EXAMPLES_DIR)/pack_example.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/array.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/dict.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/json.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.so
+
+# Data structures
+$(BUILD_EXAMPLE_DIR)/array_example: $(EXAMPLES_DIR)/array_example.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/array.so
+
+$(BUILD_EXAMPLE_DIR)/circular_buffer_example: $(EXAMPLES_DIR)/circular_buffer_example.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/circular_buffer.so
+
+$(BUILD_EXAMPLE_DIR)/dict_example: $(EXAMPLES_DIR)/dict_example.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/dict.so
+
+$(BUILD_EXAMPLE_DIR)/priority_queue_example: $(EXAMPLES_DIR)/priority_queue_example.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/priority_queue.so
+
+$(BUILD_EXAMPLE_DIR)/queue_example: $(EXAMPLES_DIR)/queue_example.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/queue.so
+
+$(BUILD_EXAMPLE_DIR)/stack_example: $(EXAMPLES_DIR)/stack_example.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/stack.so
+
+$(BUILD_EXAMPLE_DIR)/tree_example: $(EXAMPLES_DIR)/tree_example.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/tree.so
+
+$(BUILD_EXAMPLE_DIR)/tuple_example: $(EXAMPLES_DIR)/tuple_example.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/tuple.so
+
+# Reflection 
+$(BUILD_EXAMPLE_DIR)/base64_example: $(EXAMPLES_DIR)/base64_example.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/base64.so
+
+$(BUILD_EXAMPLE_DIR)/json_example: $(EXAMPLES_DIR)/json_example.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/array.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/dict.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/json.so
+
+# Performance
+$(BUILD_EXAMPLE_DIR)/parallel_example: $(EXAMPLES_DIR)/parallel_example.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash_cache.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/array.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/dict.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/parallel.so
+
+###########
+# Testers #
+###########
+# Add tests to the all target
+all: $(addprefix $(BUILD_TEST_DIR)/, $(addsuffix _test, $(TESTS)))
+
+$(BUILD_TEST_DIR):
+	@mkdir -p $(BUILD_TEST_DIR)
+
+# Reflection
+$(BUILD_TEST_DIR)/base64_test: $(TESTS_DIR)/base64_test.c | $(BUILD_TEST_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/base64.so
+
+$(BUILD_TEST_DIR)/json_test: $(TESTS_DIR)/json_test.c | $(BUILD_TEST_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash_cache.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/array.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/dict.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/json.so
+
+$(BUILD_TEST_DIR)/pack_test: $(TESTS_DIR)/pack_test.c | $(BUILD_TEST_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash_cache.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/array.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/dict.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/base64.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/json.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.so
+
+# Data structures
+$(BUILD_TEST_DIR)/array_test: $(TESTS_DIR)/array_test.c | $(BUILD_TEST_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/array.so
+
+$(BUILD_TEST_DIR)/circular_buffer_test: $(TESTS_DIR)/circular_buffer_test.c | $(BUILD_TEST_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/circular_buffer.so
+
+$(BUILD_TEST_DIR)/dict_test: $(TESTS_DIR)/dict_test.c | $(BUILD_TEST_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash_cache.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/dict.so
+
+$(BUILD_TEST_DIR)/tree_test: $(TESTS_DIR)/tree_test.c | $(BUILD_TEST_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/tree.so
+
+$(BUILD_TEST_DIR)/tuple_test: $(TESTS_DIR)/tuple_test.c | $(BUILD_TEST_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/tuple.so
+
+$(BUILD_TEST_DIR)/priority_queue_test: $(TESTS_DIR)/priority_queue_test.c | $(BUILD_TEST_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/priority_queue.so
+
+$(BUILD_TEST_DIR)/queue_test: $(TESTS_DIR)/queue_test.c | $(BUILD_TEST_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/queue.so
+
+$(BUILD_TEST_DIR)/stack_test: $(TESTS_DIR)/stack_test.c | $(BUILD_TEST_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/stack.so
+
+# Example
+# TODO: Add all projects
+$(BUILD_EXAMPLE_DIR)/gsdk_example: $(ROOT_DIR)/main.c | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash_cache.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/array.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/dict.so $(ROOT_DIR)/$(BUILD_LIB_DIR)/parallel.so
+
+# Clean
+clean:
+	rm -rf $(BUILD_LIB_DIR) $(BUILD_EXAMPLE_DIR)

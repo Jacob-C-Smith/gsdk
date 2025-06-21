@@ -1,0 +1,43 @@
+name: examples
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs: 
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: make
+        run: |
+          rm Makefile
+          ln -s ${{github.workspace}}/makefilelinux Makefile
+          make
+          
+      - name: core
+        run: |
+          ${{github.workspace}}/build/examples/hash_cache_example
+          ${{github.workspace}}/build/examples/interfaces_example
+          ${{github.workspace}}/build/examples/log_example
+          #${{github.workspace}}/build/examples/socket_example
+          ${{github.workspace}}/build/examples/sync_example
+
+      - name: data
+        run: |
+          ${{github.workspace}}/build/examples/array_example
+          ${{github.workspace}}/build/examples/circular_buffer_example
+          ${{github.workspace}}/build/examples/dict_example
+          ${{github.workspace}}/build/examples/priority_queue_example
+          ${{github.workspace}}/build/examples/queue_example
+          ${{github.workspace}}/build/examples/stack_example
+          ${{github.workspace}}/build/examples/tree_example
+          ${{github.workspace}}/build/examples/tuple_example
+
+      - name: reflection
+        run: |
+          ${{github.workspace}}/build/examples/pack_example
+          ${{github.workspace}}/build/examples/json_example ${{github.workspace}}/resources/reflection/example.json
+          ${{github.workspace}}/build/examples/base64_example

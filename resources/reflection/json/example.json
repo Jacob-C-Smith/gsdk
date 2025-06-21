@@ -1,0 +1,18 @@
+{
+    "name"      : "Jacob Smith",
+    "age"       : 22,
+    "height"    : 1.855,
+    "dog"       : {
+        "name"  : "Eddie",
+        "sex"   : "Male",
+        "breed" : "Terrier"
+    },
+    "interests" : [
+        "Computer science",
+        "3D modeling",
+        "Organic chemistry",
+        "Mathematics",
+        "Computer games",
+        "German Idealism"
+    ]
+}
