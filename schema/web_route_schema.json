@@ -1,0 +1,32 @@
+{
+    "$schema"     : "http://json-schema.org/draft-07/schema#",
+    "title"       : "route",
+    "description" : "A web server route",
+    "type"        : "object",
+    "properties"  :
+    {
+        "path" : 
+        {
+            "title"       : "path",
+            "description" : "the path of the route",
+            "type"        : "string",
+            "maxLength"   : 16384,
+            "minLength"   : 1,
+            "default"     : "index.html"
+        },
+        "get"  : 
+        {
+            "title"       : "get",
+            "description" : "Handle an HTTP get request",
+            "type"        : "object",
+            "properties"  :
+            {
+                "template" : 
+                {
+                    "title"       : "template",
+                    "description" : "Describe an HTML template"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,80 @@
+{
+    "$schema" : "http://json-schema.org/draft-07/schema#",
+    "title" : "input",
+    "type" : "object",
+    "description" : "Describes an HTTP server",
+    "properties" :
+    {
+        "host" :
+        {
+            "title" : "host",
+            "type" : "string",
+            "default" : "localhost",
+            "minLength" : 1,
+            "maxLength" : 255,
+            "description" : "The hostname of the server"
+        },
+        "port" :
+        {
+            "title" : "port",
+            "type" : "integer",
+            "minimum": 0,
+            "maximum": 65535,
+            "default" : 3000,
+            "description" : "The TCP port of the server"
+        },
+        "routes" :
+        {
+            "title" : "routes",
+            "type" : "object",
+            "description" : "A dictionary of routes",
+            "uniqueItems" : true,
+            "default" : 
+            {
+                "/" : "index.html",
+                "/about" : "about.html",
+                "/help" : "help/index.html"
+            },
+            "additionalProperties": {
+                "$ref" : "#/$defs/route"
+            }
+        }        
+    },
+    "required" : [ "host", "port" ],
+    "$defs" :
+    {
+        "route" :
+        {
+            "$schema"     : "http://json-schema.org/draft-07/schema#",
+            "title"       : "route",
+            "description" : "A web server route",
+            "type"        : [ "object", "string" ],
+            "properties"  :
+            {
+                "path" : 
+                {
+                    "title"       : "path",
+                    "description" : "the path of the route",
+                    "type"        : "string",
+                    "maxLength"   : 16384,
+                    "minLength"   : 1,
+                    "default"     : "index.html"
+                },
+                "get"  : 
+                {
+                    "title"       : "get",
+                    "description" : "Handle an HTTP get request",
+                    "type"        : "object",
+                    "properties"  :
+                    {
+                        "template" : 
+                        {
+                            "title"       : "template",
+                            "description" : "Describe an HTML template"
+                        }
+                    }
+                }
+            }
+        }
+    }    
+}

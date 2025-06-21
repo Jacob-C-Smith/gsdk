@@ -1,0 +1,33 @@
+name: tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: make
+        run: |
+          make
+          
+      - name: data
+        run: |
+          ${{github.workspace}}/build/tests/array_test
+          ${{github.workspace}}/build/tests/circular_buffer_test
+          ${{github.workspace}}/build/tests/dict_test
+          ${{github.workspace}}/build/tests/priority_queue_test
+          ${{github.workspace}}/build/tests/queue_test
+          ${{github.workspace}}/build/tests/stack_test
+          ${{github.workspace}}/build/tests/tree_test
+          ${{github.workspace}}/build/tests/tuple_test
+
+      - name: reflection
+        run: |
+          ${{github.workspace}}/build/tests/pack_test
+          ${{github.workspace}}/build/tests/json_test
+          ${{github.workspace}}/build/tests/base64_test
