@@ -15,7 +15,7 @@ else
 endif
 
 # Compiler
-CC = gcc #/opt/gcc-15.1.0/bin/gcc
+CC = clang #/opt/gcc-15.1.0/bin/gcc
 CFLAGS = -fPIC -Wall -Wextra -O2 -Iinclude -Iinclude/core -Iinclude/data -Iinclude/performance -Iinclude/reflection -std=c23 -g
 
 # Directories
