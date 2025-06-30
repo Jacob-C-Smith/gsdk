@@ -1,138 +1,316 @@
-// /** !
-//  * Secure socket
-//  * 
-//  * @file src/core/socket/secure_socket.c 
-//  * 
-//  * @author Jacob Smith
-//  */
+/** !
+ * Secure socket
+ * 
+ * @file src/core/socket/secure_socket.c 
+ * 
+ * @author Jacob Smith
+ */
 
-// // header 
-// #include <core/secure_socket.h>
+// header 
+#include <core/secure_socket.h>
 
-// int secure_socket_create ( secure_socket **pp_secure_socket, enum socket_address_family_e address_family, unsigned short port_number )
-// {
+struct secure_socket_s
+{
+    bool server_flag;
+    socket_tcp _socket;
+    union 
+    {
+        struct 
+        {
+            public_key  *p_public_key;
+            private_key *p_private_key;
+        } server;
 
-//     // argument check
-//     if ( pp_secure_socket == (void *) 0 ) goto no_secure_socket; 
+        struct 
+        {
+            struct
+            {
+                public_key  *p_public_key;
+                private_key *p_private_key;
+            } client_pair;
+            public_key _server_public_key;
+        } client;
+    };
+};
 
-//     secure_socket _secure_socket = -1;
-//     int option = 1;
-//     struct sockaddr_in socket_address =
-//     {
-//         .sin_family = (unsigned short) address_family,
-//         .sin_addr.s_addr = htonl(INADDR_ANY),
-//         .sin_port = htons(port_number),
-//         .sin_zero = { 0 }
-//     };
+int secure_socket_create ( secure_socket **pp_secure_socket, enum socket_address_family_e address_family, unsigned short port_number )
+{
 
-//     // Create the socket
-//     _secure_socket = socket(address_family, socket_type_tcp, IPPROTO_TCP);
+    // argument check
+    if ( pp_secure_socket == (void *) 0 ) goto no_secure_socket; 
 
-//     // error check
-//     if ( _secure_socket == -1 ) goto failed_to_create_socket;
-    
-//     // set socket options
-//     if ( setsockopt(_secure_socket, SOL_SOCKET, SO_REUSEADDR, &option, sizeof(option)) == -1 ) goto failed_to_set_socket_option;
+    // initialized data
+    secure_socket *p_secure_socket = realloc(0, sizeof(secure_socket));
 
-//     // bind the socket to the port
-//     if ( bind(_secure_socket,(struct sockaddr*) &socket_address, sizeof(socket_address)) == -1 ) goto failed_to_bind_socket;
+    // error check
+    if ( NULL == p_secure_socket ) goto no_mem;
 
-//     // return a pointer to the caller
-//     *pp_secure_socket = p_secure_socket;
+    // return a pointer to the caller
+    *pp_secure_socket = p_secure_socket;
 
-//     // success
-//     return 1;
+    // success
+    return 1;
 
-//     // error handling
-//     {
+    // error handling
+    {
         
-//         // argument errors
-//         {
-//             no_secure_socket:
-//                 #ifndef NDEBUG
-//                     printf("[secure socket] Null pointer provided for parameter \"pp_secure_socket\" in call to function \"%s\"\n", __FUNCTION__);
-//                 #endif
+        // argument errors
+        {
+            no_secure_socket:
+                #ifndef NDEBUG
+                    printf("[secure socket] Null pointer provided for parameter \"pp_secure_socket\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
 
-//                 // error
-//                 return 0;
-//         }
+                // error
+                return 0;
+        }
 
-//         // Socket errors
-//         {
-//             failed_to_create_socket:
-//                 #ifndef NDEBUG
-//                     printf("[secure socket] Call to function \"socket\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
-//                 #endif
+        // socket errors
+        {
+            failed_to_create_socket:
+                #ifndef NDEBUG
+                    printf("[secure socket] Call to function \"socket\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                #endif
 
-//                 // error
-//                 return 0;
+                // error
+                return 0;
 
-//             failed_to_set_socket_option:
-//                 #ifndef NDEBUG
-//                     printf("[secure socket] Call to function \"setsockopt\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
-//                 #endif
+            failed_to_set_socket_option:
+                #ifndef NDEBUG
+                    printf("[secure socket] Call to function \"setsockopt\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                #endif
 
-//                 // error
-//                 return 0;
+                // error
+                return 0;
             
-//             failed_to_bind_socket:
-//                 #ifndef NDEBUG
-//                     printf("[secure socket] Call to function \"bind\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
-//                 #endif
+            failed_to_bind_socket:
+                #ifndef NDEBUG
+                    printf("[secure socket] Call to function \"bind\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                #endif
 
-//                 // error
-//                 return 0;
+                // error
+                return 0;
 
-//         }
-//     }
-// }
-
-// int secure_socket_listen ( secure_socket _secure_socket, fn_secure_socket_accept pfn_tcp_accept_callback, void *const p_tcp_accept_callback_parameter )
-// {
-
-//     // initialized data
-//     secure_socket new_socket = 0;
-//     struct sockaddr_in peer_addr = {0};
-//     unsigned int addr_len = sizeof(peer_addr);
-
-//     // Listen for connections
-//     if ( listen(_secure_socket, 1) == -1 ) goto failed_to_listen;
-
-//     // Accept a new connection
-//     new_socket = accept(_secure_socket, (struct sockaddr *) &peer_addr, &addr_len);
-
-//     // error check
-//     if ( new_socket == -1 ) goto failed_to_connect;
+        }
     
-//     // Callback
-//     pfn_tcp_accept_callback(new_socket, ntohl(peer_addr.sin_addr.s_addr), (unsigned short) ntohs(peer_addr.sin_port), p_tcp_accept_callback_parameter);
+        // standard library errors
+        {
+            no_mem:
+                #ifndef NDEBUG
+                    log_error("[socket] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                #endif
 
-//     // success
-//     return 1;
+                // error
+                return 0;
+        }
+    }
+}
 
-//     // error handling
-//     {
+int secure_socket_listen ( secure_socket *p_secure_socket, fn_secure_socket_accept pfn_tcp_accept_callback, void *const p_tcp_accept_callback_parameter )
+{
 
-//         // Socket errors
-//         {
-//             failed_to_listen:
-//                 #ifndef NDEBUG
-//                     printf("[secure socket] Call to function \"listen\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
-//                 #endif
+    // initialized data
+    socket_tcp new_socket = 0;
+    struct sockaddr_in peer_addr = {0};
+    unsigned int addr_len = sizeof(peer_addr);
 
-//                 // error
-//                 return 0;
+    // make a keypair
+    key_pair_construct
+    (
+        &p_secure_socket->server.p_public_key,
+        &p_secure_socket->server.p_private_key    
+    );
+
+    // listen for connections
+    if ( listen(p_secure_socket->_socket, 1) == -1 ) goto failed_to_listen;
+
+    // accept a new connection
+    new_socket = accept(p_secure_socket->_socket, (struct sockaddr *) &peer_addr, &addr_len);
+
+    // error check
+    if ( new_socket == -1 ) goto failed_to_connect;
+    
+    // handshake
+    {
+    
+        // initialized data
+        unsigned char _server_hello_plain[4096] = { 0 };
+        unsigned char _server_hello[4096] = { 0 };
+
+        // pack the server's public key
+        public_key_pack(_server_hello, p_secure_socket->server.p_public_key);
+
+        // send the server hello
+        socket_tcp_send
+        (
+            new_socket,
+            _server_hello,
+            4096
+        );
+    }
+
+    // callback
+    // pfn_tcp_accept_callback(new_socket, ntohl(peer_addr.sin_addr.s_addr), (unsigned short) ntohs(peer_addr.sin_port), p_tcp_accept_callback_parameter);
+
+    // success
+    return 1;
+
+    // error handling
+    {
+
+        // Socket errors
+        {
+            failed_to_listen:
+                #ifndef NDEBUG
+                    printf("[secure socket] Call to function \"listen\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
             
-//             failed_to_connect:
-//                 #ifndef NDEBUG
-//                     printf("[secure socket] Call to function \"connect\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
-//                 #endif
+            failed_to_connect:
+                #ifndef NDEBUG
+                    printf("[secure socket] Call to function \"connect\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                #endif
 
-//                 // error
-//                 return 0;
-//         }
-//     }
-// }
+                // error
+                return 0;
+        }
+    }
+}
+
+int secure_socket_connect ( secure_socket *p_secure_socket, enum socket_address_family_e address_family, socket_ip_address ip_address, socket_port port_number )
+{
+
+    // argument check
+    if ( p_secure_socket == (void *) 0 ) goto no_secure_socket; 
+
+    struct sockaddr_in serv_addr =
+    {
+        .sin_family = (unsigned short) address_family,
+        .sin_addr.s_addr = (unsigned int) htonl((unsigned int)ip_address),
+        .sin_port = htons(port_number),
+        .sin_zero = { 0 }
+    };
+
+    // create the socket
+    p_secure_socket->_socket = socket((int) address_family, socket_type_tcp, IPPROTO_TCP);
+
+    // error check
+    if ( p_secure_socket->_socket == -1 ) goto failed_to_create_socket;
+    
+    // connect to the socket
+    if ( connect(p_secure_socket->_socket, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) ) goto failed_to_connect; 
+    
+    // handshake
+    {
+
+        // initialized data
+        unsigned char _server_hello[4096] = { 0 };
+        unsigned char _client_response_plain[4096] = { 0 };
+        unsigned char _client_response[4096] = { 0 };
+
+        // hello
+        {
+
+            // read the server hello
+            socket_tcp_receive
+            (
+                p_secure_socket->_socket,
+                _server_hello,
+                sizeof(_server_hello)
+            );
+
+            // unpack the server hello
+            public_key_unpack
+            (
+                &p_secure_socket->client._server_public_key, 
+                &_server_hello                               
+            );
+
+            // print the server's public key
+            print_public_key(&p_secure_socket->client._server_public_key);
+
+            // pack the client's private key using the server's public key
+            private_key_pack
+            (
+                _client_response_plain,                           
+                p_secure_socket->client.client_pair.p_private_key 
+            );
+
+            // encrypt the client's private key
+            enc
+            (
+                _client_response_plain,
+                _client_response,
+                &p_secure_socket->client._server_public_key
+            );
+
+            // send the client's private key to the server
+            socket_tcp_send(p_secure_socket->_socket, _client_response, sizeof(_client_response));
+        }
+
+        // 
+        {
+
+            // initialized data
+            aes256 *p_aes256 = NULL;
+
+            // construct a block cipher
+            aes256_construct(&p_aes256, (unsigned char *)p_secure_socket->client.client_pair.p_private_key);
+            
+            // send it 
+            socket_tcp_send(
+                p_secure_socket->_socket,
+                aes256_encrypt
+                (
+                    p_aes256,
+                    "Hello, World!",
+                    14
+                )
+            );
+
+            
+        }
+    }
+    
+    // success
+    return 1;
+
+    // error handling
+    {
+        
+        // argument errors
+        {
+            no_secure_socket:
+                #ifndef NDEBUG
+                    printf("[secure socket] Null pointer provided for parameter \"p_secure_socket\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // Socket errors
+        {
+            failed_to_create_socket:
+                #ifndef NDEBUG
+                    printf("[secure socket] Call to function \"socket\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            failed_to_connect:
+                #ifndef NDEBUG
+                    printf("[secure socket] Call to function \"connect\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
 
 // int secure_socket_receive ( secure_socket _secure_socket, void *p_buffer, size_t buffer_len )
 // {
@@ -207,93 +385,6 @@
 //             failed_to_send:
 //                 #ifndef NDEBUG
 //                     printf("[secure socket] Call to \"send\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
-//                 #endif
-
-//                 // error
-//                 return 0;
-//         }
-//     }
-// }
-
-// int secure_socket_connect ( secure_socket *const p_secure_socket, enum socket_address_family_e address_family, socket_ip_address ip_address, socket_port port_number )
-// {
-
-//     // argument check
-//     if ( p_secure_socket == (void *) 0 ) goto no_secure_socket; 
-
-//     // Platform specific initialized data
-//     #ifdef _WIN64
-//         secure_socket _secure_socket = INVALID_SOCKET;
-//     #else
-//         secure_socket _secure_socket = -1;
-//         struct sockaddr_in serv_addr =
-//         {
-//             .sin_family = (unsigned short) address_family,
-//             .sin_addr.s_addr = (unsigned int) htonl((unsigned int)ip_address),
-//             .sin_port = htons(port_number),
-//             .sin_zero = { 0 }
-//         };
-//     #endif
-
-//     // Platform specific implementation
-//     #ifdef _WIN64
-
-
-//     #elif __APPLE__
-
-//         // Create the socket
-//         _secure_socket = socket((int) address_family, socket_type_tcp, IPPROTO_TCP);
-
-//         // error check
-//         if ( _secure_socket == -1 ) goto failed_to_create_socket;
-        
-//         // Connect to the socket
-//         if ( connect(_secure_socket, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) ) goto failed_to_connect; 
-//     #else
-
-//         // Create the socket
-//         _secure_socket = socket((int) address_family, socket_type_tcp, IPPROTO_TCP);
-
-//         // error check
-//         if ( _secure_socket == -1 ) goto failed_to_create_socket;
-        
-//         // Connect to the socket
-//         if ( connect(_secure_socket, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) ) goto failed_to_connect; 
-//     #endif
-
-//     // Return a socket to the caller
-//     *p_secure_socket = _secure_socket;
-
-//     // success
-//     return 1;
-
-//     // error handling
-//     {
-        
-//         // argument errors
-//         {
-//             no_secure_socket:
-//                 #ifndef NDEBUG
-//                     printf("[secure socket] Null pointer provided for parameter \"p_secure_socket\" in call to function \"%s\"\n", __FUNCTION__);
-//                 #endif
-
-//                 // error
-//                 return 0;
-//         }
-
-//         // Socket errors
-//         {
-//             failed_to_create_socket:
-//                 #ifndef NDEBUG
-//                     printf("[secure socket] Call to function \"socket\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
-//                 #endif
-
-//                 // error
-//                 return 0;
-
-//             failed_to_connect:
-//                 #ifndef NDEBUG
-//                     printf("[secure socket] Call to function \"connect\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
 //                 #endif
 
 //                 // error
