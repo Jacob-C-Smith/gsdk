@@ -15,13 +15,6 @@
 #include <string.h>
 #include <errno.h>
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <unistd.h>
-
 // Platform dependent includes
 #ifdef _WIN64
     #include <Winsock2.h>
@@ -41,21 +34,21 @@ typedef unsigned short socket_port;
 // Platform dependent enumerations
 #ifdef _WIN64
     enum socket_address_family_e {
-        socket_address_family_ipv4 = AF_INET,
-        socket_address_family_ipv6 = AF_INET6,
+        socket_address_family_ipv4 = 2,    // AF_INET
+        socket_address_family_ipv6 = 10,   // AF_INET6
     };
     enum socket_protocol_e {
-        socket_type_tcp = SOCK_STREAM,
-        socket_type_udp = SOCK_DGRAM
+        socket_type_tcp = 1,   // SOCK_STREAM
+        socket_type_udp = 2    // SOCK_DGRAM
     };
 #else
     enum socket_address_family_e {
-        socket_address_family_ipv4 = AF_INET,
-        socket_address_family_ipv6 = AF_INET6,
+        socket_address_family_ipv4 = 2,    // AF_INET
+        socket_address_family_ipv6 = 10,   // AF_INET6
     };
     enum socket_protocol_e {
-        socket_type_tcp = SOCK_STREAM,
-        socket_type_udp = SOCK_DGRAM
+        socket_type_tcp = 1,   // SOCK_STREAM
+        socket_type_udp = 2    // SOCK_DGRAM
     };
 #endif
 

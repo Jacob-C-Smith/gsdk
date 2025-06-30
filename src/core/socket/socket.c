@@ -6,15 +6,18 @@
  * @author Jacob Smith
  */
 
-// Include 
-#include <core/socket.h>
+#define _POSIX_C_SOURCE 200112L
 
+// System headers
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
+
+// Project header
+#include <core/socket.h>
 
 int socket_tcp_create ( socket_tcp *const p_socket_tcp, enum socket_address_family_e address_family, unsigned short port_number )
 {
@@ -343,19 +346,16 @@ int socket_tcp_connect ( socket_tcp *const p_socket_tcp, enum socket_address_fam
 
 int socket_resolve_host ( socket_ip_address *p_ip_address, const char *restrict p_hostname )
 {
-
     // initialized data
-    struct addrinfo  hints = { 0 },
-                    *addr_result = 0;
+    struct addrinfo hints;
+    struct addrinfo *addr_result = 0;
     struct sockaddr_in *ipv4 = (void *) 0;
     int result = 0;
 
     // Initialize the hints structure
-    hints = (struct addrinfo)
-    {
-        .ai_family   = AF_INET,
-        .ai_socktype = SOCK_STREAM
-    };
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family   = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
 
     // Get address info
     result = getaddrinfo(p_hostname, NULL, &hints, &addr_result);
@@ -365,22 +365,22 @@ int socket_resolve_host ( socket_ip_address *p_ip_address, const char *restrict 
 
     // Store the address
     ipv4 = (struct sockaddr_in *)addr_result->ai_addr;
-
     *p_ip_address = ntohl(ipv4->sin_addr.s_addr);
+
+    // Free the address info
+    freeaddrinfo(addr_result);
 
     // success
     return 1;
 
     // error handling
     {
-
         // Socket errors
         {
             failed_to_resolve_address:
                 #ifndef NDEBUG
                     printf("[socket] Failed to resolve hostname \"%s\" in call to function \"%s\". Network database says: %s", p_hostname, __FUNCTION__, gai_strerror(result));
                 #endif
-
                 // error
                 return 0;
         }

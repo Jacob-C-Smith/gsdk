@@ -1571,9 +1571,11 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
                     done:
                     written_characters += fprintf(p_f,"}");
                     
-                    // Done
-                    break;
+                    
                 }
+                
+                // Done
+                break;
             }
             
             // Print an array

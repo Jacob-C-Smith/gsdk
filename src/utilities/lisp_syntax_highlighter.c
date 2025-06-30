@@ -52,7 +52,7 @@ int main ( int argc, const char *argv[] )
             case ')':
 
                 // Restore the previous state
-                stack_pop(p_stack, &state);
+                stack_pop(p_stack, (void *) &state);
 
                 printf("\033[0m)\033[%dm", state > 0 ? 31 : 34);
                 continue;
