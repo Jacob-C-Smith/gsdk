@@ -38,17 +38,6 @@ typedef enum socket_address_family_e socket_address_family;
 typedef unsigned long socket_ip_address;
 typedef unsigned short socket_port;
 
-enum socket_address_family_e
-{
-    socket_address_family_ipv4 = AF_INET,
-    socket_address_family_ipv6 = AF_INET6,
-};
-enum socket_protocol_e
-{
-    socket_type_tcp = SOCK_STREAM,
-    socket_type_udp = SOCK_DGRAM
-};
-
 // type definitions
 typedef int(*fn_secure_socket_accept)( secure_socket *p_secure_socket, socket_ip_address ip_address, socket_port port_number, void *const p_parameter );
 

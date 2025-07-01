@@ -254,21 +254,21 @@ int secure_socket_connect ( secure_socket *p_secure_socket, enum socket_address_
         {
 
             // initialized data
-            aes256 *p_aes256 = NULL;
+            // aes256 *p_aes256 = NULL;
 
             // construct a block cipher
-            aes256_construct(&p_aes256, (unsigned char *)p_secure_socket->client.client_pair.p_private_key);
+            // aes256_construct(&p_aes256, (unsigned char *)p_secure_socket->client.client_pair.p_private_key);
             
             // send it 
-            socket_tcp_send(
-                p_secure_socket->_socket,
-                aes256_encrypt
-                (
-                    p_aes256,
-                    "Hello, World!",
-                    14
-                )
-            );
+            // socket_tcp_send(
+            //     p_secure_socket->_socket,
+            //     aes256_encrypt
+            //     (
+            //         p_aes256,
+            //         "Hello, World!",
+            //         14
+            //     )
+            // );
 
             
         }

@@ -6,6 +6,9 @@
  * @author Jacob Smith
  */
 
+// header guard
+#pragma once
+
 // standard library
 #include <stdio.h>
 #include <stdlib.h>
