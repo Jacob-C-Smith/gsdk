@@ -1,10 +1,6 @@
-# double-queue
-[![CMake](https://github.com/Jacob-C-Smith/double-queue/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/double-queue/actions/workflows/cmake.yml)
+# [gsdk](../../README.md) > [data](../data.md) > double queue
 
-**Dependencies:**\
-[![log](https://github.com/Jacob-C-Smith/log/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/log/actions/workflows/cmake.yml) [![sync](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml)
-
- A minimal, thread-safe double queue written in C. 
+## Specialized FIFO; Enqueue and dequeue from both ends
 
  > 1 [Download](#download)
  >

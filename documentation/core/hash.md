@@ -1,6 +1,6 @@
-# hash 
+# [gsdk](../../README.md) > [core](../core.md) > hash
 
-Hashing functions
+## Hashing functions
 
  > 1 [Example](#example)
  >

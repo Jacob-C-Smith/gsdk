@@ -1,11 +1,5 @@
-# tree
-[![CMake](https://github.com/Jacob-C-Smith/tree/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/Jacob-C-Smith/tree/actions/workflows/cmake.yml)
-
-**Dependencies:**\
-[![sync](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml)
-
- Implementation of different tree structures in C
- 
+# [gsdk](../../README.md) > [data](../data.md) > tree
+## Heierarchical structure of nodes
  > 1 [Download](#download)
  >
  > 2 [Build](#build)

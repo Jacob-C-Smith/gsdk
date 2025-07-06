@@ -1,7 +1,6 @@
-# socket
-[![socket](https://github.com/Jacob-C-Smith/socket/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/socket/actions/workflows/cmake.yml)
+# [gsdk](../../README.md) > [core](../core.md) > socket
 
- Cross platform networking primatives 
+## Cross platform networking primatives 
  
  > 1 [Download](#download)
  >

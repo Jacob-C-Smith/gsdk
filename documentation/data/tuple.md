@@ -1,5 +1,6 @@
-# <img src="https://icon.g10.app/tuple.png" style="width:32px"> tuple
+# [gsdk](../../README.md) > [data](../data.md) > tuple
 
+## Immutable, iterable, integer indexed collection
  > 1 [Example](#example)
  >
  > 2 [Definitions](#definitions)

@@ -37,20 +37,20 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 🏗️ → Work in progress<br>
 ❓ → Thinking about it
 <details open>
-    <summary>core</summary>
+    <summary><a href="documentation/core.md">core</a></summary>
     <ul>
-        <li>✔️ <a href="./src/core/hash/README.md">hash</a></li>
-        <li>✔️ <a href="./src/core/log/README.md">log</a></li>
-        <li>✔️ <a href="./src/core/sync/README.md">sync</a></li>
-        <li>🧪 <a href="./src/reflection/pack/README.md">pack</a></li>
-        <li>🏗️ <a href="./src/core/crypto/README.md">crypto</a></li>
-        <li>🏗️ <a href="./src/core/interfaces/README.md">interfaces</a></li>
-        <li>🏗️ <a href="./src/core/socket/README.md">socket</a></li>
+        <li>✔️ <a href="./documentation/core/hash.md">hash</a></li>
+        <li>✔️ <a href="./documentation/core/log.md">log</a></li>
+        <li>✔️ <a href="./documentation/core/sync.md">sync</a></li>
+        <li>🧪 <a href="./documentation/core/pack.md">pack</a></li>
+        <li>🏗️ <a href="./documentation/core/crypto.md">crypto</a></li>
+        <li>🏗️ <a href="./documentation/core/interfaces.md">interfaces</a></li>
+        <li>🏗️ <a href="./documentation/core/socket.md">socket</a></li>
     </ul>
 </details>
 
 <details open>
-    <summary>data</summary>
+    <summary><a href="documentation/data.md">data</a></summary>
     <ul>
         <li>✔️ <a href="./src/data/array/README.md">array</a></li>
         <li>✔️ <a href="./src/data/circular_buffer/README.md">circular buffer</a></li>
@@ -72,7 +72,7 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 </details>
 
 <details open>
-    <summary>reflection</summary>
+    <summary><a href="documentation/reflection.md">reflection</a></summary>
     <ul>
         <li>✔️ <a href="./src/reflection/base64/README.md">base64</a></li>
         <li>✔️ <a href="./src/reflection/json/README.md">json</a></li>
@@ -82,15 +82,12 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 </details>
 
 <details open>
-    <summary>performance</summary>
+    <summary><a href="documentation/performance.md">performance</a></summary>
     <ul>
         <li>🧪 <a href="./src/performance/parallel/README.md">parallel</a></li>
         <li>🏗️ <a href="./src/lang/code_gen/README.md">code gen</a></li>
-        <li>🏗️ <a href="./src/performance/renderer/README.md">renderer</a></li>
-        <li>🏗️ <a href="./src/performance/web/README.md">web</a></li>
         <li>❓ <a href="./src/performance/allocator/README.md">allocator</a></li>
         <li>❓ <a href="./src/performance/distribute/README.md">distribute</a></li>
-        <li>❓ <a href="./src/performance/regex/README.md">regex</a></li>
     </ul>
 </details>
 

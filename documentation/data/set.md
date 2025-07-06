@@ -1,12 +1,7 @@
-# set
-[![CMake](https://github.com/Jacob-C-Smith/set/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/set/actions/workflows/cmake.yml)
- 
-**Dependencies:**\
-[![sync](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml)
-[![log](https://github.com/Jacob-C-Smith/log/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/log/actions/workflows/cmake.yml)
+# [gsdk](../../README.md) > [data](../data.md) > set
 
- A minimal, thread-safe set implementation written in C. 
- 
+## Mutable, unique collection
+
  > 0 [Try it](#try-it)
  >
  > 1 [Download](#download)

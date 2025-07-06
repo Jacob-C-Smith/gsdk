@@ -1,7 +1,6 @@
-# pack
-[![CMake](https://github.com/Jacob-C-Smith/pack/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/Jacob-C-Smith/pack/actions/workflows/cmake.yml)
+# [gsdk](../../README.md) > [core](../core.md) > pack
 
- Pack and unpack binary data
+## Pack and unpack binary data
 
  > 0 [Motivation](#motivation)
  >

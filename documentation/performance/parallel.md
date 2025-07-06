@@ -1,34 +1,16 @@
-# parallel
-[![CMake](https://github.com/Jacob-C-Smith/parallel/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/Jacob-C-Smith/parallel/actions/workflows/cmake.yml)
+# [gsdk](../../README.md) > [performance](../performance.md)
 
-**Dependencies:**\
-[![sync](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml)
-[![crypto](https://github.com/Jacob-C-Smith/crypto/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/crypto/actions/workflows/cmake.yml)
-[![dict](https://github.com/Jacob-C-Smith/dict/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/dict/workflows/cmake.yml)
-[![array](https://github.com/Jacob-C-Smith/array/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/arrayon/actions/workflows/cmake.yml)
-[![json](https://github.com/Jacob-C-Smith/json/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/json/actions/workflows/cmake.yml)
-[![log](https://github.com/Jacob-C-Smith/log/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/log/actions/workflows/cmake.yml)
-[![sync](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml)
-
- High level abstractions for parallel computing
+## High level abstractions for parallel computing
  
- > 0 [Try it](#try-it)
+ > 1 [Example](#example)
  >
- > 1 [Download](#download)
+ >> 1.1 [Example output](#example-output)
  >
- > 2 [Build](#build)
+ > 2 [Definitions](#definitions)
  >
- > 3 [Example](#example)
- >
- >> 3.1 [Example output](#example-output)
- >
- > 4 [Tester](#tester)
- >
- > 5 [Definitions](#definitions)
- >
- >> 5.1 [Type definitions](#type-definitions)
+ >> 2.1 [Type definitions](#type-definitions)
  >>
- >> 5.2 [Function definitions](#function-definitions)
+ >> 2.2 [Function definitions](#function-definitions)
 
 ## Try it
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Jacob-C-Smith/parallel?quickstart=1)

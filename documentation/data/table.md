@@ -1,11 +1,5 @@
-# table
-[![CMake](https://github.com/Jacob-C-Smith/table/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/table/actions/workflows/cmake.yml)
- 
-**Dependencies:**\
-[![CMake](https://github.com/Jacob-C-Smith/tuple/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/Jacob-C-Smith/tuple/actions/workflows/cmake.yml) [![sync](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml)
-
- A minimal, thread-safe table implementation written in C. 
- 
+# [gsdk](../../README.md) > [data](../data.md) > table
+## Collection of related data organized into columns and rows
  > 1 [Download](#download)
  >
  > 2 [Build](#build)

@@ -1,1 +1,0 @@
-../../src/core/hash_cache/README.md
