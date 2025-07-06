@@ -32,19 +32,16 @@ ROOT_DIR     = $(shell pwd)
 
 # Core libraries
 CORE_LIBS = log sync pack crypto interfaces hash socket
-# Data structure libraries
 DATA_LIBS = array bitmap circular_buffer dict tree tuple priority_queue queue stack
-# Reflection
 REFLECTION_LIBS = base64 json
-# Performance libraries
 PERFORMANCE_LIBS = parallel
-# Lists of libraries
+
+# Lists of targets
 LIBS = $(CORE_LIBS) $(DATA_LIBS) $(REFLECTION_LIBS) $(PERFORMANCE_LIBS)
-# Lists of tests
 TESTS = $(DATA_LIBS) $(REFLECTION_LIBS)
-# List of utilities
 UTILS = rsa_key_generator rsa_key_info hash_optimal lisp_syntax_highlighter aes_assert secure_socket_client secure_socket_server
 
+# Phony targets
 .PHONY: all clean libs examples utils tests
 
 #############
@@ -126,7 +123,6 @@ examples: $(addprefix $(BUILD_EXAMPLE_DIR)/, $(addsuffix _example, $(LIBS)))
 $(BUILD_EXAMPLE_DIR):
 	@mkdir -p $@
 
-# Explicit example targets
 $(BUILD_EXAMPLE_DIR)/log_example: $(EXAMPLES_DIR)/log_example.c $(BUILD_LIB_DIR)/log.$(SHARED_EXT) | $(BUILD_EXAMPLE_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^
 
@@ -213,9 +209,9 @@ $(BUILD_UTIL_DIR)/secure_socket_server: $(UTILS_DIR)/secure_socket_server.c | $(
 $(BUILD_UTIL_DIR)/secure_socket_client: $(UTILS_DIR)/secure_socket_client.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/crypto.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/socket.$(SHARED_EXT)
 
-###########
-# Tests   #
-###########
+#########
+# Tests #
+#########
 tests: $(BUILD_TEST_DIR)/array_test $(BUILD_TEST_DIR)/bitmap_test $(BUILD_TEST_DIR)/circular_buffer_test $(BUILD_TEST_DIR)/dict_test $(BUILD_TEST_DIR)/tree_test $(BUILD_TEST_DIR)/tuple_test $(BUILD_TEST_DIR)/priority_queue_test $(BUILD_TEST_DIR)/queue_test $(BUILD_TEST_DIR)/stack_test $(BUILD_TEST_DIR)/base64_test $(BUILD_TEST_DIR)/json_test
 
 $(BUILD_TEST_DIR):
@@ -254,8 +250,8 @@ $(BUILD_TEST_DIR)/base64_test: $(TESTS_DIR)/base64_test.c | $(BUILD_TEST_DIR)
 $(BUILD_TEST_DIR)/json_test: $(TESTS_DIR)/json_test.c | $(BUILD_TEST_DIR)
 	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/json.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/array.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/dict.$(SHARED_EXT)
 
-###########
-# Clean   #
-###########
+#########
+# Clean #
+#########
 clean:
 	rm -rf $(BUILD_LIB_DIR) $(BUILD_EXAMPLE_DIR) $(BUILD_TEST_DIR) $(BUILD_UTIL_DIR)
