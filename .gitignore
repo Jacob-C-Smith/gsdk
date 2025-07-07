@@ -1,4 +1,5 @@
 .vscode/*
+!.vscode/launch.json
 build/*
 .ignore/
 src/utilities/__pycache__/

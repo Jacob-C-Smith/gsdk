@@ -1,7 +1,7 @@
 /** !
  * Tester for pack module
  * 
- * @file pack_test.c
+ * @file src/test/pack_test.c
  * 
  * @author Jacob Smith
  */
@@ -81,9 +81,6 @@ void test_pack_i64   ( char *name );
 void test_pack_f32   ( char *name );
 void test_pack_f64   ( char *name );
 void test_pack_s     ( char *name );
-// void test_pack_mixed ( char *name );
-
-
 
 // entry point
 int main ( int argc, const char* argv[] )
