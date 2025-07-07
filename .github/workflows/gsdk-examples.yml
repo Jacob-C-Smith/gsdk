@@ -37,5 +37,5 @@ jobs:
       - name: reflection
         run: |
           ${{github.workspace}}/build/examples/pack_example
-          ${{github.workspace}}/build/examples/json_example ${{github.workspace}}/resources/reflection/example.json
+          ${{github.workspace}}/build/examples/json_example ${{github.workspace}}/resources/reflection/json_example_1.json
           ${{github.workspace}}/build/examples/base64_example
