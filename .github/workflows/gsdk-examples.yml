@@ -1,29 +1,29 @@
-name: examples
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-jobs: 
-  examples:
+jobs:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: make
-        run: |
-          make
-          
-      - name: core
+        run: make
+
+  core:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run core examples
         run: |
           ${{github.workspace}}/build/examples/hash_example
           ${{github.workspace}}/build/examples/log_example
           ${{github.workspace}}/build/examples/pack_example
-          #${{github.workspace}}/build/examples/socket_example
           ${{github.workspace}}/build/examples/sync_example
 
-      - name: data
+  data:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run data examples
         run: |
           ${{github.workspace}}/build/examples/array_example
           ${{github.workspace}}/build/examples/circular_buffer_example
@@ -34,7 +34,12 @@ jobs:
           ${{github.workspace}}/build/examples/tree_example
           ${{github.workspace}}/build/examples/tuple_example
 
-      - name: reflection
+  reflection:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run reflection examples
         run: |
           ${{github.workspace}}/build/examples/pack_example
           ${{github.workspace}}/build/examples/json_example ${{github.workspace}}/resources/reflection/json_example_1.json
