@@ -28,7 +28,7 @@ jobs:
         run: |
 
   pack:
-    needs: data
+    needs: core
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
