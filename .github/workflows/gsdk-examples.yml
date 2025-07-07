@@ -110,7 +110,7 @@ jobs:
           chmod +x ${{github.workspace}}/build/examples/array_example
           ${{github.workspace}}/build/examples/array_example
   
-  circular\ buffer:
+  circular_buffer:
     needs: data
     runs-on: ubuntu-latest
     steps:
@@ -140,7 +140,7 @@ jobs:
           chmod +x ${{github.workspace}}/build/examples/dict_example
           ${{github.workspace}}/build/examples/dict_example
   
-  priority\ queue:
+  priority_queue:
     needs: data
     runs-on: ubuntu-latest
     steps:
