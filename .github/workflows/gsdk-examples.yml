@@ -224,7 +224,7 @@ jobs:
         run: |
 
   base64:
-    needs: data
+    needs: reflection
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -239,7 +239,7 @@ jobs:
           ${{github.workspace}}/build/examples/base64_example
   
   json:
-    needs: data
+    needs: reflection
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
