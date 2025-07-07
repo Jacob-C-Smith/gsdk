@@ -9,86 +9,21 @@
 // header
 #include <data/array.h>
 
+// core
+#include <core/log.h>
+#include <core/pack.h>
+#include <core/sync.h>
+
 // structure definitions
 struct array_s
 {
-    size_t   count,         // Quantity of elements in array
-             max;           // Quantity of elements array can hold 
-    mutex    _lock;         // locked when writing values
-    void    **p_p_elements; // Array contents
+    size_t   count,         // quantity of elements in an array
+             max;           // maximum quantity of elements in an array 
+    mutex    _lock;         // lock
+    void    **p_p_elements; // elements
 };
 
-// Data
-static bool initialized = false;
-
-void array_init ( void ) 
-{
-
-    // State check
-    if ( initialized == true ) return;
-
-    // Initialize the sync library
-    sync_init();
-    
-    // Initialize the log library
-    log_init();
-
-    // Set the initialized flag
-    initialized = true;
-
-    // Done
-    return; 
-}
-
-int array_create ( array **const pp_array )
-{
-
-    // argument check
-    if ( pp_array == (void *) 0 ) goto no_array;
-
-    // Allocate memory for an array
-    array *p_array = realloc(0, sizeof(array));
-
-    // error checking
-    if ( p_array == (void *) 0 ) goto no_mem;
-
-    // Zero set
-    memset(p_array, 0, sizeof(array));
-
-    // Return the allocated memory
-    *pp_array = p_array;
-
-    // success
-    return 1;
-
-    // error handling
-    {
-
-        // argument errors
-        {
-            no_array:
-                #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for parameter \"pp_array\" in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error 
-                return 0;
-        }
-
-        // standard library errors
-        {
-            no_mem:
-                #ifndef NDEBUG
-                    log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-                
-                // error
-                return 0;
-        }
-    }
-}
-
-int array_construct ( array **const pp_array, size_t size )
+int array_construct ( array **pp_array, size_t size )
 {
 
     // argument check
@@ -96,22 +31,22 @@ int array_construct ( array **const pp_array, size_t size )
     if ( size     == 0          ) goto zero_size;
 
     // initialized data
-    array *p_array = 0;
+    array *p_array = realloc(0, sizeof(array));
 
-    // Allocate an array
-    if ( array_create(&p_array) == 0 ) goto failed_to_create_array;
-    
-    // Set the count and max
+    // error checking
+    if ( NULL == p_array ) goto no_mem;
+
+    // initialize the array
     p_array->count = 0,
-    p_array->max   = size;
+    p_array->max   = size,
 
-    // Allocate "size" number of properties
+    // allocate memory for the array contents
     p_array->p_p_elements = realloc(0, p_array->max * sizeof(void *));
 
     // error checking
     if ( p_array->p_p_elements == (void *) 0 ) goto no_mem;
 
-    // Create a mutex
+    // create a mutex
     if ( mutex_create(&p_array->_lock) == 0 ) goto failed_to_create_mutex;
 
     // return a pointer to the caller
@@ -141,17 +76,20 @@ int array_construct ( array **const pp_array, size_t size )
                 // error 
                 return 0;   
         }
-
-        // Array errors
+        
+        // standard library errors
         {
-            failed_to_create_array:
+            no_mem:
                 #ifndef NDEBUG
-                    log_error("[array] Failed to create array in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
-
+                
                 // error 
                 return 0;
-            
+        }
+
+        // sync errors
+        {
             failed_to_create_mutex:
                 #ifndef NDEBUG
                     log_error("[array] Failed to create mutex in call to function \"%s\"\n", __FUNCTION__);
@@ -160,44 +98,28 @@ int array_construct ( array **const pp_array, size_t size )
                 // error 
                 return 0;
         }
-
-        // standard library errors
-        {
-            no_mem:
-                #ifndef NDEBUG
-                    log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error 
-                return 0;
-        }
     }
 }
 
-int array_from_elements ( array **pp_array, void *_p_elements[] )
+int array_from_elements ( array **pp_array, void *_p_elements[], size_t size )
 {
 
     // argument check
-    if ( pp_array == (void *) 0 ) goto no_array;
-    if ( _p_elements == (void *) 0 ) goto no_elements;
+    if ( NULL == pp_array    ) goto no_array;
+    if ( NULL == _p_elements ) goto no_elements;
+    if ( 0    == size        ) goto zero_size;
 
     // initialized data
-    array  *p_array       = 0;
-    size_t  element_count = 0;
+    array *p_array = NULL;
 
-    // Count elements
-    while( _p_elements[++element_count] );
+    // allocate an array
+    if ( array_construct(&p_array, size) == 0 ) goto failed_to_allocate_array;        
 
-    // Allocate an array
-    if ( array_construct(&p_array, element_count) == 0 ) goto failed_to_allocate_array;        
-
-    // Iterate over each key
+    // copy each element
     for (size_t i = 0; _p_elements[i]; i++)
-
-        // Add the key to the array
         array_add(p_array, _p_elements[i]);
 
-    // Return
+    // return a pointer to the caller
     *pp_array = p_array;
 
     // success
@@ -223,9 +145,17 @@ int array_from_elements ( array **pp_array, void *_p_elements[] )
 
                 // error 
                 return 0;
+
+            zero_size:
+                #ifndef NDEBUG
+                    log_error("[array] Zero provided for parameter \"size\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error 
+                return 0;   
         }
 
-        // Array errors
+        // array errors
         {
             failed_to_allocate_array:
                 #ifndef NDEBUG
@@ -238,32 +168,33 @@ int array_from_elements ( array **pp_array, void *_p_elements[] )
     }
 }
 
-int array_from_arguments ( array **const pp_array, size_t size, size_t element_count, ... )
+int array_from_arguments ( array **pp_array, size_t size, size_t count, ... )
 {
 
     // argument check
     if ( pp_array == (void *) 0 ) goto no_array;
+    if ( 0        >= count      ) goto negative_count;
 
     // uninitialized data
     va_list list;
 
     // initialized data
-    array *p_array = 0;
+    array *p_array = NULL;
 
     // Initialize the variadic list
-    va_start(list, element_count);
+    va_start(list, count);
 
     // Allocate an array
     if ( array_construct(&p_array, size) == 0 ) goto failed_to_allocate_array;        
 
     // Iterate over each key
-    for (size_t i = 0; i < element_count; i++)
+    for (size_t i = 0; i < count; i++)
 
         // Add the key to the array
         array_add(p_array, va_arg(list, void *));
     
     // Update the element count
-    p_array->count = element_count;
+    p_array->count = count;
 
     // End the variadic list
     va_end(list);
@@ -286,9 +217,18 @@ int array_from_arguments ( array **const pp_array, size_t size, size_t element_c
 
                 // error 
                 return 0;
+            
+            negative_count:
+                #ifndef NDEBUG
+                    log_error("[array] Parameter \"count\" was negative in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error 
+                return 0;
+            
         }
 
-        // Array errors
+        // array errors
         {
             failed_to_allocate_array:
                 #ifndef NDEBUG
@@ -301,7 +241,7 @@ int array_from_arguments ( array **const pp_array, size_t size, size_t element_c
     }
 }
 
-int array_index ( array *const p_array, signed index, void **const pp_value )
+int array_index ( array *p_array, signed index, void **const pp_value )
 {
 
     // argument errors
@@ -368,7 +308,7 @@ int array_index ( array *const p_array, signed index, void **const pp_value )
     }
 }
 
-int array_get ( array *const p_array, void **const pp_elements, size_t *const p_count )
+int array_get ( array *p_array, void **const pp_elements, size_t *const p_count )
 {
 
     // argument check
@@ -407,7 +347,7 @@ int array_get ( array *const p_array, void **const pp_elements, size_t *const p_
     }
 }
 
-int array_slice ( array *const p_array, void *pp_elements[], signed lower_bound, signed upper_bound )
+int array_slice ( array *p_array, void *pp_elements[], signed lower_bound, signed upper_bound )
 {
 
     // argument check
@@ -460,7 +400,7 @@ int array_slice ( array *const p_array, void *pp_elements[], signed lower_bound,
     }
 }
 
-bool array_is_empty ( array *const p_array )
+bool array_is_empty ( array *p_array )
 {
 
     // argument check
@@ -497,7 +437,7 @@ bool array_is_empty ( array *const p_array )
     }
 }
 
-size_t array_size ( array *const p_array )
+size_t array_size ( array *p_array )
 {
 
     // argument check
@@ -531,26 +471,27 @@ int array_add ( array *p_array, void *p_element )
     // lock
     mutex_lock(&p_array->_lock);
 
-    // Update the iterables
+    // update the iterables
     p_array->p_p_elements[p_array->count] = p_element;
 
-    // Increment the entry counter
+    // increment the entry counter
     p_array->count++;
 
-    // Resize iterable max?
+    // resize iterable max?
     if ( p_array->count >= p_array->max )
     {
     
-        // Double the size
+        // double the size
         p_array->max *= 2;
     
-        // Reallocate iterable arrays
+        // reallocate iterable arrays
         p_array->p_p_elements = realloc(p_array->p_p_elements, p_array->max * sizeof(void *));
     
         // error checking
-        if ( p_array == (void *) 0 ) goto no_mem;
+        if ( NULL == p_array->p_p_elements ) goto no_mem;
     }
     
+    // unlock
     mutex_unlock(&p_array->_lock);
 
     // success
@@ -630,7 +571,7 @@ int array_set ( array *p_array, signed index, void *p_value )
                 return 0;
         }
 
-        // Array errors
+        // array errors
         {
             bounds_error:
                 #ifndef NDEBUG
@@ -655,7 +596,7 @@ int array_set ( array *p_array, signed index, void *p_value )
     }
 }
 
-int array_remove ( array *const p_array, signed index, void **const pp_value )
+int array_remove ( array *p_array, signed index, void **const pp_value )
 {
 
     // argument check
@@ -713,7 +654,7 @@ int array_remove ( array *const p_array, signed index, void **const pp_value )
                 return 0;
         }
 
-        // Array errors
+        // array errors
         {
             bounds_error:
                 #ifndef NDEBUG
@@ -738,67 +679,23 @@ int array_remove ( array *const p_array, signed index, void **const pp_value )
     }
 }
 
-int array_clear ( array *const p_array )
+int array_sort ( array *p_array, fn_comparator *pfn_comparator )
 {
-
+    
     // argument check
-    if ( p_array == (void *) 0 ) goto no_array;
+    if ( NULL ==        p_array ) goto no_array;
+    if ( NULL == pfn_comparator ) goto no_fn_comparator;
 
     // lock
     mutex_lock(&p_array->_lock);
 
-    // Clear the entries
-    memset(p_array->p_p_elements, 0, sizeof(void*)*p_array->max);
-
-    // Clear the element counter
-    p_array->count = 0;
-
-    // unlock
-    mutex_unlock(&p_array->_lock);
-
-    // success
-    return 1;
-
-    // error handling
-    {
-        
-        // argument errors
-        {
-            no_array:
-                #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-
-        }
-    }
-}
-
-int array_free_clear ( array *const p_array, void (*const free_fun_ptr)(void *) )
-{
-
-    // argument check
-    if ( p_array      == (void *) 0 ) goto no_array;
-    if ( free_fun_ptr == (void *) 0 ) goto no_free_func;
-
-    // lock
-    mutex_lock(&p_array->_lock);
-
-    // Iterate over each element in the array
-    for (size_t i = 0; i < p_array->count; i++)
-    {
-        
-        // Call the free function
-        free_fun_ptr(p_array->p_p_elements[i]);
-
-        // Clear the reference from the array
-        p_array->p_p_elements[i] = 0;
-    }
-
-    // Clear the element counter
-    p_array->count = 0;
+    // sort
+    qsort(
+        p_array->p_p_elements, // array
+        p_array->count,        // quantity
+        sizeof(void *),        // size
+        pfn_comparator         // comparator
+    );
 
     // unlock
     mutex_unlock(&p_array->_lock);
@@ -819,9 +716,9 @@ int array_free_clear ( array *const p_array, void (*const free_fun_ptr)(void *) 
                 // error
                 return 0;
             
-            no_free_func:
+            no_fn_comparator:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"free_fun_ptr\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for \"pfn_comparator\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -829,13 +726,89 @@ int array_free_clear ( array *const p_array, void (*const free_fun_ptr)(void *) 
         }
     }
 }
- 
-int array_foreach_i ( array *const p_array, fn_array_foreach_i *pfn_array_foreach_i ) 
+
+int array_map ( array *const p_array, fn_map *pfn_map, fn_allocator *pfn_allocator )
 {
 
     // argument check
-    if ( p_array             == (void *) 0 ) goto no_array;
-    if ( pfn_array_foreach_i == (void *) 0 ) goto no_free_func;
+    if ( NULL == p_array ) goto no_array;
+    if ( NULL == pfn_map ) goto no_fn_map;
+
+    // lock
+    mutex_lock(&p_array->_lock);
+
+    // state check
+    if ( pfn_allocator ) goto map_with_allocator;
+
+    // iterate through each element in the array
+    for (size_t i = 0; i < p_array->count; i++)
+
+        // update
+        p_array->p_p_elements[i] = pfn_map(p_array->p_p_elements[i]);
+
+    done:
+
+    // unlock
+    mutex_unlock(&p_array->_lock);
+
+    // success
+    return 1;
+
+    // this branch handles map calls that invoke the allocator
+    map_with_allocator:
+    {
+
+        // iterate through each element in the array
+        for (size_t i = 0; i < p_array->count; i++)
+        {
+
+            // initialized data
+            void *p_old = p_array->p_p_elements[i],
+                 *p_new = NULL;
+
+            // update
+            p_new = pfn_map(p_array->p_p_elements[i]),
+            p_array->p_p_elements[i] = p_new;
+
+            // release
+            if ( p_old != p_new && pfn_allocator )
+                pfn_allocator(p_array, 0);
+        }
+
+        // done
+        goto done;
+    }
+
+    // error handling
+    {
+        
+        // argument errors
+        {
+            no_array:
+                #ifndef NDEBUG
+                    log_error("[array] Null pointer provided for \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+            
+            no_fn_map:
+                #ifndef NDEBUG
+                    log_error("[array] Null pointer provided for \"pfn_map\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int array_fori ( array *p_array, fn_fori *pfn_fori ) 
+{
+
+    // argument check
+    if ( NULL == p_array  ) goto no_array;
+    if ( NULL == pfn_fori ) goto no_fn_fori;
 
     // lock
     mutex_lock(&p_array->_lock);
@@ -844,7 +817,7 @@ int array_foreach_i ( array *const p_array, fn_array_foreach_i *pfn_array_foreac
     for (size_t i = 0; i < p_array->count; i++)
         
         // Call the function
-        pfn_array_foreach_i(p_array->p_p_elements[i], i);
+        pfn_fori(p_array->p_p_elements[i], i);
 
     // unlock
     mutex_unlock(&p_array->_lock);
@@ -865,9 +838,9 @@ int array_foreach_i ( array *const p_array, fn_array_foreach_i *pfn_array_foreac
                 // error
                 return 0;
             
-            no_free_func:
+            no_fn_fori:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"function\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for \"pfn_fori\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -876,7 +849,7 @@ int array_foreach_i ( array *const p_array, fn_array_foreach_i *pfn_array_foreac
     }
 }
 
-int array_log ( array *p_array, void *pfn_next, const char *const format, ... )
+int array_log ( array *p_array, void *pfn_next, const char *const restrict format, ... )
 {
 
     // argument check
@@ -1023,7 +996,7 @@ int array_unpack ( array **pp_array, void *p_buffer, fn_unpack *pfn_element )
     }
 }
 
-int array_destroy ( array **const pp_array )
+int array_destroy ( array **pp_array )
 {
 
     // argument check
@@ -1064,26 +1037,4 @@ int array_destroy ( array **const pp_array )
                 return 0;
         }
     }
-}
-
-void array_exit ( void ) 
-{
-
-    // State check
-    if ( initialized == false ) return;
-
-    // Clean up sync
-    sync_exit();
-
-    // Clean up log
-    log_exit();
-
-    // TODO: Anything else?
-    //
-
-    // Clear the initialized flag
-    initialized = false;
-
-    // Done
-    return;
 }

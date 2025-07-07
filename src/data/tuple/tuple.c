@@ -9,6 +9,11 @@
 // headers
 #include <data/tuple.h>
 
+// core
+#include <core/log.h>
+#include <core/pack.h>
+#include <core/sync.h>
+
 // structure definitions
 struct tuple_s
 {

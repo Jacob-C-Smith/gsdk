@@ -30,9 +30,6 @@ void parallel_init ( void )
     // Initialize the sync library
     sync_init();
 
-    // Initialize the array library
-    array_init();
-
     // Initialize the json library
     json_init();
 
@@ -81,9 +78,6 @@ void parallel_exit ( void )
 
     // Clean up the sync library
     sync_exit();
-
-    // Clean up the array library
-    array_exit();
 
     // Clean up the json library
     json_exit();

@@ -25,9 +25,6 @@ void json_init ( void )
     // Initialize the sync library
     sync_init();
 
-    // Initialize the array library
-    array_init();
-
     // Set the initialized flag
     initialized = true;
 
@@ -1700,7 +1697,7 @@ void json_value_free ( json_value *p_value )
         case JSON_VALUE_ARRAY:
 
             // Free each value from the array
-            array_free_clear(p_value->list, (void(*)(void *))json_value_free);
+            //array_free_clear(p_value->list, fjson_value_free);
 
             // Destroy the array
             array_destroy(&p_value->list);
@@ -1732,9 +1729,6 @@ void json_exit ( void )
 
     // Clean up the sync library
     sync_exit();
-
-    // Clean up the array library
-    array_exit();
 
     // Clear the initialized flag
     initialized = false;

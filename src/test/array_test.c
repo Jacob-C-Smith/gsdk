@@ -476,15 +476,6 @@ void run_tests ( void )
     // ... -> from_arguments(A, B, C) -> [A, B, C]
     test_three_element_array(construct_empty_fromargumentsABC_ABC, "empty_fromargumentsABC_ABC", (void **)ABC_elements);
     
-    // [A, B, C] -> clear() -> []
-    test_empty_array(construct_ABC_clear_empty, "ABC_clear_empty");
- 
-    // [A, B] -> clear() -> []
-    test_empty_array(construct_AB_clear_empty, "AB_clear_empty");
-
-    // [A] -> clear() -> []
-    test_empty_array(construct_A_clear_empty, "A_clear_empty");
-
     // [] -> add(A) -> [A]
     test_one_element_array(construct_empty_addA_A, "empty_addA_A", (void **)A_elements);
 
@@ -774,50 +765,11 @@ void construct_AB_addC_ABC ( array **pp_array )
     return;
 }
 
-void construct_ABC_clear_empty ( array **pp_array )
-{
-
-    // Construct an [A, B, C] array
-    construct_AB_addC_ABC(pp_array);
-
-    // [A, B, C] -> clear() -> []
-    array_clear(*pp_array);
-
-    // array = []
-    return;
-}
-
-void construct_AB_clear_empty ( array **pp_array )
-{
-
-    // Construct an [A, B] array
-    construct_A_addB_AB(pp_array);
-
-    // [A, B] -> clear() -> []
-    array_clear(*pp_array);
-
-    // array = []
-    return;
-}
-
-void construct_A_clear_empty ( array **pp_array )
-{
-
-    // Construct an [A] array
-    construct_empty_addA_A(pp_array);
-
-    // [A] -> clear() -> []
-    array_clear(*pp_array);
-
-    // array = []
-    return;
-}
-
 void construct_empty_fromelementsABC_ABC ( array **pp_array )
 {
 
     // ... -> from_elements(A, B, C) -> [A, B, C]
-    array_from_elements(pp_array, (void **)ABC_elements);
+    array_from_elements(pp_array, (void **)ABC_elements, 3);
     
     // array = [A, B, C]
     return;
@@ -827,7 +779,7 @@ void construct_empty_fromelementsAB_AB ( array **pp_array )
 {
 
     // ... -> from_elements(A, B) -> [A, B]
-    array_from_elements(pp_array, (void **)AB_elements);
+    array_from_elements(pp_array, (void **)AB_elements, 2);
 
     // array = [A, B]
     return;
@@ -837,7 +789,7 @@ void construct_empty_fromelementsA_A ( array **pp_array )
 {
 
     // ... -> from_elements(A) -> [A]
-    array_from_elements(pp_array, (void **)A_elements);
+    array_from_elements(pp_array, (void **)A_elements, 1);
 
     // array = [A]
     return;

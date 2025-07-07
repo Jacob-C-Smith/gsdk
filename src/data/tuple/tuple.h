@@ -17,8 +17,7 @@
 #include <stdarg.h>
 
 // core
-#include <core/log.h>
-#include <core/pack.h>
+#include <core/interfaces.h>
 
 // Debug mode
 #undef NDEBUG

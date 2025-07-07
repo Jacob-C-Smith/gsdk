@@ -12,6 +12,8 @@
 
 // log module
 #include <core/log.h>
+#include <core/sync.h>
+#include <core/pack.h>
 
 // tuple
 #include <data/tuple.h>

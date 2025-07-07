@@ -8,128 +8,334 @@
 
 // standard library
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
-// Include
+// core
+#include <core/log.h>
+#include <core/sync.h>
+#include <core/pack.h>
+
+// data
 #include <data/array.h>
 
+// enumeration definitions
+enum color_e
+{
+    RED            = 0,
+    ORANGE         = 1,
+    YELLOW         = 2,
+    GREEN          = 3,
+    BLUE           = 4,
+    PURPLE         = 5,
+    COLOR_QUANTITY = 6
+};
+
 // forward declarations
-int lower_case_string ( const void *const p_value, size_t i );
-int print_string ( const void *const p_value, size_t i );
+/// logs
+int checkpoint ( array *p_array, const char *p_event );
 
-int pack_string ( void *p_buffer, const void *const p_value )
+// string
+void  string_print ( void *p_value, int i );
+int   string_compare ( const void *const p_a, const void *const p_b );
+void *string_upper_case ( void *p_value );
+void *string_lower_case ( void *p_value );
+int   string_pack ( void *p_buffer, const void *const p_value );
+int   string_unpack ( void *const p_value, void *p_buffer );
+
+// data
+/// immutable color strings
+const char *_p_colors[COLOR_QUANTITY] =
 {
+    [RED]    = "Red",
+    [ORANGE] = "Orange",
+    [YELLOW] = "Yellow",
+    [GREEN]  = "Green",
+    [BLUE]   = "Blue",
+    [PURPLE] = "Purple"
+};
 
-    // success
-    return pack_pack(p_buffer, "%s", p_value);
-}
+/// file for reflection
+FILE *p_f = NULL;
 
-int unpack_string ( void *const p_value, void *p_buffer )
-{
-
-    // success
-    return pack_unpack(p_buffer, "%s", p_value);
-}
+/// working array
+array *p_array = NULL;
+size_t file_len = 0;
 
 // entry point
 int main ( int argc, const char* argv[] )
 {
 
-    // Supress compiler warnings
+    // unused
     (void) argc;
     (void) argv;
 
-    // initialized data
-    array *p_array           = (void *) 0;
-    char  *slice_of_array[]  = { 0, 0, (void *)0 };
-    char  *buf[1024] = { 0 };
-    FILE  *p_f = fopen("resources/reflection/array.bin", "wb");
-    size_t len = 0;
-
-    // Construct an array
-    array_from_arguments(&p_array, 4, 2, "Red", "Yellow");
-
-    // Add some elements
-    array_add(p_array, "Green");
-    array_add(p_array, "Blue");
-
-    // Print the arrays' elements
-    printf("Constructed array: \n"),
-    array_foreach_i(p_array, (fn_array_foreach_i *)lower_case_string);
-
-    // Get a slice of the array
-    array_slice(p_array, (void**)slice_of_array, 0, 1);
-
-    // Formatting
-    printf("\nSlice [1..2]\n");
-
-    // Print the array slice
-    for (int i = 0; i < 1; i++)
-        printf("[%d] : %s\n", i, slice_of_array[i]);
-
-    // Reflect the array to a buffer
-    len = array_pack(buf, p_array, pack_string),
+    // #0 - start
+    checkpoint(p_array, "start");
     
-    // Write the buffer to a file
-    fwrite(buf, len, 1, p_f),
-    memset(buf, 0, sizeof(buf)),
+    // #1 - initial
+    {
 
-    // Close the file
-    fclose(p_f),
+        // construct the array
+        array_construct(&p_array, 8);
 
-    // Destroy the array
-    array_destroy(&p_array),
+        // checkpoint
+        checkpoint(p_array, "after construction");
+    }
 
-    // Read a buffer from a file
-    p_f = freopen("resources/reflection/array.bin", "rb", p_f),
-    fread(buf, len, 1, p_f),
+    // #2 - add 
+    {
+
+        // add some colors
+        for (enum color_e _color = RED; _color < GREEN; _color++)
+            array_add(p_array, _p_colors[_color]);
+
+        // print the arrays' elements
+        checkpoint(p_array,"after adding < Red, Orange, Yellow >");
+    }
+
+    // #3 - map lower case
+    {
+
+        // convert the array elements to lower case
+        array_map(p_array, string_lower_case, 0);
+
+        // checkpoint
+        checkpoint(p_array, "after lower case map");
+    }
+
+    // #4 - add more
+    {
+        
+        // add some colors
+        for (enum color_e _color = GREEN; _color < COLOR_QUANTITY; _color++)
+            array_add(p_array, _p_colors[_color]);
+
+        // print the arrays' elements
+        checkpoint(p_array,"after adding < Green, Blue, Purple >");
+    }
+
+    // #5 - remove some
+    {
+        
+        // remove some colors
+        for (int i = 1; i < COLOR_QUANTITY; i += 3)
+            array_remove(p_array, i, 0);
+
+        // print the arrays' elements
+        checkpoint(p_array,"after removing < orange, Purple >");
+    }
+
+    // #6 - slice 
+    {
+
+        // initialized data
+        char *slice_of_array[] = { 0, 0, NULL };
+
+        // take a slice
+        array_slice(p_array, (void**)slice_of_array, 1, 2);
+
+        // formatting
+        printf("\nSlice [1..2]\n");
+
+        // print the array slice
+        for ( int i = 0; i < 2; i++ )
+            printf("[%d] : %s\n", i, slice_of_array[i]);
+        
+        // formatting
+        putchar('\n');
+
+        // checkpoint
+        checkpoint(p_array, "after slice");
+    }
+
+    // #7 - to binary
+    {
+
+        // initialized data
+        char buf[1024] = { 0 };
+        
+        // Open a file for writing
+        p_f = fopen("resources/reflection/array.bin", "wb");
+
+        // reflect the array to a buffer
+        file_len = array_pack(buf, p_array, string_pack),
+        
+        // write the buffer to a file
+        fwrite(buf, file_len, 1, p_f),
+
+        // close the file
+        fclose(p_f);
+
+        // checkpoint
+        checkpoint(p_array, "after serialize");
+    }
+
+    // #8 - map upper case
+    {
+
+        // convert the array elements to upper case
+        array_map(p_array, string_upper_case, 0);
+
+        // checkpoint
+        checkpoint(p_array, "after upper case map");
+    }
+
+    // #9 - destroy
+    {
+
+        // destroy the array
+        array_destroy(&p_array);
+
+        // checkpoint
+        checkpoint(p_array, "after destroy");
+    }
+
+    // #10 - from binary
+    {
+        
+        // initialized data
+        char buf[1024] = { 0 };
+        
+        // read a buffer from a file
+        p_f = fopen("resources/reflection/array.bin", "rb"),
+        fread(buf, file_len, 1, p_f),
+        
+        // reflect an array from the buffer
+        array_unpack(&p_array, buf, string_unpack),
+
+        // checkpoint
+        checkpoint(p_array, "after parse");
+    }
     
-    // Reflect an array from the buffer
-    array_unpack(&p_array, buf, unpack_string),
+    // #11 - sort
+    {
 
-    // Print the arrays' elements
-    printf("\nReflected array: \n"),
-    array_foreach_i(p_array, (fn_array_foreach_i *)print_string),
+        // sort the array
+        array_sort(p_array, string_compare);
 
-    // Destroy the array
-    array_destroy(&p_array);
+        // checkpoint
+        checkpoint(p_array, "after sort");
+    }
 
+    // #12 - destroy
+    {
+
+        // destroy the array
+        array_destroy(&p_array);
+
+        // checkpoint
+        checkpoint(p_array, "after destroy");
+    }
+
+    // #13 - end
+    checkpoint(p_array, "end");
+    
     // success
     return EXIT_SUCCESS;
 }
 
-// Print the arrays' elements
-int lower_case_string ( const void *const p_value, size_t i )
+int checkpoint ( array *p_array, const char *p_event )
+
 {
 
-    // Unused
-    (void) i;
-    
-    // initialized data
-    char _item[16] = { 0 };
-    size_t len = strlen(p_value);
-    
-    strncpy(_item, p_value, len);
+    // static data
+    static int step = 0;
 
-    for (size_t j = 0; j < len; j++)
-        _item[j] |= 0x20;
+    // print the array
+    if ( NULL == p_array )
+        log_info("#%d - Array %s: ", step, p_event),
+        printf("NULL\n");
+    else
+        log_info("#%d - Array %s:\n", step, p_event),
+        array_fori(p_array, string_print),
+        putchar('\n');
 
-    // Print the element
-    printf("%s\n", (const char *const)&_item);
-    
+    // increment counter
+    step++;
+
     // success
     return 1;
 }
 
-int print_string ( const void *const p_value, size_t i )
+void *string_upper_case ( void *p_value )
 {
 
-    // Unused
-    (void) i;
-    
-    // Print the element
-    printf("%s\n", (char *)p_value);
-    
+    // initialized data
+    char *p_string = strdup((char *)p_value),
+         *p_result = p_string;
+         
+    // iterate upto null terminator
+    while (*p_string)
+    {
+
+        // initialized data
+        char c = *p_string;
+
+        // convert offending characters
+        if ( islower(c) ) c = toupper(c);
+        
+        // store the upper case character
+        *p_string++ = c;
+    }
+
     // success
-    return 1;
+    return p_result;
+}
+
+void *string_lower_case ( void *p_value )
+{
+
+    // initialized data
+    char *p_string = strdup((char *)p_value),
+         *p_result = p_string;
+         
+    // iterate upto null terminator
+    while (*p_string)
+    {
+
+        // initialized data
+        char c = *p_string;
+
+        // convert offending characters
+        if ( isupper(c) ) c = tolower(c);
+        
+        // store the lower case character
+        *p_string++ = c;
+    }
+
+    // success
+    return p_result;
+}
+
+void string_print ( void *p_value, int i )
+{
+    
+    // print the element
+    printf("[%d] - %s\n", i, (char *)p_value);
+    
+    // done
+    return ;
+}
+
+int string_compare ( const void *const p_a, const void *const p_b )
+{
+    char *a = *(char **)p_a,
+         *b = *(char **)p_b;
+
+    return strcmp(a, b);
+}
+
+int string_pack ( void *p_buffer, const void *const p_value )
+{
+
+    // done
+    return pack_pack(p_buffer, "%s", p_value);
+}
+
+int string_unpack ( void *const p_value, void *p_buffer )
+{
+
+    // done
+    return pack_unpack(p_buffer, "%s", p_value);
 }
