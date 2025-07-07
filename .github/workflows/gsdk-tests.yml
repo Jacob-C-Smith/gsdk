@@ -27,6 +27,21 @@ jobs:
       - name: Run core tests
         run: |
 
+  pack:
+    needs: data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+      - name: Run pack test
+        run: |
+          chmod +x ${{github.workspace}}/build/tests/pack_test
+          ${{github.workspace}}/build/tests/pack_test
+  
   data:
     needs: build
     runs-on: ubuntu-latest
