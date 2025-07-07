@@ -235,8 +235,6 @@ jobs:
           path: build
       - name: Run json test
         run: |
-          ln -s ${{github.workspace}}/resources/test/json/test_cases ${{github.workspace}}/build/tests/test_cases
           chmod +x ${{github.workspace}}/build/tests/json_test
-          ls
           ${{github.workspace}}/build/tests/json_test 
           
