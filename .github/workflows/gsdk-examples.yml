@@ -67,23 +67,35 @@ jobs:
         run: |
           chmod +x ${{github.workspace}}/build/examples/log_example
           ${{github.workspace}}/build/examples/log_example
+
   hash:
     needs: core
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
       - name: Run hash example
         run: |
+          chmod +x ${{github.workspace}}/build/examples/hash_example
           ${{github.workspace}}/build/examples/hash_example
-  
+
   pack:
     needs: core
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
       - name: Run pack example
         run: |
-          ls
+          chmod +x ${{github.workspace}}/build/examples/pack_example
           ${{github.workspace}}/build/examples/pack_example
   
   sync:
@@ -91,6 +103,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
       - name: Run sync example
         run: |
+          chmod +x ${{github.workspace}}/build/examples/sync_example
           ${{github.workspace}}/build/examples/sync_example
