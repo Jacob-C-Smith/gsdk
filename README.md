@@ -18,10 +18,11 @@
 ---
 
 ## Features
-- **Core**: Logging, synchronization, sockets, hashing, and caching
+- **Core**: Interfaces, logging, synchronization, binary packing, cryptography, sockets, and hashing
 - **Data**: Arrays, maps, stacks, queues, sets, trees, graphs, and more
-- **Reflection**: JSON, base64, HTTP, and raw binart packing
-- **Examples**: Example programs for each component
+- **Reflection**: JSON and base64 
+- **Examples**: Example programs for each module
+- **Tests**: Test suites for many modules
 - **Documentation**: Detailed READMEs and extensive inline comments
 
 ## Getting started
