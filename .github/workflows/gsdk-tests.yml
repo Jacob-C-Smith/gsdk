@@ -1,0 +1,254 @@
+name: tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: make
+        run: make
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: build/
+
+  core:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run core examples
+        run: |
+
+  log:
+    needs: core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+      - name: Run log example
+        run: |
+          chmod +x ${{github.workspace}}/build/examples/log_test
+          ${{github.workspace}}/build/examples/log_test
+
+  hash:
+    needs: core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+      - name: Run hash example
+        run: |
+          chmod +x ${{github.workspace}}/build/examples/hash_test
+          ${{github.workspace}}/build/examples/hash_test
+
+  pack:
+    needs: core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+      - name: Run pack example
+        run: |
+          chmod +x ${{github.workspace}}/build/examples/pack_test
+          ${{github.workspace}}/build/examples/pack_test
+  
+  sync:
+    needs: core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+      - name: Run sync example
+        run: |
+          chmod +x ${{github.workspace}}/build/examples/sync_test
+          ${{github.workspace}}/build/examples/sync_test
+
+  data:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run data examples
+        run: |
+
+  array:
+    needs: data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+      - name: Run array example
+        run: |
+          chmod +x ${{github.workspace}}/build/examples/array_test
+          ${{github.workspace}}/build/examples/array_test
+  
+  circular_buffer:
+    needs: data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+      - name: Run circular buffer example
+        run: |
+          chmod +x ${{github.workspace}}/build/examples/circular_buffer_test
+          ${{github.workspace}}/build/examples/circular_buffer_test
+
+  dict:
+    needs: data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+      - name: Run dict example
+        run: |
+          chmod +x ${{github.workspace}}/build/examples/dict_test
+          ${{github.workspace}}/build/examples/dict_test
+  
+  priority_queue:
+    needs: data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+      - name: Run priority queue example
+        run: |
+          chmod +x ${{github.workspace}}/build/examples/priority_queue_test
+          ${{github.workspace}}/build/examples/priority_queue_test
+  
+  queue:
+    needs: data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+      - name: Run queue example
+        run: |
+          chmod +x ${{github.workspace}}/build/examples/queue_test
+          ${{github.workspace}}/build/examples/queue_test
+    
+  stack:
+    needs: data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+      - name: Run stack example
+        run: |
+          chmod +x ${{github.workspace}}/build/examples/stack_test
+          ${{github.workspace}}/build/examples/stack_test
+  
+  tree:
+    needs: data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+      - name: Run tree example
+        run: |
+          chmod +x ${{github.workspace}}/build/examples/tree_test
+          ${{github.workspace}}/build/examples/tree_test
+  
+  tuple:
+    needs: data
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+      - name: Run tuple example
+        run: |
+          chmod +x ${{github.workspace}}/build/examples/tuple_test
+          ${{github.workspace}}/build/examples/tuple_test
+  
+  reflection:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run reflection examples
+        run: |
+
+  base64:
+    needs: reflection
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+      - name: Run base64 example
+        run: |
+          chmod +x ${{github.workspace}}/build/examples/base64_test
+          ${{github.workspace}}/build/examples/base64_test
+  
+  json:
+    needs: reflection
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+      - name: Run json example
+        run: |
+          chmod +x ${{github.workspace}}/build/examples/json_test
+          ${{github.workspace}}/build/examples/json_test ${{github.workspace}}/resources/reflection/json_test_1.json
