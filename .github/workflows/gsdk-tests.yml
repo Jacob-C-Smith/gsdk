@@ -39,8 +39,8 @@ jobs:
           path: build
       - name: Run log example
         run: |
-          chmod +x ${{github.workspace}}/build/examples/log_test
-          ${{github.workspace}}/build/examples/log_test
+          chmod +x ${{github.workspace}}/build/tests/log_test
+          ${{github.workspace}}/build/tests/log_test
 
   hash:
     needs: core
@@ -54,8 +54,8 @@ jobs:
           path: build
       - name: Run hash example
         run: |
-          chmod +x ${{github.workspace}}/build/examples/hash_test
-          ${{github.workspace}}/build/examples/hash_test
+          chmod +x ${{github.workspace}}/build/tests/hash_test
+          ${{github.workspace}}/build/tests/hash_test
 
   pack:
     needs: core
@@ -69,8 +69,8 @@ jobs:
           path: build
       - name: Run pack example
         run: |
-          chmod +x ${{github.workspace}}/build/examples/pack_test
-          ${{github.workspace}}/build/examples/pack_test
+          chmod +x ${{github.workspace}}/build/tests/pack_test
+          ${{github.workspace}}/build/tests/pack_test
   
   sync:
     needs: core
@@ -84,8 +84,8 @@ jobs:
           path: build
       - name: Run sync example
         run: |
-          chmod +x ${{github.workspace}}/build/examples/sync_test
-          ${{github.workspace}}/build/examples/sync_test
+          chmod +x ${{github.workspace}}/build/tests/sync_test
+          ${{github.workspace}}/build/tests/sync_test
 
   data:
     needs: build
@@ -107,8 +107,8 @@ jobs:
           path: build
       - name: Run array example
         run: |
-          chmod +x ${{github.workspace}}/build/examples/array_test
-          ${{github.workspace}}/build/examples/array_test
+          chmod +x ${{github.workspace}}/build/tests/array_test
+          ${{github.workspace}}/build/tests/array_test
   
   circular_buffer:
     needs: data
@@ -122,8 +122,8 @@ jobs:
           path: build
       - name: Run circular buffer example
         run: |
-          chmod +x ${{github.workspace}}/build/examples/circular_buffer_test
-          ${{github.workspace}}/build/examples/circular_buffer_test
+          chmod +x ${{github.workspace}}/build/tests/circular_buffer_test
+          ${{github.workspace}}/build/tests/circular_buffer_test
 
   dict:
     needs: data
@@ -137,8 +137,8 @@ jobs:
           path: build
       - name: Run dict example
         run: |
-          chmod +x ${{github.workspace}}/build/examples/dict_test
-          ${{github.workspace}}/build/examples/dict_test
+          chmod +x ${{github.workspace}}/build/tests/dict_test
+          ${{github.workspace}}/build/tests/dict_test
   
   priority_queue:
     needs: data
@@ -152,8 +152,8 @@ jobs:
           path: build
       - name: Run priority queue example
         run: |
-          chmod +x ${{github.workspace}}/build/examples/priority_queue_test
-          ${{github.workspace}}/build/examples/priority_queue_test
+          chmod +x ${{github.workspace}}/build/tests/priority_queue_test
+          ${{github.workspace}}/build/tests/priority_queue_test
   
   queue:
     needs: data
@@ -167,8 +167,8 @@ jobs:
           path: build
       - name: Run queue example
         run: |
-          chmod +x ${{github.workspace}}/build/examples/queue_test
-          ${{github.workspace}}/build/examples/queue_test
+          chmod +x ${{github.workspace}}/build/tests/queue_test
+          ${{github.workspace}}/build/tests/queue_test
     
   stack:
     needs: data
@@ -182,8 +182,8 @@ jobs:
           path: build
       - name: Run stack example
         run: |
-          chmod +x ${{github.workspace}}/build/examples/stack_test
-          ${{github.workspace}}/build/examples/stack_test
+          chmod +x ${{github.workspace}}/build/tests/stack_test
+          ${{github.workspace}}/build/tests/stack_test
   
   tree:
     needs: data
@@ -197,8 +197,8 @@ jobs:
           path: build
       - name: Run tree example
         run: |
-          chmod +x ${{github.workspace}}/build/examples/tree_test
-          ${{github.workspace}}/build/examples/tree_test
+          chmod +x ${{github.workspace}}/build/tests/tree_test
+          ${{github.workspace}}/build/tests/tree_test
   
   tuple:
     needs: data
@@ -212,8 +212,8 @@ jobs:
           path: build
       - name: Run tuple example
         run: |
-          chmod +x ${{github.workspace}}/build/examples/tuple_test
-          ${{github.workspace}}/build/examples/tuple_test
+          chmod +x ${{github.workspace}}/build/tests/tuple_test
+          ${{github.workspace}}/build/tests/tuple_test
   
   reflection:
     needs: build
@@ -235,8 +235,8 @@ jobs:
           path: build
       - name: Run base64 example
         run: |
-          chmod +x ${{github.workspace}}/build/examples/base64_test
-          ${{github.workspace}}/build/examples/base64_test
+          chmod +x ${{github.workspace}}/build/tests/base64_test
+          ${{github.workspace}}/build/tests/base64_test
   
   json:
     needs: reflection
@@ -250,5 +250,5 @@ jobs:
           path: build
       - name: Run json example
         run: |
-          chmod +x ${{github.workspace}}/build/examples/json_test
-          ${{github.workspace}}/build/examples/json_test ${{github.workspace}}/resources/reflection/json_test_1.json
+          chmod +x ${{github.workspace}}/build/tests/json_test
+          ${{github.workspace}}/build/tests/json_test ${{github.workspace}}/resources/reflection/json_test_1.json
