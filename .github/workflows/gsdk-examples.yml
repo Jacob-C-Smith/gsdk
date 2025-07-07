@@ -21,10 +21,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run core examples
         run: |
-          ${{github.workspace}}/build/examples/hash_example
-          ${{github.workspace}}/build/examples/log_example
-          ${{github.workspace}}/build/examples/pack_example
-          ${{github.workspace}}/build/examples/sync_example
 
   data:
     needs: build
@@ -49,7 +45,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run reflection examples
         run: |
-          ${{github.workspace}}/build/examples/pack_example
           ${{github.workspace}}/build/examples/json_example ${{github.workspace}}/resources/reflection/json_example_1.json
           ${{github.workspace}}/build/examples/base64_example
 
@@ -70,3 +65,21 @@ jobs:
       - name: Run hash example
         run: |
           ${{github.workspace}}/build/examples/hash_example
+  
+  hash:
+    needs: core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run pack example
+        run: |
+          ${{github.workspace}}/build/examples/pack_example
+  
+  sync:
+    needs: core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run sync example
+        run: |
+          ${{github.workspace}}/build/examples/sync_example
