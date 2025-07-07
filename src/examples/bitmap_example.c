@@ -55,7 +55,7 @@ int main ( int argc, const char* argv[] )
         fclose(p_f),
         
         // read a buffer from a file
-        p_f = freopen("resources/reflection/bitmap.bin", "rb", p_f),
+        p_f = fopen("resources/reflection/bitmap.bin", "rb"),
         memset(buf, 0, sizeof(buf)),
         fread(buf, len, 1, p_f),
         

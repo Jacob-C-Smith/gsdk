@@ -17,9 +17,9 @@ jobs:
           
       - name: core
         run: |
-          ${{github.workspace}}/build/examples/hash_cache_example
-          ${{github.workspace}}/build/examples/interfaces_example
+          ${{github.workspace}}/build/examples/hash_example
           ${{github.workspace}}/build/examples/log_example
+          ${{github.workspace}}/build/examples/pack_example
           #${{github.workspace}}/build/examples/socket_example
           ${{github.workspace}}/build/examples/sync_example
 

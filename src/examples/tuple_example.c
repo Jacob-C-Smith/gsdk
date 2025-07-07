@@ -92,7 +92,7 @@ int main ( int argc, const char* argv[] )
     log_info("Destroyed tuple\n\n");
     
     // Read a buffer from a file
-    p_f = freopen("resources/reflection/tuple.bin", "rb", p_f),
+    p_f = fopen("resources/reflection/tuple.bin", "rb"),
     fread(buf, len, 1, p_f),
     
     // Reflect an tuple from the buffer
