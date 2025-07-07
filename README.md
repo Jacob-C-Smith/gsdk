@@ -40,11 +40,11 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
     <summary><a href="documentation/core.md">core</a></summary>
     <ul>
         <li>✔️ <a href="./documentation/core/hash.md">hash</a></li>
+        <li>✔️ <a href="./documentation/core/interfaces.md">interfaces</a></li>
         <li>✔️ <a href="./documentation/core/log.md">log</a></li>
         <li>✔️ <a href="./documentation/core/sync.md">sync</a></li>
         <li>🧪 <a href="./documentation/core/pack.md">pack</a></li>
         <li>🏗️ <a href="./documentation/core/crypto.md">crypto</a></li>
-        <li>🏗️ <a href="./documentation/core/interfaces.md">interfaces</a></li>
         <li>🏗️ <a href="./documentation/core/socket.md">socket</a></li>
     </ul>
 </details>

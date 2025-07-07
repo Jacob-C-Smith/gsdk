@@ -193,6 +193,16 @@ void run_tests ( void )
     // start
     parser_t0 = timer_high_precision();
 
+    // stop
+    parser_t1 = timer_high_precision();
+
+    /////////////////////////
+    // Test the serializer //
+    /////////////////////////
+
+    // start
+    serial_t0 = timer_high_precision();
+
     // test packing i8
     test_pack_i8("pack i8");
 
@@ -215,16 +225,6 @@ void run_tests ( void )
     test_pack_s("pack s");
 
     // stop
-    parser_t1 = timer_high_precision();
-
-    /////////////////////////
-    // Test the serializer //
-    /////////////////////////
-
-    // Start
-    serial_t0 = timer_high_precision();
-
-    // Stop
     serial_t1 = timer_high_precision();
 
     // Report the time it took to run the parser tests
@@ -239,12 +239,6 @@ void run_tests ( void )
 
     // Done
     return;
-
-    // test_pack_unpack_integers();
-    // test_pack_unpack_floats();
-    // test_pack_unpack_strings();
-    // test_pack_unpack_multiple();
-    // test_pack_unpack_mixed();
 }
 
 void print_final_summary ( void )
@@ -1132,98 +1126,4 @@ bool test_pack_3s ( char *format_string, char *_string1, char *_string2, char *_
     if ( 0 == memcmp(expected_buffer, result_buffer, result_size) ) result = match;
 
     return (result == expected);
-}
-
-void test_pack_unpack_floats()
-{
-    log_scenario("Floats\n");
-    char buffer[1024];
-
-    // Test f32
-    float f32_in = 3.14159f, f32_out = 0.0f;
-    pack_pack(buffer, "%f32", f32_in);
-    pack_unpack(buffer, "%f32", &f32_out);
-    print_test("Floats", "pack/unpack f32", fabsf(f32_in - f32_out) < 1e-6);
-
-    // Test f64
-    double f64_in = 3.1415926535, f64_out = 0.0;
-    pack_pack(buffer, "%f64", f64_in);
-    pack_unpack(buffer, "%f64", &f64_out);
-    print_test("Floats", "pack/unpack f64", fabs(f64_in - f64_out) < 1e-9);
-
-    print_final_summary();
-}
-
-void test_pack_unpack_strings()
-{
-    log_scenario("Strings\n");
-    char buffer[1024];
-
-    // Test single string
-    char s_in[] = "Hello, Pack!", s_out[100] = {0};
-    pack_pack(buffer, "%s", s_in);
-    pack_unpack(buffer, "%s", s_out);
-    print_test("Strings", "pack/unpack single string", strcmp(s_in, s_out) == 0);
-
-    // Test multiple strings
-    char s1_in[] = "first", s2_in[] = "second", s1_out[100] = {0}, s2_out[100] = {0};
-    pack_pack(buffer, "%s%s", s1_in, s2_in);
-    pack_unpack(buffer, "%s%s", s1_out, s2_out);
-    print_test("Strings", "pack/unpack multiple strings", strcmp(s1_in, s1_out) == 0 && strcmp(s2_in, s2_out) == 0);
-    
-    // Test empty string
-    char empty_in[] = "", empty_out[100] = {0};
-    pack_pack(buffer, "%s", empty_in);
-    pack_unpack(buffer, "%s", empty_out);
-    print_test("Strings", "pack/unpack empty string", strcmp(empty_in, empty_out) == 0);
-
-    print_final_summary();
-}
-
-void test_pack_unpack_multiple()
-{
-    log_scenario("Multiple Items\n");
-    char buffer[1024];
-
-    // Test multiple integers
-    int i_in[3] = {1, 2, 3}, i_out[3] = {0};
-    pack_pack(buffer, "%3i32", i_in[0], i_in[1], i_in[2]);
-    pack_unpack(buffer, "%3i32", &i_out[0], &i_out[1], &i_out[2]);
-    print_test("Multiple", "pack/unpack multiple integers", memcmp(i_in, i_out, sizeof(i_in)) == 0);
-
-    // Test multiple strings
-    char s_in[2][20] = {"one", "two"}, s_out[2][20] = {{0}};
-    pack_pack(buffer, "%2s", s_in[0], s_in[1]);
-    pack_unpack(buffer, "%2s", s_out[0], s_out[1]);
-    print_test("Multiple", "pack/unpack multiple strings", strcmp(s_in[0], s_out[0]) == 0 && strcmp(s_in[1], s_out[1]) == 0);
-
-    print_final_summary();
-}
-
-void test_pack_unpack_mixed()
-{
-    log_scenario("Mixed Types\n");
-    char buffer[1024];
-
-    char      i8_in = 'X';
-    short     i16_in = 9876;
-    char      s_in[] = "Mixed Test";
-    double    f64_in = 1.61803398875;
-
-    char      i8_out = 0;
-    short     i16_out = 0;
-    char      s_out[100] = {0};
-    double    f64_out = 0.0;
-
-    pack_pack(buffer, "%i8%s%i16%f64", i8_in, s_in, i16_in, f64_in);
-    pack_unpack(buffer, "%i8%s%i16%f64", &i8_out, s_out, &i16_out, &f64_out);
-
-    bool pass = (i8_in == i8_out) &&
-                (i16_in == i16_out) &&
-                (strcmp(s_in, s_out) == 0) &&
-                (fabs(f64_in - f64_out) < 1e-9);
-
-    print_test("Mixed", "pack/unpack mixed types", pass);
-
-    print_final_summary();
 }
