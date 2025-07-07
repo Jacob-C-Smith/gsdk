@@ -65,7 +65,8 @@ jobs:
           path: build
       - name: Run log example
         run: |
-          ./build/examples/log_example
+          chmod +x ${{github.workspace}}/build/examples/log_example
+          ${{github.workspace}}/build/examples/log_example
   hash:
     needs: core
     runs-on: ubuntu-latest
