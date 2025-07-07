@@ -94,7 +94,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run data examples
         run: |
-        
+
   array:
     needs: data
     runs-on: ubuntu-latest
@@ -110,7 +110,7 @@ jobs:
           chmod +x ${{github.workspace}}/build/examples/array_example
           ${{github.workspace}}/build/examples/array_example
   
-  circular buffer:
+  circular\ buffer:
     needs: data
     runs-on: ubuntu-latest
     steps:
@@ -140,7 +140,7 @@ jobs:
           chmod +x ${{github.workspace}}/build/examples/dict_example
           ${{github.workspace}}/build/examples/dict_example
   
-  priority queue:
+  priority\ queue:
     needs: data
     runs-on: ubuntu-latest
     steps:
