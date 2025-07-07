@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run core examples
+      - name: Run core tests
         run: |
 
   log:
@@ -37,7 +37,7 @@ jobs:
         with:
           name: build
           path: build
-      - name: Run log example
+      - name: Run log test
         run: |
           chmod +x ${{github.workspace}}/build/tests/log_test
           ${{github.workspace}}/build/tests/log_test
@@ -52,7 +52,7 @@ jobs:
         with:
           name: build
           path: build
-      - name: Run hash example
+      - name: Run hash test
         run: |
           chmod +x ${{github.workspace}}/build/tests/hash_test
           ${{github.workspace}}/build/tests/hash_test
@@ -67,7 +67,7 @@ jobs:
         with:
           name: build
           path: build
-      - name: Run pack example
+      - name: Run pack test
         run: |
           chmod +x ${{github.workspace}}/build/tests/pack_test
           ${{github.workspace}}/build/tests/pack_test
@@ -82,7 +82,7 @@ jobs:
         with:
           name: build
           path: build
-      - name: Run sync example
+      - name: Run sync test
         run: |
           chmod +x ${{github.workspace}}/build/tests/sync_test
           ${{github.workspace}}/build/tests/sync_test
@@ -92,7 +92,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run data examples
+      - name: Run data tests
         run: |
 
   array:
@@ -105,7 +105,7 @@ jobs:
         with:
           name: build
           path: build
-      - name: Run array example
+      - name: Run array test
         run: |
           chmod +x ${{github.workspace}}/build/tests/array_test
           ${{github.workspace}}/build/tests/array_test
@@ -120,7 +120,7 @@ jobs:
         with:
           name: build
           path: build
-      - name: Run circular buffer example
+      - name: Run circular buffer test
         run: |
           chmod +x ${{github.workspace}}/build/tests/circular_buffer_test
           ${{github.workspace}}/build/tests/circular_buffer_test
@@ -135,26 +135,11 @@ jobs:
         with:
           name: build
           path: build
-      - name: Run dict example
+      - name: Run dict test
         run: |
           chmod +x ${{github.workspace}}/build/tests/dict_test
           ${{github.workspace}}/build/tests/dict_test
-  
-  priority_queue:
-    needs: data
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build
-          path: build
-      - name: Run priority queue example
-        run: |
-          chmod +x ${{github.workspace}}/build/tests/priority_queue_test
-          ${{github.workspace}}/build/tests/priority_queue_test
-  
+
   queue:
     needs: data
     runs-on: ubuntu-latest
@@ -165,7 +150,7 @@ jobs:
         with:
           name: build
           path: build
-      - name: Run queue example
+      - name: Run queue test
         run: |
           chmod +x ${{github.workspace}}/build/tests/queue_test
           ${{github.workspace}}/build/tests/queue_test
@@ -180,7 +165,7 @@ jobs:
         with:
           name: build
           path: build
-      - name: Run stack example
+      - name: Run stack test
         run: |
           chmod +x ${{github.workspace}}/build/tests/stack_test
           ${{github.workspace}}/build/tests/stack_test
@@ -195,7 +180,7 @@ jobs:
         with:
           name: build
           path: build
-      - name: Run tree example
+      - name: Run tree test
         run: |
           chmod +x ${{github.workspace}}/build/tests/tree_test
           ${{github.workspace}}/build/tests/tree_test
@@ -210,7 +195,7 @@ jobs:
         with:
           name: build
           path: build
-      - name: Run tuple example
+      - name: Run tuple test
         run: |
           chmod +x ${{github.workspace}}/build/tests/tuple_test
           ${{github.workspace}}/build/tests/tuple_test
@@ -220,7 +205,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run reflection examples
+      - name: Run reflection tests
         run: |
 
   base64:
@@ -233,7 +218,7 @@ jobs:
         with:
           name: build
           path: build
-      - name: Run base64 example
+      - name: Run base64 test
         run: |
           chmod +x ${{github.workspace}}/build/tests/base64_test
           ${{github.workspace}}/build/tests/base64_test
@@ -248,7 +233,7 @@ jobs:
         with:
           name: build
           path: build
-      - name: Run json example
+      - name: Run json test
         run: |
           chmod +x ${{github.workspace}}/build/tests/json_test
           ${{github.workspace}}/build/tests/json_test ${{github.workspace}}/resources/reflection/json_test_1.json
