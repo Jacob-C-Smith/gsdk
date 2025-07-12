@@ -45,8 +45,8 @@ typedef int (fn_pack)   ( void *p_buffer, const void *const p_value );
 typedef int (fn_unpack) ( void *p_value, void *p_buffer );
 
 // function declarations   
-void   *default_allocator     ( void *p_pointer, unsigned long long size );
-int     default_comparator    ( const void *p_a, const void *p_b );
-int     default_equality      ( const void *const p_a, const void *const p_b );
-hash64  default_hash          ( const void *const k, unsigned long long l );
-void    *default_key_accessor ( const void *const p_value );
+void   *default_allocator    ( void *p_pointer, unsigned long long size );
+int     default_comparator   ( const void *p_a, const void *p_b );
+int     default_equality     ( const void *const p_a, const void *const p_b );
+hash64  default_hash         ( const void *const k, unsigned long long l );
+void   *default_key_accessor ( const void *const p_value );

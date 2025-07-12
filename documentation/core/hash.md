@@ -39,6 +39,5 @@ typedef hash64 (fn_hash64) ( const void *const k, size_t l );
 // Hashing
 hash64 hash_fnv64 ( const void *const k, size_t l );
 hash64 hash_mmh64 ( const void *const k, size_t l );
-hash64 hash_xxh64 ( const void *const k, size_t l );
 hash64 hash_crc64 ( const void *const k, size_t l );
  ```
