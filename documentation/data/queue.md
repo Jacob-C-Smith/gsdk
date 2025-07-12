@@ -36,22 +36,19 @@ Detected queue underflow!
  ```
  ### Function definitions
  ```c 
-// Allocaters
-int  queue_create        ( queue **pp_queue );
-
 // constructors
 int  queue_construct     ( queue **pp_queue );
 int  queue_from_contents ( queue **pp_queue, void **pp_contents, size_t size );
 
 // accessors
-int  queue_front         ( queue  *p_queue , void **pp_value );
-int  queue_rear          ( queue  *p_queue , void **pp_value );
-bool queue_empty         ( queue  *p_queue );
+int  queue_front ( queue *p_queue, void **pp_value );
+int  queue_rear  ( queue *p_queue, void **pp_value );
+bool queue_empty ( queue *p_queue );
 
 // mutators
-int  queue_enqueue       ( queue  *p_queue , void  *data );
-int  queue_dequeue       ( queue  *p_queue , void **pp_value );
+int  queue_enqueue ( queue *p_queue, void  *data );
+int  queue_dequeue ( queue *p_queue, void **pp_value );
 
 // destructors
-int  queue_destroy       ( queue **pp_queue );
+int  queue_destroy ( queue **pp_queue );
  ```

@@ -53,19 +53,19 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 <details open>
     <summary><a href="documentation/data.md">data</a></summary>
     <ul>
-        <li>✔️ <a href="./documentation/data/array/README.md">array</a></li>
-        <li>✔️ <a href="./documentation/data/circular_buffer/README.md">circular buffer</a></li>
-        <li>✔️ <a href="./documentation/data/dict/README.md">dict</a></li>
-        <li>✔️ <a href="./documentation/data/queue/README.md">queue</a></li>
-        <li>✔️ <a href="./documentation/data/set/README.md">set</a></li>
-        <li>✔️ <a href="./documentation/data/stack/README.md">stack</a></li>
-        <li>✔️ <a href="./documentation/data/tuple/README.md">tuple</a></li>
-        <li>🧪 <a href="./documentation/data/bitmap/README.md">bitmap</a></li>
-        <li>🧪 <a href="./documentation/data/double_queue/README.md">double ended queue</a></li>
-        <li>🧪 <a href="./documentation/data/node/README.md">node</a></li>
-        <li>🧪 <a href="./documentation/data/priority_queue/README.md">priority queue</a></li>
-        <li>🏗️ <a href="./documentation/data/graph/README.md">graph</a></li>
-        <li>🏗️ <a href="./documentation/data/tree/README.md">tree</a></li>
+        <li>✔️ <a href="./documentation/data/array.md">array</a></li>
+        <li>✔️ <a href="./documentation/data/circular_buffer.md">circular buffer</a></li>
+        <li>✔️ <a href="./documentation/data/dict.md">dict</a></li>
+        <li>✔️ <a href="./documentation/data/queue.md">queue</a></li>
+        <li>✔️ <a href="./documentation/data/set.md">set</a></li>
+        <li>✔️ <a href="./documentation/data/stack.md">stack</a></li>
+        <li>✔️ <a href="./documentation/data/tuple.md">tuple</a></li>
+        <li>🧪 <a href="./documentation/data/bitmap.md">bitmap</a></li>
+        <li>🧪 <a href="./documentation/data/double_queue.md">double ended queue</a></li>
+        <li>🧪 <a href="./documentation/data/node.md">node</a></li>
+        <li>🧪 <a href="./documentation/data/priority_queue.md">priority queue</a></li>
+        <li>🏗️ <a href="./documentation/data/graph.md">graph</a></li>
+        <li>🏗️ <a href="./documentation/data/tree.md">tree</a></li>
         <li>❓ <a href="#">cache</a></li>
         <li>❓ <a href="#">hash table</a></li>
     </ul>
@@ -74,19 +74,19 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 <details open>
     <summary><a href="documentation/reflection.md">reflection</a></summary>
     <ul>
-        <li>✔️ <a href="./documentation/reflection/base64/README.md">base64</a></li>
-        <li>✔️ <a href="./documentation/reflection/json/README.md">json</a></li>
-        <li>🏗️ <a href="./documentation/reflection/http/README.md">http</a></li>
+        <li>✔️ <a href="./documentation/reflection/base64.md">base64</a></li>
+        <li>✔️ <a href="./documentation/reflection/json.md">json</a></li>
+        <li>🏗️ <a href="./documentation/reflection/http.md">http</a></li>
     </ul>
 </details>
 
 <details open>
     <summary><a href="documentation/performance.md">performance</a></summary>
     <ul>
-        <li>🧪 <a href="./doocumentation/performance/parallel/README.md">parallel</a></li>
-        <li>🏗️ <a href="./doocumentation/performance/code_gen/README.md">code gen</a></li>
-        <li>❓ <a href="./doocumentation/performance/allocator/README.md">allocator</a></li>
-        <li>❓ <a href="./doocumentation/performance/distribute/README.md">distribute</a></li>
+        <li>🧪 <a href="./doocumentation/performance/parallel.md">parallel</a></li>
+        <li>🏗️ <a href="./doocumentation/performance/code_gen.md">code gen</a></li>
+        <li>❓ <a href="./doocumentation/performance/allocator.md">allocator</a></li>
+        <li>❓ <a href="./doocumentation/performance/distribute.md">distribute</a></li>
     </ul>
 </details>
 

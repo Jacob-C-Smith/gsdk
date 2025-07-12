@@ -29,6 +29,9 @@ int total_tests      = 0,
     ephemeral_passes = 0,
     ephemeral_fails  = 0;
 
+static const char hegel_logic[] = {
+    #embed "include/test/hegel_logic.txt"
+};
 // forward declarations
 /** !
  * Print the time formatted in days, hours, minutes, seconds, miliseconds, microseconds
@@ -186,10 +189,10 @@ void print_time_pretty ( double seconds )
     if ( __seconds ) log_info("%zu s, ", __seconds);
     
     // Print milliseconds
-    if ( milliseconds ) log_info("%zu ms, ", milliseconds);
+    if ( milliseconds ) log_info("%3zu ms, ", milliseconds);
     
     // Print microseconds
-    if ( microseconds ) log_info("%zu us", microseconds);
+    if ( microseconds ) log_info("%03zu us", microseconds);
     
     // Done
     return;
@@ -204,53 +207,52 @@ void run_tests ( void )
               crc64_t0 = 0,
               crc64_t1 = 0,
               mmh64_t0 = 0,
-              mmh64_t1 = 0,
-              xxh64_t0 = 0,
-              xxh64_t1 = 0;
+              mmh64_t1 = 0;
 
     ////////////////////////////////
     // Test the hashing functions //
     ////////////////////////////////
 
-    // Start
+    // start
     fnv64_t0 = timer_high_precision();
 
-    // Test the Fowler–Noll–Vo hash function
+    // test the Fowler–Noll–Vo hash function
     test_fnv64("fnv64");
 
-    // stop / start
-    fnv64_t1 = timer_high_precision(),
+    // stop 
+    fnv64_t1 = timer_high_precision();
+
+    // Report the time it took to run the fnv tests
+    log_info("fnv tests took: ");
+    print_time_pretty ( (double)(fnv64_t1-fnv64_t0)/(double)timer_seconds_divisor() );
+    log_info(" to test\n");
+
+    // start
     crc64_t0 = timer_high_precision();
 
     // Test the cyclic redundancy check hash function
     test_crc64("crc64");
 
-    // Stop
+    // stop 
     crc64_t1 = timer_high_precision();
-    
-    // Start
+
+    // report the time it took to run the crc tests
+    log_info("crc tests took: ");
+    print_time_pretty ( (double)(crc64_t1-crc64_t0)/(double)timer_seconds_divisor() );
+    log_info(" to test\n");
+
+    // start
     mmh64_t0 = timer_high_precision();
     
-    // Test the mur mur hash function
+    // test the mur mur hash function
     test_mmh64("mmh64");
     
-    // Stop
+    // stop 
     mmh64_t1 = timer_high_precision();
-    
-    /*
 
-    // Start
-    fnv64_t0 = timer_high_precision();
-
-    // Test the Fowler–Noll–Vo hash function
-    test_fnv64("fnv64");
-
-    // Stop
-    fnv64_t1 = timer_high_precision();
-    */
-    // Report the time it took to run the serializer tests
-    log_info("encode tests took: ");
-    print_time_pretty ( (double)(fnv64_t1-fnv64_t0)/(double)timer_seconds_divisor() );
+    // report the time it took to run the mmh tests
+    log_info("mmh tests took: ");
+    print_time_pretty ( (double)(mmh64_t1-mmh64_t0)/(double)timer_seconds_divisor() );
     log_info(" to test\n");
 
     // Done
@@ -269,6 +271,7 @@ void test_fnv64 ( char *name )
     print_test(name, "b"            , test_hash(hash_fnv64, "b\0"            , 1 , (hash64)0x5bb2b66505b08eb5));
     print_test(name, "c"            , test_hash(hash_fnv64, "c\0"            , 1 , (hash64)0x5bb2b56505b08d02));
     print_test(name, "Hello, World!", test_hash(hash_fnv64, "Hello, World!\0", 14, (hash64)0xc7e6fdb452cc02c));
+    print_test(name, "Hegel Logic"  , test_hash(hash_fnv64, hegel_logic, sizeof(hegel_logic), (hash64)0x16145b6b24cdc959));
 
     // Print the summary of this test
     print_final_summary();
@@ -289,6 +292,7 @@ void test_crc64 ( char *name )
     print_test(name, "b"            , test_hash(hash_crc64, "b\0"            , 1 , (hash64)0x74a8fe9e8582d431));
     print_test(name, "c"            , test_hash(hash_crc64, "c\0"            , 1 , (hash64)0xc786b22086258b5e));
     print_test(name, "Hello, World!", test_hash(hash_crc64, "Hello, World!\0", 14, (hash64)0x68c3a1bd36cc75e5));
+    print_test(name, "Hegel Logic"  , test_hash(hash_crc64, hegel_logic, sizeof(hegel_logic), (hash64)0xf201a56362a49880));
 
     // Print the summary of this test
     print_final_summary();
@@ -309,6 +313,7 @@ void test_mmh64 ( char *name )
     print_test(name, "b"            , test_hash(hash_mmh64, "b\0"            , 1 , (hash64)0x8336f55eb0901fb4));
     print_test(name, "c"            , test_hash(hash_mmh64, "c\0"            , 1 , (hash64)0xb9232f902f66bf65));
     print_test(name, "Hello, World!", test_hash(hash_mmh64, "Hello, World!\0", 14, (hash64)0xb39ddc5fc6ef2a52));
+    print_test(name, "Hegel Logic"  , test_hash(hash_mmh64, hegel_logic, sizeof(hegel_logic), (hash64)0x9f246debc321d559));
 
     // Print the summary of this test
     print_final_summary();

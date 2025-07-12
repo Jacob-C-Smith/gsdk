@@ -2,9 +2,6 @@
 
 ## Log errors, warnings, and information with pretty printing
   
-  
- > 0 [Try it](#try-it)
- >
  > 1 [Download](#download)
  >
  > 2 [Build](#build)
@@ -16,11 +13,6 @@
  > 4 [Definitions](#definitions)
  >
  >> 4.1 [Function definitions](#function-definitions)
-
-## Try it
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Jacob-C-Smith/log?quickstart=1)
-
-Wait for a few moments, then click the play button on the bottom of the window. This will run the example program.
 
  ## Download
  To download log, execute the following command

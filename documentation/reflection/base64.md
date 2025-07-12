@@ -1,14 +1,8 @@
 # base64
-[![base64](https://github.com/Jacob-C-Smith/base64/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/base64/actions/workflows/cmake.yml)
 
-**Dependencies:**\
-[![sync](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml)
-[![log](https://github.com/Jacob-C-Smith/log/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/log/actions/workflows/cmake.yml)
+## base64 encoding and decoding
 
- base64 encoding and decoding
 
- > 0 [Try it](#try-it)
- >
  > 1 [Download](#download)
  >
  > 2 [Build](#build)
@@ -22,11 +16,6 @@
  >> 4.1 [Type definitions](#type-definitions)
  >>
  >> 4.2 [Function definitions](#function-definitions)
-
-## Try it
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Jacob-C-Smith/base64?quickstart=1)
-
-Wait for a few moments, then click the play button on the bottom of the window. This will run the example program.
 
  ## Download
  To download base64, execute the following command

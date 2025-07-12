@@ -1,17 +1,7 @@
 # json
-[![CMake](https://github.com/Jacob-C-Smith/json/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/json/actions/workflows/cmake.yml)
 
-**Dependencies:**\
-[![dict](https://github.com/Jacob-C-Smith/dict/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/dict/actions/workflows/cmake.yml)
-[![array](https://github.com/Jacob-C-Smith/array/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/Jacob-C-Smith/array/actions/workflows/cmake.yml)
-[![hash-cache](https://github.com/Jacob-C-Smith/hash-cache/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/hash-cache/actions/workflows/cmake.yml) 
-[![sync](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml)
-[![log](https://github.com/Jacob-C-Smith/log/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/log/actions/workflows/cmake.yml)
-
- A JSON parser / serializer written in C. 
+ ## A JSON parser / serializer written in C. 
  
- > 0 [Try it](#try-it)
- >
  > 1 [Download](#download)
  >
  > 2 [Build](#build)
@@ -31,11 +21,6 @@
  >> 5.2 [Function definitions](#function-definitions)
  >>
  >> 5.3 [Macro definitions](#macro-definitinos)
-
-## Try it
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Jacob-C-Smith/json?quickstart=1)
-
-Wait for a few moments, then click the play button on the bottom of the window. This will run the example program.
 
  ## Download
  To download json, execute the following command
