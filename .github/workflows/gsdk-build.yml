@@ -19,4 +19,4 @@ jobs:
           sudo ./llvm.sh 20
       - name: make
         run: |
-          make CC=clang
+          make CC=clang-20
