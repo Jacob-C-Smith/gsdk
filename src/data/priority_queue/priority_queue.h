@@ -78,7 +78,7 @@ int priority_queue_construct ( priority_queue **const pp_priority_queue, size_t 
  *
  * @return 1 on success, 0 on error
  */
-int priority_queue_from_keys ( const priority_queue **const pp_priority_queue, const char **const keys, size_t size, priority_queue_equal_fn pfn_compare_function );
+int priority_queue_from_keys ( priority_queue **const pp_priority_queue, const void **const keys, size_t size, priority_queue_equal_fn pfn_compare_function );
 
 // accessors
 /** !
@@ -100,6 +100,47 @@ bool priority_queue_empty ( priority_queue *const p_priority_queue );
  * @return 1 on success, 0 on error
 */
 int priority_queue_enqueue ( priority_queue *const p_priority_queue, void *p_key );
+
+/** !
+ * Get the maximum element in the heap
+ * 
+ * @param p_priority_queue the priority queue 
+ * @param pp_value         return 
+ * 
+ * @return 1 on success, 0 on error
+ */
+int priority_queue_extract_max ( priority_queue *const p_priority_queue, void **pp_value );
+
+/** !
+ * Get the maximum element in the heap
+ * 
+ * @param p_priority_queue the priority queue 
+ * @param pp_value         return 
+ * 
+ * @return 1 on success, 0 on error
+ */
+int priority_queue_max ( priority_queue *const p_priority_queue, void **pp_value );
+
+/** !
+ * Increase the priority of a key in the heap
+ * 
+ * @param p_priority_queue the priority queue 
+ * @param index            the index of the key to increase
+ * @param p_key            the key
+ * 
+ * @return 1 on success, 0 on error
+ */
+int priority_queue_increase_key ( priority_queue *const p_priority_queue, size_t index, void *p_key );
+
+/** !
+ * Insert an element into the max heap
+ * 
+ * @param p_priority_queue the priority queue 
+ * @param p_key            the key to be inserted into the heap
+ * 
+ * @return 1 on success, 0 on error
+ */
+int priority_queue_insert ( priority_queue *const pp_priority_queue, void *p_key );
 
 /** !
  * Remove the key in the front of the priority queue

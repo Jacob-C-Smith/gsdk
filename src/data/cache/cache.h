@@ -19,6 +19,10 @@
 #include <core/sync.h>
 #include <core/hash.h>
 
+// preprocessor definitions
+#define cache_destroy cacheee_destroy
+#define cache_remove cacheee_remove
+
 // structure declarations
 struct cache_s;
 
@@ -39,36 +43,26 @@ struct cache_s
 };
 
 // function declarations 
-
-// allocators
-/** !
- * Allocate memory for a cache
- * 
- * @param pp_cache result
- * 
- * @return 1 on success, 0 on error
- */
-int cache_create ( cache **const pp_cache );
-
-// constructors
+/// constructors
 /** !
  * Construct a cache
  * 
  * @param pp_cache        result
  * @param size            the maximum quantity of properties the cache can fit
- * @param pfn_equality    pointer to a equality function, or 0 for default
- * @param pfn_key_get     pointer to a key getter, or 0 for key == value
+ * @param pfn_equality    pointer to a equality function, NULL for default
+ * @param pfn_key_get     pointer to a key getter, NULL for default
  * 
  * @return 1 on success, 0 on error
  */
 int cache_construct (
     cache           **pp_cache,
     size_t            size,
+
     fn_equality      *pfn_equality,
     fn_key_accessor  *pfn_key_get
 );
 
-// accessors
+/// accessors
 /** !
  * Search a cache for a value using a key
  * 
@@ -78,9 +72,9 @@ int cache_construct (
  * 
  * @return 1 on success, 0 on error
  */
-int cache_get ( const cache *const p_cache, const void *const p_key, void **const pp_result );
+int cache_find ( cache *p_cache, const void *const p_key, void **const pp_result );
 
-// mutators
+/// mutators
 /** !
  * Add a property to a cache
  * 
@@ -90,7 +84,7 @@ int cache_get ( const cache *const p_cache, const void *const p_key, void **cons
  * 
  * @return 1 on success, 0 on error
  */
-int cache_insert ( cache *const p_cache, const void *const p_key, const void *const p_value );
+int cache_insert ( cache *p_cache, const void *const p_key, const void *const p_value );
 
 /** !
  * Remove a property from the cache
@@ -101,9 +95,23 @@ int cache_insert ( cache *const p_cache, const void *const p_key, const void *co
  * 
  * @return 1 on success, 0 on error
  */
-int cache_remove ( cache *const p_cache, const void *const p_key, void **const pp_result );
+int cacheee_remove ( cache *p_cache, const void *const p_key, void **const pp_result );
 
-// iterators
+
+/// map
+/** !
+ * Apply an operation to each element in a cache,
+ * optionally releasing elements
+ *
+ * @param p_cache       the cache
+ * @param pfn_map       pointer to map function
+ * @param pfn_allocator pointer to allocator function
+ * 
+ * @return 1 on success, 0 on error
+ */
+int cache_map ( cache *const p_cache, fn_map *pfn_map, fn_allocator *pfn_allocator );
+
+/// iterators
 /** !
  * Call a function on each element of a cache
  * 
@@ -112,7 +120,7 @@ int cache_remove ( cache *const p_cache, const void *const p_key, void **const p
  * 
  * @return 1 on success, 0 on error
  */
-int cache_for_i ( const cache *const p_cache, fn_fori pfn_fori );
+int cache_fori ( cache *p_cache, fn_fori pfn_fori );
 
 /** !
  * Call a function on each element of a cache
@@ -122,9 +130,32 @@ int cache_for_i ( const cache *const p_cache, fn_fori pfn_fori );
  * 
  * @return 1 on success, 0 on error
  */
-int cache_for_each ( const cache *const p_cache, fn_foreach pfn_foreach );
+int cache_for_each ( cache *p_cache, fn_foreach pfn_foreach );
 
-// destructors
+// reflection
+/** !
+ * Pack a cache into a buffer
+ * 
+ * @param p_buffer     the buffer
+ * @param p_cache      the cache
+ * @param pfn_elemenet pointer to pack function IF not null ELSE default
+ * 
+ * @return 1 on success, 0 on error
+ */
+int cache_pack ( void *p_buffer, cache *p_cache, fn_pack *pfn_element );
+
+/** !
+ * Unpack a buffer into a cache
+ * 
+ * @param pp_cache     result
+ * @param p_buffer     the buffer
+ * @param pfn_elemenet pointer to unpack function IF not null ELSE default
+ * 
+ * @return 1 on success, 0 on error
+ */
+int cache_unpack ( cache **pp_cache, void *p_buffer, fn_unpack *pfn_element );
+
+/// destructors
 /** !
  * Release a cache and all its allocations
  * 
@@ -132,4 +163,4 @@ int cache_for_each ( const cache *const p_cache, fn_foreach pfn_foreach );
  * 
  * @return 1 on success, 0 on error
  */
-int cache_destroy ( cache **const pp_cache );
+int cacheee_destroy ( cache **const pp_cache );

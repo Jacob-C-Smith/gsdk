@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
-
+ 
 // core
 #include <core/log.h>
 
@@ -77,15 +77,7 @@ int empty_insertrandom_ABCDEFG    ( priority_queue **pp_priority_queue );
 bool test_enqueue ( int (*priority_queue_constructor)(priority_queue **pp_priority_queue), void *value, result_t expected);
 bool test_isempty ( int (*priority_queue_constructor)(priority_queue **pp_priority_queue), bool expected);
 bool test_dequeue ( int (*priority_queue_constructor)(priority_queue **pp_priority_queue), void *value, size_t how_many, result_t expected);
-
-extern int priority_queue_heapify         ( priority_queue *const p_priority_queue , size_t   i );
-extern int priority_queue_build_max_heap  ( priority_queue *const p_priority_queue );
-extern int priority_queue_build_heap_sort ( priority_queue *const p_priority_queue );
-extern int priority_queue_max             ( priority_queue *const p_priority_queue , void   **pp_value );
-extern int priority_queue_extract_max     ( priority_queue *const p_priority_queue , void   **pp_value );
-extern int priority_queue_increase_key    ( priority_queue *const p_priority_queue , size_t   index   , void *p_key );
-extern int priority_queue_insert          ( priority_queue *const pp_priority_queue, void    *p_key );
-
+bool test_max     ( int (*priority_queue_constructor)(priority_queue **pp_priority_queue), void *value, result_t expected);
 
 // entry point
 int main ( int argc, const char *argv[] )
@@ -386,6 +378,9 @@ int test_empty_priority_queue(int (*priority_queue_constructor)(priority_queue *
     // isempty
     print_test(name, "priority_queue_isempty", test_isempty(priority_queue_constructor, true));
 
+    // max
+    print_test(name, "priority_queue_max", test_max(priority_queue_constructor, 0, zero));
+
     // Print the results
     print_final_summary();
 
@@ -408,6 +403,9 @@ int test_one_element_priority_queue(int (*priority_queue_constructor)(priority_q
 
     // isempty
     print_test(name, "priority_queue_isempty", test_isempty(priority_queue_constructor, false));
+
+    // max
+    print_test(name, "priority_queue_max", test_max(priority_queue_constructor, keys[0], match));
 
     // Print the results
     print_final_summary();
@@ -432,6 +430,9 @@ int test_two_element_priority_queue(int (*priority_queue_constructor)(priority_q
 
     // isempty
     print_test(name, "priority_queue_isempty", test_isempty(priority_queue_constructor, false));
+
+    // max
+    print_test(name, "priority_queue_max", test_max(priority_queue_constructor, keys[0], match));
 
     // Print the results
     print_final_summary();
@@ -462,12 +463,16 @@ int test_seven_element_priority_queue(int (*priority_queue_constructor)(priority
     // isempty
     print_test(name, "priority_queue_isempty", test_isempty(priority_queue_constructor, false));
 
+    // max
+    print_test(name, "priority_queue_max", test_max(priority_queue_constructor, keys[0], match));
+
     // Print the results
     print_final_summary();
 
     // success
     return 1;
 }
+
 
 int print_test(const char *scenario_name, const char *test_name, bool passed)
 {
@@ -569,6 +574,30 @@ bool test_dequeue(int (*priority_queue_constructor)(priority_queue **pp_priority
     for (size_t i = 0; i < how_many; i++)
         // Dequeue a value
         result = priority_queue_dequeue(p_priority_queue, &p_value);
+
+    // Check for a match
+    if ( result != zero ) if ( value == p_value ) result = match;
+
+    // Free the priority queue
+    priority_queue_destroy(&p_priority_queue);
+
+    // Return result
+    return (result == expected);
+}
+
+bool test_max(int (*priority_queue_constructor)(priority_queue **pp_priority_queue), void *value, result_t expected)
+{
+
+    // initialized data
+    result_t result = zero;
+    priority_queue *p_priority_queue = 0;
+    void *p_value = 0;
+
+    // Build the priority queue
+    priority_queue_constructor(&p_priority_queue);
+
+    // Get the max value
+    result = priority_queue_max(p_priority_queue, &p_value);
 
     // Check for a match
     if ( result != zero ) if ( value == p_value ) result = match;

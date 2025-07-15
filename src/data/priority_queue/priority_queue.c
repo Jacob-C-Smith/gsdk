@@ -6,9 +6,9 @@
  * @author Jacob Smith
  */
 
-// headers
+// headers 
 #include <data/priority_queue.h>
-
+ 
 // Preprocessor macros
 #define PRIORITY_QUEUE_PARENT(i) (i - 1) / 2
 #define PRIORITY_QUEUE_LEFT(i)   (2 * i) + 1
@@ -70,47 +70,6 @@ int priority_queue_build_max_heap ( priority_queue *const p_priority_queue );
  * @return 1 on success, 0 on error
  */
 int priority_queue_build_heap_sort ( priority_queue *const p_priority_queue );
-
-/** !
- * Get the maximum element in the heap
- * 
- * @param p_priority_queue the priority queue 
- * @param pp_value         return 
- * 
- * @return 1 on success, 0 on error
- */
-int priority_queue_max ( priority_queue *const p_priority_queue, void **pp_value );
-
-/** !
- * Get the maximum element in the heap
- * 
- * @param p_priority_queue the priority queue 
- * @param pp_value         return 
- * 
- * @return 1 on success, 0 on error
- */
-int priority_queue_extract_max ( priority_queue *const p_priority_queue, void **pp_value );
-
-/** !
- * Increase the priority of a key in the heap
- * 
- * @param p_priority_queue the priority queue 
- * @param index            the index of the key to increase
- * @param p_key            the key
- * 
- * @return 1 on success, 0 on error
- */
-int priority_queue_increase_key ( priority_queue *const p_priority_queue, size_t index, void *p_key );
-
-/** !
- * Insert an element into the max heap
- * 
- * @param p_priority_queue the priority queue 
- * @param p_key            the key to be inserted into the heap
- * 
- * @return 1 on success, 0 on error
- */
-int priority_queue_insert ( priority_queue *const pp_priority_queue, void *p_key );
 
 int priority_queue_create ( priority_queue **const pp_priority_queue )
 {
@@ -256,15 +215,13 @@ int priority_queue_construct ( priority_queue **const pp_priority_queue, size_t 
     }
 }
 
-int priority_queue_from_keys ( const priority_queue **const pp_priority_queue, const char **const keys, size_t size, priority_queue_equal_fn pfn_compare_function )
+int priority_queue_from_keys ( priority_queue **const pp_priority_queue, const void **const keys, size_t size, priority_queue_equal_fn pfn_compare_function )
 {
 
     // argument check
     if ( pp_priority_queue == (void *) 0 ) goto no_priority_queue;
     if ( keys              == (void *) 0 ) goto no_keys;
-
-    // TODO: replace with a goto
-    if ( size == 0 ) return 0;
+    if ( size              ==          0 ) goto zero_size;
 
     // initialized data
     priority_queue *p_priority_queue = 0;
@@ -273,10 +230,14 @@ int priority_queue_from_keys ( const priority_queue **const pp_priority_queue, c
     if ( priority_queue_construct(&p_priority_queue, size, pfn_compare_function) == 0 ) goto failed_to_construct_priority_queue;
 
     // Iterate over each key
-    for (size_t i = 0; keys[i]; i++)
-
+    for (size_t i = 0; i < size; i++)
+    {
         // Add the key to the priority queue
         p_priority_queue->entries.data[i] = (void *)keys[i];
+    }
+
+    // Set the count
+    p_priority_queue->entries.count = size;
 
     // Build the priority queue
     priority_queue_build_max_heap(p_priority_queue);
@@ -303,6 +264,14 @@ int priority_queue_from_keys ( const priority_queue **const pp_priority_queue, c
             no_keys:
                 #ifndef NDEBUG
                     log_error("[priority queue] Null pointer provided for parameter \"keys\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+            
+            zero_size:
+                #ifndef NDEBUG
+                    log_error("[priority queue] Zero provided for parameter \"size\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -388,10 +357,11 @@ int priority_queue_build_max_heap ( priority_queue *const p_priority_queue )
     if ( p_priority_queue == (void *) 0 ) goto no_priority_queue;
 
     // Build the heap
-    for (size_t i = (p_priority_queue->entries.max / 2) - 1; i >= 0; i--)
-    
+    for (long i = (p_priority_queue->entries.count / 2) - 1; i >= 0; i--)
+    {
         // Sort the heap
         priority_queue_heapify(p_priority_queue, i);
+    }
 
     // success
     return 1;
@@ -422,7 +392,7 @@ int priority_queue_build_heap_sort ( priority_queue *const p_priority_queue )
     priority_queue_build_max_heap(p_priority_queue);
 
     // Iterate through the max heap
-    for ( size_t i = p_priority_queue->entries.max - 1; i >= 1; i-- )
+    for ( long i = p_priority_queue->entries.count - 1; i >= 1; i-- )
     {
         
         // Swap the node at the iterator with the largest
@@ -461,13 +431,14 @@ int priority_queue_max ( priority_queue *const p_priority_queue, void **pp_value
 
     // argument check
     if ( p_priority_queue == (void *) 0 ) goto no_priority_queue;
+    if ( pp_value         == (void *) 0 ) goto no_value;
 
-    // error check
-    if ( p_priority_queue->entries.count < 1 ) goto underflow;
+    // Check for underflow
+    if ( p_priority_queue->entries.count == 0 ) goto underflow;
 
-    // Return the maximum value to the caller
+    // Return the max value
     *pp_value = p_priority_queue->entries.data[0];
-     
+
     // success
     return 1;
 
@@ -479,6 +450,14 @@ int priority_queue_max ( priority_queue *const p_priority_queue, void **pp_value
             no_priority_queue:
                 #ifndef NDEBUG
                     log_error("[priority queue] Null pointer provided for parameter \"p_priority_queue\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_value:
+                #ifndef NDEBUG
+                    log_error("[priority queue] Null pointer provided for parameter \"pp_value\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -506,6 +485,7 @@ int priority_queue_extract_max ( priority_queue *const p_priority_queue, void **
 
     // initialized data
     void *ret = (void *) 0;
+
 
     // Get the maximum element
     if ( priority_queue_max(p_priority_queue, &ret) == 0 ) goto underflow;
@@ -555,6 +535,9 @@ int priority_queue_extract_max ( priority_queue *const p_priority_queue, void **
     } 
 }
 
+int priority_queue_increase_key ( priority_queue *const p_priority_queue, size_t index, void *p_key );
+int priority_queue_insert ( priority_queue *const p_priority_queue, void *p_key );
+
 int priority_queue_increase_key ( priority_queue *const p_priority_queue, size_t index, void *p_key )
 {
     // argument check
@@ -567,7 +550,7 @@ int priority_queue_increase_key ( priority_queue *const p_priority_queue, size_t
     p_priority_queue->entries.data[index] = p_key;
 
     // Increase the key in the heap to its maximum priority
-    while ( index > 0 && p_priority_queue->pfn_compare_function(p_priority_queue->entries.data[PRIORITY_QUEUE_PARENT(index)], p_priority_queue->entries.data[index]) )
+    while ( index > 0 && p_priority_queue->pfn_compare_function(p_priority_queue->entries.data[PRIORITY_QUEUE_PARENT(index)], p_priority_queue->entries.data[index]) < 0 )
     {
 
         // Swap the key at index with key at parent index in the heap
@@ -601,7 +584,7 @@ int priority_queue_increase_key ( priority_queue *const p_priority_queue, size_t
         {
             decrease_key:
                 #ifndef NDEBUG
-                    log_error("[priority queue] Null pointer provided for parameter \"p_priority_queue\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[priority queue] New key has lower priority than current key in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -628,6 +611,7 @@ int priority_queue_insert ( priority_queue *const p_priority_queue, void *p_key 
 
     // Position the key correctly
     if ( priority_queue_increase_key(p_priority_queue, p_priority_queue->entries.count-1, p_key) == 0 ) goto failed_to_increase_key;
+
 
     // success
     return 1;
