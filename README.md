@@ -1,6 +1,6 @@
 # GSDK
 
-*A modular C SDK for high-performance computing, data structures, and reflection utilities.*
+*A modular C SDK with tons of generic data structures, abstractions for high-performance computing, and highly flexable reflection.*
 
 <p align="center">
     <img src="https://img.shields.io/badge/language-C-blue.svg" alt="Language: C">
@@ -61,12 +61,12 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>✔️ <a href="./documentation/data/stack.md">stack</a></li>
         <li>✔️ <a href="./documentation/data/tuple.md">tuple</a></li>
         <li>🧪 <a href="./documentation/data/bitmap.md">bitmap</a></li>
+        <li>🧪 <a href="#">cache</a></li>
         <li>🧪 <a href="./documentation/data/double_queue.md">double ended queue</a></li>
         <li>🧪 <a href="./documentation/data/node.md">node</a></li>
         <li>🧪 <a href="./documentation/data/priority_queue.md">priority queue</a></li>
         <li>🏗️ <a href="./documentation/data/graph.md">graph</a></li>
         <li>🏗️ <a href="./documentation/data/tree.md">tree</a></li>
-        <li>❓ <a href="#">cache</a></li>
         <li>❓ <a href="#">hash table</a></li>
     </ul>
 </details>
