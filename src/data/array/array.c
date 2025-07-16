@@ -11,6 +11,7 @@
 
 // core
 #include <core/log.h>
+#include <core/hash.h>
 #include <core/pack.h>
 #include <core/sync.h>
 
@@ -996,6 +997,39 @@ int array_unpack ( array **pp_array, void *p_buffer, fn_unpack *pfn_element )
     }
 }
 
+hash64 array_hash ( array *p_array, fn_hash64 *pfn_element )
+{
+
+    // argument check
+    if ( p_array == (void *) 0 ) goto no_array;
+
+    // initialized data
+    hash64     result     = 0;
+    fn_hash64 *pfn_hash64 = (pfn_element) ? pfn_element : hash_crc64;
+
+    // iterate through each element in the array
+    for (size_t i = 0; i < p_array->count; i++)
+        result ^= pfn_hash64(p_array->p_p_elements[i], 8);
+
+    // success
+    return result;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_array:
+                #ifndef NDEBUG
+                    log_error("[array] Null pointer provided for \"pp_array\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
 int array_destroy ( array **pp_array )
 {
 
@@ -1008,16 +1042,16 @@ int array_destroy ( array **pp_array )
     // lock
     mutex_lock(&p_array->_lock);
 
-    // No more pointer for end user
+    // no more pointer for end user
     *pp_array = (array *) 0;
 
     // unlock
     mutex_unlock(&p_array->_lock);
 
-    // Destroy the mutex
+    // destroy the mutex
     mutex_destroy(&p_array->_lock);
 
-    // Free the array
+    // release the array
     p_array = realloc(p_array, 0);
     
     // success

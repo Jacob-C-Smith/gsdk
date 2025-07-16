@@ -14,6 +14,7 @@
 // core
 #include <core/log.h>
 #include <core/sync.h>
+#include <core/hash.h>
 #include <core/pack.h>
 
 // data
@@ -36,13 +37,14 @@ enum color_e
 int checkpoint ( array *p_array, const char *p_event );
 
 // string
-void  string_print ( void *p_value, int i );
-int   string_compare ( const void *const p_a, const void *const p_b );
-void *string_upper_case ( void *p_value );
-void *string_lower_case ( void *p_value );
-int   string_pack ( void *p_buffer, const void *const p_value );
-int   string_unpack ( void *const p_value, void *p_buffer );
-
+void    string_print ( void *p_value, int i );
+int     string_compare ( const void *const p_a, const void *const p_b );
+void   *string_upper_case ( void *p_value );
+void   *string_lower_case ( void *p_value );
+hash64  string_hash ( char *string );
+int     string_pack ( void *p_buffer, const void *const p_value );
+int     string_unpack ( void *const p_value, void *p_buffer );
+ 
 // data
 /// immutable color strings
 const char *_p_colors[COLOR_QUANTITY] =
@@ -57,6 +59,10 @@ const char *_p_colors[COLOR_QUANTITY] =
 
 /// file for reflection
 FILE *p_f = NULL;
+
+/// hashes
+hash64 h1 = 0,
+       h2 = 0;
 
 /// working array
 array *p_array = NULL;
@@ -171,7 +177,20 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_array, "after serialize");
     }
 
-    // #8 - map upper case
+    // #8 - hash 1
+    {
+
+        // initialized data
+        h1 = array_hash(p_array, (fn_hash64 *)string_hash);
+
+        // print the hash
+        printf("hash 1 -> 0x%llx\n", h1);
+
+        // checkpoint
+        checkpoint(p_array, "after hash 1");
+    }
+
+    // #9 - map upper case
     {
 
         // convert the array elements to upper case
@@ -181,7 +200,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_array, "after upper case map");
     }
 
-    // #9 - destroy
+    // #10 - destroy
     {
 
         // destroy the array
@@ -191,7 +210,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_array, "after destroy");
     }
 
-    // #10 - from binary
+    // #11 - from binary
     {
         
         // initialized data
@@ -207,8 +226,24 @@ int main ( int argc, const char* argv[] )
         // checkpoint
         checkpoint(p_array, "after parse");
     }
-    
-    // #11 - sort
+
+    // #8 - hash
+    {
+
+        // initialized data
+        h2 = array_hash(p_array, (fn_hash64 *)string_hash);
+
+        // print the hash
+        printf("hash 2 -> 0x%llx\n", h2);
+
+        // error check
+        if ( h1 != h2 ) log_error("Error: hash 1 != hash 2\n");
+
+        // checkpoint
+        checkpoint(p_array, "after hash 2");
+    }
+
+    // #12 - sort
     {
 
         // sort the array
@@ -218,7 +253,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_array, "after sort");
     }
 
-    // #12 - destroy
+    // #13 - destroy
     {
 
         // destroy the array
@@ -228,7 +263,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_array, "after destroy");
     }
 
-    // #13 - end
+    // #14 - end
     checkpoint(p_array, "end");
     
     // success
@@ -324,6 +359,13 @@ int string_compare ( const void *const p_a, const void *const p_b )
          *b = *(char **)p_b;
 
     return strcmp(a, b);
+}
+
+hash64 string_hash ( char *string )
+{
+
+    // done
+    return hash_crc64(string, strlen(string));
 }
 
 int string_pack ( void *p_buffer, const void *const p_value )

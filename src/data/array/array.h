@@ -227,6 +227,16 @@ int array_pack ( void *p_buffer, array *p_array, fn_pack *pfn_element );
  */
 int array_unpack ( array **pp_array, void *p_buffer, fn_unpack *pfn_element );
 
+/// hash
+/** !
+ * Compute a 64-bit hash of an array
+ * 
+ * @param p_array
+ * 
+ * @return hash on success, NULL on error
+ */
+hash64 array_hash ( array *p_array, fn_hash64 *pfn_element );
+
 /// destructors
 /** !
  *  Destroy and deallocate an array
