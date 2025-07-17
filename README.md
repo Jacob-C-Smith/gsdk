@@ -28,7 +28,7 @@
 ## Getting started
 The fastest way to get started is with GitHub Codespaces. You'll be able to view, modify, and run the code without leaving your browser.
 
-<a href="https://codespaces.new/Jacob-C-Smith/sync?quickstart=1"><img src="https://github.com/codespaces/badge.svg" alt="Open in GitHub Codespaces"></a>
+<a href="https://codespaces.new/Jacob-C-Smith/gsdk?quickstart=1"><img src="https://github.com/codespaces/badge.svg" alt="Open in GitHub Codespaces"></a>
 
 ## Modules
 
