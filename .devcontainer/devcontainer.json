@@ -1,6 +1,5 @@
 {
 	"name"           : "gsdk",
-	"image"          : "mcr.microsoft.com/vscode/devcontainers/cpp:0-ubuntu",
 	"customizations" : 
 	{
 		"vscode" : 
