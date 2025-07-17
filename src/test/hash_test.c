@@ -29,9 +29,8 @@ int total_tests      = 0,
     ephemeral_passes = 0,
     ephemeral_fails  = 0;
 
-static const char hegel_logic[] = {
-    #embed "include/test/hegel_logic.txt"
-};
+char _hegel_logic[922886] = { 0 };
+
 // forward declarations
 /** !
  * Print the time formatted in days, hours, minutes, seconds, miliseconds, microseconds
@@ -127,6 +126,15 @@ int main ( int argc, const char* argv[] )
         "│ hash tester │\n"\
         "╰─────────────╯\n\n"
     );
+
+    // load a test file
+    {
+
+        // initialized data
+        FILE *p_f = fopen("include/test/hegel_logic.txt", "r");
+        fread(_hegel_logic, sizeof(_hegel_logic), 1, p_f);
+        fclose(p_f);
+    }
 
     // Start
     t0 = timer_high_precision();
@@ -271,7 +279,7 @@ void test_fnv64 ( char *name )
     print_test(name, "b"            , test_hash(hash_fnv64, "b\0"            , 1 , (hash64)0x5bb2b66505b08eb5));
     print_test(name, "c"            , test_hash(hash_fnv64, "c\0"            , 1 , (hash64)0x5bb2b56505b08d02));
     print_test(name, "Hello, World!", test_hash(hash_fnv64, "Hello, World!\0", 14, (hash64)0xc7e6fdb452cc02c));
-    print_test(name, "Hegel Logic"  , test_hash(hash_fnv64, hegel_logic, sizeof(hegel_logic), (hash64)0x16145b6b24cdc959));
+    print_test(name, "Hegel Logic"  , test_hash(hash_fnv64, _hegel_logic, sizeof(_hegel_logic), (hash64)0x16145b6b24cdc959));
 
     // Print the summary of this test
     print_final_summary();
@@ -292,7 +300,7 @@ void test_crc64 ( char *name )
     print_test(name, "b"            , test_hash(hash_crc64, "b\0"            , 1 , (hash64)0x74a8fe9e8582d431));
     print_test(name, "c"            , test_hash(hash_crc64, "c\0"            , 1 , (hash64)0xc786b22086258b5e));
     print_test(name, "Hello, World!", test_hash(hash_crc64, "Hello, World!\0", 14, (hash64)0x68c3a1bd36cc75e5));
-    print_test(name, "Hegel Logic"  , test_hash(hash_crc64, hegel_logic, sizeof(hegel_logic), (hash64)0xf201a56362a49880));
+    print_test(name, "Hegel Logic"  , test_hash(hash_crc64, _hegel_logic, sizeof(_hegel_logic), (hash64)0xf201a56362a49880));
 
     // Print the summary of this test
     print_final_summary();
@@ -313,7 +321,7 @@ void test_mmh64 ( char *name )
     print_test(name, "b"            , test_hash(hash_mmh64, "b\0"            , 1 , (hash64)0x8336f55eb0901fb4));
     print_test(name, "c"            , test_hash(hash_mmh64, "c\0"            , 1 , (hash64)0xb9232f902f66bf65));
     print_test(name, "Hello, World!", test_hash(hash_mmh64, "Hello, World!\0", 14, (hash64)0xb39ddc5fc6ef2a52));
-    print_test(name, "Hegel Logic"  , test_hash(hash_mmh64, hegel_logic, sizeof(hegel_logic), (hash64)0x9f246debc321d559));
+    print_test(name, "Hegel Logic"  , test_hash(hash_mmh64, _hegel_logic, sizeof(_hegel_logic), (hash64)0x9f246debc321d559));
 
     // Print the summary of this test
     print_final_summary();
