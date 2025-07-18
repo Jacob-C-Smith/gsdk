@@ -201,22 +201,12 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode );
 int main ( int argc, const char *argv[] )
 {
     
-    // initialized data
-    bool examples_to_run[TREE_EXAMPLES_QUANTITY] = { 0 };
-
-    // Parse command line arguments
-    parse_command_line_arguments(argc, argv, examples_to_run);
-
-    // Initialize tree
-    if ( tree_init() == 0 ) goto failed_to_initialize_tree;
-
-    // Seed the RNG for later
-    srand(time(0));
-
     // Formatting
-    log_info("╭──────────────╮\n");
-    log_info("│ tree example │\n");
-    log_info("╰──────────────╯\n");
+    printf("This is a stub\n");
+ 
+    return 0;
+}
+/*
     printf(
         "The tree library provides high level abstractions for %d different trees.\n"\
         "The AVL tree, the B tree, the binary tree, the quadtree, the R tree, and the red black tree.\n\n"\
@@ -876,3 +866,4 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode )
         }
     }
 }
+*/
