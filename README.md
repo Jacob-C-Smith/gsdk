@@ -13,7 +13,7 @@
 </p>
 
 > **Jump to:**  
-> [Features](#features) • [Getting Started](#getting-started) • [Highlights](#highlights) • [Modules](#modules) • [Structure](#structure) • [Build](#build) • [Testing](#testing) • [License](#license)
+> [Features](#features) • [Getting Started](#getting-started) • [Highlights](#highlights) • [Modules](#modules) • [Interfaces](#interfaces) • [Structure](#structure) • [Build](#build) • [Testing](#testing) • [License](#license)
 
 ---
 
@@ -33,18 +33,19 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 ## Modules
 
 <b>key</b><br>
-✔️ → Complete<br>
+✅ → Complete<br>
+✔️ → Needs interfaces<br>
 🧪 → Needs testing<br>
 🏗️ → Work in progress<br>
 ❓ → Thinking about it
 <details open>
     <summary><a href="documentation/core.md">core</a></summary>
     <ul>
-        <li>✔️ <a href="./documentation/core/hash.md">hash</a></li>
+        <li>✅ <a href="./documentation/core/hash.md">hash</a></li>
+        <li>✅ <a href="./documentation/core/pack.md">pack</a></li>
         <li>✔️ <a href="./documentation/core/interfaces.md">interfaces</a></li>
         <li>✔️ <a href="./documentation/core/log.md">log</a></li>
-        <li>✔️ <a href="./documentation/core/pack.md">pack</a></li>
-        <li>✔️ <a href="./documentation/core/sync.md">sync</a></li>
+        <li>🧪 <a href="./documentation/core/sync.md">sync</a></li>
         <li>🏗️ <a href="./documentation/core/crypto.md">crypto</a></li>
         <li>🏗️ <a href="./documentation/core/socket.md">socket</a></li>
     </ul>
@@ -53,12 +54,12 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 <details open>
     <summary><a href="documentation/data.md">data</a></summary>
     <ul>
-        <li>✔️ <a href="./documentation/data/array.md">array</a></li>
+        <li>✅ <a href="./documentation/data/array.md">array</a></li>
+        <li>✅ <a href="./documentation/data/stack.md">stack</a></li>
         <li>✔️ <a href="./documentation/data/circular_buffer.md">circular buffer</a></li>
         <li>✔️ <a href="./documentation/data/dict.md">dict</a></li>
         <li>✔️ <a href="./documentation/data/queue.md">queue</a></li>
         <li>✔️ <a href="./documentation/data/set.md">set</a></li>
-        <li>✔️ <a href="./documentation/data/stack.md">stack</a></li>
         <li>✔️ <a href="./documentation/data/tuple.md">tuple</a></li>
         <li>🧪 <a href="./documentation/data/bitmap.md">bitmap</a></li>
         <li>🧪 <a href="#">cache</a></li>
@@ -66,16 +67,22 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>🧪 <a href="./documentation/data/node.md">node</a></li>
         <li>🧪 <a href="./documentation/data/priority_queue.md">priority queue</a></li>
         <li>🏗️ <a href="./documentation/data/graph.md">graph</a></li>
-        <li>🏗️ <a href="./documentation/data/tree.md">tree</a></li>
+        <li>🏗️ <a href="./documentation/data/b.md">b</a></li>
+        <li>🏗️ <a href="./documentation/data/tree.md">binary</a></li>
+        <li>❓ <a href="#">adjacency list</a></li>
+        <li>❓ <a href="#">adjacency matrix</a></li>
+        <li>❓ <a href="#">edge list</a></li>
         <li>❓ <a href="#">hash table</a></li>
+        <li>❓ <a href="#">avl</a></li>
+        <li>❓ <a href="#">red black</a></li>
     </ul>
 </details>
 
 <details open>
     <summary><a href="documentation/reflection.md">reflection</a></summary>
     <ul>
-        <li>✔️ <a href="./documentation/reflection/base64.md">base64</a></li>
-        <li>✔️ <a href="./documentation/reflection/json.md">json</a></li>
+        <li>✅ <a href="./documentation/reflection/base64.md">base64</a></li>
+        <li>✅ <a href="./documentation/reflection/json.md">json</a></li>
         <li>🏗️ <a href="./documentation/reflection/http.md">http</a></li>
     </ul>
 </details>
@@ -88,6 +95,89 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>❓ <a href="./doocumentation/performance/allocator.md">allocator</a></li>
         <li>❓ <a href="./doocumentation/performance/distribute.md">distribute</a></li>
     </ul>
+</details>
+
+## Interfaces
+
+<b>key</b><br>
+✅ → Yes<br>
+🏗️ → TODO<br>
+
+<details>
+    <summary>identity</summary>
+    
+|                   | `array` | `avl` | `b`   | `binary` | `cache` | `dict` | `graph` | `hash table` | `node` | `priority queue` | `red black` | `set` | `tree` |
+|-------------------|---------|-------|-------|----------|---------|--------|---------|--------------|--------|------------------|-------------|-------|--------|
+| `equality`        | ✅      | ✅    | ✅    | ✅       | ✅      |        |         | ✅           |        | ✅               | ✅         | ✅    | ✅     |
+| `comparator`      | ✅      | ✅    | ✅    | ✅       |         | ✅     |         |              |        | ✅               | ✅         | ✅    | ✅     |
+| `key_accessor`    |         | ✅    | ✅    | ✅       | ✅      | ✅     | ✅      | ✅           | ✅     | ✅               | ✅         | 🏗️    | ✅     |
+</details>
+
+<details>
+    <summary>iterator</summary>
+
+|                   | `array` | `bitmap` | `cache` | `circular buffer` | `dict` | `double queue` | `hash table` | `priority queue` | `queue` | `set` | `stack` | `tuple` |
+|-------------------|---------|----------|---------|-------------------|--------|----------------|--------------|------------------|---------|-------|---------|---------|
+| `fori`            | ✅      | 🏗️       | ✅      | 🏗️                | ✅     | ✅             |             | ✅               | ✅      |       | ✅      | ✅      |
+| `foreach`         | ✅      |          | ✅      | 🏗️                | ✅     | ✅             | ✅          | ✅               | ✅      | ✅    | ✅      | ✅      |
+| `map`             | ✅      |          | ✅      | 🏗️                | 🏗️     | 🏗️             | 🏗️          | 🏗️               | 🏗️      | 🏗️    | 🏗️      |         |
+
+</details>
+
+<details>
+    <summary>reflection</summary>
+
+|                   | `array` | `bitmap` | `cache` | `circular buffer` | `dict` | `double queue` | `graph` | `hash table` | `node` | `priority queue` | `queue` | `set` | `stack` | `tree` | `tuple` |
+|-------------------|---------|----------|---------|-------------------|--------|----------------|---------|--------------|--------|------------------|---------|-------|---------|--------|---------|
+| `pack`            | ✅      | ✅       | ✅      | 🏗️                | ✅     | 🏗️             | 🏗️      | 🏗️          | 🏗️     | 🏗️               | 🏗️      | 🏗️    | ✅      | 🏗️     | ✅      |
+| `unpack`          | ✅      | ✅       | ✅      | 🏗️                | ✅     | 🏗️             | 🏗️      | 🏗️          | 🏗️     | 🏗️               | 🏗️      | 🏗️    | ✅      | 🏗️     | ✅      | 
+| `hash64`          | ✅      | 🏗️       | 🏗️      | 🏗️                | 🏗️     | 🏗️             | 🏗️      | 🏗️           | 🏗️     | 🏗️               | 🏗️      | 🏗️   | ✅      | 🏗️     | 🏗️      |
+</details>
+
+<details>
+    <summary>tree</summary>
+
+|                   | `avl` | `b` | `binary` | `red black` |
+|-------------------|-------|-----|----------|-------------|
+| `search`          | 🏗️    | 🏗️  | ✅       | 🏗️          |
+| `insert`          | 🏗️    | 🏗️  | ✅       | 🏗️          |
+| `remove`          | 🏗️    | 🏗️  | 🏗️       | 🏗️          |
+| `pre-order`       | 🏗️    | 🏗️  | 🏗️       | 🏗️          |
+| `in-order`        | 🏗️    | 🏗️  | 🏗️       | 🏗️          |
+| `post-order`      | 🏗️    | 🏗️  | 🏗️       | 🏗️          |
+
+</details>
+
+<details open>
+    <summary>graph</summary>
+<details>
+    <summary> storage</summary>
+
+|                   | `adjacency list` | `adjacency matrix` | `edge list` |
+|-------------------|------------------|--------------------|-------------|
+| `add vertex`      | 🏗️               | 🏗️                 | 🏗️          |
+| `remove vertex`   | 🏗️               | 🏗️                 | 🏗️          |
+| `add vertex`      | 🏗️               | 🏗️                 | 🏗️          |
+| `remove vertex`   | 🏗️               | 🏗️                 | 🏗️          |
+| `adjacent`        | 🏗️               | 🏗️                 | 🏗️          |
+
+</details>
+<details>
+    <summary> algorithms</summary>
+
+|                               | `unweighted undirected` | `weighted undirected` | `unweighted directed` | `weighted directed` |
+|-------------------------------|-------------------------|-----------------------|-----------------------|---------------------|
+| `all pairs shortest paths`    | 🏗️                      | 🏗️                    | 🏗️                    | 🏗️                  |
+| `minimum spanning tree`       | 🏗️                      | 🏗️                    |                       |                     |
+| `search`                      | 🏗️                      | 🏗️                    | 🏗️                    | 🏗️                  |
+| `sort`                        |                         |                       | 🏗️                    | 🏗️                  |
+| `flow`                        |                         |                       |                       | 🏗️                  |
+| `single source shortest path` | 🏗️                      | 🏗️                    | 🏗️                    | 🏗️                  |
+| `cycle detection`             | 🏗️                      | 🏗️                    | 🏗️                    | 🏗️                  |
+| `transitive closure`          | 🏗️                      | 🏗️                    |                       |                     |
+| `graph coloring`              |                         |                       | 🏗️                    | 🏗️                  |
+
+</details>
 </details>
 
 ## Structure
@@ -115,3 +205,6 @@ $ make tests
 ## License
 
 See [LICENSE](./LICENSE) for details.
+
+### Made with ❤️ for 👥 across 🌎🌍🌏
+ 
