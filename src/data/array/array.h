@@ -20,7 +20,6 @@
 #include <core/interfaces.h>
 
 // type definitions
-
 /// @brief The type definition of an array struct 
 typedef struct array_s array;
 

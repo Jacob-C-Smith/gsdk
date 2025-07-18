@@ -36,7 +36,7 @@ enum color_e
 /// logs
 int checkpoint ( array *p_array, const char *p_event );
 
-// string
+/// string
 void    string_print ( void *p_value, int i );
 int     string_compare ( const void *const p_a, const void *const p_b );
 void   *string_upper_case ( void *p_value );
@@ -96,7 +96,7 @@ int main ( int argc, const char* argv[] )
         for (enum color_e _color = RED; _color < GREEN; _color++)
             array_add(p_array, _p_colors[_color]);
 
-        // print the arrays' elements
+        // checkpoint
         checkpoint(p_array,"after adding < Red, Orange, Yellow >");
     }
 
@@ -117,7 +117,7 @@ int main ( int argc, const char* argv[] )
         for (enum color_e _color = GREEN; _color < COLOR_QUANTITY; _color++)
             array_add(p_array, _p_colors[_color]);
 
-        // print the arrays' elements
+        // checkpoint
         checkpoint(p_array,"after adding < Green, Blue, Purple >");
     }
 

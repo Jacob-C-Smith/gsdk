@@ -112,7 +112,7 @@ bool test_hash ( fn_hash64 *pfn_hash64, char *k, size_t len, hash64 expected );
 int main ( int argc, const char* argv[] )
 {
 
-    // Supress compiler warnings
+    // unused
     (void) argc;
     (void) argv;
     

@@ -115,7 +115,7 @@ int construct_CBA_dequeue_CB   ( circular_buffer **pp_circular_buffer );
 int main ( int argc, const char* argv[] )
 {
 
-    // Supress compiler warnings
+    // unused
 	(void) argc;
 	(void) argv;
 

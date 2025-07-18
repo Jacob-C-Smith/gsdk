@@ -8,6 +8,7 @@
 
 // header file
 #include <data/binary.h>
+#include <string.h>
 
 // static data
 static const unsigned long long eight_bytes_of_f = 0xffffffffffffffff;
@@ -270,9 +271,6 @@ int binary_tree_node_allocate ( binary_tree *p_binary_tree, binary_tree_node **p
                     printf("[tree] Call to function \"binary_tree_node_create\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
-                // unlock
-                mutex_unlock(&p_binary_tree->_lock);
-                
                 // error
                 return 0;
         }
@@ -728,189 +726,102 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
     if ( p_binary_tree->p_root == (void *) 0 ) return 0;
 
     // initialized data
-    binary_tree_node *p_node  = p_binary_tree->p_root;
+    binary_tree_node *p_node  = p_binary_tree->p_root, *p_parent = NULL;
     void *p_value = 0;
     int comparator_return = 0;
 
-    try_again:
-
-    // Which side? 
-    comparator_return = p_binary_tree->functions.pfn_is_equal(
-        p_binary_tree->functions.pfn_key_accessor( p_node->p_value ),
-        p_key
-    );
-
-    // Check the node on the left 
-    if ( comparator_return < 0 )
+    // Find the node to be removed
+    while (p_node != NULL) 
     {
+        comparator_return = p_binary_tree->functions.pfn_is_equal(
+            p_binary_tree->functions.pfn_key_accessor(p_node->p_value),
+            p_key
+        );
 
-        // If the left node is occupied ...
-        if ( p_node->p_left )
-        {
-            
-            // If the left node is the target, remove it ...
-            if ( p_binary_tree->functions.pfn_is_equal(p_binary_tree->functions.pfn_key_accessor(p_node->p_left->p_value), p_key) == 0 ) goto remove_left;
+        if (comparator_return == 0)
+            break;
 
-            // ... otherwise, update the state ...
+        p_parent = p_node;
+        if (comparator_return < 0)
             p_node = p_node->p_left;
-
-            // ... and try again
-            goto try_again;
-        }
-
-        // error
-        return 0;
-    }
-
-    // Check the node on the right
-    else if ( comparator_return > 0 )
-    {
-
-        // If the left node is occupied ...
-        if ( p_node->p_right )
-        {
-
-            // If the left node is the target, remove it ...
-            if ( p_binary_tree->functions.pfn_is_equal(p_binary_tree->functions.pfn_key_accessor(p_node->p_right->p_value), p_key) == 0 ) goto remove_right;
-
-            // ... otherwise, update the state ...
+        else
             p_node = p_node->p_right;
+    }
 
-            // ... and try again
-            goto try_again;
-        }
-
-        // error
+    // Node not found
+    if (p_node == NULL) 
+    {
+        mutex_unlock(&p_binary_tree->_lock);
         return 0;
     }
 
-    done:
+    *pp_value = p_node->p_value;
 
-    // return a pointer to the caller
-    *pp_value = p_value;
+    // Case 1: Node has no children (it's a leaf)
+    if (p_node->p_left == NULL && p_node->p_right == NULL) 
+    {
+        if (p_parent == NULL) 
+        {
+            p_binary_tree->p_root = NULL;
+        } 
+        else if (p_parent->p_left == p_node) 
+        {
+            p_parent->p_left = NULL;
+        } 
+        else 
+        {
+            p_parent->p_right = NULL;
+        }
+        binary_tree_node_destroy(&p_node);
+    }
+    // Case 2: Node has one child
+    else if (p_node->p_left == NULL || p_node->p_right == NULL) 
+    {
+        binary_tree_node *p_child = (p_node->p_left) ? p_node->p_left : p_node->p_right;
+
+        if (p_parent == NULL) 
+        {
+            p_binary_tree->p_root = p_child;
+        } 
+        else if (p_parent->p_left == p_node) 
+        {
+            p_parent->p_left = p_child;
+        } 
+        else 
+        {
+            p_parent->p_right = p_child;
+        }
+        binary_tree_node_destroy(&p_node);
+    }
+    // Case 3: Node has two children
+    else 
+    {
+        binary_tree_node *p_successor_parent = p_node;
+        binary_tree_node *p_successor = p_node->p_right;
+        while (p_successor->p_left != NULL) 
+        {
+            p_successor_parent = p_successor;
+            p_successor = p_successor->p_left;
+        }
+
+        p_node->p_value = p_successor->p_value;
+
+        if (p_successor_parent->p_left == p_successor) 
+        {
+            p_successor_parent->p_left = p_successor->p_right;
+        } 
+        else 
+        {
+            p_successor_parent->p_right = p_successor->p_right;
+        }
+        binary_tree_node_destroy(&p_successor);
+    }
 
     // unlock
     mutex_unlock(&p_binary_tree->_lock);
 
     // success
     return 1;
-
-    // Remove left
-    remove_left:
-    {
-
-        // initialized data
-        binary_tree_node *p_left = p_node->p_left;
-
-        // Store the return value
-        p_value = p_left->p_value;
-
-        // Leaf
-        if ( ( p_left->p_left || p_left->p_right ) == 0 )
-        {
-
-            // Free the node
-            binary_tree_node_destroy(&p_node->p_left);
-        }
-
-        // Left
-        else if ( p_left->p_left && ( p_left->p_right == 0 ) )
-        {
-            
-            // Update the new left node
-            p_left = p_left->p_left;
-
-            // Free the node
-            binary_tree_node_destroy(&p_node->p_left);
-
-            // Repair the tree
-            p_node->p_left = p_left;
-        }
-
-        // Right
-        else if ( ( p_left->p_left == 0 ) && p_left->p_right )
-        {
-            
-            // Update the new left node
-            p_left = p_left->p_right;
-
-            // Free the node
-            binary_tree_node_destroy(&p_node->p_left);
-
-            // Repair the tree
-            p_node->p_left = p_left;
-        }
-
-        // TODO: Left AND right
-        else
-        {
-            // Find the successor
-            // Swap the successor
-            // Done
-        }
-        
-        // Done
-        goto done;
-    }
-
-    // Remove right
-    remove_right:
-    {
-
-        // initialized data
-        binary_tree_node *p_right = p_node->p_right;
-        
-        // Store the return value
-        p_value = p_right->p_value;
-
-        // Leaf
-        if ( ( p_right->p_left || p_right->p_right ) == 0 )
-        {
-
-            // Free the node
-            binary_tree_node_destroy(&p_node->p_right);
-        }
-
-
-        // Left
-        else if ( p_right->p_left && ( p_right->p_right == 0 ) )
-        {
-            
-            // Update the new left node
-            p_right = p_right->p_left;
-
-            // Free the node
-            binary_tree_node_destroy(&p_node->p_right);
-
-            // Repair the tree
-            p_node->p_right = p_right;
-        }
-
-        // Right
-        else if ( ( p_right->p_left == 0 ) && p_right->p_right )
-        {
-            
-            // Update the new left node
-            p_right = p_right->p_right;
-
-            // Free the node
-            binary_tree_node_destroy(&p_node->p_right);
-
-            // Repair the tree
-            p_node->p_right = p_right;
-        }
-
-        // TODO: Left AND right
-        else
-        {
-            // Find the successor
-            // Swap the successor
-            // Done
-        }
-
-        // Done
-        goto done;
-    }
 
     // error handling
     {
@@ -1064,6 +975,9 @@ int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, fn_binary_
     if ( p_binary_tree == (void *) 0 ) goto no_binary_tree;
     if ( pfn_traverse  == (void *) 0 ) goto no_traverse_function;
 
+    // edge case
+    if ( 0 == p_binary_tree->metadata.node_quantity ) return 1;
+
     // lock
     mutex_lock(&p_binary_tree->_lock);
 
@@ -1120,6 +1034,9 @@ int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, fn_binary_t
     // argument check
     if ( p_binary_tree == (void *) 0 ) goto no_binary_tree;
     if ( pfn_traverse  == (void *) 0 ) goto no_traverse_function;
+
+    // edge case
+    if ( 0 == p_binary_tree->metadata.node_quantity ) return 1;
 
     // lock
     mutex_lock(&p_binary_tree->_lock);
@@ -1179,6 +1096,9 @@ int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_binary
     if ( p_binary_tree == (void *) 0 ) goto no_binary_tree;
     if ( pfn_traverse  == (void *) 0 ) goto no_traverse_function;
 
+    // edge case
+    if ( 0 == p_binary_tree->metadata.node_quantity ) return 1;
+    
     // lock
     mutex_lock(&p_binary_tree->_lock);
 
@@ -1257,7 +1177,7 @@ int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, 
     }
 
     // Allocate a binary tree
-    if ( binary_tree_construct(&p_binary_tree, pfn_is_equal, pfn_tree_key_accessor, node_size-sizeof(p_binary_tree->metadata)) == 0 ) goto failed_to_construct_binary_tree;
+    if ( binary_tree_construct(&p_binary_tree, pfn_is_equal, pfn_tree_key_accessor, node_size) == 0 ) goto failed_to_construct_binary_tree;
 
     // Read the root node
     if ( binary_tree_parse_node(p_f, p_binary_tree, &p_binary_tree->p_root, pfn_parse_node) == 0 ) goto failed_to_construct_binary_tree;
@@ -1623,7 +1543,7 @@ int binary_tree_node_destroy ( binary_tree_node **const pp_binary_tree_node )
     if ( binary_tree_node_destroy(&p_binary_tree_node->p_right) == 0 ) goto failed_to_free;
 
     // Free the node
-    p_binary_tree_node = realloc(p_binary_tree_node, 0);
+    *pp_binary_tree_node = realloc(p_binary_tree_node, 0);
 
     // success
     return 1;

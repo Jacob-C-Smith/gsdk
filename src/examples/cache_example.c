@@ -92,7 +92,7 @@ int main ( int argc, const char* argv[] )
         for (enum color_e _color = GREEN; _color < COLOR_QUANTITY; _color++)
             cache_insert(p_cache, _p_colors[_color], _p_colors[_color]);
         
-        // print the caches' elements
+        // checkpoint
         checkpoint(p_cache,"after adding < Green, Blue, Indigo, Violet >");
     }
         
@@ -105,7 +105,7 @@ int main ( int argc, const char* argv[] )
         // find yellow
         cache_find(p_cache, "Blue", &p_value);
 
-        // print the caches' elements
+        // checkpoint
         checkpoint(p_cache,"after find \"Blue\"");
     }
 
@@ -116,7 +116,7 @@ int main ( int argc, const char* argv[] )
         for (enum color_e _color = RED; _color < GREEN; _color++)
             cache_insert(p_cache, _p_colors[_color], _p_colors[_color]);
         
-        // print the caches' elements
+        // checkpoint
         checkpoint(p_cache,"after adding < Red, Orange, Yellow >");
     }
 
@@ -131,7 +131,7 @@ int main ( int argc, const char* argv[] )
             if ( 0 == cache_find(p_cache, _p_colors[_color], &p_value) )
                 log_error("\"%s\" not found\n", _p_colors[_color]);
 
-        // print the caches' elements
+        // checkpoint
         checkpoint(p_cache, "after find < Violet -> Indigo -> Blue -> ... >");
     }
 
@@ -142,7 +142,7 @@ int main ( int argc, const char* argv[] )
         for (int i = 1; i < COLOR_QUANTITY; i += 3)
             cache_remove(p_cache, _p_colors[i], NULL);
 
-        // print the caches' elements
+        // checkpoint
         checkpoint(p_cache,"after removing < Orange, Blue >");
     }
 
@@ -205,9 +205,28 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_cache, "after parse");
     }
     
-    // #11 - destroy
-
     // #11 - find
+    {
+        
+        // initialized data
+        void *p_value = NULL;
+        
+        // find yellow
+        cache_find(p_cache, "Blue", &p_value);
+
+        // checkpoint
+        checkpoint(p_cache,"after find \"Blue\"");
+    }
+
+    // #12 - destroy
+    {
+
+        // destroy the cache
+        cache_destroy(&p_cache);
+
+        // checkpoint
+        checkpoint(p_cache, "after destroy");
+    }
 
     // #12 - end
     checkpoint(p_cache, "end");

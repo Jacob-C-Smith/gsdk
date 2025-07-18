@@ -736,7 +736,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
     // Parse whitespace
     if ( p_value ) (void) json_whitespace_parse(text, &text);
 
-    // Write the return value
+    // Write the result
     *pp_value = p_value;
 
     // Update the cursor

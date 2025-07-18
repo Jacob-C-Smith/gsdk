@@ -364,7 +364,7 @@ void construct_ABC_remove2_AB  ( array **pp_array );
 int main ( int argc, const char* argv[] )
 {
     
-    // Supress compiler warnings
+    // unused
     (void) argc;
     (void) argv;
 

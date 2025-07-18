@@ -80,7 +80,7 @@ int code_gen_aarch32_example ( int argc, const char *argv[] );
 int main ( int argc, const char *argv[] )
 {
 
-    // Supress compiler warnings
+    // unused
     (void) argc;
     (void) argv;
 

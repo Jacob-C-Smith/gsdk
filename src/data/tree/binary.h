@@ -15,7 +15,8 @@
 #include <stdbool.h>
 #include <string.h>
 
-// sync submodule
+// core
+#include <core/log.h>
 #include <core/sync.h>
 
 // data

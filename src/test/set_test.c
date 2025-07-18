@@ -395,7 +395,7 @@ void construct_ABC_remove2_AB  ( set **pp_set );
 int main ( int argc, const char* argv[] )
 {
     
-    // Supress compiler warnings
+    // unused
     (void) argc;
     (void) argv;
 

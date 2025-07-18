@@ -73,9 +73,9 @@ int main ( int argc, const char *argv[] )
     // pack the tuple
     len = tuple_pack(p_tuple, buf, (fn_pack *) pack_array_of_bitmaps);
 
-    // write the buffer to a file
-    // fwrite(buf, len, 1, p_f),
-    // memset(buf, 0, sizeof(buf)),
+    //write the buffer to a file
+    fwrite(buf, len, 1, p_f),
+    memset(buf, 0, sizeof(buf)),
 
     // close the file
     fclose(p_f);

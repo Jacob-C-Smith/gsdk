@@ -37,7 +37,7 @@ int print_raw ( void *p_buf, size_t len );
 int main ( int argc, const char *argv[] )
 {
 
-    // Supress compiler warnings
+    // unused
     (void) argc;
     (void) argv;
 

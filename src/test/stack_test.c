@@ -86,7 +86,7 @@ int main ( int argc, const char* argv[] )
     timestamp t0 = 0,
               t1 = 0;
 
-    // Supress compiler warnings
+    // unused
     (void) argc;
     (void) argv;
 

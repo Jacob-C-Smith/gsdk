@@ -95,7 +95,7 @@ bool test_decode_base64 ( char *test_text, char *expected_text, result_t expecte
 int main ( int argc, const char* argv[] )
 {
 
-    // Supress compiler warnings
+    // unused
     (void) argc;
     (void) argv;
     

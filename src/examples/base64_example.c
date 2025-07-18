@@ -18,7 +18,7 @@
 int main ( int argc, const char *argv[] )
 {
 
-    // Supress compiler warnings
+    // unused
     (void) argc;
     (void) argv;
 

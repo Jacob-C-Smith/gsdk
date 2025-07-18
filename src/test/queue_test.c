@@ -94,7 +94,7 @@ int construct_CBA_dequeue_CB   ( queue **pp_queue );
 int main ( int argc, const char* argv[] )
 {
 
-    // Supress compiler warnings
+    // unused
     (void) argc;
     (void) argv;
 

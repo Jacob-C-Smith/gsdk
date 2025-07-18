@@ -140,7 +140,7 @@ int sync_monitor_example ( int argc, const char *argv[] );
 int main ( int argc, const char *argv[] )
 {
 
-    // Supress compiler warnings
+    // unused
     (void) argc;
     (void) argv;
 
