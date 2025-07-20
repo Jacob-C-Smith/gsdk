@@ -70,13 +70,13 @@ int stack_pop ( stack *const p_stack, const void **const ret );
  * Peek the top of the stack
  * 
  * @param p_stack the stack
- * @param ret result
+ * @param ret     result
  * 
  * @sa stack_pop
  * 
  * @return 1 on success, 0 on error
 */
-int stack_peek ( stack *const p_stack, const void **const ret );
+int stack_peek ( stack *p_stack, void **ret );
 
 /// iterators
 /** !

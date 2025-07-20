@@ -142,7 +142,7 @@ int main ( int argc, const char *argv[] )
     p_quasi_hash_table = realloc(0, sizeof(struct quasi_hash_table_s));
 
     #ifdef HASH_TABLE_OPTIMIZER_DISPLAY_MODE
-        printf("\r%d lines read\n\n", entry_quantity);
+        printf("\r%zu lines read\n\n", entry_quantity);
     #endif
 
     // until all the properties fit without collisions ...
@@ -179,7 +179,7 @@ int main ( int argc, const char *argv[] )
 
         // display mode 
         #ifdef HASH_TABLE_OPTIMIZER_DISPLAY_MODE
-            printf("\rNo collisions at size %d\n\n", hash_table_test_size);
+            printf("\rNo collisions at size %zu\n\n", hash_table_test_size);
         #endif
 
         // done
@@ -192,7 +192,7 @@ int main ( int argc, const char *argv[] )
 
             // display mode 
             #ifdef HASH_TABLE_OPTIMIZER_DISPLAY_MODE
-                printf("\rCollisions at size %d", hash_table_test_size - 1);
+                printf("\rCollisions at size %zu", hash_table_test_size - 1);
                 fflush(stdout);
                 system("sleep 0.25");
             #endif 

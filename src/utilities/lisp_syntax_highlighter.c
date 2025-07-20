@@ -8,6 +8,7 @@
 
 // standard library
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 
 // core
@@ -20,6 +21,10 @@
 int main ( int argc, const char *argv[] )
 {
     
+    // unused
+    (void) argc;
+    (void) argv;
+
     // initialized data
     stack *p_stack = NULL;
     int state = 1;
@@ -42,8 +47,12 @@ int main ( int argc, const char *argv[] )
                 break;
             case '(':
 
-                // Preserve the current state
-                stack_push(p_stack, (void *) state);
+                // Preserve the current state - allocate integer for stack
+                {
+                    int *p_state = malloc(sizeof(int));
+                    *p_state = state;
+                    stack_push(p_stack, p_state);
+                }
 
                 // Update the state
                 state = 1;
@@ -52,7 +61,15 @@ int main ( int argc, const char *argv[] )
             case ')':
 
                 // Restore the previous state
-                stack_pop(p_stack, (void *) &state);
+                {
+                    const void *p_temp;
+                    stack_pop(p_stack, &p_temp);
+                    if (p_temp) {
+                        int *p_state = (int *)p_temp;
+                        state = *p_state;
+                        free(p_state);
+                    }
+                }
 
                 printf("\033[0m)\033[%dm", state > 0 ? 31 : 34);
                 continue;

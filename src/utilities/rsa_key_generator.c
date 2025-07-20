@@ -27,6 +27,10 @@
 // entry point
 int main ( int argc, const char *argv[] )
 {
+    
+    // unused
+    (void) argc;
+    (void) argv;
 
     // initialized data
     public_key  *p_public_key  = NULL;

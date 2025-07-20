@@ -201,6 +201,10 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode );
 int main ( int argc, const char *argv[] )
 {
     
+    // unused
+    (void) argc;
+    (void) argv;
+
     // Formatting
     printf("This is a stub\n");
  

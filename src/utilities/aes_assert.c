@@ -385,7 +385,7 @@ int aes_encrypt_block ( unsigned char *p_output, unsigned char *p_input, unsigne
     // Iterate over rounds (1 to nround-1)
     for (iround = 1; iround < nround; iround++)
     {
-        printf(" Round #%i\n", iround);
+        printf(" Round #%zu\n", iround);
         START_OF_ROUND(state);
 
         sub_bytes(state);
@@ -452,7 +452,9 @@ void aes_encrypt_cbc ( const void *input, size_t length, const unsigned char *ke
 int aes_iv_construct ( char *p_iv )
 {
     FILE* urandom = fopen("/dev/urandom", "rb");
-    if (urandom == NULL);
+    if (urandom == NULL) {
+        return 0; // Return error if can't open /dev/urandom
+    }
     fread(p_iv, 1, 16, urandom);
     PRINT_IV(p_iv);
     fclose(urandom);
@@ -462,6 +464,10 @@ int aes_iv_construct ( char *p_iv )
 // Entry point
 int main ( int argc, const char *argv[] )
 {
+    
+    // unused
+    (void) argc;
+    (void) argv;
 
     char _iv[16] = { 0 };
 

@@ -766,6 +766,9 @@ int test_serial_array ( char *name )
 result_t load_json ( json_value **pp_value, char *test_file, char **free_me )
 {
 
+    // unused
+    (void) free_me;
+
     // initialized data
     size_t    file_len = load_file(test_file, 0, false);
     char     *file_buf = realloc(0, file_len + 1);

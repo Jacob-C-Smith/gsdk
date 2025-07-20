@@ -208,7 +208,7 @@ int stack_pop ( stack *const p_stack, const void **const ret )
 	}
 }
 
-int stack_peek ( stack *const p_stack, const void **const ret )
+int stack_peek ( stack *p_stack, void **ret )
 {
 
 	// argument check
@@ -278,8 +278,8 @@ int stack_fori ( stack *p_stack, fn_fori *pfn_fori )
     // iterate over each element in the stack
     for (size_t i = 0; i < p_stack->offset; i++)
         
-        // Call the function
-        pfn_fori(p_stack->_p_data[i], i);
+        // Call the function (casting away const as the interface expects non-const)
+        pfn_fori((void *)p_stack->_p_data[i], i);
 
     // unlock
     mutex_unlock(&p_stack->_lock);
@@ -433,7 +433,6 @@ hash64 stack_hash ( stack *p_stack, fn_hash64 *pfn_element )
 
     // initialized data
     hash64     result     = 0;
-	fn_hash64 *pfn_hash64 = (pfn_element) ? pfn_element : hash_crc64;
 
     // iterate through each element in the stack
     for (size_t i = 0; i < p_stack->offset; i++)

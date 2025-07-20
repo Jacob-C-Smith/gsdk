@@ -238,22 +238,6 @@ int main ( int argc, const char *argv[] )
             // error
             return EXIT_FAILURE;
             
-        failed_to_run_spinlock_example:
-
-            // Write an error message to standard out
-            log_error("Error: Failed to run spinlock example!\n");
-
-            // error
-            return EXIT_FAILURE;
-        
-        failed_to_run_read_write_lock_example:
-        
-            // Write an error message to standard out
-            log_error("Error: Failed to run read write lock example!\n");
-
-            // error
-            return EXIT_FAILURE;
-            
         failed_to_run_semaphore_example:
 
             // Write an error message to standard out
@@ -274,14 +258,6 @@ int main ( int argc, const char *argv[] )
 
             // Write an error message to standard out
             log_error("Error: Failed to run monitor example!\n");
-
-            // error
-            return EXIT_FAILURE;
-
-        failed_to_run_barrier_example:
-
-            // Write an error message to standard out
-            log_error("Error: Failed to run barrier example!\n");
 
             // error
             return EXIT_FAILURE;

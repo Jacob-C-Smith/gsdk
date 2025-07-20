@@ -41,7 +41,7 @@ void    string_print ( void *p_value, int i );
 int     string_compare ( const void *const p_a, const void *const p_b );
 void   *string_upper_case ( void *p_value );
 void   *string_lower_case ( void *p_value );
-hash64  string_hash ( char *string );
+hash64  string_hash ( const void *const string, unsigned long long unused );
 int     string_pack ( void *p_buffer, const void *const p_value );
 int     string_unpack ( void *const p_value, void *p_buffer );
  
@@ -94,7 +94,7 @@ int main ( int argc, const char* argv[] )
 
         // add some colors
         for (enum color_e _color = RED; _color < GREEN; _color++)
-            array_add(p_array, _p_colors[_color]);
+            array_add(p_array, (void *)_p_colors[_color]);
 
         // checkpoint
         checkpoint(p_array,"after adding < Red, Orange, Yellow >");
@@ -115,7 +115,7 @@ int main ( int argc, const char* argv[] )
         
         // add some colors
         for (enum color_e _color = GREEN; _color < COLOR_QUANTITY; _color++)
-            array_add(p_array, _p_colors[_color]);
+            array_add(p_array, (void *)_p_colors[_color]);
 
         // checkpoint
         checkpoint(p_array,"after adding < Green, Blue, Purple >");
@@ -361,8 +361,11 @@ int string_compare ( const void *const p_a, const void *const p_b )
     return strcmp(a, b);
 }
 
-hash64 string_hash ( char *string )
+hash64 string_hash ( const void *const string, unsigned long long unused )
 {
+
+    // unused
+    (void)unused;
 
     // done
     return hash_crc64(string, strlen(string));

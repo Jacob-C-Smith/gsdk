@@ -36,6 +36,10 @@ struct secure_socket_s
 int secure_socket_create ( secure_socket **pp_secure_socket, enum socket_address_family_e address_family, unsigned short port_number )
 {
 
+    // unused 
+    (void)address_family;
+    (void)port_number;
+
     // argument check
     if ( pp_secure_socket == (void *) 0 ) goto no_secure_socket; 
 
@@ -64,34 +68,6 @@ int secure_socket_create ( secure_socket **pp_secure_socket, enum socket_address
                 // error
                 return 0;
         }
-
-        // socket errors
-        {
-            failed_to_create_socket:
-                #ifndef NDEBUG
-                    printf("[secure socket] Call to function \"socket\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-
-            failed_to_set_socket_option:
-                #ifndef NDEBUG
-                    printf("[secure socket] Call to function \"setsockopt\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-            
-            failed_to_bind_socket:
-                #ifndef NDEBUG
-                    printf("[secure socket] Call to function \"bind\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-
-        }
     
         // standard library errors
         {
@@ -108,6 +84,10 @@ int secure_socket_create ( secure_socket **pp_secure_socket, enum socket_address
 
 int secure_socket_listen ( secure_socket *p_secure_socket, fn_secure_socket_accept pfn_tcp_accept_callback, void *const p_tcp_accept_callback_parameter )
 {
+
+    // unused
+    (void)pfn_tcp_accept_callback;
+    (void)p_tcp_accept_callback_parameter;
 
     // initialized data
     socket_tcp new_socket = 0;
@@ -134,7 +114,6 @@ int secure_socket_listen ( secure_socket *p_secure_socket, fn_secure_socket_acce
     {
     
         // initialized data
-        unsigned char _server_hello_plain[4096] = { 0 };
         unsigned char _server_hello[4096] = { 0 };
 
         // pack the server's public key

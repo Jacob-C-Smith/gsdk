@@ -723,11 +723,14 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
     mutex_lock(&p_binary_tree->_lock);
 
     // State check
-    if ( p_binary_tree->p_root == (void *) 0 ) return 0;
+    if ( p_binary_tree->p_root == (void *) 0 ) 
+    {
+        mutex_unlock(&p_binary_tree->_lock);
+        return 0;
+    }
 
     // initialized data
     binary_tree_node *p_node  = p_binary_tree->p_root, *p_parent = NULL;
-    void *p_value = 0;
     int comparator_return = 0;
 
     // Find the node to be removed
@@ -791,6 +794,10 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
         {
             p_parent->p_right = p_child;
         }
+        
+        // Nullify child pointers to prevent recursive destruction of moved child
+        p_node->p_left = NULL;
+        p_node->p_right = NULL;
         binary_tree_node_destroy(&p_node);
     }
     // Case 3: Node has two children
@@ -814,6 +821,10 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
         {
             p_successor_parent->p_right = p_successor->p_right;
         }
+        
+        // Nullify child pointers to prevent recursive destruction of moved child
+        p_successor->p_left = NULL;
+        p_successor->p_right = NULL;
         binary_tree_node_destroy(&p_successor);
     }
 
