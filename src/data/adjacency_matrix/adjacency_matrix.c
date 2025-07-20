@@ -106,7 +106,7 @@ int adjacency_matrix_edge_add(adjacency_matrix *p_matrix, void *p_a_value, void 
     // Argument check
     if (p_matrix == NULL || p_a_value == NULL || p_b_value == NULL) return 0;
 
-    ssize_t a_idx = -1, b_idx = -1;
+    size_t a_idx = -1, b_idx = -1;
 
     for(size_t i = 0; i < p_matrix->size; i++)
     {
