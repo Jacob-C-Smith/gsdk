@@ -147,7 +147,7 @@ jobs:
           chmod +x ${{github.workspace}}/build/tests/stack_test
           ${{github.workspace}}/build/tests/stack_test
   
-  tree:
+  binary:
     needs: data
     runs-on: ubuntu-latest
     steps:
@@ -157,10 +157,10 @@ jobs:
         with:
           name: build
           path: build
-      - name: Run tree test
+      - name: Run binary test
         run: |
-          chmod +x ${{github.workspace}}/build/tests/tree_test
-          ${{github.workspace}}/build/tests/tree_test
+          chmod +x ${{github.workspace}}/build/tests/binary_test
+          ${{github.workspace}}/build/tests/binary_test
   
   tuple:
     needs: data
