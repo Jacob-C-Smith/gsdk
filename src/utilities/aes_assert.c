@@ -221,7 +221,7 @@ const unsigned char large_key[32] =
     '3', '4', '5', '6'
 };
 
-/*
+
 char message[16] = 
 {
     0x32, 0x43, 0xf6, 0xa8,
@@ -229,9 +229,9 @@ char message[16] =
     0x31, 0x31, 0x98, 0xa2,
     0xe0, 0x37, 0x07, 0x34
 };
-*/
 
-char message[] = "Guten morgen guten tag guten ab";
+
+// char message[] = "Guten morgen guten tag guten ab";
 
 size_t iround = 0;
 
@@ -419,33 +419,36 @@ int aes_encrypt_block ( unsigned char *p_output, unsigned char *p_input, unsigne
 
 void aes_encrypt_cbc ( const void *input, size_t length, const unsigned char *key, unsigned char* output, const unsigned char* iv )
 {
-    size_t num_blocks = (length + 15) / 16;
-    unsigned char buffer[16] = { };
-    unsigned char prev_block[16] = { };
-    memcpy(prev_block, iv, 16);
-
-    for (size_t i = 0; i < num_blocks; ++i) {
-        size_t block_start = i * 16;
-        size_t remaining = length - block_start;
-
-        // Copy and pad block
-        memset(buffer, 0, 16);
-        size_t copy_len = remaining >= 16 ? 16 : remaining;
-        memcpy(buffer, (unsigned char*)input + block_start, copy_len);
-
-        if (remaining < 16) {
-            // PKCS#7 padding
-            unsigned char pad_val = 16 - remaining;
-            memset(buffer + copy_len, pad_val, pad_val);
-        }
-
-        // XOR with previous ciphertext block (CBC step)
-        for (int j = 0; j < 16; ++j) buffer[j] ^= prev_block[j];
-
-        aes_encrypt_block(output + block_start, buffer, key); 
+    const unsigned char *input_bytes = (const unsigned char *)input;
+    unsigned char current_iv[16];
+    unsigned char plaintext_block[16];
+    unsigned char ciphertext_block[16];
+    
+    // Copy IV to working buffer
+    memcpy(current_iv, iv, 16);
+    
+    // Process each 16-byte block
+    for (size_t i = 0; i < length; i += 16) {
+        // Handle potential partial block at the end
+        size_t block_size = (i + 16 <= length) ? 16 : length - i;
         
-        // your 16-byte cipher
-        memcpy(prev_block, output + block_start, 16);
+        // Copy input block and pad with zeros if necessary
+        memset(plaintext_block, 0, 16);
+        memcpy(plaintext_block, input_bytes + i, block_size);
+        
+        // XOR plaintext block with IV (or previous ciphertext block)
+        for (int j = 0; j < 16; j++) {
+            plaintext_block[j] ^= current_iv[j];
+        }
+        
+        // Encrypt the XORed block
+        aes_encrypt_block(ciphertext_block, plaintext_block, (unsigned char *)key);
+        
+        // Copy ciphertext to output
+        memcpy(output + i, ciphertext_block, (block_size == 16) ? 16 : block_size);
+        
+        // Update IV for next iteration (use current ciphertext block as next IV)
+        memcpy(current_iv, ciphertext_block, 16);
     }
 }
 
@@ -469,19 +472,43 @@ int main ( int argc, const char *argv[] )
     (void) argc;
     (void) argv;
 
+
     char _iv[16] = { 0 };
 
     aes_iv_construct(_iv);
 
-    // Encrypt a message
-    aes_encrypt_cbc(message, 32, small_key, message, _iv);
-
-    // Write the binary to a file
     {
-        FILE *f = fopen("resources/core/aes.enc", "wb");
-        fwrite(message, 1, 32, f);
-        fclose(f);
+        // Encrypt a message
+        aes_encrypt_block(message, message, small_key);
+
+        // Write the binary to a file
+        {
+            FILE *f = fopen("resources/core/aes.enc", "wb");
+            fwrite(message, 1, 32, f);
+            fclose(f);
+        }
     }
+
+    {
+        // Encrypt a message in CBC mode
+        unsigned char output[64] = { 0 };
+        aes_encrypt_cbc(message, sizeof(message), small_key, output, (unsigned char *)_iv);
+
+        // Write the binary to a file
+        {
+            FILE *f = fopen("resources/core/aes_cbc.enc", "wb");
+            fwrite(output, 1, sizeof(output), f);
+            fclose(f);
+        }
+    }
+
+    // Print the IV
+    printf("IV: ");
+    for (size_t i = 0; i < sizeof(_iv); i++) {
+        printf("%02x", (unsigned char)_iv[i]);
+    }
+    
+    printf("\n");
 
     // Success
     return EXIT_SUCCESS;
