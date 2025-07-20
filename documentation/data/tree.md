@@ -64,7 +64,7 @@ typedef int (fn_binary_tree_traverse)  (void *p_key, void *p_value);
 int binary_tree_create ( binary_tree **const pp_binary_tree );
 
 // constructors
-int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_tree_equal *pfn_is_equal, unsigned long long node_size );
+int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_equality *pfn_is_equal, unsigned long long node_size );
 
 // accessors
 int binary_tree_search ( const binary_tree *const p_binary_tree, const void *const p_key, const void **const pp_value );
@@ -79,7 +79,7 @@ int binary_tree_traverse_inorder   ( binary_tree *const p_binary_tree, fn_binary
 int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse );
 
 // Parser
-int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, fn_tree_equal *pfn_is_equal, fn_binary_tree_parse *pfn_parse_node );
+int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, fn_equality *pfn_is_equal, fn_binary_tree_parse *pfn_parse_node );
 
 // Serializer
 int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path, fn_binary_tree_serialize *pfn_serialize_node );
@@ -105,7 +105,7 @@ typedef int (fn_b_tree_traverse)  (void *p_key, void *p_value);
 int b_tree_create ( b_tree **const pp_b_tree );
 
 // constructors
-int b_tree_construct ( b_tree **const pp_b_tree, const char *const path, fn_tree_equal *pfn_is_equal, int degree, unsigned long long node_size );
+int b_tree_construct ( b_tree **const pp_b_tree, const char *const path, fn_equality *pfn_is_equal, int degree, unsigned long long node_size );
 
 // accessors
 int b_tree_search ( const b_tree *const p_b_tree, const void *const p_key, const void **const pp_value );
@@ -120,7 +120,7 @@ int binary_tree_traverse_inorder   ( b_tree *const p_b_tree, fn_b_tree_traverse 
 int binary_tree_traverse_postorder ( b_tree *const p_b_tree, fn_b_tree_traverse *pfn_traverse );
 
 // Parser
-int b_tree_parse ( b_tree **const pp_b_tree, FILE *p_file, fn_tree_equal *pfn_is_equal, fn_b_tree_parse *pfn_parse_node );
+int b_tree_parse ( b_tree **const pp_b_tree, FILE *p_file, fn_equality *pfn_is_equal, fn_b_tree_parse *pfn_parse_node );
 
 // Serializer
 int b_tree_serialize ( b_tree *const p_b_tree, const char *p_path, fn_b_tree_serialize *pfn_serialize_node );

@@ -56,6 +56,7 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
     <ul>
         <li>✅ <a href="./documentation/data/array.md">array</a></li>
         <li>✅ <a href="./documentation/data/stack.md">stack</a></li>
+        <li>✔️ <a href="./documentation/data/tree.md">binary</a></li>
         <li>✔️ <a href="./documentation/data/circular_buffer.md">circular buffer</a></li>
         <li>✔️ <a href="./documentation/data/dict.md">dict</a></li>
         <li>✔️ <a href="./documentation/data/queue.md">queue</a></li>
@@ -66,11 +67,10 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>🧪 <a href="./documentation/data/double_queue.md">double ended queue</a></li>
         <li>🧪 <a href="./documentation/data/node.md">node</a></li>
         <li>🧪 <a href="./documentation/data/priority_queue.md">priority queue</a></li>
-        <li>🏗️ <a href="./documentation/data/graph.md">graph</a></li>
+        <li>🏗️ <a href="#">adjacency list</a></li>
+        <li>🏗️ <a href="#">adjacency matrix</a></li>
         <li>🏗️ <a href="./documentation/data/b.md">b</a></li>
-        <li>🏗️ <a href="./documentation/data/tree.md">binary</a></li>
-        <li>❓ <a href="#">adjacency list</a></li>
-        <li>❓ <a href="#">adjacency matrix</a></li>
+        <li>🏗️ <a href="./documentation/data/graph.md">graph</a></li>
         <li>❓ <a href="#">edge list</a></li>
         <li>❓ <a href="#">hash table</a></li>
         <li>❓ <a href="#">avl</a></li>
@@ -141,10 +141,10 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 |-------------------|-------|-----|----------|-------------|
 | `search`          | 🏗️    | 🏗️  | ✅       | 🏗️          |
 | `insert`          | 🏗️    | 🏗️  | ✅       | 🏗️          |
-| `remove`          | 🏗️    | 🏗️  | 🏗️       | 🏗️          |
-| `pre-order`       | 🏗️    | 🏗️  | 🏗️       | 🏗️          |
-| `in-order`        | 🏗️    | 🏗️  | 🏗️       | 🏗️          |
-| `post-order`      | 🏗️    | 🏗️  | 🏗️       | 🏗️          |
+| `remove`          | 🏗️    | 🏗️  | ✅       | 🏗️          |
+| `pre-order`       | 🏗️    | 🏗️  | ✅       | 🏗️          |
+| `in-order`        | 🏗️    | 🏗️  | ✅       | 🏗️          |
+| `post-order`      | 🏗️    | 🏗️  | ✅       | 🏗️          |
 
 </details>
 
@@ -155,11 +155,11 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 
 |                   | `adjacency list` | `adjacency matrix` | `edge list` |
 |-------------------|------------------|--------------------|-------------|
-| `add vertex`      | 🏗️               | 🏗️                 | 🏗️          |
-| `remove vertex`   | 🏗️               | 🏗️                 | 🏗️          |
-| `add vertex`      | 🏗️               | 🏗️                 | 🏗️          |
-| `remove vertex`   | 🏗️               | 🏗️                 | 🏗️          |
-| `adjacent`        | 🏗️               | 🏗️                 | 🏗️          |
+| `add vertex`      | ✅               | ✅                  | 🏗️          |
+| `remove vertex`   | ✅               | ✅                  | 🏗️          |
+| `add vertex`      | ✅               | ✅                  | 🏗️          |
+| `remove vertex`   | ✅               | ✅                  | 🏗️          |
+| `adjacent`        | ✅               | ✅                  | 🏗️          |
 
 </details>
 <details>

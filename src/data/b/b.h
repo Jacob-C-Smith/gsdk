@@ -103,7 +103,7 @@ struct b_tree_s
 
     struct 
     {
-        fn_tree_equal       *pfn_is_equal;
+        fn_equality       *pfn_is_equal;
         fn_b_tree_serialize *pfn_serialize_node;
         fn_b_tree_parse     *pfn_parse_node;
     } functions;
@@ -130,7 +130,7 @@ int b_tree_create ( b_tree **const pp_b_tree );
  * 
  * @return 1 on success, 0 on error
  */
-int b_tree_construct ( b_tree **const pp_b_tree, const char *const path, fn_tree_equal *pfn_is_equal, int degree, unsigned long long node_size );
+int b_tree_construct ( b_tree **const pp_b_tree, const char *const path, fn_equality *pfn_is_equal, int degree, unsigned long long node_size );
 
 // accessors
 /** !
@@ -208,7 +208,7 @@ int b_tree_traverse_postorder ( b_tree *const p_b_tree, fn_b_tree_traverse *pfn_
  * 
  * @return 1 on success, 0 on error
  */
-int b_tree_parse ( b_tree **const pp_b_tree, FILE *p_file, fn_tree_equal *pfn_is_equal, fn_b_tree_parse *pfn_parse_node );
+int b_tree_parse ( b_tree **const pp_b_tree, FILE *p_file, fn_equality *pfn_is_equal, fn_b_tree_parse *pfn_parse_node );
 
 // Serializer
 /** !

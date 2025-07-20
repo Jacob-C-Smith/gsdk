@@ -1,1 +1,1 @@
-../../src/data/graph/graph_edge_list.h
+../../src/data/edge_list/graph_edge_list.h

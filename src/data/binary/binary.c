@@ -277,7 +277,7 @@ int binary_tree_node_allocate ( binary_tree *p_binary_tree, binary_tree_node **p
     }
 }
 
-int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_tree_equal *pfn_is_equal, fn_tree_key_accessor *pfn_key_accessor, unsigned long long node_size )
+int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor, unsigned long long node_size )
 {
 
     // argument check
@@ -295,8 +295,8 @@ int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_tree_equal *p
         .p_root    = (void *) 0,
         .functions =
         {
-            .pfn_is_equal     = (pfn_is_equal)     ? pfn_is_equal     : tree_compare_function,
-            .pfn_key_accessor = (pfn_key_accessor) ? pfn_key_accessor : tree_key_is_value
+            .pfn_comparator     = (pfn_comparator)     ? pfn_comparator     : default_comparator,
+            .pfn_key_accessor = (pfn_key_accessor) ? pfn_key_accessor : default_key_accessor
         },
         .metadata =
         {
@@ -426,7 +426,7 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
     }
 }
 
-int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **pp_values, size_t property_quantity, fn_tree_equal *pfn_is_equal,  fn_tree_key_accessor *pfn_key_accessor, unsigned long long node_size )
+int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **pp_values, size_t property_quantity, fn_comparator *pfn_comparator,  fn_key_accessor *pfn_key_accessor, unsigned long long node_size )
 {
 
     // argument check
@@ -444,8 +444,8 @@ int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **
         .p_root    = (void *) 0,
         .functions =
         {
-            .pfn_is_equal = (pfn_is_equal) ? pfn_is_equal : tree_compare_function,
-            .pfn_key_accessor = (pfn_key_accessor) ? pfn_key_accessor : tree_key_is_value
+            .pfn_comparator = (pfn_comparator) ? pfn_comparator : default_comparator,
+            .pfn_key_accessor = (pfn_key_accessor) ? pfn_key_accessor : default_key_accessor
         },
         .metadata =
         {
@@ -509,7 +509,7 @@ int binary_tree_search ( binary_tree *p_binary_tree, const void *const p_key, vo
     try_again:
 
     // Which side? 
-    comparator_return = p_binary_tree->functions.pfn_is_equal
+    comparator_return = p_binary_tree->functions.pfn_comparator
     (
         p_binary_tree->functions.pfn_key_accessor( p_node->p_value ),
         p_key
@@ -603,7 +603,7 @@ int binary_tree_insert ( binary_tree *p_binary_tree, const void *const p_value )
     try_again:
 
     // Which side? 
-    comparator_return = p_binary_tree->functions.pfn_is_equal
+    comparator_return = p_binary_tree->functions.pfn_comparator
     (
         p_binary_tree->functions.pfn_key_accessor(p_node->p_value),
         p_binary_tree->functions.pfn_key_accessor(p_value)
@@ -736,7 +736,7 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
     // Find the node to be removed
     while (p_node != NULL) 
     {
-        comparator_return = p_binary_tree->functions.pfn_is_equal(
+        comparator_return = p_binary_tree->functions.pfn_comparator(
             p_binary_tree->functions.pfn_key_accessor(p_node->p_value),
             p_key
         );
@@ -1160,7 +1160,7 @@ int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_binary
     }
 }
 
-int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, fn_tree_equal *pfn_is_equal, fn_tree_key_accessor *pfn_tree_key_accessor, fn_binary_tree_parse *pfn_parse_node )
+int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor, fn_binary_tree_parse *pfn_parse_node )
 {
     
     // argument check
@@ -1188,7 +1188,7 @@ int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, 
     }
 
     // Allocate a binary tree
-    if ( binary_tree_construct(&p_binary_tree, pfn_is_equal, pfn_tree_key_accessor, node_size) == 0 ) goto failed_to_construct_binary_tree;
+    if ( binary_tree_construct(&p_binary_tree, pfn_comparator, pfn_key_accessor, node_size) == 0 ) goto failed_to_construct_binary_tree;
 
     // Read the root node
     if ( binary_tree_parse_node(p_f, p_binary_tree, &p_binary_tree->p_root, pfn_parse_node) == 0 ) goto failed_to_construct_binary_tree;

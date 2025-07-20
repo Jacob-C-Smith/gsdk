@@ -1,14 +1,17 @@
 #include <graph/graph.h>
 
 // graph
-#include <graph/graph_prototypes.h>
+#include <data/graph_prototypes.h>
 
 // preprocessor macros
 #define GRAPH_TYPE(storage, type) ( storage << 2 | type )
 #define GRAPH_TYPE_STRING(type) ( _graph_type_strings[type] )
 #define GRAPH_STORAGE_STRING(storage) ( _graph_storage_type_strings[storage] )
 
-int graph_construct ( graph **pp_graph, enum graph_type_e _type, enum graph_type_e _storage )
+int graph_construct ( graph **pp_graph,
+    enum graph_type_e _type,
+    enum graph_type_e _storage
+)
 {
 
     // argument check
@@ -32,13 +35,11 @@ int graph_construct ( graph **pp_graph, enum graph_type_e _type, enum graph_type
         return 0;
 }
 
-int graph_vertex_add ( graph **pp_graph, char _name[], void *p_value )
+int graph_vertex_add ( graph *p_graph, void *p_value )
 {
-    graph *p_graph = *pp_graph;
+    log_info("[graph] %s(%p) --> ", __FUNCTION__, p_value);
     
-    log_info("[graph] %s(\"%s\", %p) --> ", __FUNCTION__, _name);
-    
-    int ret = p_graph->storage.pfn_graph_vertex_add(pp_graph, _name, p_value);
+    int ret = p_graph->storage.pfn_graph_vertex_add(p_graph, p_value);
 
     return ret;
 }

@@ -18,9 +18,7 @@
 // core
 #include <core/log.h>
 #include <core/sync.h>
-
-// data
-#include <data/tree.h>
+#include <core/interfaces.h>
 
 // forward declarations
 struct binary_tree_s;
@@ -84,8 +82,8 @@ struct binary_tree_s
     
     struct 
     {
-        fn_tree_equal            *pfn_is_equal;
-        fn_tree_key_accessor     *pfn_key_accessor;
+        fn_comparator              *pfn_comparator;
+        fn_key_accessor          *pfn_key_accessor;
         fn_binary_tree_serialize *pfn_serialize_node;
         fn_binary_tree_parse     *pfn_parse_node;
     } functions;
@@ -102,13 +100,13 @@ struct binary_tree_s
  * Construct an empty binary tree
  * 
  * @param pp_binary_tree   return
- * @param pfn_is_equal     function for testing equality of elements in set IF parameter is not null ELSE default
+ * @param pfn_comparator     function for testing equality of elements in set IF parameter is not null ELSE default
  * @param pfn_key_accessor function for accessing the key of a value IF parameter is not null ELSE default
  * @param node_size        the size of a serialized node in bytes
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_tree_equal *pfn_is_equal, fn_tree_key_accessor *pfn_key_accessor, unsigned long long node_size );
+int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor, unsigned long long node_size );
 
 /** !
  * Construct a balanced binary tree from a sorted list of keys and values. 
@@ -116,11 +114,11 @@ int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_tree_equal *p
  * @param pp_binary_tree    return
  * @param pp_values         the list of values
  * @param property_quantity the size of the list
- * @param pfn_is_equal      function for testing equality of elements in set IF parameter is not null ELSE default
+ * @param pfn_comparator      function for testing equality of elements in set IF parameter is not null ELSE default
  * @param node_size         the size of a serialized node in bytes
  * 
 */
-int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **pp_values, size_t property_quantity, fn_tree_equal *pfn_is_equal, fn_tree_key_accessor *pfn_key_accessor, unsigned long long node_size );
+int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **pp_values, size_t property_quantity, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor, unsigned long long node_size );
 
 // accessors
 /** !
@@ -193,12 +191,12 @@ int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_binary
  * 
  * @param pp_binary_tree return
  * @param p_file         path to the file
- * @param pfn_is_equal   function for testing equality of elements in set IF parameter is not null ELSE default
+ * @param pfn_comparator   function for testing equality of elements in set IF parameter is not null ELSE default
  * @param pfn_parse_node a function for parsing nodes from the file
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, fn_tree_equal *pfn_is_equal, fn_tree_key_accessor *pfn_tree_key_accessor, fn_binary_tree_parse *pfn_parse_node );
+int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor, fn_binary_tree_parse *pfn_parse_node );
 
 // Serializer
 /** !

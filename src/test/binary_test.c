@@ -19,7 +19,6 @@
 #include <core/sync.h>
 
 // tree module
-#include <data/tree.h>
 #include <data/binary.h>
 
 // enumeration definitions
@@ -258,7 +257,7 @@ void print_test ( const char *scenario_name, const char *test_name, bool passed 
 // Constructor implementations
 void construct_empty ( binary_tree **pp_binary_tree )
 {
-    binary_tree_construct(pp_binary_tree, string_comparator, string_key_accessor, sizeof(char*));
+    binary_tree_construct(pp_binary_tree, (fn_comparator *)string_comparator, (fn_key_accessor *)string_key_accessor, sizeof(char*));
 }
 
 void construct_A ( binary_tree **pp_binary_tree )

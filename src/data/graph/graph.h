@@ -45,15 +45,60 @@ struct adjacency_matrix_s;
 struct adjacency_list_s;
 struct edge_list_s;
 
+// union definitions
+union edge_u
+{
+    struct 
+    {
+        void *p_value;
+    } _unweighted_undirected;
+
+    struct 
+    {
+        double weight;
+        void *p_value;
+    } _weighted_undirected;
+
+    struct 
+    {
+        void *p_value;
+    } _unweighted_directed;
+
+    struct 
+    {
+        double weight;
+        void *p_value;
+    } _weighted_directed;
+};
+
 // type definitions
+/// graph
 typedef struct graph_s graph;
-typedef struct graph_edge_create_info_s graph_edge_create_info;
 
-typedef union  node_u node;
+/// adjacency matrix
+typedef struct adjacency_matrix_s adjacency_matrix;
 
-typedef int (fn_graph_vertex_add)                   ( graph **pp_graph, char _name[], void *p_value );
-typedef int (fn_graph_depth_first_search)           ( graph *p_graph, char _a[], char _b[] );
-typedef int (fn_graph_breadth_first_search)         ( graph *p_graph, char _a[], char _b[] );
+/// adjacency list
+typedef struct adjacency_list_s adjacency_list;
+
+/// node
+typedef union node_u node;
+
+/// interfaces
+typedef int (fn_graph_vertex_add)    ( graph *p_graph, void *p_value );
+typedef int (fn_graph_vertex_remove) ( graph **pp_graph, void *p_value );
+typedef int (fn_graph_vertex_search) ( graph *p_graph, void *p_value, void **pp_value );
+typedef int (fn_graph_vertex_count)  ( graph *p_graph, size_t *p_count );
+typedef int (fn_graph_vertex_info)   ( graph *p_graph, void *p_value, char _name[], size_t name_size, void **pp_value );
+
+typedef int (fn_graph_edge_add)    ( graph **pp_graph, void *p_a_value, void *p_b_value, double weight );
+typedef int (fn_graph_edge_remove) ( graph **pp_graph, void *p_a_value, void *p_b_value );
+typedef int (fn_graph_edge_search) ( graph *p_graph, void *p_a_value, void *p_b_value, double *p_weight );
+typedef int (fn_graph_edge_count)  ( graph *p_graph, size_t *p_count );
+typedef int (fn_graph_edge_info)   ( graph *p_graph, void *p_a_value, void *p_b_value, double *p_weight );
+
+typedef int (fn_graph_depth_first_search)           ( graph *p_graph, void *p_a_key, void *p_b_key );
+typedef int (fn_graph_breadth_first_search)         ( graph *p_graph, void *p_a_key, void *p_b_key );
 typedef int (fn_graph_cycle_finder)                 ( graph *p_graph );
 typedef int (fn_graph_minimum_spanning_tree)        ( graph *p_graph );
 typedef int (fn_graph_single_source_shortest_path)  ( graph *p_graph );
@@ -61,28 +106,30 @@ typedef int (fn_graph_all_pairs_shortest_path)      ( graph *p_graph );
 typedef int (fn_graph_maximum_flow)                 ( graph *p_graph );
 typedef int (fn_graph_info)                         ( graph *p_graph );
 
-struct node_unweighted_undirected_s
-{
-    char  _name  [63+1];
-    void *p_value;
+// structure definitions
+/// node
+;
+
+struct adjacency_list_node_s {
+    void *p_vertex;                     // Pointer to the vertex data
+    union edge_u edge;                  // Edge information
+    struct adjacency_list_node_s *next; // Pointer to the next node in the list
 };
 
-union node_u
-{
-    struct node_unweighted_undirected_s _unweighted_undirected;
+struct adjacency_list_s {
+    size_t size;                        // Number of vertices in the graph
+    size_t edge_count;                  // Number of edges in the graph
+    struct {
+        void *p_vertex;                 // Vertex data
+        struct adjacency_list_node_s *p_head; // Head of the adjacency list for this vertex
+    } *p_vertices;                      // Array of vertices and their adjacency lists
 };
 
-// 
-struct adjacency_matrix_s 
-{
-    enum graph_type_e _type;
+struct adjacency_matrix_s {
     size_t size;
-    node _data [ ];
-};
-
-struct adjacency_list_s 
-{
-    size_t size;
+    size_t edge_count;
+    double **matrix;
+    void **p_vertices;
 };
 
 struct edge_list_s
@@ -105,6 +152,8 @@ struct graph_s
         fn_graph_all_pairs_shortest_path     *pfn_graph_all_pairs_shortest_path;
         fn_graph_maximum_flow                *pfn_graph_maximum_flow;
         fn_graph_info                        *pfn_graph_info;
+        fn_graph_vertex_info                 *pfn_graph_vertex_info;
+        fn_graph_edge_info                   *pfn_graph_edge_info;
     } operations;
 
 
@@ -114,9 +163,9 @@ struct graph_s
 
         union
         {
-            struct adjacency_matrix_s _adjacency_matrix;
-            struct adjacency_list_s   _adjacency_list;
-            struct edge_list_s        _edge_list;
+            adjacency_matrix _adjacency_matrix;
+            adjacency_list _adjacency_list;
+            // struct edge_list_s        _edge_list;
         };
     } storage;
 };
@@ -159,7 +208,7 @@ int graph_construct ( graph **pp_graph, enum graph_type_e _type, enum graph_type
  * 
  * @return 1 on success, 0 on error
  */
-int graph_vertex_add ( graph **pp_graph, char _name[], void *p_value );
+int graph_vertex_add ( graph *p_graph, void *p_value );
 
 // Search
 /** !

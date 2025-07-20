@@ -9,9 +9,9 @@
 
 // graph
 #include <graph/graph.h>
-#include <graph/graph_adjacency_matrix.h>
-#include <graph/graph_adjacency_list.h>
-#include <graph/graph_edge_list.h>
+#include <data/adjacency_matrix.h>
+#include <data/adjacency_list.h>
+// #include <graph/graph_edge_list.h>
 
 // preprocessor macros
 #define GRAPH_TYPE(storage, type) ( storage << 2 | type )
@@ -116,7 +116,7 @@ graph _graph_prototypes [] =
         ._storage_type = GRAPH_STORAGE_TYPE_ADJACENCY_MATRIX,
         .storage = 
         {
-            .pfn_graph_vertex_add = graph_adjacency_matrix_vertex_add,
+            .pfn_graph_vertex_add = adjacency_matrix_vertex_add,
         },
         .operations = 
         {
@@ -124,7 +124,7 @@ graph _graph_prototypes [] =
             .pfn_graph_breadth_first_search  = (void *) graph_prototype_bfs_stub,
             .pfn_graph_minimum_spanning_tree = (void *) graph_prototype_span_stub,
             .pfn_graph_cycle_finder          = (void *) graph_prototype_cycle_stub,
-            .pfn_graph_info                  = (void *) graph_adjacency_matrix_info
+            .pfn_graph_info                  = (void *) adjacency_matrix_print
         }
     },
     [ GRAPH_TYPE( GRAPH_TYPE_UNWEIGHTED_UNDIRECTED, GRAPH_STORAGE_TYPE_ADJACENCY_LIST ) ] = (graph)
@@ -133,7 +133,7 @@ graph _graph_prototypes [] =
         ._storage_type = GRAPH_STORAGE_TYPE_ADJACENCY_LIST,
         .storage =
         {
-            .pfn_graph_vertex_add = graph_adjacency_list_vertex_add
+            .pfn_graph_vertex_add = adjacency_list_vertex_add
         },
         .operations = 
         {
@@ -168,14 +168,14 @@ graph _graph_prototypes [] =
         ._storage_type = GRAPH_STORAGE_TYPE_ADJACENCY_MATRIX,
         .storage = 
         {
-            .pfn_graph_vertex_add = graph_adjacency_matrix_vertex_add
+            .pfn_graph_vertex_add = adjacency_matrix_vertex_add
         },
         .operations = 
         {
             .pfn_graph_depth_first_search   = (void *) graph_prototype_dfs_stub,
             .pfn_graph_breadth_first_search = (void *) graph_prototype_bfs_stub,
             .pfn_graph_cycle_finder         = (void *) graph_prototype_cycle_stub,
-            .pfn_graph_info                 = (void *) graph_adjacency_matrix_info
+            .pfn_graph_info                 = (void *) adjacency_matrix_print
         }
     },
     [ GRAPH_TYPE( GRAPH_TYPE_UNWEIGHTED_DIRECTED, GRAPH_STORAGE_TYPE_ADJACENCY_LIST ) ] = (graph)
@@ -217,7 +217,7 @@ graph _graph_prototypes [] =
         ._storage_type = GRAPH_STORAGE_TYPE_ADJACENCY_MATRIX,
         .storage = 
         {
-            .pfn_graph_vertex_add = graph_adjacency_matrix_vertex_add
+            .pfn_graph_vertex_add = adjacency_matrix_vertex_add
         },
         .operations = 
         {
@@ -225,7 +225,7 @@ graph _graph_prototypes [] =
             .pfn_graph_breadth_first_search  = (void *) graph_prototype_bfs_stub,
             .pfn_graph_minimum_spanning_tree = (void *) graph_prototype_span_stub,
             .pfn_graph_cycle_finder          = (void *) graph_prototype_cycle_stub,
-            .pfn_graph_info                  = (void *) graph_adjacency_matrix_info
+            .pfn_graph_info                  = (void *) adjacency_matrix_print
 
         }
     },
@@ -270,7 +270,7 @@ graph _graph_prototypes [] =
         ._storage_type = GRAPH_STORAGE_TYPE_ADJACENCY_MATRIX,
         .storage = 
         {
-            .pfn_graph_vertex_add = graph_adjacency_matrix_vertex_add
+            .pfn_graph_vertex_add = adjacency_matrix_vertex_add
         },
         .operations = 
         {
@@ -280,7 +280,7 @@ graph _graph_prototypes [] =
             .pfn_graph_single_source_shortest_path = (void *) graph_prototype_sssp_stub,
             .pfn_graph_all_pairs_shortest_path     = (void *) graph_prototype_apsp_stub,
             .pfn_graph_maximum_flow                = (void *) graph_prototype_max_flow_operation,
-            .pfn_graph_info                        = (void *) graph_adjacency_matrix_info
+            .pfn_graph_info                        = (void *) adjacency_matrix_print
         }
     },
     [ GRAPH_TYPE( GRAPH_TYPE_WEIGHTED_DIRECTED, GRAPH_STORAGE_TYPE_ADJACENCY_LIST ) ] = (graph)
