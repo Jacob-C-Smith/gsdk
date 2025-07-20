@@ -1,4 +1,5 @@
 #include <data/graph.h>
+#include <stdint.h>
 
 int adjacency_list_construct ( adjacency_list **pp_adjacency_list, size_t size )
 {
