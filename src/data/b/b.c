@@ -242,7 +242,7 @@ int b_tree_node_create ( b_tree_node **const pp_b_tree_node )
 
 
     // initialized data
-    b_tree_node *p_b_tree_node = realloc(0, sizeof(b_tree_node));
+    b_tree_node *p_b_tree_node = default_allocator(0, sizeof(b_tree_node));
 
     // error check
     if ( p_b_tree_node == (void *) 0 ) goto no_mem;
@@ -290,7 +290,7 @@ int b_tree_create ( b_tree **const pp_b_tree )
     if ( pp_b_tree == (void *) 0 ) goto no_b_tree;
 
     // initialized data
-    b_tree *p_b_tree = realloc(0, sizeof(b_tree));
+    b_tree *p_b_tree = default_allocator(0, sizeof(b_tree));
 
     // error check
     if ( p_b_tree == (void *) 0 ) goto no_mem;

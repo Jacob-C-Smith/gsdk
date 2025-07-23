@@ -44,7 +44,7 @@ int secure_socket_create ( secure_socket **pp_secure_socket, enum socket_address
     if ( pp_secure_socket == (void *) 0 ) goto no_secure_socket; 
 
     // initialized data
-    secure_socket *p_secure_socket = realloc(0, sizeof(secure_socket));
+    secure_socket *p_secure_socket = default_allocator(0, sizeof(secure_socket));
 
     // error check
     if ( NULL == p_secure_socket ) goto no_mem;

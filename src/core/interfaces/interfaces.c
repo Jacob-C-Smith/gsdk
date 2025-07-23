@@ -3,21 +3,59 @@
 void *default_allocator ( void *p_pointer, unsigned long long size )
 {
 
-    // Default
-    return realloc(p_pointer, size);
+    // argument check
+    if
+    (
+        NULL == p_pointer &&
+        0    == size
+    ) goto double_free_or_empty_alloc;
+
+    // initialized data
+    void *p_result = NULL;
+
+    // free
+    if ( 0 == size ) free(p_pointer);
+
+    // allocate 
+    else if ( NULL == p_pointer ) p_result = malloc(size);
+
+    // reallocate
+    else
+    {
+
+        // store the result
+        p_result = realloc(p_pointer, size);
+
+        // check for error
+        if ( NULL == p_result )
+        {
+            free(p_pointer);
+            goto double_free_or_empty_alloc;
+        }
+    }
+
+    // default
+    return p_result;
+
+    // argument errors
+    {
+        double_free_or_empty_alloc:
+            printf("[gsdk] detected a double free or an empty allocation in call to function \"%s\"\n", __FUNCTION__);
+            return NULL;
+    }
 }
 
 int default_comparator ( const void *p_a, const void *p_b )
 {
 
-    // Default
+    // default
     return p_b - p_a;
 }
 
 int default_equality ( const void *const p_a, const void *const p_b )
 {
 
-    // Default
+    // default
     return p_a == p_b;
 }
 
@@ -28,18 +66,18 @@ hash64 default_hash ( const void *const k, unsigned long long l )
     hash64  ret = 0;
     char   *p   = (char *) k;
 
-    // Hash
+    // hash
     for (size_t i = 0; i < l; i++)
         ret += p[i],
         ret *= ( p[i] > 0 ) ? p[i] : l;
 
-    // Default
+    // default
     return ret;
 }
 
 void *default_key_accessor ( const void *const p_value )
 {
 
-    // Default
+    // default
     return (void *) p_value;
 }

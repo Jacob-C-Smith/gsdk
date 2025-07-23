@@ -10,7 +10,11 @@
 #pragma once
 
 // sync submodule
+#include <core/log.h>
 #include <core/sync.h>
+#include <core/pack.h>
+#include <core/hash.h>
+#include <core/interfaces.h>
 
 // standard library
 #include <stdio.h>

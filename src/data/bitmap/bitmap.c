@@ -12,6 +12,7 @@
 // core
 #include <core/log.h>
 #include <core/sync.h>
+#include <core/interfaces.h>
 #include <core/pack.h>
 
 // structure definitions
@@ -30,7 +31,7 @@ int bitmap_construct ( bitmap **pp_bitmap, size_t bits )
     if ( 0    == bits      ) goto no_bits;
 
     // initialized data
-    bitmap *p_bitmap = realloc(0, sizeof(bitmap));
+    bitmap *p_bitmap = default_allocator(0, sizeof(bitmap));
     size_t  bytes_required = (bits % 8 == 0) ? (bits / 8) : (bits / 8) + 1;
     
     // error check
@@ -43,7 +44,7 @@ int bitmap_construct ( bitmap **pp_bitmap, size_t bits )
     mutex_create(&p_bitmap->_lock);
 
     // allocate memory for the bitmap
-    p_bitmap->p_bitmap = realloc(0, bytes_required);
+    p_bitmap->p_bitmap = default_allocator(0, bytes_required);
 
     // error check
     if ( NULL == p_bitmap->p_bitmap ) goto no_mem;
@@ -400,10 +401,10 @@ int bitmap_destroy ( bitmap **pp_bitmap )
     *pp_bitmap = NULL;
 
     // release the bits
-    p_bitmap->p_bitmap = realloc(p_bitmap->p_bitmap, 0),
+    p_bitmap->p_bitmap = default_allocator(p_bitmap->p_bitmap, 0),
 
     // release the bitmap
-    p_bitmap = realloc(p_bitmap, 0);
+    p_bitmap = default_allocator(p_bitmap, 0);
     
     // success
     return 1;

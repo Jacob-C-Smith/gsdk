@@ -52,7 +52,7 @@ int double_queue_create ( double_queue **const pp_double_queue )
 	if ( pp_double_queue == (void *) 0 ) goto no_double_queue;
 
 	// initialized data
-	double_queue *ret = realloc(0, sizeof(double_queue));
+	double_queue *ret = default_allocator(0, sizeof(double_queue));
 
 	// error check
 	if ( ret == (void *)0 ) goto no_mem;
@@ -344,7 +344,7 @@ int double_queue_front_add ( double_queue *const p_double_queue, void *const dat
 
 	// initialized data
 	struct double_queue_node_s *e = p_double_queue->front, // E comes before F(ront)
-	                           *f = realloc(0, sizeof(struct double_queue_node_s));
+	                           *f = default_allocator(0, sizeof(struct double_queue_node_s));
 	
 	// error check
 	if ( f == (void *) 0 ) goto no_mem;
@@ -435,7 +435,7 @@ int double_queue_front_remove ( double_queue *const p_double_queue, void **const
 		*pp_value = ret_m->content;
 
 	// Free the memory
-	ret_m = realloc(ret_m, 0);
+	ret_m = default_allocator(ret_m, 0);
 		
 	// unlock
 	mutex_unlock(&p_double_queue->_lock);
@@ -483,7 +483,7 @@ int double_queue_rear_add ( double_queue *const p_double_queue, void *const data
 
 	// initialized data
 	struct double_queue_node_s *q = p_double_queue->rear, // Q comes before R(ear)
-	                    *r = realloc(0, sizeof(struct double_queue_node_s));
+	                    *r = default_allocator(0, sizeof(struct double_queue_node_s));
 	
 	// error check
 	if ( r == (void *) 0 ) goto no_mem;
@@ -574,7 +574,7 @@ int double_queue_rear_remove ( double_queue *const p_double_queue, void **const 
 		*pp_value = ret_m->content;
 
 	// Free the memory
-	ret_m = realloc(ret_m, 0);
+	ret_m = default_allocator(ret_m, 0);
 		
 	// unlock
 	mutex_unlock(&p_double_queue->_lock);
@@ -636,7 +636,7 @@ int double_queue_destroy ( double_queue **const pp_double_queue )
 	}	
 
 	// Free the memory
-	p_double_queue = realloc(p_double_queue, 0);
+	p_double_queue = default_allocator(p_double_queue, 0);
 		
 	// success
 	return 1;

@@ -10,6 +10,7 @@
 #pragma once
 
 // standard library
+#include <stdio.h>
 #include <stdlib.h>
 
 // type definitions

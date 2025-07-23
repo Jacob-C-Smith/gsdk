@@ -16,7 +16,7 @@ int parallel_thread_create ( parallel_thread **pp_parallel_thread )
     if ( pp_parallel_thread == (void *) 0 ) goto no_parallel_thread;
 
     // initialized data
-    parallel_thread *p_parallel_thread = realloc(0, sizeof(parallel_thread));
+    parallel_thread *p_parallel_thread = default_allocator(0, sizeof(parallel_thread));
 
     // error check
     if ( p_parallel_thread == (void *) 0 ) goto no_mem;
@@ -221,7 +221,7 @@ int parallel_thread_destory ( parallel_thread **pp_parallel_thread )
     if ( pthread_join(p_parallel_thread->platform_dependent_thread, NULL) != 0 ) goto failed_to_join_pthread;
         
     // Free the parallel thread struct
-    p_parallel_thread = realloc(p_parallel_thread, 0);
+    p_parallel_thread = default_allocator(p_parallel_thread, 0);
 
     // success
     return 1;

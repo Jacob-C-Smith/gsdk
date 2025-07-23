@@ -20,7 +20,7 @@ int cache_create ( cache **const pp_cache )
     if ( pp_cache == (void *) 0 ) goto no_cache;
 
     // initialized data
-    cache *p_cache = realloc(0, sizeof(cache));
+    cache *p_cache = default_allocator(0, sizeof(cache));
 
     // error check
     if ( p_cache == (void *) 0 ) goto no_mem;
@@ -88,7 +88,7 @@ int cache_construct
         {
             .count = 0,
             .max = size,
-            .pp_data = realloc(0, sizeof(void *) * size)
+            .pp_data = default_allocator(0, sizeof(void *) * size)
         },
         .pfn_equality = (pfn_equality ? pfn_equality :     (fn_equality *) default_equality),
         .pfn_key_get  = (pfn_key_get  ? pfn_key_get  : (fn_key_accessor *) default_key_accessor)
@@ -510,8 +510,8 @@ int cacheee_destroy ( cache **const pp_cache )
     *pp_cache = NULL;
     
     // Free the cache contents
-    p_cache->properties.pp_data = realloc(p_cache->properties.pp_data, 0);
-    p_cache = realloc(p_cache, 0);
+    p_cache->properties.pp_data = default_allocator(p_cache->properties.pp_data, 0);
+    p_cache = default_allocator(p_cache, 0);
 
     // success
     return 1;
@@ -599,7 +599,7 @@ int cache_unpack ( cache **pp_cache, void *p_buffer, fn_unpack *pfn_element )
         p += len_result;
 
         // Allocate memory for the element
-        p_element = realloc(0, len_result),
+        p_element = default_allocator(0, len_result),
 
         // Copy the memory
         memcpy(p_element, _result, len_result),

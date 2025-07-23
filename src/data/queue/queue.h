@@ -15,8 +15,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-// sync module
+// core
+#include <core/log.h>
 #include <core/sync.h>
+#include <core/pack.h>
+#include <core/hash.h>
+#include <core/interfaces.h>
 
 // forward declarations
 struct queue_s;

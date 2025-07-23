@@ -48,7 +48,7 @@ int tuple_create ( tuple **const pp_tuple )
     if ( pp_tuple == (void *) 0 ) goto no_tuple;
 
     // Allocate memory for a tuple
-    tuple *p_tuple = realloc(0, sizeof(tuple));
+    tuple *p_tuple = default_allocator(0, sizeof(tuple));
 
     // error checking
     if ( p_tuple == (void *) 0 ) goto no_mem;
@@ -105,7 +105,7 @@ int tuple_construct ( tuple **const pp_tuple, size_t size )
     p_tuple->element_count = size;
 
     // Grow the allocation
-    p_tuple = realloc(p_tuple, sizeof(tuple) + ( size * sizeof(void *) ) );
+    p_tuple = default_allocator(p_tuple, sizeof(tuple) + ( size * sizeof(void *) ) );
 
     // error checking
     if ( p_tuple == (void *) 0 ) goto no_mem;
@@ -555,7 +555,7 @@ int tuple_unpack ( tuple **pp_tuple, void *p_buffer, fn_unpack *pfn_element )
         p += len_result;
 
         // Allocate memory for the element
-        p_element = realloc(0, len_result),
+        p_element = default_allocator(0, len_result),
 
         // Copy the memory
         memcpy(p_element, _result, len_result),
@@ -599,7 +599,7 @@ int tuple_destroy ( tuple **const pp_tuple )
     *pp_tuple = (void *) 0;
 
     // Free the tuple
-    p_tuple = realloc(p_tuple, 0);
+    p_tuple = default_allocator(p_tuple, 0);
     
     // success
     return 1;

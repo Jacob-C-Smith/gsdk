@@ -128,7 +128,7 @@ int binary_tree_create ( binary_tree **pp_binary_tree )
     if ( pp_binary_tree == (void *) 0 ) goto no_binary_tree;
 
     // initialized data
-    binary_tree *p_binary_tree = realloc(0, sizeof(binary_tree));
+    binary_tree *p_binary_tree = default_allocator(0, sizeof(binary_tree));
 
     // error checking
     if ( p_binary_tree == (void *) 0 ) goto no_mem;
@@ -160,7 +160,7 @@ int binary_tree_create ( binary_tree **pp_binary_tree )
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Call to function \"realloc\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[Standard Library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -176,7 +176,7 @@ int binary_tree_node_create ( binary_tree_node **pp_binary_tree_node )
     if ( pp_binary_tree_node == (void *) 0 ) goto no_binary_tree_node;
 
     // initialized data
-    binary_tree_node *p_binary_tree_node = realloc(0, sizeof(binary_tree_node));
+    binary_tree_node *p_binary_tree_node = default_allocator(0, sizeof(binary_tree_node));
 
     // error checking
     if ( p_binary_tree_node == (void *) 0 ) goto no_mem;
@@ -208,7 +208,7 @@ int binary_tree_node_create ( binary_tree_node **pp_binary_tree_node )
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Call to function \"realloc\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[Standard Library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -284,7 +284,7 @@ int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_comparator *p
     if ( pp_binary_tree == (void *) 0 ) goto no_binary_tree;
 
     // initialized data
-    binary_tree *p_binary_tree = realloc(0, sizeof(binary_tree));
+    binary_tree *p_binary_tree = default_allocator(0, sizeof(binary_tree));
 
     // error checking
     if ( p_binary_tree == (void *) 0 ) goto failed_to_allocate_binary_tree;
@@ -433,7 +433,7 @@ int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **
     if ( pp_binary_tree == (void *) 0 ) goto no_binary_tree;
 
     // initialized data
-    binary_tree *p_binary_tree = realloc(0, sizeof(binary_tree));
+    binary_tree *p_binary_tree = default_allocator(0, sizeof(binary_tree));
 
     // error checking
     if ( p_binary_tree == (void *) 0 ) goto failed_to_allocate_binary_tree;
@@ -1263,7 +1263,7 @@ int binary_tree_parse_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tr
     if ( pfn_binary_tree_parse == (void *) 0 ) goto no_binary_tree_parser; 
 
     // initialized data
-    binary_tree_node *p_binary_tree_node = realloc(0, sizeof(binary_tree_node));
+    binary_tree_node *p_binary_tree_node = default_allocator(0, sizeof(binary_tree_node));
     unsigned long long left_pointer, right_pointer;
     
     memset(p_binary_tree_node, 0, sizeof(binary_tree_node));
@@ -1554,7 +1554,7 @@ int binary_tree_node_destroy ( binary_tree_node **const pp_binary_tree_node )
     if ( binary_tree_node_destroy(&p_binary_tree_node->p_right) == 0 ) goto failed_to_free;
 
     // Free the node
-    *pp_binary_tree_node = realloc(p_binary_tree_node, 0);
+    *pp_binary_tree_node = default_allocator(p_binary_tree_node, 0);
 
     // success
     return 1;
@@ -1617,7 +1617,7 @@ int binary_tree_destroy ( binary_tree **const pp_binary_tree )
     mutex_destroy(&p_binary_tree->_lock);
 
     // Release the tree
-    p_binary_tree = realloc(p_binary_tree, 0);
+    p_binary_tree = default_allocator(p_binary_tree, 0);
 
     // success
     return 1;

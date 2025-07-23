@@ -101,7 +101,7 @@ int print_json_file ( const char *path )
     if ( json_value_parse(file_buf, 0, &p_value) == 0 ) goto failed_to_parse_json;
 
     // Free the allocation
-    file_buf = realloc(file_buf, 0);
+    file_buf = default_allocator(file_buf, 0);
 
     // Print the parsed contents to stdout
     json_value_print(p_value);

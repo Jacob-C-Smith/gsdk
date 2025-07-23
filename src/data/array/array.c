@@ -32,7 +32,7 @@ int array_construct ( array **pp_array, size_t size )
     if ( size     == 0          ) goto zero_size;
 
     // initialized data
-    array *p_array = realloc(0, sizeof(array));
+    array *p_array = default_allocator(0, sizeof(array));
 
     // error checking
     if ( NULL == p_array ) goto no_mem;
@@ -42,7 +42,7 @@ int array_construct ( array **pp_array, size_t size )
     p_array->max   = size,
 
     // allocate memory for the array contents
-    p_array->p_p_elements = realloc(0, p_array->max * sizeof(void *));
+    p_array->p_p_elements = default_allocator(0, p_array->max * sizeof(void *));
 
     // error checking
     if ( p_array->p_p_elements == (void *) 0 ) goto no_mem;
@@ -485,8 +485,8 @@ int array_add ( array *p_array, void *p_element )
         // double the size
         p_array->max *= 2;
     
-        // reallocate iterable arrays
-        p_array->p_p_elements = realloc(p_array->p_p_elements, p_array->max * sizeof(void *));
+        // default_allocatorate iterable arrays
+        p_array->p_p_elements = default_allocator(p_array->p_p_elements, p_array->max * sizeof(void *));
     
         // error checking
         if ( NULL == p_array->p_p_elements ) goto no_mem;
@@ -966,7 +966,7 @@ int array_unpack ( array **pp_array, void *p_buffer, fn_unpack *pfn_element )
         p += len_result;
 
         // Allocate memory for the element
-        p_element = realloc(0, len_result),
+        p_element = default_allocator(0, len_result),
 
         // Copy the memory
         memcpy(p_element, _result, len_result),
@@ -1052,7 +1052,7 @@ int array_destroy ( array **pp_array )
     mutex_destroy(&p_array->_lock);
 
     // release the array
-    p_array = realloc(p_array, 0);
+    p_array = default_allocator(p_array, 0);
     
     // success
     return 1;

@@ -143,7 +143,7 @@ int schedule_create ( schedule **const pp_schedule )
     schedule *p_schedule = (void *) 0;
 
     // Allocate memory for the schedule
-    p_schedule = realloc(0, sizeof(schedule));
+    p_schedule = default_allocator(0, sizeof(schedule));
 
     // error check
     if ( p_schedule == (void *) 0 ) goto no_mem;
@@ -194,7 +194,7 @@ int parallel_schedule_thread_create ( parallel_schedule_thread **const pp_schedu
     parallel_schedule_thread *p_schedule_thread = (void *) 0;
 
     // Allocate memory for the schedule thread
-    p_schedule_thread = realloc(0, sizeof(parallel_schedule_thread) + (task_quantity * sizeof(parallel_schedule_task)));
+    p_schedule_thread = default_allocator(0, sizeof(parallel_schedule_thread) + (task_quantity * sizeof(parallel_schedule_task)));
 
     // error check
     if ( p_schedule_thread == (void *) 0 ) goto no_mem;
@@ -257,7 +257,7 @@ int schedule_load ( schedule **pp_schedule, const char *const path )
     if ( file_size == 0 ) goto invalid_file;
     
     // Allocate memory for the file
-    p_file_contents = realloc(0, file_size);
+    p_file_contents = default_allocator(0, file_size);
 
     // error check
     if ( p_file_contents == (void *) 0 ) goto no_mem;
@@ -272,7 +272,7 @@ int schedule_load ( schedule **pp_schedule, const char *const path )
     if ( schedule_load_as_json_value(pp_schedule, p_value) == 0 ) goto failed_to_construct_schedule;
 
     // Clean up
-    p_file_contents = realloc(p_file_contents, 0);
+    p_file_contents = default_allocator(p_file_contents, 0);
     
     // success
     return 1;

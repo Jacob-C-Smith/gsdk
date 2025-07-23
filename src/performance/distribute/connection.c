@@ -40,7 +40,7 @@ int connection_create ( const connection **const pp_connection )
     connection *p_connection = (void *) 0;
 
     // error check
-    if ( realloc((void *) 0, sizeof(connection)) == (void *) 0 ) goto no_mem;
+    if ( default_allocator((void *) 0, sizeof(connection)) == (void *) 0 ) goto no_mem;
 
     // return a pointer to the caller
     *pp_connection = p_connection;

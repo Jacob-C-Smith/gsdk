@@ -186,7 +186,7 @@ int red_black_tree_create ( red_black_tree **pp_red_black_tree )
     if ( pp_red_black_tree == (void *) 0 ) goto no_red_black_tree;
 
     // initialized data
-    red_black_tree *p_red_black_tree = realloc(0, sizeof(red_black_tree));
+    red_black_tree *p_red_black_tree = default_allocator(0, sizeof(red_black_tree));
 
     // error checking
     if ( p_red_black_tree == (void *) 0 ) goto no_mem;
@@ -218,7 +218,7 @@ int red_black_tree_create ( red_black_tree **pp_red_black_tree )
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Call to function \"realloc\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[Standard Library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -234,7 +234,7 @@ int red_black_tree_node_create ( red_black_tree_node **pp_red_black_tree_node )
     if ( pp_red_black_tree_node == (void *) 0 ) goto no_red_black_tree_node;
 
     // initialized data
-    red_black_tree_node *p_red_black_tree_node = realloc(0, sizeof(red_black_tree_node));
+    red_black_tree_node *p_red_black_tree_node = default_allocator(0, sizeof(red_black_tree_node));
 
     // error checking
     if ( p_red_black_tree_node == (void *) 0 ) goto no_mem;
@@ -270,7 +270,7 @@ int red_black_tree_node_create ( red_black_tree_node **pp_red_black_tree_node )
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Call to function \"realloc\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[Standard Library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -346,7 +346,7 @@ int red_black_tree_construct ( red_black_tree **const pp_red_black_tree, fn_comp
     if ( pp_red_black_tree == (void *) 0 ) goto no_red_black_tree;
 
     // initialized data
-    red_black_tree *p_red_black_tree = realloc(0, sizeof(red_black_tree));
+    red_black_tree *p_red_black_tree = default_allocator(0, sizeof(red_black_tree));
 
     // error checking
     if ( p_red_black_tree == (void *) 0 ) goto failed_to_allocate_red_black_tree;
@@ -515,7 +515,7 @@ int red_black_tree_construct_balanced ( red_black_tree **const pp_red_black_tree
     if ( pp_red_black_tree == (void *) 0 ) goto no_red_black_tree;
 
     // initialized data
-    red_black_tree *p_red_black_tree = realloc(0, sizeof(red_black_tree));
+    red_black_tree *p_red_black_tree = default_allocator(0, sizeof(red_black_tree));
 
     // error checking
     if ( p_red_black_tree == (void *) 0 ) goto failed_to_allocate_red_black_tree;
@@ -1360,7 +1360,7 @@ int red_black_tree_parse_node ( FILE *p_file, red_black_tree *p_red_black_tree, 
     if ( pfn_red_black_tree_parse == (void *) 0 ) goto no_red_black_tree_parser; 
 
     // initialized data
-    red_black_tree_node *p_red_black_tree_node = realloc(0, sizeof(red_black_tree_node));
+    red_black_tree_node *p_red_black_tree_node = default_allocator(0, sizeof(red_black_tree_node));
     unsigned long long left_pointer, right_pointer;
     
     memset(p_red_black_tree_node, 0, sizeof(red_black_tree_node));
@@ -1651,7 +1651,7 @@ int red_black_tree_node_destroy ( red_black_tree_node **const pp_red_black_tree_
     if ( red_black_tree_node_destroy(&p_red_black_tree_node->p_right) == 0 ) goto failed_to_free;
 
     // Free the node
-    *pp_red_black_tree_node = realloc(p_red_black_tree_node, 0);
+    *pp_red_black_tree_node = default_allocator(p_red_black_tree_node, 0);
 
     // success
     return 1;
@@ -1959,7 +1959,7 @@ int red_black_tree_destroy ( red_black_tree **const pp_red_black_tree )
     mutex_destroy(&p_red_black_tree->_lock);
 
     // Release the tree
-    p_red_black_tree = realloc(p_red_black_tree, 0);
+    p_red_black_tree = default_allocator(p_red_black_tree, 0);
 
     // success
     return 1;

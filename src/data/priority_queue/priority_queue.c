@@ -78,7 +78,7 @@ int priority_queue_create ( priority_queue **const pp_priority_queue )
     if ( pp_priority_queue == (void *) 0 ) goto no_priority_queue;
 
     // Allocate memory for a priority queue
-    priority_queue *p_priority_queue = realloc(0, sizeof(priority_queue));
+    priority_queue *p_priority_queue = default_allocator(0, sizeof(priority_queue));
 
     // error checking
     if ( p_priority_queue == (void *) 0 ) goto no_mem;
@@ -139,7 +139,7 @@ int priority_queue_construct ( priority_queue **const pp_priority_queue, size_t 
     p_priority_queue->entries.max  = size;
 
     // Allocate "size" number of properties
-    p_priority_queue->entries.data = realloc(0, size * sizeof(void *));
+    p_priority_queue->entries.data = default_allocator(0, size * sizeof(void *));
 
     // Zero set the allocated memory
     memset(p_priority_queue->entries.data, 0, size * sizeof(void *));
@@ -824,13 +824,13 @@ int priority_queue_destroy ( priority_queue **const pp_priority_queue )
     // 
 
     // Free the hash table
-    p_priority_queue->entries.data = realloc(p_priority_queue->entries.data, 0);
+    p_priority_queue->entries.data = default_allocator(p_priority_queue->entries.data, 0);
 
     // Destroy the mutex
     mutex_destroy(&p_priority_queue->_lock);
 
     // Free the priority queue
-    p_priority_queue = realloc(p_priority_queue, 0);
+    p_priority_queue = default_allocator(p_priority_queue, 0);
 
     // success
     return 1;

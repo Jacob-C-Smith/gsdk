@@ -74,10 +74,10 @@ int main ( int argc, const char *argv[] )
     char _buffer[HASH_TABLE_OPTIMIZER_BUFFER_LENGTH_MAX] = { 0 };
     quasi_hash_table *p_quasi_hash_table = (void *) 0;
     fn_hash64 *pfn_hashing_function = (void *) 0;
-    quasi_hash_table_property **pp_properties = realloc(0, sizeof(void *) * entry_max);
+    quasi_hash_table_property **pp_properties = default_allocator(0, sizeof(void *) * entry_max);
     
     // error check
-    if ( pp_properties == (void *) 0 ) goto failed_to_realloc;
+    if ( pp_properties == (void *) 0 ) goto failed_to_default_allocator;
 
     // parse command line arguments
     parse_command_line_arguments(argc, argv, &pfn_hashing_function);
@@ -101,20 +101,20 @@ int main ( int argc, const char *argv[] )
             entry_max *= 2;
 
             // grow the allocation
-            pp_properties = realloc(pp_properties, sizeof(quasi_hash_table_property *) * entry_max);
+            pp_properties = default_allocator(pp_properties, sizeof(quasi_hash_table_property *) * entry_max);
 
             // error check 
-            if ( pp_properties == (void *) 0 ) goto failed_to_realloc; 
+            if ( pp_properties == (void *) 0 ) goto failed_to_default_allocator; 
         }
 
         // compute the length of the entry
         len = strlen(_buffer);
 
         // allocate memory for the entry
-        p_string = realloc(0, sizeof(quasi_hash_table_property) + len * sizeof(char));
+        p_string = default_allocator(0, sizeof(quasi_hash_table_property) + len * sizeof(char));
 
         // error check
-        if ( p_string == (void *) 0 ) goto failed_to_realloc;
+        if ( p_string == (void *) 0 ) goto failed_to_default_allocator;
 
         // copy the string from the stack to the heap
         strncpy((char *)p_string->_text, (char *)_buffer, len + 1);
@@ -139,7 +139,7 @@ int main ( int argc, const char *argv[] )
     hash_table_test_size = entry_quantity;
     
     // initial allocation
-    p_quasi_hash_table = realloc(0, sizeof(struct quasi_hash_table_s));
+    p_quasi_hash_table = default_allocator(0, sizeof(struct quasi_hash_table_s));
 
     #ifdef HASH_TABLE_OPTIMIZER_DISPLAY_MODE
         printf("\r%zu lines read\n\n", entry_quantity);
@@ -150,7 +150,7 @@ int main ( int argc, const char *argv[] )
     {
 
         // grow the allocation
-        p_quasi_hash_table = realloc(p_quasi_hash_table, sizeof(struct quasi_hash_table_s) + sizeof(struct quasi_hash_table_entry_s) * hash_table_test_size);
+        p_quasi_hash_table = default_allocator(p_quasi_hash_table, sizeof(struct quasi_hash_table_s) + sizeof(struct quasi_hash_table_entry_s) * hash_table_test_size);
 
         // clear out old results
         memset(p_quasi_hash_table, 0, sizeof(struct quasi_hash_table_s) + sizeof(struct quasi_hash_table_entry_s) * hash_table_test_size);
@@ -243,13 +243,13 @@ int main ( int argc, const char *argv[] )
     for (size_t i = 0; i < entry_quantity; i++)
 
         // release each property 
-        pp_properties[i] = realloc(pp_properties[i], 0);
+        pp_properties[i] = default_allocator(pp_properties[i], 0);
     
     // release the property list
-    pp_properties = realloc(pp_properties, 0);
+    pp_properties = default_allocator(pp_properties, 0);
 
     // release the hash table
-    p_quasi_hash_table = realloc(p_quasi_hash_table, 0);
+    p_quasi_hash_table = default_allocator(p_quasi_hash_table, 0);
 
     // success
     return EXIT_SUCCESS;
@@ -259,9 +259,9 @@ int main ( int argc, const char *argv[] )
 
         // standard library errors
         {
-            failed_to_realloc:
+            failed_to_default_allocator:
                 #ifndef NDEBUG
-                    log_error("[hash-cache] [hash-optimal] Call to \"realloc\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[hash-cache] [hash-optimal] Call to \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

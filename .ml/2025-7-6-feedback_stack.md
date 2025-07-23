@@ -56,7 +56,7 @@
 
 
 
-   * Dynamic Resizing: Modify stack_push to automatically realloc the internal _p_data array (e.g.,
+   * Dynamic Resizing: Modify stack_push to automatically default_allocator the internal _p_data array (e.g.,
      doubling its size) when the stack is full. This would remove the fixed-capacity limitation and
      make the data structure more versatile.
    * `stack_size`: An O(1) function to get the current number of items in the stack. This is a

@@ -27,7 +27,7 @@ int stack_construct ( stack **const pp_stack, size_t size )
 	if ( size < 1 ) goto no_size;
 
 	// initialized data
-	stack *p_stack = realloc(NULL, sizeof(stack) + ( size * sizeof(void *) ) );
+	stack *p_stack = default_allocator(NULL, sizeof(stack) + ( size * sizeof(void *) ) );
 
 	// allocate a stack
 	if ( NULL == p_stack ) goto no_mem;
@@ -393,7 +393,7 @@ int stack_unpack ( stack **pp_stack, void *p_buffer, fn_unpack *pfn_element )
         p += len_result;
 
         // allocate memory for the element
-        p_element = realloc(0, len_result),
+        p_element = default_allocator(0, len_result),
 
         // copy the memory
         memcpy(p_element, _result, len_result),
@@ -490,7 +490,7 @@ int stack_destroy ( stack **const pp_stack )
     mutex_destroy(&p_stack->_lock);
 	
 	// Free the stack
-	p_stack = realloc(p_stack, 0);
+	p_stack = default_allocator(p_stack, 0);
 
 	// success
 	return 1;

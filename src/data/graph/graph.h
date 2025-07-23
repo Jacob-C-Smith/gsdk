@@ -14,8 +14,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-// log module
+// core
 #include <core/log.h>
+#include <core/pack.h>
+#include <core/interfaces.h>
+#include <core/hash.h>
 
 // enumerations
 enum graph_type_e 

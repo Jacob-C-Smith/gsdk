@@ -55,7 +55,7 @@ int set_create ( set **const pp_set )
     if ( pp_set == (void *) 0 ) goto no_set;
 
     // initialized data
-    set *p_set = realloc(0, sizeof(set));
+    set *p_set = default_allocator(0, sizeof(set));
 
     // error checking
     if ( p_set == (void *) 0 ) goto no_mem;
@@ -115,7 +115,7 @@ int set_construct ( set **const pp_set, size_t size, set_equal_fn *pfn_is_equal 
     p_set->max = size;
 
     // Allocate memory for set elements
-    p_set->elements = realloc(0, size * sizeof(void *));
+    p_set->elements = default_allocator(0, size * sizeof(void *));
 
     // error checking
     if ( p_set->elements == (void *) 0 ) goto no_mem;
@@ -848,7 +848,7 @@ int set_destroy ( set **const pp_set )
     mutex_lock(&p_set->_lock);
 
     // Free the set elements
-    (void)realloc(p_set->elements, 0); 
+    (void)default_allocator(p_set->elements, 0); 
 
     // Destroy the lock
     mutex_destroy(&p_set->_lock);

@@ -487,7 +487,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
     {
 
         // Allocate memory
-        p_value = realloc(0, sizeof(json_value));
+        p_value = default_allocator(0, sizeof(json_value));
         
         // error check
         if ( p_value == (void *) 0 ) goto no_mem;
@@ -502,7 +502,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
         size_t len = strlen(text);
 
         // Allocate memory
-        p_value = realloc(0, sizeof(json_value) + len + 1);
+        p_value = default_allocator(0, sizeof(json_value) + len + 1);
 
         // error check
         if ( p_value == (void *) 0 ) goto no_mem;
@@ -545,7 +545,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             string_len = strlen(last_text); 
 
             // Allocate memory for the string
-            p_value->string = realloc(0, ( (string_len + 1 + 8) & 0xFFFFFFFFFFFFFFF8) * sizeof(char));
+            p_value->string = default_allocator(0, ( (string_len + 1 + 8) & 0xFFFFFFFFFFFFFFF8) * sizeof(char));
         
             // error check
             if ( p_value->string == (void *) 0 ) goto no_mem;
@@ -627,7 +627,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             if ( strncmp(text, "null", 4) ) goto failed_to_parse_keyword;
         
             // Free the JSON value
-            p_value = realloc(p_value, 0);
+            p_value = default_allocator(p_value, 0);
             p_value = (void *) 0;
             
             // Skip the cursor
@@ -688,7 +688,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             {
                 
                 // free the JSON value
-                p_value = realloc(p_value, 0);
+                p_value = default_allocator(p_value, 0);
 
                 // error handling
                 goto float_bounds_exceeded;
@@ -711,7 +711,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             {
 
                 // Free the value
-                p_value = realloc(p_value, 0);
+                p_value = default_allocator(p_value, 0);
                 
                 // error handling
                 goto integer_bounds_exceeded;
@@ -799,7 +799,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
                 #endif
 
                 // Clean up
-                p_value = realloc(p_value, 0);
+                p_value = default_allocator(p_value, 0);
 
                 // error
                 return 0;
@@ -987,8 +987,8 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                     if ( property_count == 0 )
                         goto done;
 
-                    keys   = realloc(0, property_count * sizeof(char*));
-                    values = realloc(0, property_count * sizeof(json_value*));
+                    keys   = default_allocator(0, property_count * sizeof(char*));
+                    values = default_allocator(0, property_count * sizeof(json_value*));
 
                     dict_keys(p_value->object, keys);
                     dict_values(p_value->object, (void **)values);
@@ -1001,8 +1001,8 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                     written_characters += (size_t) sprintf(&_buffer[written_characters],"\"%s\":",keys[property_count-1]);
                     written_characters +=  json_value_serialize(values[property_count-1], &_buffer[written_characters]);
 
-                    keys = realloc(keys, 0);
-                    values = realloc(values, 0);
+                    keys = default_allocator(keys, 0);
+                    values = default_allocator(values, 0);
                     done:
                     written_characters += (size_t) sprintf(&_buffer[written_characters],"}");
                 }
@@ -1028,7 +1028,7 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                     array_get(p_value->list, 0,&element_count);
 
                     // Allocate memory for the elements
-                    elements = realloc(0, element_count * sizeof(json_value*));
+                    elements = default_allocator(0, element_count * sizeof(json_value*));
 
                     // error check
                     if ( elements == (void *) 0 )
@@ -1057,7 +1057,7 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                 }
 
                 // Free the element
-                elements = realloc(elements, 0);
+                elements = default_allocator(elements, 0);
 
                 // Formatting
                 written_characters += (size_t) sprintf(&_buffer[written_characters], "]");
@@ -1255,7 +1255,7 @@ int json_value_print ( const json_value *const p_value )
             if ( property_count == 0 ) goto done;
 
             // Allocate memory for the keys
-            keys = realloc(0, property_count * sizeof(char*));
+            keys = default_allocator(0, property_count * sizeof(char*));
             
             // error check
             if ( keys == (void *) 0 ) goto no_mem;
@@ -1264,7 +1264,7 @@ int json_value_print ( const json_value *const p_value )
             dict_keys(p_value->object, keys);
 
             // Allocate memory for the values
-            values = realloc(0, property_count * sizeof(json_value*));
+            values = default_allocator(0, property_count * sizeof(json_value*));
             
             // error check
             if ( keys == (void *) 0 ) goto no_mem;
@@ -1296,8 +1296,8 @@ int json_value_print ( const json_value *const p_value )
             json_value_print(values[property_count-1]);
 
             // Clean up
-            keys = realloc(keys, 0);
-            values = realloc(values, 0);
+            keys = default_allocator(keys, 0);
+            values = default_allocator(values, 0);
 
             done:
 
@@ -1323,7 +1323,7 @@ int json_value_print ( const json_value *const p_value )
             array_get(p_value->list, 0, &element_count);
 
             // Allocate memory for the elements
-            elements = realloc(0, element_count * sizeof(json_value*));
+            elements = default_allocator(0, element_count * sizeof(json_value*));
 
             // error check
             if ( elements == (void *) 0 ) goto no_mem;
@@ -1349,7 +1349,7 @@ int json_value_print ( const json_value *const p_value )
             }
 
             // Clean up
-            elements = realloc(elements, 0);
+            elements = default_allocator(elements, 0);
             
             // Finish printing the array
             printf("]");
@@ -1549,8 +1549,8 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
 
                     if ( property_count == 0 ) goto done;
 
-                    keys   = realloc(0, property_count * sizeof(char*));
-                    values = realloc(0, property_count * sizeof(json_value*));
+                    keys   = default_allocator(0, property_count * sizeof(char*));
+                    values = default_allocator(0, property_count * sizeof(json_value*));
 
                     dict_keys(p_value->object, keys);
                     dict_values(p_value->object, (void **)values);
@@ -1563,8 +1563,8 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
                     written_characters += fprintf(p_f,"\"%s\":",keys[property_count-1]);
                     written_characters += json_value_fprint(values[property_count-1],p_f);
 
-                    keys = realloc(keys, 0);
-                    values = realloc(values, 0);
+                    keys = default_allocator(keys, 0);
+                    values = default_allocator(values, 0);
                     done:
                     written_characters += fprintf(p_f,"}");
                     
@@ -1593,7 +1593,7 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
                     array_get(p_value->list, 0,&element_count);
 
                     // Allocate memory for the elements
-                    elements = realloc(0, element_count * sizeof(json_value*));
+                    elements = default_allocator(0, element_count * sizeof(json_value*));
 
                     // error check
                     if ( elements == (void *) 0 ) goto no_mem;
@@ -1620,7 +1620,7 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
                 }
 
                 // Free the element
-                elements = realloc(elements, 0);
+                elements = default_allocator(elements, 0);
                 
                 // Formatting
                 written_characters += fprintf(p_f, "]");
@@ -1678,7 +1678,7 @@ void json_value_free ( json_value *p_value )
         case JSON_VALUE_STRING:
 
             // Free the string
-            p_value->string = realloc(p_value->string, 0);
+            p_value->string = default_allocator(p_value->string, 0);
             
             // Done
             break;
@@ -1712,7 +1712,7 @@ void json_value_free ( json_value *p_value )
     }
 
     // Free the value
-    p_value = realloc(p_value, 0);
+    p_value = default_allocator(p_value, 0);
     
     // Done
     return;

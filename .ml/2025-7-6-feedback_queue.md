@@ -34,7 +34,7 @@
          before adding a new node (while ( q->next != 0 )). Since the struct queue_s already has a rear pointer that should point to the last node, this iteration is
          unnecessary and turns what should be a constant-time O(1) operation into a linear-time O(n) operation. This will cause significant performance degradation as the
          queue grows.
-       * Memory Leak in `destroy`: The queue_destroy function only frees the main queue struct itself (realloc(p_queue, 0)). It fails to iterate through and free the
+       * Memory Leak in `destroy`: The queue_destroy function only frees the main queue struct itself (default_allocator(p_queue, 0)). It fails to iterate through and free the
          individual queue_node_s structs, resulting in a memory leak of all nodes currently in the queue. This is a critical bug that needs to be fixed.
        * Missing Size Tracking: The queue does not maintain a count of its elements. To determine the number of items, a user would have to iterate through the list manually.
          Adding a size_t count; member to the struct queue_s and updating it in enqueue and dequeue would provide an efficient O(1) size-checking capability.

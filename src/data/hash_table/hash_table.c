@@ -39,7 +39,7 @@ int hash_table_create ( hash_table **const pp_hash_table )
     if ( pp_hash_table == (void *) 0 ) goto no_hash_table;
 
     // initialized data
-    hash_table *p_hash_table = realloc(0, sizeof(hash_table));
+    hash_table *p_hash_table = default_allocator(0, sizeof(hash_table));
 
     // error check
     if (p_hash_table == (void *) 0 ) goto no_mem;
@@ -120,7 +120,7 @@ int hash_table_construct
     p_hash_table->properties.count = 0,
     p_hash_table->properties.length = 0,
     p_hash_table->properties.max = size,
-    p_hash_table->properties.pp_data = realloc(0, size * sizeof(void *));
+    p_hash_table->properties.pp_data = default_allocator(0, size * sizeof(void *));
 
     // return a pointer to the caller
     *pp_hash_table = p_hash_table;

@@ -54,7 +54,7 @@ int queue_create ( queue **const pp_queue )
 	if ( pp_queue == (void *) 0 ) goto no_queue;
 
 	// initialized data
-	queue *ret = realloc(0, sizeof(queue));
+	queue *ret = default_allocator(0, sizeof(queue));
 
 	// error check
 	if ( ret == (void *)0 ) goto no_mem;
@@ -315,7 +315,7 @@ int queue_enqueue ( queue *const p_queue, void *const data )
 
 	// initialized data
 	struct queue_node_s *q = p_queue->rear, // Q comes before R(ear)
-	                    *r = realloc(0, sizeof(struct queue_node_s));
+	                    *r = default_allocator(0, sizeof(struct queue_node_s));
 	
 	// error check
 	if ( r == (void *) 0 ) goto no_mem;
@@ -410,7 +410,7 @@ int queue_dequeue ( queue *const p_queue, void **const pp_value )
 		*pp_value = ret_m->content;
 
 	// Free the memory
-	ret_m = realloc(ret_m, 0);
+	ret_m = default_allocator(ret_m, 0);
 		
 	// unlock
 	mutex_unlock(&p_queue->_lock);
@@ -500,7 +500,7 @@ int queue_destroy ( queue **const pp_queue )
 	mutex_unlock(&p_queue->_lock);
 
 	// Free the memory
-	p_queue = realloc(p_queue, 0);
+	p_queue = default_allocator(p_queue, 0);
 		
 	// success
 	return 1;

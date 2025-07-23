@@ -59,7 +59,7 @@
    4. `goto` in `array_add`:
        * In array_add, the goto no_mem inside the resizing block jumps to an error handling section that tries to unlock a mutex. However, the mutex is already held at that
          point. While this won't cause a deadlock in this specific case (since it's a single thread), it's a pattern that can be fragile. It would be slightly cleaner to handle
-         the realloc failure inside the if block and unlock before returning.
+         the default_allocator failure inside the if block and unlock before returning.
 
 
    5. `array_log` Stub:
@@ -87,7 +87,7 @@
    3. Capacity Management:
        * int array_reserve(array *p_array, size_t new_capacity);
        * Description: Allows a user to pre-allocate memory for the array. This is a crucial optimization for cases where the number of elements to be added is known beforehand,
-         as it avoids multiple realloc calls during array_add.
+         as it avoids multiple default_allocator calls during array_add.
        * int array_shrink_to_fit(array *p_array);
        * Description: Reduces the array's capacity to match its current size. This is useful for freeing up memory after a large number of elements have been removed.
 
@@ -109,4 +109,4 @@
          must be maintained.
        * int array_append_array(array *p_destination, const array *const p_source);
        * Description: Appends all elements from a source array to a destination array. This is more efficient than iterating and calling array_add for each element, as it can
-         reallocate the destination array's buffer just once.
+         default_allocatorate the destination array's buffer just once.

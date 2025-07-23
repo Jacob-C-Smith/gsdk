@@ -15,8 +15,12 @@
 #include <stdbool.h>
 #include <string.h>
 
-// sync submodule
+// core
+#include <core/log.h>
 #include <core/sync.h>
+#include <core/interfaces.h>
+#include <core/pack.h>
+#include <core/hash.h>
 
 // forward declarations
 struct priority_queue_s;

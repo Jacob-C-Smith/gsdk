@@ -179,8 +179,8 @@ int key_pair_construct ( public_key **pp_public_key, private_key **pp_private_ke
     if ( NULL == pp_private_key ) goto no_private_key;
 
     // initialized data
-    public_key  *p_public_key  = realloc(0, sizeof(public_key));
-    private_key *p_private_key = realloc(0, sizeof(private_key));
+    public_key  *p_public_key  = default_allocator(0, sizeof(public_key));
+    private_key *p_private_key = default_allocator(0, sizeof(private_key));
     i2048 n = 0, a = 0,
           p = 0, q = 0, b = 0;
 
@@ -304,12 +304,12 @@ int key_pair_from_files
     if ( NULL == p_private_key_path ) goto no_private_key_path;
 
     // initialized data
-    public_key   *p_public_key         = realloc(0, sizeof(public_key));
-    private_key  *p_private_key        = realloc(0, sizeof(private_key));
+    public_key   *p_public_key         = default_allocator(0, sizeof(public_key));
+    private_key  *p_private_key        = default_allocator(0, sizeof(private_key));
     size_t        public_key_size      = file_load(p_public_key_path, 0, true),
                   private_key_size     = file_load(p_private_key_path, 0, true);
-    void         *p_public_key_buffer  = realloc(0, public_key_size),
-                 *p_private_key_buffer = realloc(0, private_key_size);
+    void         *p_public_key_buffer  = default_allocator(0, public_key_size),
+                 *p_private_key_buffer = default_allocator(0, private_key_size);
 
     // error check
     if ( NULL == p_public_key         ) goto no_mem;
@@ -326,8 +326,8 @@ int key_pair_from_files
     if ( 0 == private_key_unpack(p_private_key, p_private_key_buffer) ) goto failed_to_parse_private_key;
 
     // Release buffers
-    p_public_key_buffer  = realloc(p_public_key_buffer, 0),
-    p_private_key_buffer = realloc(p_private_key_buffer, 0);
+    p_public_key_buffer  = default_allocator(p_public_key_buffer, 0),
+    p_private_key_buffer = default_allocator(p_private_key_buffer, 0);
 
     // Return pointers to the caller
     *pp_public_key  = p_public_key,

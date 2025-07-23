@@ -17,7 +17,7 @@ int circular_buffer_create ( circular_buffer **const pp_circular_buffer )
 	if ( pp_circular_buffer == (void *) 0 ) goto no_circular_buffer;
 
 	// initialized data
-	circular_buffer *ret = realloc(0, sizeof(circular_buffer));
+	circular_buffer *ret = default_allocator(0, sizeof(circular_buffer));
 
 	// error check
 	if ( ret == (void *)0 ) goto no_mem;
@@ -72,7 +72,7 @@ int circular_buffer_construct ( circular_buffer **const pp_circular_buffer, size
 	if ( circular_buffer_create(&p_circular_buffer) == 0 ) goto failed_to_create_circular_buffer;
 
 	// Grow the circular buffer
-	p_circular_buffer = realloc(p_circular_buffer, sizeof(circular_buffer) + ( size * sizeof(void *) ));
+	p_circular_buffer = default_allocator(p_circular_buffer, sizeof(circular_buffer) + ( size * sizeof(void *) ));
 
 	// error check
 	if ( p_circular_buffer == (void *) 0 ) goto no_mem;
@@ -492,7 +492,7 @@ int circular_buffer_destroy ( circular_buffer **const pp_circular_buffer )
 	mutex_destroy(&p_circular_buffer->_lock);
 
 	// Free the memory
-	p_circular_buffer = realloc(p_circular_buffer, 0);
+	p_circular_buffer = default_allocator(p_circular_buffer, 0);
 		
 	// success
 	return 1;

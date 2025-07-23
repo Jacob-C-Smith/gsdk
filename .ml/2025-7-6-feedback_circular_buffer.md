@@ -37,7 +37,7 @@
      the buffer is full. This is a common and desirable behavior for many use cases, such as logging
      or storing the most recent N items.
    * Flexible-Array Member: The use of a flexible-array member (_p_data[]) is a good C pattern for
-     this type of structure, as it allocates the header and the data buffer in a single realloc call,
+     this type of structure, as it allocates the header and the data buffer in a single default_allocator call,
      improving data locality.
 
 

@@ -16,7 +16,10 @@
 #include <limits.h>
 #include <time.h>
 
-// reflection
+// core
+#include <core/log.h>
+#include <core/hash.h>
+#include <core/interfaces.h>
 #include <core/pack.h>
 
 // structure declarations

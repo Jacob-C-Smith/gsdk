@@ -58,7 +58,7 @@ int dict_create ( dict **const pp_dict )
     if ( pp_dict == (void *) 0 ) goto no_dictionary;
 
     // Allocate memory for a dictionary
-    dict *p_dict = realloc(0, sizeof(dict));
+    dict *p_dict = default_allocator(0, sizeof(dict));
 
     // error checking
     if ( p_dict == (void *) 0 ) goto no_mem;
@@ -120,11 +120,11 @@ int dict_construct ( dict **const pp_dict, size_t size, fn_hash64 pfn_hash_funct
     p_dict->iterable.max = 1;
 
     // Allocate "size" number of properties
-    p_dict->entries.data = realloc(0, size * sizeof(dict_item *));
+    p_dict->entries.data = default_allocator(0, size * sizeof(dict_item *));
 
     // Allocate key and value lists
-    p_dict->iterable.keys   = realloc(0, sizeof(char *));
-    p_dict->iterable.values = realloc(0, sizeof(void *));
+    p_dict->iterable.keys   = default_allocator(0, sizeof(char *));
+    p_dict->iterable.values = default_allocator(0, sizeof(void *));
 
     // Zero set the allocated memory
     memset(p_dict->entries.data, 0, size * sizeof(dict_item *));
@@ -462,8 +462,8 @@ int dict_add ( dict *const p_dict, const char *const key,   void * const p_value
             p_dict->iterable.max *= 2;
 
             // Reallocate iterable dicts
-            p_dict->iterable.keys   = realloc(p_dict->iterable.keys  , p_dict->iterable.max * sizeof(char *));
-            p_dict->iterable.values = realloc(p_dict->iterable.values, p_dict->iterable.max * sizeof(void *));
+            p_dict->iterable.keys   = default_allocator(p_dict->iterable.keys  , p_dict->iterable.max * sizeof(char *));
+            p_dict->iterable.values = default_allocator(p_dict->iterable.values, p_dict->iterable.max * sizeof(void *));
 
             // error checking
             if ( p_dict->iterable.keys   == (void *) 0 ) goto no_mem;
@@ -471,7 +471,7 @@ int dict_add ( dict *const p_dict, const char *const key,   void * const p_value
         }
 
         // Allocate a new dict_item
-        property = realloc(0, sizeof(dict_item));
+        property = default_allocator(0, sizeof(dict_item));
 
         // Zero
         memset(property, 0, sizeof(dict_item));
@@ -643,7 +643,7 @@ int dict_pop ( dict *const p_dict, const char *const key, const void **const pp_
     done:
 
     // Free the pop'd dict_item
-    if ( realloc(k, 0) ) goto failed_to_free;
+    if ( default_allocator(k, 0) ) goto failed_to_free;
 
     // Decrement entries
     p_dict->entries.count--;
@@ -656,8 +656,8 @@ int dict_pop ( dict *const p_dict, const char *const key, const void **const pp_
         p_dict->iterable.max /= 2;
 
         // Reallocate iterable dicts
-        p_dict->iterable.keys   = realloc(p_dict->iterable.keys  , p_dict->iterable.max * sizeof(void *));
-        p_dict->iterable.values = realloc(p_dict->iterable.values, p_dict->iterable.max * sizeof(void *));
+        p_dict->iterable.keys   = default_allocator(p_dict->iterable.keys  , p_dict->iterable.max * sizeof(void *));
+        p_dict->iterable.values = default_allocator(p_dict->iterable.values, p_dict->iterable.max * sizeof(void *));
 
         // error checking
         if ( p_dict->iterable.keys == (void *) 0 ) goto no_mem;
@@ -724,7 +724,7 @@ int dict_pop ( dict *const p_dict, const char *const key, const void **const pp_
                 
             failed_to_free:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Call to \"realloc\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[Standard Library] Call to \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -789,8 +789,8 @@ int dict_copy ( dict *const p_dict, dict **const pp_dict )
 
     // initialized data
     dict  *i_dict = 0;
-    const char **keys   = realloc(0, p_dict->entries.max * sizeof(char *));
-    void **values = realloc(0, p_dict->entries.max * sizeof(void *));
+    const char **keys   = default_allocator(0, p_dict->entries.max * sizeof(char *));
+    void **values = default_allocator(0, p_dict->entries.max * sizeof(void *));
 
     // error checking
     if ( keys   == (void *) 0 ) goto no_mem;
@@ -815,10 +815,10 @@ int dict_copy ( dict *const p_dict, dict **const pp_dict )
 
     // Free the lists
     // Free the keys
-    if ( realloc(keys, 0) ) goto failed_to_free;
+    if ( default_allocator(keys, 0) ) goto failed_to_free;
 
     // Free the values
-    if ( realloc(values, 0) ) goto failed_to_free;
+    if ( default_allocator(values, 0) ) goto failed_to_free;
 
     *pp_dict = i_dict;
 
@@ -864,7 +864,7 @@ int dict_copy ( dict *const p_dict, dict **const pp_dict )
         {
             failed_to_free:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Call to \"realloc\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[Standard Library] Call to \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -1000,7 +1000,7 @@ int dict_clear ( dict *const p_dict )
                 dict_item *n = i_di->next;
 
                 // Free the item
-                i_di = realloc(i_di, 0);
+                i_di = default_allocator(i_di, 0);
                 
                 // Iterate
                 i_di = n;
@@ -1092,7 +1092,7 @@ int dict_free_clear ( dict *const p_dict, void (*const free_func)(const void *co
                 free_func(i_di->value);
 
                 // Free the item
-                i_di = realloc(i_di, 0);
+                i_di = default_allocator(i_di, 0);
                 
                 // Iterate
                 i_di = n;
@@ -1156,17 +1156,17 @@ int dict_destroy ( dict **const pp_dict )
     if ( dict_clear(p_dict) == 0 ) goto failed_to_clear;
 
     // Free the hash table
-    p_dict->entries.data = realloc(p_dict->entries.data, 0);
+    p_dict->entries.data = default_allocator(p_dict->entries.data, 0);
 
     // Free the iterables
-    p_dict->iterable.keys   = realloc(p_dict->iterable.keys, 0),
-    p_dict->iterable.values = realloc(p_dict->iterable.values, 0);
+    p_dict->iterable.keys   = default_allocator(p_dict->iterable.keys, 0),
+    p_dict->iterable.values = default_allocator(p_dict->iterable.values, 0);
 
     // Destroy the mutex
     mutex_destroy(&p_dict->_lock);
 
     // Free the dictionary
-    p_dict = realloc(p_dict, 0);
+    p_dict = default_allocator(p_dict, 0);
 
     // success
     return 1;

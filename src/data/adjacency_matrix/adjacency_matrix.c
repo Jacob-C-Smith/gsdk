@@ -6,7 +6,7 @@ int adjacency_matrix_construct ( adjacency_matrix **pp_adjacency_matrix, size_t 
     if ( pp_adjacency_matrix == NULL ) goto no_adjacency_matrix;
 
     // initialized data
-    adjacency_matrix *p_adjacency_matrix = realloc(0, sizeof(adjacency_matrix));
+    adjacency_matrix *p_adjacency_matrix = default_allocator(0, sizeof(adjacency_matrix));
 
     // error check
     if ( p_adjacency_matrix == NULL ) goto no_mem;
@@ -43,7 +43,7 @@ int adjacency_matrix_construct ( adjacency_matrix **pp_adjacency_matrix, size_t 
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Call to function \"realloc\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[Standard Library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -65,21 +65,21 @@ int adjacency_matrix_vertex_add(adjacency_matrix *p_matrix, void *p_value)
         }
     }
     
-    // We need to reallocate to accommodate the new vertex
+    // We need to default_allocatorate to accommodate the new vertex
     size_t new_size = p_matrix->size + 1;
     
-    void *new_vertices = realloc(p_matrix->p_vertices, new_size * sizeof(void *));
+    void *new_vertices = default_allocator(p_matrix->p_vertices, new_size * sizeof(void *));
     if (new_vertices == NULL) return 0;
     
     p_matrix->p_vertices = new_vertices;
     p_matrix->p_vertices[p_matrix->size] = p_value;
 
-    double **new_matrix = realloc(p_matrix->matrix, new_size * sizeof(double *));
+    double **new_matrix = default_allocator(p_matrix->matrix, new_size * sizeof(double *));
     if (new_matrix == NULL) return 0;
 
     for(size_t i = 0; i < new_size; i++)
     {
-        new_matrix[i] = realloc(new_matrix[i], new_size * sizeof(double));
+        new_matrix[i] = default_allocator(new_matrix[i], new_size * sizeof(double));
         if(new_matrix[i] == NULL) return 0;
     }
 

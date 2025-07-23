@@ -48,7 +48,7 @@ int node_create ( node **pp_node )
     if ( pp_node == (void *) 0 ) goto no_node;
 
     // initialized data
-    node *p_node = realloc(0, sizeof(node));
+    node *p_node = default_allocator(0, sizeof(node));
 
     // error check
     if ( p_node == (void *) 0 ) goto no_mem;
@@ -96,7 +96,7 @@ int node_graph_create ( node_graph **pp_node_graph )
     if ( pp_node_graph == (void *) 0 ) goto no_node_graph;
 
     // initialized data
-    node_graph *p_node_graph = realloc(0, sizeof(node_graph));
+    node_graph *p_node_graph = default_allocator(0, sizeof(node_graph));
 
     // error check
     if ( p_node_graph == (void *) 0 ) goto no_mem;
@@ -177,13 +177,13 @@ int node_graph_construct ( node_graph **pp_node_graph, const json_value *const p
             if ( node_quantity == (void *) 0 ) goto no_nodes;
 
             // Grow the allocation
-            p_node_graph = realloc(p_node_graph, sizeof(node_graph) + (node_quantity * sizeof(node *)));
+            p_node_graph = default_allocator(p_node_graph, sizeof(node_graph) + (node_quantity * sizeof(node *)));
 
             // Store the node quantity
             p_node_graph->node_quantity = node_quantity;
 
             // Allocate memory for keys
-            pp_keys = realloc(0, node_quantity * sizeof(node *));
+            pp_keys = default_allocator(0, node_quantity * sizeof(node *));
 
             // Construct a lookup for nodes
             if ( dict_construct(&p_node_graph->p_nodes, node_quantity, 0) == 0 ) goto failed_to_construct_dict;
@@ -211,7 +211,7 @@ int node_graph_construct ( node_graph **pp_node_graph, const json_value *const p
             }
             
             // Release memory
-            pp_keys = realloc(pp_keys, 0);
+            pp_keys = default_allocator(pp_keys, 0);
         }
         
         // Parse the connections

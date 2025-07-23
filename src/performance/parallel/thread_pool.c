@@ -115,7 +115,7 @@ int thread_pool_create ( thread_pool **const pp_thread_pool )
     thread_pool *p_thread_pool = (void *) 0;
 
     // Allocate memory for the thread_pool
-    p_thread_pool = realloc(0, sizeof(thread_pool));
+    p_thread_pool = default_allocator(0, sizeof(thread_pool));
 
     // error check
     if ( p_thread_pool == (void *) 0 ) goto no_mem;
@@ -171,7 +171,7 @@ int thread_pool_construct ( thread_pool **pp_thread_pool, size_t thread_quantity
     if ( thread_pool_create(&p_thread_pool) == 0 ) goto failed_to_create_thread_pool;
 
     // Grow the allocation
-    p_thread_pool = realloc(p_thread_pool, sizeof(thread_pool) * ( thread_quantity * sizeof(thread_pool_work_parameter) ));
+    p_thread_pool = default_allocator(p_thread_pool, sizeof(thread_pool) * ( thread_quantity * sizeof(thread_pool_work_parameter) ));
 
     // Initialize data
     memset(p_thread_pool, 0, sizeof(thread_pool) * ( thread_quantity * sizeof(thread_pool_work_parameter) ));

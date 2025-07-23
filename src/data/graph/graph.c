@@ -19,7 +19,7 @@ int graph_construct ( graph **pp_graph,
     if ( _storage == GRAPH_STORAGE_TYPE_INVALID ) goto invalid_storage_type;
 
     // initialized data
-    graph *p_graph = realloc(0, sizeof(graph));
+    graph *p_graph = default_allocator(0, sizeof(graph));
 
     // Clone the graph 
     memcpy(p_graph, &_graph_prototypes[ GRAPH_TYPE(_type, _storage) ], sizeof(graph));
@@ -287,7 +287,7 @@ int graph_destruct  ( graph **pp_graph )
     if ( *pp_graph == (void *) 0 ) goto invalid_storage_type;
 
     // initialized data
-    //graph *p_graph = realloc(0, sizeof(graph));
+    //graph *p_graph = default_allocator(0, sizeof(graph));
 
 
     // return a pointer to the caller

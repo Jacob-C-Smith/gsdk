@@ -7,7 +7,7 @@ int adjacency_list_construct ( adjacency_list **pp_adjacency_list, size_t size )
     if ( pp_adjacency_list == NULL ) goto no_adjacency_list;
 
     // initialized data
-    adjacency_list *p_adjacency_list = realloc(0, sizeof(adjacency_list));
+    adjacency_list *p_adjacency_list = default_allocator(0, sizeof(adjacency_list));
 
     // error check
     if ( p_adjacency_list == NULL ) goto no_mem;
@@ -44,7 +44,7 @@ int adjacency_list_construct ( adjacency_list **pp_adjacency_list, size_t size )
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Call to function \"realloc\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[Standard Library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -68,12 +68,12 @@ int adjacency_list_vertex_add(graph *p_graph, void *p_value)
         }
     }
     
-    // We need to reallocate to accommodate the new vertex
-    // Since we don't have a capacity field, we'll reallocate every time
+    // We need to default_allocatorate to accommodate the new vertex
+    // Since we don't have a capacity field, we'll default_allocatorate every time
     // This is not optimal, but it's safe and correct
     size_t new_size = p_list->size + 1;
     
-    void *new_vertices = realloc(p_list->p_vertices, new_size * sizeof(*p_list->p_vertices));
+    void *new_vertices = default_allocator(p_list->p_vertices, new_size * sizeof(*p_list->p_vertices));
     if (new_vertices == NULL) return 0;
     
     p_list->p_vertices = new_vertices;
