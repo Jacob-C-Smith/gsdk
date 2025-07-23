@@ -985,7 +985,7 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                     written_characters += (size_t) sprintf(&_buffer[written_characters],"{");
 
                     if ( property_count == 0 )
-                        goto done;
+                        goto doned;
 
                     keys   = default_allocator(0, property_count * sizeof(char*));
                     values = default_allocator(0, property_count * sizeof(json_value*));
@@ -1003,7 +1003,7 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
 
                     keys = default_allocator(keys, 0);
                     values = default_allocator(values, 0);
-                    done:
+                    doned:
                     written_characters += (size_t) sprintf(&_buffer[written_characters],"}");
                 }
                 break;
@@ -1018,32 +1018,32 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                 json_value **elements      = 0;
 
                 // error check
-                if ( p_value->list == (void *) 0 )
-                    goto no_list;
+                if ( p_value->list == (void *) 0 ) goto no_list;
 
+                // Formatting
+                written_characters += (size_t) sprintf(&_buffer[written_characters],"[");
+
+                // Get the quantity of elements                    
+                array_get(p_value->list, 0, &element_count);
+
+                // edge case
+                if ( 0 == element_count ) goto donea;
+                
                 // Get the contents of the array
                 {
-
-                    // Get the quantity of elements                    
-                    array_get(p_value->list, 0,&element_count);
 
                     // Allocate memory for the elements
                     elements = default_allocator(0, element_count * sizeof(json_value*));
 
                     // error check
-                    if ( elements == (void *) 0 )
-                        goto no_mem;
+                    if ( elements == (void *) 0 ) goto no_mem;
 
                     // Get the contents of the array
                     array_get(p_value->list, (void **)elements, 0);
                 }
                 
-                // Formatting
-                written_characters += (size_t) sprintf(&_buffer[written_characters],"[");
-
                 // Print the first element
-                if ( element_count )
-                    written_characters += json_value_serialize(elements[0], &_buffer[written_characters]);
+                if ( element_count ) written_characters += json_value_serialize(elements[0], &_buffer[written_characters]);
                 
                 // Iterate over each element
                 for (size_t i = 1; i < element_count; i++)
@@ -1055,6 +1055,8 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                     // Print the value
                     written_characters += json_value_serialize(elements[i], &_buffer[written_characters]);
                 }
+
+                donea:
 
                 // Free the element
                 elements = default_allocator(elements, 0);
@@ -1087,315 +1089,8 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
 int json_value_print ( const json_value *const p_value )
 {
     
-    // Edge case
-    if ( p_value == 0 ) goto no_value;
-
-    // error checking
-    if ( p_value->type == JSON_VALUE_INVALID ) goto invalid_value_type;
-
-    // Strategy
-    switch (p_value->type)
-    {
-
-        // Boolean 
-        case JSON_VALUE_BOOLEAN:
-
-            // Write the boolean to standard out
-            printf("%s",p_value->boolean ? "true" : "false");
-
-            // Done
-            break;
-        
-        // Integer
-        case JSON_VALUE_INTEGER:
-
-            // Write the integer to standard out
-            printf("%lld", p_value->integer);
-
-            // Done
-            break;
-
-        // Floating point
-        case JSON_VALUE_NUMBER:
-        {
-            
-            // initialized data
-            int precision = double_precision(p_value->number);
-
-            // Print the value with the current precision
-            if ( precision > 18 )
-                printf("%.*le", 16, p_value->number);
-            else
-                printf("%.*lf", precision, p_value->number);
-            
-            // Done
-            break;
-        }
-
-        // String
-        case JSON_VALUE_STRING:
-        {
-
-            // initialized data
-            size_t len = strlen(p_value->string);
-
-            // Formatting
-            putchar('\"');
-            
-            // Iterate over each character
-            for ( size_t i = 0; i < len; i++ )
-            {
-
-                // Escape sequence
-                switch ( p_value->string[i] )
-                {
-
-                    // Double quote
-                    case '\"':
-
-                        // Write the double quote to standard out
-                        printf("\\\"");
-
-                        // Done
-                        break;
-
-                    // Backslash
-                    case '\\':
-                    
-                        // Write the backslash to standard out
-                        printf("\\\\");
-
-                        // Done
-                        break;
-
-                    // Forward slash
-                    case '/':
-                    
-                        // Write the forward slash to standard out
-                        printf("\\/");
-
-                        // Done
-                        break;
-                    
-                    // Backspace
-                    case '\b':
-                    
-                        // Write the backspace to standard out
-                        printf("\\\b");
-
-                        // Done
-                        break;
-                    
-                    // Form feed
-                    case '\f':
-                    
-                        // Write the form feed to standard out
-                        printf("\\\f");
-
-                        // Done
-                        break;
-                    
-                    // Line feed
-                    case '\n':
-                    
-                        // Write the line feed to standard out
-                        printf("\\\n");
-
-                        // Done
-                        break;
-                    
-                    // Carriage return
-                    case '\r':
-                    
-                        // Write the carriage return to standard out
-                        printf("\\\r");
-
-                        // Done
-                        break;
-                    
-                    // Horizontal tab
-                    case '\t':
-                    
-                        // Write the horizontal tab to standard out
-                        printf("\\\t");
-
-                        // Done
-                        break;
-
-                    // TODO: Unicode
-                    // TODO:case '\u':
-                        // TODO:
-                        // TODO:break;
-                    
-                    // Default
-                    default:
-
-                        // Print the character to standard out
-                        putchar(p_value->string[i]);
-                }
-            }
-        
-            // End the string
-            putchar('\"');
-
-            // Done
-            break;
-        }
-        
-        // Object
-        case JSON_VALUE_OBJECT:
-        {
-            
-            // initialized data
-            size_t        property_count = dict_values(p_value->object, 0);
-            const char **keys            = 0;
-            json_value **values          = 0;
-
-            // Edge case
-            if ( property_count == 0 ) goto done;
-
-            // Allocate memory for the keys
-            keys = default_allocator(0, property_count * sizeof(char*));
-            
-            // error check
-            if ( keys == (void *) 0 ) goto no_mem;
-            
-            // Dump the keys
-            dict_keys(p_value->object, keys);
-
-            // Allocate memory for the values
-            values = default_allocator(0, property_count * sizeof(json_value*));
-            
-            // error check
-            if ( keys == (void *) 0 ) goto no_mem;
-
-            // Dump the values
-            dict_values(p_value->object, (void **)values);
-
-            // Start printing the object
-            printf("{");
-
-            // Iterate through each property, save for the final property
-            for (size_t i = 0; i < property_count-1; i++)
-            {
-
-                // Print the key to standard out
-                printf("\"%s\":",keys[i]);
-
-                // Print the value to standard out
-                json_value_print(values[i]);
-
-                // Print a comma delimiter to standard out
-                printf(",");
-            }
-
-            // Print the key of the final property
-            printf("\"%s\":",keys[property_count-1]);
-
-            // Print the value of the final property
-            json_value_print(values[property_count-1]);
-
-            // Clean up
-            keys = default_allocator(keys, 0);
-            values = default_allocator(values, 0);
-
-            done:
-
-            // Finish printing the object
-            printf("}");
-
-            // Done
-            break;
-        }
-        
-        // Array
-        case JSON_VALUE_ARRAY:
-        {
-            
-            // initialized data
-            size_t       element_count = 0;
-            json_value **elements      = 0;
-
-            // error check
-            if ( p_value->list == (void *) 0 ) goto no_list;
-        
-            // Get the quantity of elements in the array                  
-            array_get(p_value->list, 0, &element_count);
-
-            // Allocate memory for the elements
-            elements = default_allocator(0, element_count * sizeof(json_value*));
-
-            // error check
-            if ( elements == (void *) 0 ) goto no_mem;
-
-            // Get the contents of the array
-            array_get(p_value->list, (void **)elements, 0);
-            
-            // Start printing the array
-            printf("[");
-
-            // Print the first element
-            if ( element_count ) json_value_print(elements[0]);
-            
-            // Iterate over each element
-            for (size_t i = 1; i < element_count; i++)
-            {
-
-                // Print a comma delimiter to standard out
-                printf(",");
-
-                // Print the value to standard out
-                json_value_print(elements[i]);
-            }
-
-            // Clean up
-            elements = default_allocator(elements, 0);
-            
-            // Finish printing the array
-            printf("]");
-
-            // Done
-            break;
-        }
-        
-        // Default
-        default:
-
-            // error handling
-            goto unrecognized_json_type;
-    }
-
-    // success
-    return 1;
-    
-    // This branch handles "null"
-    no_value:
-
-        // Print null to standard out
-        printf("null");
-
-        // success
-        return 1;
-
-    no_list:
-    unrecognized_json_type:
-    invalid_value_type:
-        return 0;
-
-    // error handling
-    {
-        
-        // standard library errors
-        {
-            no_mem:
-                #ifndef NDEBUG
-                    log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-        }
-    }
+    // done
+    return json_value_fprint(p_value, stdout);
 }
 
 int json_value_fprint ( const json_value *const p_value, FILE *p_f )
@@ -1547,7 +1242,7 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
 
                     written_characters += fprintf(p_f,"{");
 
-                    if ( property_count == 0 ) goto done;
+                    if ( property_count == 0 ) goto doned;
 
                     keys   = default_allocator(0, property_count * sizeof(char*));
                     values = default_allocator(0, property_count * sizeof(json_value*));
@@ -1565,7 +1260,7 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
 
                     keys = default_allocator(keys, 0);
                     values = default_allocator(values, 0);
-                    done:
+                    doned:
                     written_characters += fprintf(p_f,"}");
                     
                     
@@ -1585,12 +1280,18 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
 
                 // error check
                 if ( p_value->list == (void *) 0 ) goto no_list;
+                
+                // Formatting
+                written_characters += fprintf(p_f,"[");
+
+                // Get the quantity of elements                    
+                array_get(p_value->list, 0, &element_count);
+                
+                // edge case
+                if ( 0 == element_count ) goto donea;
 
                 // Get the contents of the array
                 {
-
-                    // Get the quantity of elements                    
-                    array_get(p_value->list, 0,&element_count);
 
                     // Allocate memory for the elements
                     elements = default_allocator(0, element_count * sizeof(json_value*));
@@ -1602,11 +1303,8 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
                     array_get(p_value->list, (void **)elements, 0);
                 }
                 
-                // Formatting
-                written_characters += fprintf(p_f,"[");
-
                 // Print the first element
-                if ( element_count ) json_value_fprint(elements[0],p_f);
+                if ( element_count ) written_characters += json_value_fprint(elements[0],p_f);
                 
                 // Iterate over each element
                 for (size_t i = 1; i < element_count; i++)
@@ -1620,8 +1318,11 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
                 }
 
                 // Free the element
-                elements = default_allocator(elements, 0);
+                if ( 0 < element_count )
+                    elements = default_allocator(elements, 0);
                 
+                donea:
+
                 // Formatting
                 written_characters += fprintf(p_f, "]");
 

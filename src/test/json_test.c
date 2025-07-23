@@ -2720,7 +2720,7 @@ bool test_parse_json ( char *test_file, int(*expected_value_constructor) (json_v
     if (expected_value_constructor) expected_value_constructor(&p_expected_value);
 
     // parse the json value
-    result = load_json ( &p_return_value, test_file, &free_me );
+    result = load_json ( &p_return_value, test_file, NULL );
 
     // test for equality
     value_eq = value_equals(p_return_value, p_expected_value);
@@ -2730,7 +2730,8 @@ bool test_parse_json ( char *test_file, int(*expected_value_constructor) (json_v
     if ( p_expected_value ) json_value_free(p_expected_value);
 
     // release the allocation
-    free_me = default_allocator(free_me, 0);
+    if ( free_me )
+        free_me = default_allocator(free_me, 0);
 
     // success
     return (result == expected && value_eq);
