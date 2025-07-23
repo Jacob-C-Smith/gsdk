@@ -107,7 +107,7 @@ int print_json_file ( const char *path )
     json_value_print(p_value);
 
     // Free the JSON value
-    json_value_free(p_value);
+    json_value_free(p_value, 0);
 
     // success
     return 1;

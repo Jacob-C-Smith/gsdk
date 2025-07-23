@@ -211,7 +211,7 @@ void print_usage ( const char *argv0 )
     // Print a usage message to standard out
     printf("Usage: %s [thread] [thread-pool] [schedule]\n", argv0);
 
-    // Done
+    // done
     return;
 }
 
@@ -497,7 +497,7 @@ void *print_something_to_standard_out ( void *p_parameter )
     // Flush standard out
     fflush(stdout);
 
-    // Done
+    // done
     return 0;
 }
 

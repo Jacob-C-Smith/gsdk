@@ -144,7 +144,7 @@ int main ( int argc, const char* argv[] )
     print_time_pretty ( (double)(t1-t0)/(double)timer_seconds_divisor() );
     log_info(" to test\n");
 
-    // Done
+    // done
     return ( total_passes == total_tests ) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 

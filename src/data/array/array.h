@@ -246,4 +246,4 @@ hash64 array_hash ( array *p_array, fn_hash64 *pfn_element );
  *
  * @return 1 on success, 0 on error
  */
-int array_destroy ( array **const pp_array );
+int array_destroy ( array **const pp_array, fn_allocator *pfn_allocator );

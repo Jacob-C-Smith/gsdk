@@ -37,7 +37,7 @@ void sync_init ( void )
     // Set the initialized flag
     initialized = true;
 
-    // Done
+    // done
     return;
 }
 
@@ -1151,7 +1151,7 @@ timestamp timer_high_precision ( void )
 signed timer_seconds_divisor ( void )
 {
 
-    // Done
+    // done
     return SYNC_TIMER_DIVISOR;
 }
 
@@ -1170,6 +1170,6 @@ void sync_exit ( void )
     // Clear the initialized flag
     initialized = false;
 
-    // Done
+    // done
     return;
 }

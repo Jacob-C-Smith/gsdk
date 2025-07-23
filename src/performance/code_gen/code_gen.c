@@ -24,7 +24,7 @@ void code_gen_init ( void )
     // Set the initialized flag
     initialized = true;
 
-    // Done
+    // done
     return;
 }
 
@@ -40,6 +40,6 @@ void code_gen_exit ( void )
     // Clear the initialized flag
     initialized = false;
 
-    // Done
+    // done
     return;
 }

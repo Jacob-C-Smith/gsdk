@@ -59,7 +59,7 @@ int main ( int argc, const char* argv[] )
     fclose(p_f);
 
     // Destroy the dictionary
-    dict_destroy(&p_dict);
+    dict_destroy(&p_dict, NULL);
 
     // success
     return EXIT_SUCCESS;

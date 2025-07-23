@@ -221,14 +221,4 @@ int dict_free_clear ( dict *const p_dict, void (*const free_func)(const void *co
  *
  * @return 1 on success, 0 on error
  */
-int dict_destroy ( dict **const pp_dict );
-
-// cleanup
-/** !
- * This gets called at runtime after main
- * 
- * @param void
- * 
- * @return void
- */
-void dict_exit ( void ) __attribute__((destructor));
+int dict_destroy ( dict **const pp_dict, fn_allocator *pfn_allocator );

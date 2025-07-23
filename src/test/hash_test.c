@@ -202,7 +202,7 @@ void print_time_pretty ( double seconds )
     // Print microseconds
     if ( microseconds ) log_info("%03zu us", microseconds);
     
-    // Done
+    // done
     return;
 }
 
@@ -263,7 +263,7 @@ void run_tests ( void )
     print_time_pretty ( (double)(mmh64_t1-mmh64_t0)/(double)timer_seconds_divisor() );
     log_info(" to test\n");
 
-    // Done
+    // done
     return;
 }
 
@@ -284,7 +284,7 @@ void test_fnv64 ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -305,7 +305,7 @@ void test_crc64 ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -326,7 +326,7 @@ void test_mmh64 ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -365,7 +365,7 @@ void print_test ( const char *scenario_name, const char *test_name, bool passed 
     // Increment the test counter
     ephemeral_tests++;
 
-    // Done
+    // done
     return;
 }
 
@@ -386,6 +386,6 @@ void print_final_summary ( void )
     ephemeral_passes = 0;
     ephemeral_fails  = 0;
 
-    // Done
+    // done
     return;
 }

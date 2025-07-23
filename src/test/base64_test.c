@@ -176,7 +176,7 @@ void print_time_pretty ( double seconds )
     // Print microseconds
     if ( microseconds ) log_info("%zu us", microseconds);
     
-    // Done
+    // done
     return;
 }
 
@@ -225,7 +225,7 @@ void run_tests ( void )
     print_time_pretty ( (double)(decode_t1-decode_t0)/(double)timer_seconds_divisor() );
     log_info(" to test\n");
 
-    // Done
+    // done
     return;
 }
 
@@ -245,7 +245,7 @@ void test_encode ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -265,7 +265,7 @@ void test_decode ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -334,7 +334,7 @@ void print_test ( const char *scenario_name, const char *test_name, bool passed 
     // Increment the test counter
     ephemeral_tests++;
 
-    // Done
+    // done
     return;
 }
 
@@ -355,6 +355,6 @@ void print_final_summary ( void )
     ephemeral_passes = 0;
     ephemeral_fails  = 0;
 
-    // Done
+    // done
     return;
 }

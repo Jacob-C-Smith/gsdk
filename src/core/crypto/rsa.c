@@ -60,7 +60,7 @@ bool is_divisible_by_small_primes ( i2048 n )
         // Test
         if ( n % primes[i] == 0 ) return true;
 
-    // Done
+    // done
     return false;
 }
 
@@ -449,7 +449,7 @@ i2048 egcd ( i2048 a, i2048 b, i2048 *x, i2048 *y )
         // Store x and y
         *x = 1, *y = 0;
 
-        // Done
+        // done
         return a;
     }
 
@@ -461,7 +461,7 @@ i2048 egcd ( i2048 a, i2048 b, i2048 *x, i2048 *y )
     *x = y1,
     *y = x1 - ( a / b ) * y1;
 
-    // Done
+    // done
     return gcd;
 }
 
@@ -489,14 +489,14 @@ i2048 mod_exp ( i2048 base, i2048 exp, i2048 mod )
 i2048 enc_block ( i2048 x, public_key *p_public_key )
 {
     
-    // Done
+    // done
     return mod_exp(x, p_public_key->a, p_public_key->n);
 }
 
 i2048 dec_block ( i2048 y, public_key *p_public_key, private_key *p_private_key )
 {
 
-    // Done
+    // done
     return mod_exp(y, p_private_key->b, p_public_key->n);
 }
 
@@ -510,7 +510,7 @@ int enc ( void *p_x, void *p_y, public_key *p_public_key )
     // Store the result
     *(i2048 *)p_y = y;
         
-    // Done
+    // done
     return 1;
 }
 
@@ -524,7 +524,7 @@ int dec ( void *p_y, void *p_z, public_key *p_public_key, private_key *p_private
     // Store the result
     *(i2048 *)p_z = z;
     
-    // Done
+    // done
     return 1;
 }
 
@@ -544,7 +544,7 @@ int print_n_bit_int ( i2048 a )
     for (signed i = (bits >> 5) - 1; i >= 0; i--)
         printf("%08x", ((unsigned int *) p_int)[i]);
 
-    // Done
+    // done
     return 1;
 }
 

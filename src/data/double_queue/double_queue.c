@@ -41,7 +41,7 @@ void double_queue_init ( void )
 	// Set the initialized flag
 	initialized = true;
 
-	// Done
+	// done
 	return;
 }
 

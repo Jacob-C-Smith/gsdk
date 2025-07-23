@@ -1133,7 +1133,7 @@ int dict_free_clear ( dict *const p_dict, void (*const free_func)(const void *co
     }
 }
 
-int dict_destroy ( dict **const pp_dict )
+int dict_destroy ( dict **const pp_dict, fn_allocator *pfn_allocator )
 {
 
     // argument check
@@ -1152,8 +1152,10 @@ int dict_destroy ( dict **const pp_dict )
     // unlock
     mutex_unlock(&p_dict->_lock);
 
-    // Remove all the dictionary properties
-    if ( dict_clear(p_dict) == 0 ) goto failed_to_clear;
+    // release the elements
+    if ( pfn_allocator ) 
+        for (size_t i = 0; i < p_dict->entries.count; i++) 
+            pfn_allocator(p_dict->iterable.values[i], 0);
 
     // Free the hash table
     p_dict->entries.data = default_allocator(p_dict->entries.data, 0);

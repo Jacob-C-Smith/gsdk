@@ -318,7 +318,7 @@ void print_time_pretty ( double seconds )
     // Print microseconds
     if ( microseconds ) log_info("%zu us", microseconds);
     
-    // Done
+    // done
     return;
 }
 
@@ -403,7 +403,7 @@ void run_tests ( void )
     print_time_pretty ( (double)(serial_t1-serial_t0)/(double)timer_seconds_divisor() );
     log_info(" to test\n");
 
-    // Done
+    // done
     return;
 }
 
@@ -447,7 +447,7 @@ void test_parse_bool ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -481,7 +481,7 @@ void test_parse_int ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -515,7 +515,7 @@ void test_parse_float ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -544,7 +544,7 @@ void test_parse_string ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -572,7 +572,7 @@ void test_parse_object ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -605,7 +605,7 @@ void test_parse_array ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -621,7 +621,7 @@ void test_serial_null ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -2726,8 +2726,8 @@ bool test_parse_json ( char *test_file, int(*expected_value_constructor) (json_v
     value_eq = value_equals(p_return_value, p_expected_value);
 
     // free the json value
-    if ( p_return_value ) json_value_free(p_return_value);
-    if ( p_expected_value ) json_value_free(p_expected_value);
+    if ( p_return_value ) json_value_free(p_return_value, 0);
+    if ( p_expected_value ) json_value_free(p_expected_value, 0);
 
     // release the allocation
     if ( free_me )
@@ -2757,8 +2757,8 @@ bool test_serial_json ( char *test_file, char *expected_file, int(*expected_valu
     json_value_fprint(p_expected_value, p_f);
     
     // Clean up resources
-    json_value_free(p_return_value);
-    json_value_free(p_expected_value);
+    json_value_free(p_return_value, 0);
+    json_value_free(p_expected_value, 0);
 
     fclose(p_f);
 
@@ -2828,7 +2828,7 @@ void print_test ( const char *scenario_name, const char *test_name, bool passed 
     // Increment the test counter
     ephemeral_tests++;
 
-    // Done
+    // done
     return;
 }
 
@@ -2849,7 +2849,7 @@ void print_final_summary ( void )
     ephemeral_passes = 0;
     ephemeral_fails  = 0;
 
-    // Done
+    // done
     return;
 }
 

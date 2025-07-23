@@ -204,7 +204,7 @@ int main ( int argc, const char* argv[] )
     {
 
         // destroy the array
-        array_destroy(&p_array);
+        array_destroy(&p_array, NULL);
 
         // checkpoint
         checkpoint(p_array, "after destroy");
@@ -257,7 +257,7 @@ int main ( int argc, const char* argv[] )
     {
 
         // destroy the array
-        array_destroy(&p_array);
+        array_destroy(&p_array, NULL);
 
         // checkpoint
         checkpoint(p_array, "after destroy");

@@ -425,7 +425,7 @@ red_black_tree_node *red_black_tree_construct_balanced_recursive ( red_black_tre
         // Set color to black for balanced tree construction
         p_red_black_tree_node->color = BLACK;
         
-        // Done
+        // done
         return p_red_black_tree_node;
     }
 
@@ -452,7 +452,7 @@ red_black_tree_node *red_black_tree_construct_balanced_recursive ( red_black_tre
         p_red_black_tree_node->color = BLACK;
         p_red_black_tree_node->p_left->color = BLACK;
         
-        // Done
+        // done
         return p_red_black_tree_node;
     }
 
@@ -485,7 +485,7 @@ red_black_tree_node *red_black_tree_construct_balanced_recursive ( red_black_tre
         // Set color to black for balanced tree construction
         p_red_black_tree_node->color = BLACK;
 
-        // Done
+        // done
         return p_red_black_tree_node;
     }
 

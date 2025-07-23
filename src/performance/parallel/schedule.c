@@ -949,7 +949,7 @@ int schedule_start ( schedule *const p_schedule, void *const p_parameter )
             // Store the work parameter
             p_main_thread_work_parameter = &p_schedule->_work_parameters[i];
 
-            // Done 
+            // done 
             continue;
         }
         
@@ -1145,7 +1145,7 @@ void *parallel_schedule_work ( parallel_schedule_work_parameter *p_parameter )
         // Wait
         if ( i_task->dependent ) goto wait_logic;
 
-        // Done waiting
+        // done waiting
         done:
 
         // Run the task
@@ -1191,7 +1191,7 @@ void *parallel_schedule_work ( parallel_schedule_work_parameter *p_parameter )
                 // Wait
                 monitor_wait(&p_schedule_thread->tasks[i]._monitor);
 
-                // Done
+                // done
                 goto done;
             }
         }
@@ -1265,7 +1265,7 @@ void *parallel_schedule_main_work ( parallel_schedule_work_parameter *p_paramete
         // Wait
         if ( i_task->dependent ) goto wait_logic;
 
-        // Done waiting
+        // done waiting
         done:
 
         // Run the task
@@ -1311,7 +1311,7 @@ void *parallel_schedule_main_work ( parallel_schedule_work_parameter *p_paramete
                 // Wait
                 monitor_wait(&p_schedule_thread_wait->tasks[i]._monitor);
 
-                // Done
+                // done
                 goto done;
             }
         }

@@ -273,7 +273,7 @@ void print_usage ( const char *argv0 )
     // Print a usage message to standard out
     printf("Usage: %s [timer] [mutex] [spinlock] [read-write] [semaphore] [condition-variable] [monitor] [barrier]\n", argv0);
 
-    // Done
+    // done
     return;
 }
 

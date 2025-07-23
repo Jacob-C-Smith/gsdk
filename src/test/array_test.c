@@ -448,7 +448,7 @@ void print_time_pretty ( double seconds )
     // Print microseconds
     if ( microseconds ) log_info("%zu us", microseconds);
     
-    // Done
+    // done
     return;
 }
 
@@ -494,7 +494,7 @@ void run_tests ( void )
     // [A, B, C] -> remove(2) -> [A, B]
     test_two_element_array(construct_ABC_remove2_AB, "ABC_remove2_AB", (void **)AB_elements);
 
-    // Done
+    // done
     return;
 }
 
@@ -515,7 +515,7 @@ void print_final_summary ( void )
     ephemeral_passes = 0;
     ephemeral_fails  = 0;
 
-    // Done
+    // done
     return;
 }
 
@@ -538,7 +538,7 @@ void print_test ( const char *scenario_name, const char *test_name, bool passed 
     // Increment the test counter
     ephemeral_tests++;
 
-    // Done
+    // done
     return;
 }
 
@@ -556,7 +556,7 @@ bool test_add ( void(*array_constructor)(array **pp_array), void *value, result_
     result = (result_t) array_add(p_array, value);
 
     // Free the array
-    array_destroy(&p_array);
+    array_destroy(&p_array, NULL);
 
     // Return result
     return (result == expected);
@@ -580,7 +580,7 @@ bool test_remove ( void(*array_constructor)(array **pp_array), void *value, sign
     result = ( value == p_ret ) ? match : result;
 
     // Free the array
-    array_destroy(&p_array);
+    array_destroy(&p_array, NULL);
 
     // Return result
     return (result == expected);
@@ -603,7 +603,7 @@ bool test_get ( void(*array_constructor)(array **pp_array), void **expected_valu
     result = (result_value == expected_values) ? match : zero;
 
     // Free the array
-    array_destroy(&p_array);
+    array_destroy(&p_array, NULL);
 
     // Return result
     return (result == expected);
@@ -627,7 +627,7 @@ bool test_get_count ( void(*array_constructor)(array **pp_array), size_t expecte
     result = (result_value == expected_size) ? match : zero;
 
     // Free the array
-    array_destroy(&p_array);
+    array_destroy(&p_array, NULL);
 
     // Return result
     return (result == expected);
@@ -647,7 +647,7 @@ bool test_size ( void(*array_constructor)(array **pp_array), size_t expected_siz
     result = ( array_size(p_array) == expected_size ) ? match : zero;
 
     // Free the array
-    array_destroy(&p_array);
+    array_destroy(&p_array, NULL);
 
     // Return result
     return (result == expected);
@@ -672,7 +672,7 @@ bool test_index ( void(*array_constructor)(array **pp_array), signed idx, void *
             result = match;
 
     // Free the array
-    array_destroy(&p_array);
+    array_destroy(&p_array, NULL);
 
     // Return result
     return (result == expected);
@@ -710,7 +710,7 @@ bool test_slice ( void(*array_constructor)(array **pp_array), signed lower, sign
     done:
 
     // Free the array
-    array_destroy(&p_array);
+    array_destroy(&p_array, NULL);
 
     // Return result
     return (result == expected);
@@ -890,7 +890,7 @@ void test_empty_array ( void (*array_constructor)(array **pp_array), char *name)
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -921,7 +921,7 @@ void test_one_element_array ( void (*array_constructor)(array **pp_array), char 
     // Print the summary of this test   
     print_final_summary();
     
-    // Done
+    // done
     return;
 }
 
@@ -954,7 +954,7 @@ void test_two_element_array ( void (*array_constructor)(array **pp_array), char 
     // Print the summary of this test
     print_final_summary();
     
-    // Done
+    // done
     return;
 }
 
@@ -989,6 +989,6 @@ void test_three_element_array ( void (*array_constructor)(array **pp_array), cha
     // Print the summary of this test
     print_final_summary();
     
-    // Done
+    // done
     return;
 }

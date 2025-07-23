@@ -1030,7 +1030,7 @@ hash64 array_hash ( array *p_array, fn_hash64 *pfn_element )
     }
 }
 
-int array_destroy ( array **pp_array )
+int array_destroy ( array **pp_array, fn_allocator *pfn_allocator )
 {
 
     // argument check
@@ -1047,6 +1047,11 @@ int array_destroy ( array **pp_array )
 
     // unlock
     mutex_unlock(&p_array->_lock);
+
+    // release the elements
+    if ( pfn_allocator ) 
+        for (size_t i = 0; i < p_array->count; i++) 
+            pfn_allocator(p_array->p_p_elements[i], 0);
 
     // destroy the mutex
     mutex_destroy(&p_array->_lock);

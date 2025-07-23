@@ -299,7 +299,7 @@ void print_time_pretty ( double seconds )
     // Print microseconds
     if ( microseconds ) log_info("%zu us", microseconds);
     
-    // Done
+    // done
     return;
 }
 
@@ -384,7 +384,7 @@ void run_tests ( void )
     print_time_pretty ( (double)(serial_t1-serial_t0)/(double)timer_seconds_divisor() );
     log_info(" to test\n");
 
-    // Done
+    // done
     return;
 }
 
@@ -428,7 +428,7 @@ void test_parse_bool ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -462,7 +462,7 @@ void test_parse_int ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -496,7 +496,7 @@ void test_parse_float ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -525,7 +525,7 @@ void test_parse_string ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -553,7 +553,7 @@ void test_parse_object ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -586,7 +586,7 @@ void test_parse_array ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -602,7 +602,7 @@ void test_serial_null ( char *name )
     // Print the summary of this test
     print_final_summary();
 
-    // Done
+    // done
     return;
 }
 
@@ -2804,7 +2804,7 @@ void print_test ( const char *scenario_name, const char *test_name, bool passed 
     // Increment the test counter
     ephemeral_tests++;
 
-    // Done
+    // done
     return;
 }
 
@@ -2825,7 +2825,7 @@ void print_final_summary ( void )
     ephemeral_passes = 0;
     ephemeral_fails  = 0;
 
-    // Done
+    // done
     return;
 }
 

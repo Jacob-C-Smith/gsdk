@@ -128,7 +128,7 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f );
  *  
  * @return void
  */
-void json_value_free ( json_value *p_value );
+void *json_value_free ( json_value *p_value, unsigned long long unused );
 
 // cleanup
 /** !

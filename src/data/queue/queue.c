@@ -42,7 +42,7 @@ void queue_init ( void )
     // Set the initialized flag
     initialized = true;
 
-    // Done
+    // done
     return;
 }
 
@@ -536,6 +536,6 @@ void queue_exit ( void )
     // Clear the initialized flag
     initialized = false;
 
-    // Done
+    // done
     return;
 }

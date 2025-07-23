@@ -189,7 +189,7 @@ void print_time_pretty ( double seconds )
     // Print microseconds
     if ( microseconds ) log_info("%zu us", microseconds);
     
-    // Done
+    // done
     return;
 }
 
@@ -245,7 +245,7 @@ void run_tests ( void )
     double_queue_three_element_tests ("≷[ C, B, A ]≷");
 
 
-    // Done
+    // done
     return;
 }
 
@@ -384,7 +384,7 @@ void print_test ( const char *scenario_name, const char *test_name, bool passed 
     // Increment the test counter
     ephemeral_tests++;
 
-    // Done
+    // done
     return;
 }
 
@@ -405,6 +405,6 @@ void print_final_summary ( void )
     ephemeral_passes = 0,
     ephemeral_fails  = 0;
 
-    // Done
+    // done
     return;
 }

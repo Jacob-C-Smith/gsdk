@@ -84,7 +84,7 @@ int main ( int argc, const char *argv[] )
         if ( (ssize_t) -1 == write(_pipe[1], p_x86_64_code_gen->p_base, ((size_t)p_x86_64_code_gen->p_offset-(size_t)p_x86_64_code_gen->p_base)) )
             goto failed_to_write;
 
-        // Done with write end
+        // done with write end
         close(_pipe[1]);
 
         // Fork ndisasm
@@ -117,7 +117,7 @@ int main ( int argc, const char *argv[] )
             exit(EXIT_FAILURE);
         }
         
-        // Done with read end, done with pipe
+        // done with read end, done with pipe
         close(_pipe[0]);
 
         // Wait on ndisasm

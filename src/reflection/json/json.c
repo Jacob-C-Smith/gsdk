@@ -28,7 +28,7 @@ void json_init ( void )
     // Set the initialized flag
     initialized = true;
 
-    // Done
+    // done
     return;
 }
 
@@ -50,7 +50,7 @@ int double_precision ( double value )
         if ( rounded_value != value ) break;
     }
 
-    // Done
+    // done
     return ret + 1;
 };
 
@@ -136,7 +136,7 @@ int json_string_parse ( char *const pointer, char **return_pointer )
                     // Write the carriage return 
                     pointer[i] = '\"';
 
-                    // Done
+                    // done
                     break;
 
                 // Backslash
@@ -145,7 +145,7 @@ int json_string_parse ( char *const pointer, char **return_pointer )
                     // Write the backslash 
                     pointer[i] = '\\';
 
-                    // Done
+                    // done
                     break;
 
                 // Forward slash
@@ -154,7 +154,7 @@ int json_string_parse ( char *const pointer, char **return_pointer )
                     // Write the forward slash 
                     pointer[i] = '/';
 
-                    // Done
+                    // done
                     break;
 
                 // Backspace
@@ -163,7 +163,7 @@ int json_string_parse ( char *const pointer, char **return_pointer )
                     // Write the backspace 
                     pointer[i] = '\b';
 
-                    // Done
+                    // done
                     break;
 
                 // Form feed
@@ -172,7 +172,7 @@ int json_string_parse ( char *const pointer, char **return_pointer )
                     // Write the form feed  
                     pointer[i] = '\f';
 
-                    // Done 
+                    // done 
                     break;
 
                 // Line feed
@@ -181,7 +181,7 @@ int json_string_parse ( char *const pointer, char **return_pointer )
                     // Write the line feed 
                     pointer[i] = '\n';
 
-                    // Done
+                    // done
                     break;
                 
                 // Carriage return
@@ -198,7 +198,7 @@ int json_string_parse ( char *const pointer, char **return_pointer )
                     // Write the horizontal tab 
                     pointer[i]='\t';
 
-                    // Done
+                    // done
                     break;
                 
                 // TODO: Unicode
@@ -206,7 +206,7 @@ int json_string_parse ( char *const pointer, char **return_pointer )
 
                     // TODO:
 
-                    // Done
+                    // done
                     break;
 
                 // Bad string
@@ -559,7 +559,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             // Set the return type
             p_value->type = JSON_VALUE_STRING;
             
-            // Done
+            // done
             break;
         }
         
@@ -572,7 +572,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             // Set the value type
             p_value->type = JSON_VALUE_OBJECT;
         
-            // Done
+            // done
             break;
         
         
@@ -585,7 +585,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             // Set the value type
             p_value->type = JSON_VALUE_ARRAY;
 
-            // Done
+            // done
             break;
 
         // This branch parses the 'true' keyword
@@ -601,7 +601,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             // Skip the cursor
             text += 4;
 
-            // Done
+            // done
             goto done;
 
         // This branch parses the 'false' keyword
@@ -617,7 +617,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             // Skip the cursor
             text += 5;
             
-            // Done
+            // done
             goto done;
         
         // This branch parses the 'null' keyword
@@ -633,13 +633,13 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             // Skip the cursor
             text += 4;
 
-            // Done
+            // done
             goto done;
 
         // Parse a number
         default:
 
-            // Done
+            // done
             break;
     }
 
@@ -883,7 +883,7 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                 else
                     written_characters += (size_t) sprintf(&_buffer[written_characters],"%.*lf", precision, p_value->number);
                 
-                // Done
+                // done
                 break;
             }
 
@@ -968,7 +968,7 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                 // Formatting
                 written_characters += (size_t) sprintf(&_buffer[written_characters], "\"");
                 
-                // Done
+                // done
                 break;
             }
             
@@ -1132,7 +1132,7 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
                 else
                     written_characters += (size_t) fprintf(p_f, "%.*lf", precision, p_value->number);
                 
-                // Done
+                // done
                 break;
             }
 
@@ -1226,7 +1226,7 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
                 // Formatting
                 written_characters += fprintf(p_f, "\"");
 
-                // Done
+                // done
                 break;
             }
             
@@ -1266,7 +1266,7 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
                     
                 }
                 
-                // Done
+                // done
                 break;
             }
             
@@ -1326,7 +1326,7 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
                 // Formatting
                 written_characters += fprintf(p_f, "]");
 
-                // Done
+                // done
                 break;
             }
             
@@ -1359,13 +1359,16 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
     }
 }
 
-void json_value_free ( json_value *p_value )
+void *json_value_free ( json_value *p_value, unsigned long long unused )
 {
     
+    // unused
+    (void) unused;
+
     // argument errors
-    if ( p_value == (void *)0 ) return;
+    if ( p_value == (void *)0 ) return NULL;
     
-    // Strategy
+    // strategy
     switch ( p_value->type )
     {
         case JSON_VALUE_INVALID:
@@ -1373,7 +1376,7 @@ void json_value_free ( json_value *p_value )
         case JSON_VALUE_INTEGER:
         case JSON_VALUE_NUMBER:
         
-            // Done
+            // done
             break;
             
         case JSON_VALUE_STRING:
@@ -1381,42 +1384,33 @@ void json_value_free ( json_value *p_value )
             // Free the string
             p_value->string = default_allocator(p_value->string, 0);
             
-            // Done
+            // done
             break;
 
         case JSON_VALUE_OBJECT:
 
-            // Free each value from the dictionary
-            dict_free_clear(p_value->object, (void(*)(const void *const))json_value_free);
+            // destroy the dictionary
+            dict_destroy(&p_value->object, (fn_allocator *) json_value_free);
 
-            // Destroy the dictionary
-            dict_destroy(&p_value->object);
-
-            // Done
+            // done
             break;
 
         case JSON_VALUE_ARRAY:
 
-            // Free each value from the array
-            //array_free_clear(p_value->list, fjson_value_free);
+            // destroy the array
+            array_destroy(p_value->list, (fn_allocator *) json_value_free);
 
-            // Destroy the array
-            array_destroy(&p_value->list);
-
-            // Done
+            // done
             break;
         
         default:
 
-            // Done
+            // done
             break;
     }
 
-    // Free the value
-    p_value = default_allocator(p_value, 0);
-    
-    // Done
-    return;
+    // done
+    return default_allocator(p_value, 0);
 }
 
 void json_exit ( void )
@@ -1434,6 +1428,6 @@ void json_exit ( void )
     // Clear the initialized flag
     initialized = false;
 
-    // Done
+    // done
     return;
 }

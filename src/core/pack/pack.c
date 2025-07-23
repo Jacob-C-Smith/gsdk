@@ -67,7 +67,7 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
                     // Default
                     else return 0;
 
-                    // Done
+                    // done
                     break;
 
                 // Integer
@@ -92,7 +92,7 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
                     else
                         return 0;
 
-                    // Done
+                    // done
                     break;
 
                 // String (maximum 65535)
@@ -105,7 +105,7 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
                     goto write_str;
                 default:
 
-                    // Done
+                    // done
                     break;
             }
         }
@@ -114,7 +114,7 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
         read++;
 	}
 
-    // Done with variadic list
+    // done with variadic list
     va_end(list);
 
     // success
@@ -130,7 +130,7 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
         // Update the read index
         while (isdigit(format[++read]));
 
-        // Done
+        // done
         goto done_reading_format_specifier_length;
     }
 
@@ -418,7 +418,7 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
                     // Default
                     else return 0;
 
-                    // Done
+                    // done
                     break;
 
                 // Integer
@@ -442,7 +442,7 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
                     // Default
                     else return 0;
 
-                    // Done
+                    // done
                     break;
 
                 // String (maximum 65535)
@@ -455,7 +455,7 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
                     goto read_str;
                 default:
 
-                    // Done
+                    // done
                     break;
             }
         }
@@ -464,7 +464,7 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
         read++;
 	}
 
-    // Done with variadic list
+    // done with variadic list
     va_end(list);
 
     // success
@@ -480,7 +480,7 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
         // Update the read index
         while (isdigit(format[++read]));
 
-        // Done
+        // done
         goto done_reading_format_specifier_length;
     }
 

@@ -479,7 +479,7 @@ void print_time_pretty ( double seconds )
     // Print microseconds
     if ( microseconds ) log_info("%zu us", microseconds);
     
-    // Done
+    // done
     return;
 }
 
@@ -561,7 +561,7 @@ void run_tests ( void )
     // { B, C } -> { A, B, C }
     test_three_element_set(construct_BC_addA_ABC, "{ B, C } -> { A, B, C }", ABC_elements);
 
-    // Done
+    // done
     return;
 }
 
@@ -582,7 +582,7 @@ void print_final_summary ( void )
     ephemeral_passes = 0;
     ephemeral_fails  = 0;
 
-    // Done
+    // done
     return;
 }
 
@@ -605,7 +605,7 @@ void print_test ( const char *scenario_name, const char *test_name, bool passed 
     // Increment the test counter
     ephemeral_tests++;
 
-    // Done
+    // done
     return;
 }
 
@@ -672,7 +672,7 @@ void test_empty_set ( void (*set_constructor)(set **), char *name )
     // Print the final summary
     print_final_summary();
     
-    // Done
+    // done
     return;
 }
 
@@ -723,7 +723,7 @@ void test_one_element_set ( void (*set_constructor)(set **), char *name, void **
     // Print the final summary
     print_final_summary();
     
-    // Done
+    // done
     return;
 }
 
@@ -774,7 +774,7 @@ void test_two_element_set ( void (*set_constructor)(set **), char *name, void **
     // Print the final summary
     print_final_summary();
     
-    // Done
+    // done
     return;
 }
 
@@ -825,7 +825,7 @@ void test_three_element_set ( void (*set_constructor)(set **), char *name, void 
     // Print the final summary
     print_final_summary();
     
-    // Done
+    // done
     return;
 }
 
@@ -1083,7 +1083,7 @@ void construct_empty ( set **pp_set )
     // Construct the set
     set_construct(pp_set, 4, strcmp);
 
-    // Done
+    // done
     return;
 }
 
@@ -1096,7 +1096,7 @@ void construct_empty_addA_A ( set **pp_set )
     // Add A
     set_add(*pp_set, A_element);
 
-    // Done
+    // done
     return;
 }
 
@@ -1109,7 +1109,7 @@ void construct_empty_addB_B ( set **pp_set )
     // Add B
     set_add(*pp_set, B_element);
 
-    // Done
+    // done
     return;
 }
 
@@ -1122,7 +1122,7 @@ void construct_empty_addC_C ( set **pp_set )
     // Add C
     set_add(*pp_set, C_element);
 
-    // Done
+    // done
     return;
 }
 
@@ -1135,7 +1135,7 @@ void construct_AB_removeB_A ( set **pp_set )
     // Remove B
     set_remove(*pp_set, "B");
 
-    // Done
+    // done
     return;
 }
 
@@ -1148,7 +1148,7 @@ void construct_AB_removeA_B ( set **pp_set )
     // Remove A
     set_remove(*pp_set, "A");
 
-    // Done
+    // done
     return;
 }
 
@@ -1161,7 +1161,7 @@ void construct_AC_removeC_A ( set **pp_set )
     // Remove C
     set_remove(*pp_set, "C");
 
-    // Done
+    // done
     return;
 }
 
@@ -1174,7 +1174,7 @@ void construct_AC_removeA_C ( set **pp_set )
     // Remove A
     set_remove(*pp_set, "A");
 
-    // Done
+    // done
     return;
 }
 
@@ -1187,7 +1187,7 @@ void construct_BC_removeB_C ( set **pp_set )
     // Remove B
     set_remove(*pp_set, "B");
 
-    // Done
+    // done
     return;
 }
 
@@ -1200,7 +1200,7 @@ void construct_BC_removeC_B ( set **pp_set )
     // Remove C
     set_remove(*pp_set, "C");
 
-    // Done
+    // done
     return;
 }
 
@@ -1213,7 +1213,7 @@ void construct_A_addB_AB ( set **pp_set )
     // Add B
     set_add(*pp_set, B_element);
 
-    // Done
+    // done
     return;
 }
 
@@ -1226,7 +1226,7 @@ void construct_A_removeA_empty ( set **pp_set )
     // Remove "A"
     set_remove(*pp_set, "A");
 
-    // Done
+    // done
     return;
 }
 
@@ -1239,7 +1239,7 @@ void construct_B_removeB_empty ( set **pp_set )
     // Remove "B"
     set_remove(*pp_set, "B");
 
-    // Done
+    // done
     return;
 }
 
@@ -1252,7 +1252,7 @@ void construct_C_removeC_empty ( set **pp_set )
     // Remove "C"
     set_remove(*pp_set, "C");
 
-    // Done
+    // done
     return;
 }
 
@@ -1265,7 +1265,7 @@ void construct_A_addC_AC ( set **pp_set )
     // Add C
     set_add(*pp_set, C_element);
 
-    // Done
+    // done
     return;
 }
 
@@ -1278,7 +1278,7 @@ void construct_B_addA_AB ( set **pp_set )
     // Add A
     set_add(*pp_set, A_element);
 
-    // Done
+    // done
     return;
 }
 
@@ -1291,7 +1291,7 @@ void construct_C_addB_BC ( set **pp_set )
     // Add B
     set_add(*pp_set, B_element);
 
-    // Done
+    // done
     return;
 }
 
@@ -1304,7 +1304,7 @@ void construct_C_addA_AC ( set **pp_set )
     // Add A
     set_add(*pp_set, A_element);
 
-    // Done
+    // done
     return;
 }
 
@@ -1317,7 +1317,7 @@ void construct_B_addC_BC ( set **pp_set )
     // Add B
     set_add(*pp_set, C_element);
 
-    // Done
+    // done
     return;
 }
 
@@ -1330,7 +1330,7 @@ void construct_AB_addC_ABC ( set **pp_set )
     // Add C
     set_add(*pp_set, C_element);
 
-    // Done
+    // done
     return;
 }
 
@@ -1343,7 +1343,7 @@ void construct_AC_addB_ABC ( set **pp_set )
     // Add B
     set_add(*pp_set, B_element);
 
-    // Done
+    // done
     return;
 }
 
@@ -1356,7 +1356,7 @@ void construct_BC_addA_ABC ( set **pp_set )
     // Add A
     set_add(*pp_set, A_element);
 
-    // Done
+    // done
     return;
 }
 
@@ -1368,7 +1368,7 @@ void construct_ABC_removeA_BC ( set **pp_set )
     // Remove A
     set_remove(*pp_set, A_element);
 
-    // Done
+    // done
     return;
 }
 
@@ -1380,6 +1380,6 @@ void construct_ABC_removeB_AC ( set **pp_set )
     // Remove B
     set_remove(*pp_set, B_element);
 
-    // Done
+    // done
     return;
 }

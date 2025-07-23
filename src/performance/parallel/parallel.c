@@ -39,7 +39,7 @@ void parallel_init ( void )
     // Set the initialized flag
     initialized = true;
 
-    // Done
+    // done
     return;
 }
 
@@ -83,11 +83,11 @@ void parallel_exit ( void )
     json_exit();
 
     // Destroy the task registery
-    dict_destroy(&parallel_parallel_tasks);
+    dict_destroy(&parallel_parallel_tasks, NULL);
 
     // Clear the initialized flag
     initialized = false;
 
-    // Done
+    // done
     return;
 }

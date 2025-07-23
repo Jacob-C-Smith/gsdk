@@ -158,7 +158,7 @@ void print_usage ( const char *argv0 )
     // Print a usage message to standard out
     printf("Usage: %s [message] [tester] [colorful]\n", argv0);
 
-    // Done
+    // done
     return;
 }
 

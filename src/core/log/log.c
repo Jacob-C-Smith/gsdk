@@ -32,7 +32,7 @@ void log_init ( void )
     // Set the initialized flag
     initialized = true;
 
-    // Done
+    // done
     return;
 }
 
@@ -95,7 +95,7 @@ int log_error ( const char *const format, ... )
     // Restore the color.
     if ( log_with_ansi_color ) printf("\033[0m");
 
-    // Done with variadic list
+    // done with variadic list
     va_end(list);
 
     // success
@@ -138,7 +138,7 @@ int log_warning ( const char *const format, ... )
     // Restore the color.
     if ( log_with_ansi_color ) printf("\033[0m");
 
-    // Done with variadic list
+    // done with variadic list
     va_end(list);
 
     // success
@@ -181,7 +181,7 @@ int log_info ( const char *const format, ... )
     // Restore the color.
     if ( log_with_ansi_color ) printf("\033[0m");
 
-    // Done with variadic list
+    // done with variadic list
     va_end(list);
 
     // success
@@ -232,7 +232,7 @@ int log_pass ( const char *const format, ... )
     // Restore the color.
     if ( log_with_ansi_color ) printf("\033[0m");
 
-    // Done with variadic list
+    // done with variadic list
     va_end(list);
 
     // success
@@ -283,7 +283,7 @@ int log_fail ( const char *const format, ... )
     // Restore the color.
     if ( log_with_ansi_color ) printf("\033[0m");
 
-    // Done with variadic list
+    // done with variadic list
     va_end(list);
 
     // success
@@ -328,7 +328,7 @@ int log_scenario ( const char *const format, ... )
     // Restore the color.
     if ( log_with_ansi_color ) printf("\033[0m");
 
-    // Done with variadic list
+    // done with variadic list
     va_end(list);
 
     // success
@@ -371,7 +371,7 @@ int log_colorful ( enum log_color_e color, const char *const format, ... )
     // Restore the color.
     if ( log_with_ansi_color ) printf("\033[0m");
 
-    // Done with variadic list
+    // done with variadic list
     va_end(list);
 
     // success
@@ -406,6 +406,6 @@ void log_exit ( void )
     // Clear the initialized flag
     initialized = false;
 
-    // Done
+    // done
     return;
 }

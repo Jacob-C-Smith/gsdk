@@ -151,7 +151,7 @@ void print_usage ( const char *argv0 )
     // Print a usage message to standard out
     printf("Usage: %s [x86_64] [aarch32]\n", argv0);
 
-    // Done
+    // done
     return;
 }
 
@@ -252,7 +252,7 @@ int code_gen_x86_64_example ( int argc, const char *argv[] )
     if ( (ssize_t) -1 == write(_pipe[1], p_code_gen->p_base, p_code_gen->size) )
         goto failed_to_write;
 
-    // Done with write end
+    // done with write end
     close(_pipe[1]);
 
     // Fork ndisasm

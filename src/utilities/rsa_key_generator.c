@@ -114,7 +114,7 @@ int main ( int argc, const char *argv[] )
             json_value_fprint(&_value, p_keypair_f);
 
             // clean up
-            dict_destroy(&_value.object),
+            dict_destroy(&_value.object, NULL),
             fclose(p_keypair_f);
         }
     } 

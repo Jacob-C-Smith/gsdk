@@ -360,7 +360,7 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
         // Store the value
         p_binary_tree_node->p_value = pp_values[start];
         
-        // Done
+        // done
         return p_binary_tree_node;
     }
 
@@ -380,7 +380,7 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
         // Store the left value
         p_binary_tree_node->p_left->p_value = pp_values[start];
         
-        // Done
+        // done
         return p_binary_tree_node;
     }
 
@@ -403,7 +403,7 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
         // Construct the right
         p_binary_tree_node->p_right = binary_tree_construct_balanced_recursive(p_binary_tree, pp_values, median + 1, end);
 
-        // Done
+        // done
         return p_binary_tree_node;
     }
 
