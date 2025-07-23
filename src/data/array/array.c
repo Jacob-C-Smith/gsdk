@@ -1039,19 +1039,16 @@ int array_destroy ( array **pp_array, fn_allocator *pfn_allocator )
     // initialized data
     array *p_array = *pp_array;
 
-    // lock
-    mutex_lock(&p_array->_lock);
-
     // no more pointer for end user
     *pp_array = (array *) 0;
-
-    // unlock
-    mutex_unlock(&p_array->_lock);
 
     // release the elements
     if ( pfn_allocator ) 
         for (size_t i = 0; i < p_array->count; i++) 
             pfn_allocator(p_array->p_p_elements[i], 0);
+    
+    // release the collection
+    p_array->p_p_elements = default_allocator(p_array->p_p_elements, 0);
 
     // destroy the mutex
     mutex_destroy(&p_array->_lock);

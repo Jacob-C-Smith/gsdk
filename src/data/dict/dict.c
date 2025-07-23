@@ -1153,10 +1153,24 @@ int dict_destroy ( dict **const pp_dict, fn_allocator *pfn_allocator )
     mutex_unlock(&p_dict->_lock);
 
     // release the elements
-    if ( pfn_allocator ) 
-        for (size_t i = 0; i < p_dict->entries.count; i++) 
-            pfn_allocator(p_dict->iterable.values[i], 0);
-
+    if (pfn_allocator) 
+    {
+        // Iterate over each hash table bucket
+        for (size_t i = 0; i < p_dict->entries.max; i++)
+        {
+            dict_item *item = p_dict->entries.data[i];
+            // Walk the linked list at this bucket
+            while (item)
+            {
+                dict_item *next = item->next;
+                if (item->value)
+                    pfn_allocator(item->value, 0);
+                // Free the dict_item itself
+                default_allocator(item, 0);
+                item = next;
+            }
+        }
+    }
     // Free the hash table
     p_dict->entries.data = default_allocator(p_dict->entries.data, 0);
 

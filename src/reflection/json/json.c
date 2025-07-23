@@ -66,10 +66,9 @@ int json_whitespace_parse ( char *pointer, char **return_pointer )
         *pointer == ' '  ||
         *pointer == '\n' ||
         *pointer == '\r' ||
-        *pointer == '\t' ||
-        *pointer == '\0' 
+        *pointer == '\t'         
     )
-    { pointer++; };
+    { if (*pointer == '\0') break; pointer++; };
 
     // error checking
     if ( *pointer == '\0' ) return 0;
@@ -1398,7 +1397,7 @@ void *json_value_free ( json_value *p_value, unsigned long long unused )
         case JSON_VALUE_ARRAY:
 
             // destroy the array
-            array_destroy(p_value->list, (fn_allocator *) json_value_free);
+            array_destroy(&p_value->list, (fn_allocator *) json_value_free);
 
             // done
             break;
