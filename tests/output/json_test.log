@@ -1,0 +1,232 @@
+╭─────────────╮
+│ json tester │
+╰─────────────╯
+
+[96m[1m[4mScenario: parse null
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/null.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/null.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse null null
+[0m[Standard library] Failed to load file "resources/test/json/parse/fail/null.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/fail/null.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse null nul
+[0m[94m
+Tests: 2, Passed: 0, Failed: 2 (%0.000)
+[0m[94mTotal: 2, Passed: 0, Failed: 2 (%0.000)
+
+[0m[96m[1m[4mScenario: parse bool
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/bool/bool_false.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/bool/bool_false.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse bool false
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/bool/bool_true.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/bool/bool_true.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse bool true
+[0m[Standard library] Failed to load file "resources/test/json/parse/fail/bool/bool_false.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/fail/bool/bool_false.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse bool fals
+[0m[Standard library] Failed to load file "resources/test/json/parse/fail/bool/bool_true.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/fail/bool/bool_true.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse bool tru
+[0m[94m
+Tests: 4, Passed: 0, Failed: 4 (%0.000)
+[0m[94mTotal: 6, Passed: 0, Failed: 6 (%0.000)
+
+[0m[96m[1m[4mScenario: parse int
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/int/int_-1.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/int/int_-1.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse int -1
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/int/int_0.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/int/int_0.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse int 0
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/int/int_1.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/int/int_1.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse int 1
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/int/int_max.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/int/int_max.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse int max
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/int/int_min.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/int/int_min.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse int min
+[0m[Standard library] Failed to load file "resources/test/json/parse/fail/int/int_max.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/fail/int/int_max.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse int max +1
+[0m[Standard library] Failed to load file "resources/test/json/parse/fail/int/int_min.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/fail/int/int_min.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse int min -1
+[0m[94m
+Tests: 7, Passed: 0, Failed: 7 (%0.000)
+[0m[94mTotal: 13, Passed: 0, Failed: 13 (%0.000)
+
+[0m[96m[1m[4mScenario: parse float
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/float/float_-1.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/float/float_-1.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse float -1.0
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/float/float_0.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/float/float_0.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse float 0.0
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/float/float_1.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/float/float_1.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse float 1.0
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/float/float_max.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/float/float_max.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse float max
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/float/float_min.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/float/float_min.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse float min
+[0m[Standard library] Failed to load file "resources/test/json/parse/fail/float/float_max.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/fail/float/float_max.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse float max + 1.0
+[0m[Standard library] Failed to load file "resources/test/json/parse/fail/float/float_min.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/fail/float/float_min.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse float min - 1.0
+[0m[94m
+Tests: 7, Passed: 0, Failed: 7 (%0.000)
+[0m[94mTotal: 20, Passed: 0, Failed: 20 (%0.000)
+
+[0m[96m[1m[4mScenario: parse string
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_empty.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_empty.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse string ""
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_a.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_a.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse string "a"
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_abc.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_abc.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse string "abc"
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_quote_abc_quote.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_quote_abc_quote.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse string ""abc""
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_quote_quote.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_quote_quote.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse string """"
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_whitespaces_abc.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_whitespaces_abc.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse string     "abc"
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_quote.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_quote.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse string """
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_reverse_solidus.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_reverse_solidus.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse string "\\"
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_solidus.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_solidus.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse string "\/"
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_backspace.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_backspace.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse string "\b"
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_formfeed.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_formfeed.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse string "\f"
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_linefeed.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_linefeed.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse string "\n"
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_carriage_return.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_carriage_return.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse string "\r"
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_horizontal_tab.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/string/string_horizontal_tab.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse string "\t"
+[0m[94m
+Tests: 14, Passed: 0, Failed: 14 (%0.000)
+[0m[94mTotal: 34, Passed: 0, Failed: 34 (%0.000)
+
+[0m[96m[1m[4mScenario: parse object
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_empty.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_empty.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse object {}
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_string.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_string.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse object {"abc":"def"}
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_int.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_int.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse object {"abc":123}
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_float.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_float.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse object {"pi":3.14}
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_false.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_false.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse object {"abc":false}
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_true.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_true.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse object {"abc":true}
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_strings.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_strings.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse object {"abc":"def","ghi":"jkl","mno":"pqr"}
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_mixed_values.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_mixed_values.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse object {"name":"jake","age":20,"height":1.779}
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_object.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_object.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse object {"abc":{"def":123}}
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_object_object.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_object_object.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse object {"abc":{"def":{"ghi":123}}}
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_array.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_array.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse object {"abc":[1,2,3]}
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_array_objects.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_array_objects.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse object {"a":[{"a":1},{"b":2},{"c":3}]}
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_array_object.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_array_object.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse object {"a":[{"a":1}]}
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_recursive.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/object/object_recursive.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse object {"a":{"b":{"c":{"d":{...{"z":{ }...}
+[0m[94m
+Tests: 14, Passed: 0, Failed: 14 (%0.000)
+[0m[94mTotal: 48, Passed: 0, Failed: 48 (%0.000)
+
+[0m[96m[1m[4mScenario: parse array
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_empty.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_empty.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse array []
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_null.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_null.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse array [null]
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_nulls.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_nulls.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse array [null, null, null]
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_bool.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_bool.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse array [true]
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_bools.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_bools.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse array [true, false, true]
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_int.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_int.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse array [1]
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_ints.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_ints.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse array [1, 2, 3]
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_float.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_float.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse array [3.14]
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_floats.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_floats.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse array [1.2, 3.4, 5.6]
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_string_empty.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_string_empty.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse array [""]
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_string.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_string.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse array ["abc"]
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_strings.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_strings.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse array ["abc", "def", "ghi"]
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_object_empty.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_object_empty.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse array [{}]
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_object.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_object.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse array [{"a":1}]
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_objects.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_objects.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse array [[{"a":1}, {"b":2}, {"c":3}]]
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_array_empty.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_array_empty.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse array [[]]
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_array_array_empty.json". No such file or directory
+[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_array_array_empty.json". No such file or directory
+[41m[1m[FAIL][0m [91mparse array [[[]]]
+[0m[Standard library] Failed to load file "resources/test/json/parse/pass/array/array_matrix.json". No such file or directory
+[Stand

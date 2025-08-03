@@ -1,0 +1,163 @@
+╭─────────────╮
+│ tree tester │
+╰─────────────╯
+
+[96m[1m[4mScenario: empty tree
+[0m[42m[1m[PASS][0m [92mempty insert A
+[0m[42m[1m[PASS][0m [92mempty search X
+[0m[42m[1m[PASS][0m [92mempty remove X
+[0m[42m[1m[PASS][0m [92mempty is empty
+[0m[42m[1m[PASS][0m [92mempty node count 0
+[0m[94m
+Tests: 5, Passed: 5, Failed: 0 (%100.000)
+[0m[94mTotal: 5, Passed: 5, Failed: 0 (%100.000)
+
+[0m[96m[1m[4mScenario: one element tree
+[0m[42m[1m[PASS][0m [92mA insert B
+[0m[42m[1m[PASS][0m [92mA search A
+[0m[42m[1m[PASS][0m [92mA search X
+[0m[42m[1m[PASS][0m [92mA remove A
+[0m[42m[1m[PASS][0m [92mA is not empty
+[0m[42m[1m[PASS][0m [92mA node count 1
+[0m[94m
+Tests: 6, Passed: 6, Failed: 0 (%100.000)
+[0m[94mTotal: 11, Passed: 11, Failed: 0 (%100.000)
+
+[0m[96m[1m[4mScenario: two element tree
+[0m[42m[1m[PASS][0m [92mAB insert C
+[0m[42m[1m[PASS][0m [92mAB search A
+[0m[42m[1m[PASS][0m [92mAB search B
+[0m[42m[1m[PASS][0m [92mAB search X
+[0m[42m[1m[PASS][0m [92mAB remove A
+[0m[42m[1m[PASS][0m [92mAB remove B
+[0m[42m[1m[PASS][0m [92mAB is not empty
+[0m[42m[1m[PASS][0m [92mAB node count 2
+[0m[94m
+Tests: 8, Passed: 8, Failed: 0 (%100.000)
+[0m[94mTotal: 19, Passed: 19, Failed: 0 (%100.000)
+
+[0m[96m[1m[4mScenario: three element tree
+[0m[42m[1m[PASS][0m [92mABC insert D
+[0m[42m[1m[PASS][0m [92mABC search A
+[0m[42m[1m[PASS][0m [92mABC search B
+[0m[42m[1m[PASS][0m [92mABC search C
+[0m[42m[1m[PASS][0m [92mABC search X
+[0m[42m[1m[PASS][0m [92mABC is not empty
+[0m[42m[1m[PASS][0m [92mABC node count 3
+[0m[94m
+Tests: 7, Passed: 7, Failed: 0 (%100.000)
+[0m[94mTotal: 26, Passed: 26, Failed: 0 (%100.000)
+
+[0m[96m[1m[4mScenario: four element tree
+[0m[42m[1m[PASS][0m [92mABCD search A
+[0m[42m[1m[PASS][0m [92mABCD search B
+[0m[42m[1m[PASS][0m [92mABCD search C
+[0m[42m[1m[PASS][0m [92mABCD search D
+[0m[42m[1m[PASS][0m [92mABCD search X
+[0m[42m[1m[PASS][0m [92mABCD is not empty
+[0m[42m[1m[PASS][0m [92mABCD node count 4
+[0m[94m
+Tests: 7, Passed: 7, Failed: 0 (%100.000)
+[0m[94mTotal: 33, Passed: 33, Failed: 0 (%100.000)
+
+[0m[96m[1m[4mScenario: removal scenario
+[0m[42m[1m[PASS][0m [92mA->empty is empty
+[0m[42m[1m[PASS][0m [92mAB->B search B
+[0m[42m[1m[PASS][0m [92mAB->B search A
+[0m[42m[1m[PASS][0m [92mAB->A search A
+[0m[42m[1m[PASS][0m [92mAB->A search B
+[0m[42m[1m[PASS][0m [92mABC->AC search A
+[0m[42m[1m[PASS][0m [92mABC->AC search C
+[0m[42m[1m[PASS][0m [92mABC->AC search B
+[0m[94m
+Tests: 8, Passed: 8, Failed: 0 (%100.000)
+[0m[94mTotal: 41, Passed: 41, Failed: 0 (%100.000)
+
+[0m[96m[1m[4mScenario: search scenario
+[0m[42m[1m[PASS][0m [92msearch find A
+[0m[42m[1m[PASS][0m [92msearch find B
+[0m[42m[1m[PASS][0m [92msearch find C
+[0m[42m[1m[PASS][0m [92msearch miss X
+[0m[94m
+Tests: 4, Passed: 4, Failed: 0 (%100.000)
+[0m[94mTotal: 45, Passed: 45, Failed: 0 (%100.000)
+
+[0m[96m[1m[4mScenario: insertion patterns
+[0m[42m[1m[PASS][0m [92mABC pattern search A
+[0m[42m[1m[PASS][0m [92mABC pattern search B
+[0m[42m[1m[PASS][0m [92mABC pattern search C
+[0m[42m[1m[PASS][0m [92mACB pattern search A
+[0m[42m[1m[PASS][0m [92mACB pattern search B
+[0m[42m[1m[PASS][0m [92mACB pattern search C
+[0m[42m[1m[PASS][0m [92mBAC pattern search A
+[0m[42m[1m[PASS][0m [92mBAC pattern search B
+[0m[42m[1m[PASS][0m [92mBAC pattern search C
+[0m[42m[1m[PASS][0m [92mBCA pattern search A
+[0m[42m[1m[PASS][0m [92mBCA pattern search B
+[0m[42m[1m[PASS][0m [92mBCA pattern search C
+[0m[42m[1m[PASS][0m [92mCAB pattern search A
+[0m[42m[1m[PASS][0m [92mCAB pattern search B
+[0m[42m[1m[PASS][0m [92mCAB pattern search C
+[0m[42m[1m[PASS][0m [92mCBA pattern search A
+[0m[42m[1m[PASS][0m [92mCBA pattern search B
+[0m[42m[1m[PASS][0m [92mCBA pattern search C
+[0m[94m
+Tests: 18, Passed: 18, Failed: 0 (%100.000)
+[0m[94mTotal: 63, Passed: 63, Failed: 0 (%100.000)
+
+[0m[96m[1m[4mScenario: complex removal
+[0m[42m[1m[PASS][0m [92mA->empty remove A
+[0m[42m[1m[PASS][0m [92mB->empty remove B
+[0m[42m[1m[PASS][0m [92mC->empty remove C
+[0m[42m[1m[PASS][0m [92mAB->A remove B
+[0m[42m[1m[PASS][0m [92mAC->A remove C
+[0m[42m[1m[PASS][0m [92mBC->B remove C
+[0m[42m[1m[PASS][0m [92mBA->B remove A
+[0m[42m[1m[PASS][0m [92mCA->C remove A
+[0m[42m[1m[PASS][0m [92mCB->C remove B
+[0m[42m[1m[PASS][0m [92mABC->BC remove A
+[0m[42m[1m[PASS][0m [92mABC->AC remove B
+[0m[42m[1m[PASS][0m [92mABC->AB remove C
+[0m[42m[1m[PASS][0m [92mABC->BC search B
+[0m[42m[1m[PASS][0m [92mABC->BC search C
+[0m[42m[1m[PASS][0m [92mABC->BC miss A
+[0m[42m[1m[PASS][0m [92mABC->AB search A
+[0m[42m[1m[PASS][0m [92mABC->AB search B
+[0m[42m[1m[PASS][0m [92mABC->AB miss C
+[0m[94m
+Tests: 18, Passed: 18, Failed: 0 (%100.000)
+[0m[94mTotal: 81, Passed: 81, Failed: 0 (%100.000)
+
+[0m[96m[1m[4mScenario: balanced tree operations
+[0m[42m[1m[PASS][0m [92mbalanced A count
+[0m[42m[1m[PASS][0m [92mbalanced AB count
+[0m[42m[1m[PASS][0m [92mbalanced ABC count
+[0m[42m[1m[PASS][0m [92mbalanced ABCD count
+[0m[42m[1m[PASS][0m [92morder test ABC->find A
+[0m[42m[1m[PASS][0m [92morder test ACB->find A
+[0m[42m[1m[PASS][0m [92morder test BAC->find A
+[0m[42m[1m[PASS][0m [92morder test BCA->find A
+[0m[42m[1m[PASS][0m [92morder test CAB->find A
+[0m[42m[1m[PASS][0m [92morder test CBA->find A
+[0m[94m
+Tests: 10, Passed: 10, Failed: 0 (%100.000)
+[0m[94mTotal: 91, Passed: 91, Failed: 0 (%100.000)
+
+[0m[96m[1m[4mScenario: stress testing
+[0m[42m[1m[PASS][0m [92mstress insert 100 items
+[0m[42m[1m[PASS][0m [92mstress find item_50
+[0m[42m[1m[PASS][0m [92mstress count 100
+[0m[94m
+Tests: 3, Passed: 3, Failed: 0 (%100.000)
+[0m[94mTotal: 94, Passed: 94, Failed: 0 (%100.000)
+
+[0m[96m[1m[4mScenario: traversal testing
+[0m[42m[1m[PASS][0m [92mtraversal pre-order
+[0m[42m[1m[PASS][0m [92mtraversal in-order
+[0m[42m[1m[PASS][0m [92mtraversal post-order
+[0m[94m
+Tests: 3, Passed: 3, Failed: 0 (%100.000)
+[0m[94mTotal: 97, Passed: 97, Failed: 0 (%100.000)
+
+[0m[94mtree took [0m[94m693 us[0m[94m to test
+[0m

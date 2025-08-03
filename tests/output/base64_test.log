@@ -1,0 +1,28 @@
+╭───────────────╮
+│ base64 tester │
+╰───────────────╯
+
+[96m[1m[4mScenario: encode
+[0m[42m[1m[PASS][0m [92mencode (empty)
+[0m[42m[1m[PASS][0m [92mencode YQ
+[0m[42m[1m[PASS][0m [92mencode YWI
+[0m[42m[1m[PASS][0m [92mencode YWJj
+[0m[42m[1m[PASS][0m [92mencode SGVsbG8sIFdvcmxkIQ
+[0m[94m
+Tests: 5, Passed: 5, Failed: 0 (%100.000)
+[0m[94mTotal: 5, Passed: 5, Failed: 0 (%100.000)
+
+[0m[94mencode tests took: [0m[94m59 us[0m[94m to test
+[0m[96m[1m[4mScenario: decode
+[0m[42m[1m[PASS][0m [92mdecode (empty)
+[0m[42m[1m[PASS][0m [92mdecode "a"
+[0m[42m[1m[PASS][0m [92mdecode "ab"
+[0m[42m[1m[PASS][0m [92mdecode "abc"
+[0m[42m[1m[PASS][0m [92mdecode "Hello, World!"
+[0m[94m
+Tests: 5, Passed: 5, Failed: 0 (%100.000)
+[0m[94mTotal: 10, Passed: 10, Failed: 0 (%100.000)
+
+[0m[94mdecode tests took: [0m[94m15 us[0m[94m to test
+[0m[94mbase64 tests took [0m[94m79 us[0m[94m to test
+[0m

@@ -1,0 +1,761 @@
+╭─────────────╮
+│ pack tester │
+╰─────────────╯
+
+[96m[1m[4mScenario: pack i8
+[0m[Standard library] Failed to load file "resources/test/pack/i8/1/1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/1/1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%i8"  { 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/1/2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/1/2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%i8"  { 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/1/3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/1/3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%i8"  { 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/2/1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/2/1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%2i8" { 1, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/2/1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/2/1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%2i8" { 1, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/2/1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/2/1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%2i8" { 1, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/2/2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/2/2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%2i8" { 2, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/2/2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/2/2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%2i8" { 2, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/2/2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/2/2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%2i8" { 2, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/2/3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/2/3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%2i8" { 3, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/2/3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/2/3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%2i8" { 3, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/2/3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/2/3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%2i8" { 3, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/1_1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/1_1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 1, 1, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/1_1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/1_1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 1, 1, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/1_1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/1_1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 1, 1, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/1_2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/1_2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 1, 2, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/1_2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/1_2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 1, 2, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/1_2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/1_2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 1, 2, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/1_3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/1_3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 1, 3, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/1_3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/1_3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 1, 3, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/1_3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/1_3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 1, 3, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/2_1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/2_1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 2, 1, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/2_1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/2_1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 2, 1, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/2_1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/2_1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 2, 1, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/2_2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/2_2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 2, 2, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/2_2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/2_2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 2, 2, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/2_2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/2_2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 2, 2, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/2_3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/2_3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 2, 3, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/2_3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/2_3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 2, 3, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/2_3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/2_3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 2, 3, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/3_1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/3_1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 3, 1, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/3_1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/3_1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 3, 1, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/3_1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/3_1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 3, 1, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/3_2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/3_2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 3, 2, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/3_2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/3_2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 3, 2, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/3_2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/3_2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 3, 2, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/3_3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/3_3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 3, 3, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/3_3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/3_3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 3, 3, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i8/3/3_3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i8/3/3_3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i8 "%3i8" { 3, 3, 3 }
+[0m[94m
+Tests: 39, Passed: 0, Failed: 39 (%0.000)
+[0m[94mTotal: 39, Passed: 0, Failed: 39 (%0.000)
+
+[0m[96m[1m[4mScenario: pack i16
+[0m[Standard library] Failed to load file "resources/test/pack/i16/1/1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/1/1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%i16"  { 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/1/2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/1/2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%i16"  { 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/1/3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/1/3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%i16"  { 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/2/1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/2/1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%2i16" { 1, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/2/1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/2/1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%2i16" { 1, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/2/1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/2/1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%2i16" { 1, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/2/2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/2/2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%2i16" { 2, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/2/2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/2/2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%2i16" { 2, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/2/2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/2/2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%2i16" { 2, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/2/3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/2/3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%2i16" { 3, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/2/3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/2/3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%2i16" { 3, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/2/3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/2/3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%2i16" { 3, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/1_1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/1_1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 1, 1, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/1_1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/1_1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 1, 1, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/1_1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/1_1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 1, 1, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/1_2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/1_2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 1, 2, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/1_2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/1_2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 1, 2, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/1_2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/1_2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 1, 2, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/1_3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/1_3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 1, 3, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/1_3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/1_3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 1, 3, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/1_3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/1_3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 1, 3, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/2_1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/2_1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 2, 1, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/2_1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/2_1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 2, 1, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/2_1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/2_1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 2, 1, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/2_2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/2_2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 2, 2, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/2_2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/2_2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 2, 2, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/2_2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/2_2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 2, 2, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/2_3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/2_3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 2, 3, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/2_3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/2_3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 2, 3, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/2_3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/2_3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 2, 3, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/3_1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/3_1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 3, 1, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/3_1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/3_1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 3, 1, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/3_1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/3_1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 3, 1, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/3_2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/3_2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 3, 2, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/3_2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/3_2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 3, 2, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/3_2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/3_2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 3, 2, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/3_3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/3_3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 3, 3, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/3_3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/3_3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 3, 3, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i16/3/3_3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i16/3/3_3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i16 "%3i16" { 3, 3, 3 }
+[0m[94m
+Tests: 39, Passed: 0, Failed: 39 (%0.000)
+[0m[94mTotal: 78, Passed: 0, Failed: 78 (%0.000)
+
+[0m[96m[1m[4mScenario: pack i32
+[0m[Standard library] Failed to load file "resources/test/pack/i32/1/1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/1/1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%i32"  { 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/1/2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/1/2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%i32"  { 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/1/3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/1/3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%i32"  { 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/2/1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/2/1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%2i32" { 1, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/2/1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/2/1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%2i32" { 1, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/2/1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/2/1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%2i32" { 1, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/2/2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/2/2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%2i32" { 2, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/2/2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/2/2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%2i32" { 2, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/2/2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/2/2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%2i32" { 2, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/2/3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/2/3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%2i32" { 3, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/2/3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/2/3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%2i32" { 3, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/2/3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/2/3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%2i32" { 3, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/1_1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/1_1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 1, 1, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/1_1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/1_1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 1, 1, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/1_1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/1_1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 1, 1, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/1_2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/1_2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 1, 2, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/1_2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/1_2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 1, 2, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/1_2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/1_2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 1, 2, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/1_3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/1_3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 1, 3, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/1_3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/1_3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 1, 3, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/1_3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/1_3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 1, 3, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/2_1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/2_1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 2, 1, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/2_1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/2_1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 2, 1, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/2_1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/2_1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 2, 1, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/2_2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/2_2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 2, 2, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/2_2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/2_2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 2, 2, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/2_2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/2_2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 2, 2, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/2_3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/2_3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 2, 3, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/2_3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/2_3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 2, 3, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/2_3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/2_3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 2, 3, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/3_1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/3_1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 3, 1, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/3_1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/3_1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 3, 1, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/3_1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/3_1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 3, 1, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/3_2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/3_2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 3, 2, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/3_2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/3_2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 3, 2, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/3_2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/3_2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 3, 2, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/3_3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/3_3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 3, 3, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/3_3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/3_3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 3, 3, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i32/3/3_3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i32/3/3_3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i32 "%3i32" { 3, 3, 3 }
+[0m[94m
+Tests: 39, Passed: 0, Failed: 39 (%0.000)
+[0m[94mTotal: 117, Passed: 0, Failed: 117 (%0.000)
+
+[0m[96m[1m[4mScenario: pack i64
+[0m[Standard library] Failed to load file "resources/test/pack/i64/1/1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/1/1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%i64"  { 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/1/2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/1/2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%i64"  { 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/1/3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/1/3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%i64"  { 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/2/1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/2/1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%2i64" { 1, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/2/1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/2/1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%2i64" { 1, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/2/1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/2/1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%2i64" { 1, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/2/2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/2/2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%2i64" { 2, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/2/2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/2/2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%2i64" { 2, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/2/2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/2/2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%2i64" { 2, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/2/3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/2/3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%2i64" { 3, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/2/3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/2/3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%2i64" { 3, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/2/3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/2/3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%2i64" { 3, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/1_1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/1_1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 1, 1, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/1_1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/1_1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 1, 1, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/1_1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/1_1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 1, 1, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/1_2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/1_2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 1, 2, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/1_2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/1_2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 1, 2, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/1_2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/1_2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 1, 2, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/1_3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/1_3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 1, 3, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/1_3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/1_3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 1, 3, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/1_3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/1_3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 1, 3, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/2_1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/2_1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 2, 1, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/2_1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/2_1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 2, 1, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/2_1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/2_1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 2, 1, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/2_2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/2_2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 2, 2, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/2_2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/2_2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 2, 2, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/2_2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/2_2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 2, 2, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/2_3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/2_3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 2, 3, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/2_3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/2_3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 2, 3, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/2_3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/2_3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 2, 3, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/3_1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/3_1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 3, 1, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/3_1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/3_1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 3, 1, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/3_1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/3_1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 3, 1, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/3_2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/3_2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 3, 2, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/3_2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/3_2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 3, 2, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/3_2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/3_2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 3, 2, 3 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/3_3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/3_3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 3, 3, 1 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/3_3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/3_3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 3, 3, 2 }
+[0m[Standard library] Failed to load file "resources/test/pack/i64/3/3_3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/i64/3/3_3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack i64 "%3i64" { 3, 3, 3 }
+[0m[94m
+Tests: 39, Passed: 0, Failed: 39 (%0.000)
+[0m[94mTotal: 156, Passed: 0, Failed: 156 (%0.000)
+
+[0m[96m[1m[4mScenario: pack f32
+[0m[Standard library] Failed to load file "resources/test/pack/f32/1/1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/1/1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%f32"  { 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/1/2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/1/2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%f32"  { 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/1/3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/1/3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%f32"  { 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/2/1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/2/1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%2f32" { 1.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/2/1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/2/1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%2f32" { 1.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/2/1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/2/1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%2f32" { 1.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/2/2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/2/2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%2f32" { 2.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/2/2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/2/2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%2f32" { 2.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/2/2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/2/2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%2f32" { 2.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/2/3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/2/3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%2f32" { 3.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/2/3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/2/3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%2f32" { 3.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/2/3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/2/3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%2f32" { 3.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/1_1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/1_1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 1.0, 1.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/1_1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/1_1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 1.0, 1.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/1_1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/1_1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 1.0, 1.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/1_2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/1_2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 1.0, 2.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/1_2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/1_2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 1.0, 2.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/1_2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/1_2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 1.0, 2.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/1_3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/1_3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 1.0, 3.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/1_3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/1_3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 1.0, 3.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/1_3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/1_3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 1.0, 3.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/2_1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/2_1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 2.0, 1.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/2_1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/2_1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 2.0, 1.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/2_1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/2_1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 2.0, 1.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/2_2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/2_2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 2.0, 2.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/2_2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/2_2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 2.0, 2.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/2_2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/2_2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 2.0, 2.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/2_3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/2_3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 2.0, 3.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/2_3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/2_3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 2.0, 3.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/2_3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/2_3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 2.0, 3.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/3_1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/3_1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 3.0, 1.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/3_1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/3_1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 3.0, 1.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/3_1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/3_1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 3.0, 1.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/3_2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/3_2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 3.0, 2.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/3_2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/3_2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 3.0, 2.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/3_2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/3_2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 3.0, 2.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/3_3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/3_3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 3.0, 3.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/3_3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/3_3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 3.0, 3.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f32/3/3_3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f32/3/3_3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f32 "%3f32" { 3.0, 3.0, 3.0 }
+[0m[94m
+Tests: 39, Passed: 0, Failed: 39 (%0.000)
+[0m[94mTotal: 195, Passed: 0, Failed: 195 (%0.000)
+
+[0m[96m[1m[4mScenario: pack f64
+[0m[Standard library] Failed to load file "resources/test/pack/f64/1/1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/1/1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%f64"  { 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/1/2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/1/2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%f64"  { 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/1/3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/1/3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%f64"  { 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/2/1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/2/1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%2f64" { 1.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/2/1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/2/1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%2f64" { 1.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/2/1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/2/1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%2f64" { 1.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/2/2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/2/2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%2f64" { 2.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/2/2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/2/2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%2f64" { 2.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/2/2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/2/2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%2f64" { 2.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/2/3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/2/3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%2f64" { 3.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/2/3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/2/3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%2f64" { 3.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/2/3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/2/3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%2f64" { 3.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/1_1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/1_1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 1.0, 1.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/1_1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/1_1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 1.0, 1.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/1_1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/1_1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 1.0, 1.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/1_2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/1_2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 1.0, 2.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/1_2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/1_2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 1.0, 2.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/1_2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/1_2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 1.0, 2.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/1_3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/1_3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 1.0, 3.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/1_3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/1_3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 1.0, 3.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/1_3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/1_3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 1.0, 3.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/2_1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/2_1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 2.0, 1.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/2_1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/2_1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 2.0, 1.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/2_1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/2_1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 2.0, 1.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/2_2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/2_2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 2.0, 2.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/2_2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/2_2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 2.0, 2.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/2_2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/2_2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 2.0, 2.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/2_3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/2_3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 2.0, 3.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/2_3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/2_3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 2.0, 3.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/2_3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/2_3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 2.0, 3.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/3_1_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/3_1_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 3.0, 1.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/3_1_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/3_1_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 3.0, 1.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/3_1_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/3_1_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 3.0, 1.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/3_2_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/3_2_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 3.0, 2.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/3_2_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/3_2_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 3.0, 2.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/3_2_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/3_2_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 3.0, 2.0, 3.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/3_3_1.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/3_3_1.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 3.0, 3.0, 1.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/3_3_2.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/3_3_2.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 3.0, 3.0, 2.0 }
+[0m[Standard library] Failed to load file "resources/test/pack/f64/3/3_3_3.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/f64/3/3_3_3.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack f64 "%3f64" { 3.0, 3.0, 3.0 }
+[0m[94m
+Tests: 39, Passed: 0, Failed: 39 (%0.000)
+[0m[94mTotal: 234, Passed: 0, Failed: 234 (%0.000)
+
+[0m[96m[1m[4mScenario: pack s
+[0m[Standard library] Failed to load file "resources/test/pack/s/1/empty.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/s/1/empty.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack s "%s"  { "" }
+[0m[Standard library] Failed to load file "resources/test/pack/s/1/a.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/s/1/a.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack s "%s"  { "a" }
+[0m[Standard library] Failed to load file "resources/test/pack/s/1/b.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/s/1/b.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack s "%s"  { "b" }
+[0m[Standard library] Failed to load file "resources/test/pack/s/1/c.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/s/1/c.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack s "%s"  { "c" }
+[0m[Standard library] Failed to load file "resources/test/pack/s/1/jake.bin". No such file or directory
+[Standard library] Failed to load file "resources/test/pack/s/1/jake.bin". No such file or directory
+[41m[1m[FAIL][0m [91mpack s "%s"  { "jake" }
+[0m[94m
+Tests: 5, Passed: 0, Failed: 5 (%0.000)
+[0m[94mTotal: 239, Passed: 0, Failed: 239 (%0.000)
+
+[0m[94mparser tests took: [0m[94m to test
+[0m[94mserial tests took: [0m[94m2 ms, [0m[94m690 us[0m[94m to test
+[0m[94m
+pack tests took [0m[94m2 ms, [0m[94m697 us[0m[94m to test
+[0m

@@ -39,38 +39,38 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 🏗️ → Work in progress<br>
 ❓ → Thinking about it
 <details open>
-    <summary><a href="documentation/core.md">core</a></summary>
+    <summary><a href="documentation/md/core.md">core</a></summary>
     <ul>
-        <li>✅ <a href="./documentation/core/hash.md">hash</a></li>
-        <li>✅ <a href="./documentation/core/pack.md">pack</a></li>
-        <li>✔️ <a href="./documentation/core/interfaces.md">interfaces</a></li>
-        <li>✔️ <a href="./documentation/core/log.md">log</a></li>
-        <li>🧪 <a href="./documentation/core/sync.md">sync</a></li>
-        <li>🏗️ <a href="./documentation/core/crypto.md">crypto</a></li>
-        <li>🏗️ <a href="./documentation/core/socket.md">socket</a></li>
+        <li>✅ <a href="./documentation/md/core/hash.md">hash</a></li>
+        <li>✅ <a href="./documentation/md/core/pack.md">pack</a></li>
+        <li>✔️ <a href="./documentation/md/core/interfaces.md">interfaces</a></li>
+        <li>✔️ <a href="./documentation/md/core/log.md">log</a></li>
+        <li>🧪 <a href="./documentation/md/core/sync.md">sync</a></li>
+        <li>🏗️ <a href="./documentation/md/core/crypto.md">crypto</a></li>
+        <li>🏗️ <a href="./documentation/md/core/socket.md">socket</a></li>
     </ul>
 </details>
 
 <details open>
-    <summary><a href="documentation/data.md">data</a></summary>
+    <summary><a href="documentation/md/data.md">data</a></summary>
     <ul>
-        <li>✅ <a href="./documentation/data/array.md">array</a></li>
-        <li>✅ <a href="./documentation/data/stack.md">stack</a></li>
-        <li>✔️ <a href="./documentation/data/tree.md">binary</a></li>
-        <li>✔️ <a href="./documentation/data/circular_buffer.md">circular buffer</a></li>
-        <li>✔️ <a href="./documentation/data/dict.md">dict</a></li>
-        <li>✔️ <a href="./documentation/data/queue.md">queue</a></li>
-        <li>✔️ <a href="./documentation/data/set.md">set</a></li>
-        <li>✔️ <a href="./documentation/data/tuple.md">tuple</a></li>
-        <li>🧪 <a href="./documentation/data/bitmap.md">bitmap</a></li>
+        <li>✅ <a href="./documentation/md/data/array.md">array</a></li>
+        <li>✅ <a href="./documentation/md/data/stack.md">stack</a></li>
+        <li>✔️ <a href="./documentation/md/data/tree.md">binary</a></li>
+        <li>✔️ <a href="./documentation/md/data/circular_buffer.md">circular buffer</a></li>
+        <li>✔️ <a href="./documentation/md/data/dict.md">dict</a></li>
+        <li>✔️ <a href="./documentation/md/data/queue.md">queue</a></li>
+        <li>✔️ <a href="./documentation/md/data/set.md">set</a></li>
+        <li>✔️ <a href="./documentation/md/data/tuple.md">tuple</a></li>
+        <li>🧪 <a href="./documentation/md/data/bitmap.md">bitmap</a></li>
         <li>🧪 <a href="#">cache</a></li>
-        <li>🧪 <a href="./documentation/data/double_queue.md">double ended queue</a></li>
-        <li>🧪 <a href="./documentation/data/node.md">node</a></li>
-        <li>🧪 <a href="./documentation/data/priority_queue.md">priority queue</a></li>
+        <li>🧪 <a href="./documentation/md/data/double_queue.md">double ended queue</a></li>
+        <li>🧪 <a href="./documentation/md/data/node.md">node</a></li>
+        <li>🧪 <a href="./documentation/md/data/priority_queue.md">priority queue</a></li>
         <li>🏗️ <a href="#">adjacency list</a></li>
         <li>🏗️ <a href="#">adjacency matrix</a></li>
-        <li>🏗️ <a href="./documentation/data/b.md">b</a></li>
-        <li>🏗️ <a href="./documentation/data/graph.md">graph</a></li>
+        <li>🏗️ <a href="./documentation/md/data/b.md">b</a></li>
+        <li>🏗️ <a href="./documentation/md/data/graph.md">graph</a></li>
         <li>❓ <a href="#">edge list</a></li>
         <li>❓ <a href="#">hash table</a></li>
         <li>❓ <a href="#">avl</a></li>
@@ -79,16 +79,16 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 </details>
 
 <details open>
-    <summary><a href="documentation/reflection.md">reflection</a></summary>
+    <summary><a href="documentation/md/reflection.md">reflection</a></summary>
     <ul>
-        <li>✅ <a href="./documentation/reflection/base64.md">base64</a></li>
-        <li>✅ <a href="./documentation/reflection/json.md">json</a></li>
-        <li>🏗️ <a href="./documentation/reflection/http.md">http</a></li>
+        <li>✅ <a href="./documentation/md/reflection/base64.md">base64</a></li>
+        <li>✅ <a href="./documentation/md/reflection/json.md">json</a></li>
+        <li>🏗️ <a href="./documentation/md/reflection/http.md">http</a></li>
     </ul>
 </details>
 
 <details open>
-    <summary><a href="documentation/performance.md">performance</a></summary>
+    <summary><a href="documentation/md/performance.md">performance</a></summary>
     <ul>
         <li>🧪 <a href="./doocumentation/performance/parallel.md">parallel</a></li>
         <li>🏗️ <a href="./doocumentation/performance/code_gen.md">code gen</a></li>

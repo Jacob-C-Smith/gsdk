@@ -1,0 +1,403 @@
+╭─────────────╮
+│ b_tree tester │
+╰─────────────╯
+
+[96m[1m[4mScenario: empty tree
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mempty insert A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[42m[1m[PASS][0m [92mempty search X
+[0m[42m[1m[PASS][0m [92mempty remove X
+[0m[42m[1m[PASS][0m [92mempty is empty
+[0m[42m[1m[PASS][0m [92mempty size 0
+[0m[94m
+Tests: 5, Passed: 4, Failed: 1 (%80.000)
+[0m[94mTotal: 5, Passed: 4, Failed: 1 (%80.000)
+
+[0m[96m[1m[4mScenario: one element tree
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mA insert B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mA search A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[42m[1m[PASS][0m [92mA search X
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mA remove A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[42m[1m[PASS][0m [92mA is not empty
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[42m[1m[PASS][0m [92mA size 1
+[0m[94m
+Tests: 6, Passed: 3, Failed: 3 (%50.000)
+[0m[94mTotal: 11, Passed: 7, Failed: 4 (%63.636)
+
+[0m[96m[1m[4mScenario: two element tree
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mAB insert C
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mAB search A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mAB search B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[42m[1m[PASS][0m [92mAB search X
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mAB remove A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mAB remove B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[42m[1m[PASS][0m [92mAB is not empty
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[42m[1m[PASS][0m [92mAB size 2
+[0m[94m
+Tests: 8, Passed: 3, Failed: 5 (%37.500)
+[0m[94mTotal: 19, Passed: 10, Failed: 9 (%52.632)
+
+[0m[96m[1m[4mScenario: three element tree
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mABC insert D
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mABC search A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mABC search B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mABC search C
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[42m[1m[PASS][0m [92mABC search X
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[42m[1m[PASS][0m [92mABC is not empty
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[42m[1m[PASS][0m [92mABC size 3
+[0m[94m
+Tests: 7, Passed: 3, Failed: 4 (%42.857)
+[0m[94mTotal: 26, Passed: 13, Failed: 13 (%50.000)
+
+[0m[96m[1m[4mScenario: four element tree
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mABCD search A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mABCD search B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mABCD search C
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mABCD search D
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[42m[1m[PASS][0m [92mABCD search X
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[42m[1m[PASS][0m [92mABCD is not empty
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[42m[1m[PASS][0m [92mABCD size 4
+[0m[94m
+Tests: 7, Passed: 3, Failed: 4 (%42.857)
+[0m[94mTotal: 33, Passed: 16, Failed: 17 (%48.485)
+
+[0m[96m[1m[4mScenario: removal scenario
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[42m[1m[PASS][0m [92mA->empty is empty
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mAB->B search B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[42m[1m[PASS][0m [92mAB->B search A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mAB->A search A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[42m[1m[PASS][0m [92mAB->A search B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mABC->AC search A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mABC->AC search C
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[42m[1m[PASS][0m [92mABC->AC search B
+[0m[94m
+Tests: 8, Passed: 4, Failed: 4 (%50.000)
+[0m[94mTotal: 41, Passed: 20, Failed: 21 (%48.780)
+
+[0m[96m[1m[4mScenario: search scenario
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91msearch find A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91msearch find B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91msearch find C
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[42m[1m[PASS][0m [92msearch miss X
+[0m[94m
+Tests: 4, Passed: 1, Failed: 3 (%25.000)
+[0m[94mTotal: 45, Passed: 21, Failed: 24 (%46.667)
+
+[0m[96m[1m[4mScenario: insertion patterns
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mABC pattern search A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mABC pattern search B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mABC pattern search C
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mACB pattern search A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mACB pattern search B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mACB pattern search C
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mBAC pattern search A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mBAC pattern search B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mBAC pattern search C
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mBCA pattern search A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mBCA pattern search B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mBCA pattern search C
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mCAB pattern search A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mCAB pattern search B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mCAB pattern search C
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mCBA pattern search A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mCBA pattern search B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mCBA pattern search C
+[0m[94m
+Tests: 18, Passed: 0, Failed: 18 (%0.000)
+[0m[94mTotal: 63, Passed: 21, Failed: 42 (%33.333)
+
+[0m[96m[1m[4mScenario: complex removal
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mA->empty remove A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mB->empty remove B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mC->empty remove C
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mAB->A remove B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mAC->A remove C
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mBC->B remove C
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mBA->B remove A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mCA->C remove A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mCB->C remove B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mABC->BC remove A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mABC->AC remove B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[41m[1m[FAIL][0m [91mABC->AB remove C
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mABC->BC search B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mABC->BC search C
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[42m[1m[PASS][0m [92mABC->BC miss A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mABC->AB search A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91mABC->AB search B
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[42m[1m[PASS][0m [92mABC->AB miss C
+[0m[94m
+Tests: 18, Passed: 2, Failed: 16 (%11.111)
+[0m[94mTotal: 81, Passed: 23, Failed: 58 (%28.395)
+
+[0m[96m[1m[4mScenario: balanced tree operations
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[42m[1m[PASS][0m [92mbalanced A count
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[42m[1m[PASS][0m [92mbalanced AB count
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[42m[1m[PASS][0m [92mbalanced ABC count
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[42m[1m[PASS][0m [92mbalanced ABCD count
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91morder test ABC->find A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91morder test ACB->find A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_insert"
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_search"
+[0m[41m[1m[FAIL][0m [91morder test BAC->find A
+[0m[91m[tree] [b] Null pointer provided for parameter "p_b_tree" in call to function "b_tree_

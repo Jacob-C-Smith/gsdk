@@ -1,0 +1,221 @@
+╭──────────────╮
+│ array tester │
+╰──────────────╯
+
+[94mScenario: empty
+[0m[42m[1m[PASS][0m [92mempty array_add_A
+[0m[42m[1m[PASS][0m [92mempty array_add_B
+[0m[91m[array] Can not index an empty array in call to function "array_index"
+[0m[42m[1m[PASS][0m [92mempty array_index0
+[0m[91m[array] Can not index an empty array in call to function "array_index"
+[0m[42m[1m[PASS][0m [92mempty array_index1
+[0m[42m[1m[PASS][0m [92mempty array_get
+[0m[42m[1m[PASS][0m [92mempty array_get_count
+[0m[91m[array] Can not index an empty array in call to function "array_remove"
+[0m[42m[1m[PASS][0m [92mempty array_remove0
+[0m[94m
+Tests: 7, Passed: 7, Failed: 0 (%100.000)
+[0m[94mTotal: 7, Passed: 7, Failed: 0 (%100.000)
+
+[0m[94mSCENARIO: empty_fromelementsA_A
+[0m[42m[1m[PASS][0m [92mempty_fromelementsA_A array_add_D
+[0m[42m[1m[PASS][0m [92mempty_fromelementsA_A array_get
+[0m[42m[1m[PASS][0m [92mempty_fromelementsA_A array_get_count
+[0m[42m[1m[PASS][0m [92mempty_fromelementsA_A array_size
+[0m[42m[1m[PASS][0m [92mempty_fromelementsA_A array_index0
+[0m[91m[array] Index out of bounds in call to function "array_index"
+[0m[42m[1m[PASS][0m [92mempty_fromelementsA_A array_index1
+[0m[42m[1m[PASS][0m [92mempty_fromelementsA_A array_remove0
+[0m[91m[array] Index out of bounds in call to function "array_remove"
+[0m[42m[1m[PASS][0m [92mempty_fromelementsA_A array_remove1
+[0m[94m
+Tests: 8, Passed: 8, Failed: 0 (%100.000)
+[0m[94mTotal: 15, Passed: 15, Failed: 0 (%100.000)
+
+[0m[94mSCENARIO: empty_fromelementsAB_AB
+[0m[42m[1m[PASS][0m [92mempty_fromelementsAB_AB array_add_D
+[0m[42m[1m[PASS][0m [92mempty_fromelementsAB_AB array_get
+[0m[42m[1m[PASS][0m [92mempty_fromelementsAB_AB array_get_count
+[0m[42m[1m[PASS][0m [92mempty_fromelementsAB_AB array_size
+[0m[42m[1m[PASS][0m [92mempty_fromelementsAB_AB array_index0
+[0m[42m[1m[PASS][0m [92mempty_fromelementsAB_AB array_index1
+[0m[91m[array] Index out of bounds in call to function "array_index"
+[0m[42m[1m[PASS][0m [92mempty_fromelementsAB_AB array_index2
+[0m[42m[1m[PASS][0m [92mempty_fromelementsAB_AB array_remove0
+[0m[42m[1m[PASS][0m [92mempty_fromelementsAB_AB array_remove1
+[0m[91m[array] Index out of bounds in call to function "array_remove"
+[0m[42m[1m[PASS][0m [92mempty_fromelementsAB_AB array_remove2
+[0m[94m
+Tests: 10, Passed: 10, Failed: 0 (%100.000)
+[0m[94mTotal: 25, Passed: 25, Failed: 0 (%100.000)
+
+[0m[94mSCENARIO: empty_fromelementsABC_ABC
+[0m[42m[1m[PASS][0m [92mempty_fromelementsABC_ABC array_add_D
+[0m[42m[1m[PASS][0m [92mempty_fromelementsABC_ABC array_get
+[0m[42m[1m[PASS][0m [92mempty_fromelementsABC_ABC array_get_count
+[0m[42m[1m[PASS][0m [92mempty_fromelementsABC_ABC array_size
+[0m[42m[1m[PASS][0m [92mempty_fromelementsABC_ABC array_index0
+[0m[42m[1m[PASS][0m [92mempty_fromelementsABC_ABC array_index1
+[0m[42m[1m[PASS][0m [92mempty_fromelementsABC_ABC array_index2
+[0m[91m[array] Index out of bounds in call to function "array_index"
+[0m[42m[1m[PASS][0m [92mempty_fromelementsABC_ABC array_index3
+[0m[42m[1m[PASS][0m [92mempty_fromelementsABC_ABC array_remove0
+[0m[42m[1m[PASS][0m [92mempty_fromelementsABC_ABC array_remove1
+[0m[42m[1m[PASS][0m [92mempty_fromelementsABC_ABC array_remove2
+[0m[91m[array] Index out of bounds in call to function "array_remove"
+[0m[42m[1m[PASS][0m [92mempty_fromelementsABC_ABC array_remove3
+[0m[94m
+Tests: 12, Passed: 12, Failed: 0 (%100.000)
+[0m[94mTotal: 37, Passed: 37, Failed: 0 (%100.000)
+
+[0m[94mSCENARIO: empty_fromargumentsA_A
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsA_A array_add_D
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsA_A array_get
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsA_A array_get_count
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsA_A array_size
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsA_A array_index0
+[0m[91m[array] Index out of bounds in call to function "array_index"
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsA_A array_index1
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsA_A array_remove0
+[0m[91m[array] Index out of bounds in call to function "array_remove"
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsA_A array_remove1
+[0m[94m
+Tests: 8, Passed: 8, Failed: 0 (%100.000)
+[0m[94mTotal: 45, Passed: 45, Failed: 0 (%100.000)
+
+[0m[94mSCENARIO: empty_fromargumentsAB_AB
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsAB_AB array_add_D
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsAB_AB array_get
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsAB_AB array_get_count
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsAB_AB array_size
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsAB_AB array_index0
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsAB_AB array_index1
+[0m[91m[array] Index out of bounds in call to function "array_index"
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsAB_AB array_index2
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsAB_AB array_remove0
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsAB_AB array_remove1
+[0m[91m[array] Index out of bounds in call to function "array_remove"
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsAB_AB array_remove2
+[0m[94m
+Tests: 10, Passed: 10, Failed: 0 (%100.000)
+[0m[94mTotal: 55, Passed: 55, Failed: 0 (%100.000)
+
+[0m[94mSCENARIO: empty_fromargumentsABC_ABC
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsABC_ABC array_add_D
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsABC_ABC array_get
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsABC_ABC array_get_count
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsABC_ABC array_size
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsABC_ABC array_index0
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsABC_ABC array_index1
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsABC_ABC array_index2
+[0m[91m[array] Index out of bounds in call to function "array_index"
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsABC_ABC array_index3
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsABC_ABC array_remove0
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsABC_ABC array_remove1
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsABC_ABC array_remove2
+[0m[91m[array] Index out of bounds in call to function "array_remove"
+[0m[42m[1m[PASS][0m [92mempty_fromargumentsABC_ABC array_remove3
+[0m[94m
+Tests: 12, Passed: 12, Failed: 0 (%100.000)
+[0m[94mTotal: 67, Passed: 67, Failed: 0 (%100.000)
+
+[0m[94mSCENARIO: empty_addA_A
+[0m[42m[1m[PASS][0m [92mempty_addA_A array_add_D
+[0m[42m[1m[PASS][0m [92mempty_addA_A array_get
+[0m[42m[1m[PASS][0m [92mempty_addA_A array_get_count
+[0m[42m[1m[PASS][0m [92mempty_addA_A array_size
+[0m[42m[1m[PASS][0m [92mempty_addA_A array_index0
+[0m[91m[array] Index out of bounds in call to function "array_index"
+[0m[42m[1m[PASS][0m [92mempty_addA_A array_index1
+[0m[42m[1m[PASS][0m [92mempty_addA_A array_remove0
+[0m[91m[array] Index out of bounds in call to function "array_remove"
+[0m[42m[1m[PASS][0m [92mempty_addA_A array_remove1
+[0m[94m
+Tests: 8, Passed: 8, Failed: 0 (%100.000)
+[0m[94mTotal: 75, Passed: 75, Failed: 0 (%100.000)
+
+[0m[94mSCENARIO: A_addB_AB
+[0m[42m[1m[PASS][0m [92mA_addB_AB array_add_D
+[0m[42m[1m[PASS][0m [92mA_addB_AB array_get
+[0m[42m[1m[PASS][0m [92mA_addB_AB array_get_count
+[0m[42m[1m[PASS][0m [92mA_addB_AB array_size
+[0m[42m[1m[PASS][0m [92mA_addB_AB array_index0
+[0m[42m[1m[PASS][0m [92mA_addB_AB array_index1
+[0m[91m[array] Index out of bounds in call to function "array_index"
+[0m[42m[1m[PASS][0m [92mA_addB_AB array_index2
+[0m[42m[1m[PASS][0m [92mA_addB_AB array_remove0
+[0m[42m[1m[PASS][0m [92mA_addB_AB array_remove1
+[0m[91m[array] Index out of bounds in call to function "array_remove"
+[0m[42m[1m[PASS][0m [92mA_addB_AB array_remove2
+[0m[94m
+Tests: 10, Passed: 10, Failed: 0 (%100.000)
+[0m[94mTotal: 85, Passed: 85, Failed: 0 (%100.000)
+
+[0m[94mSCENARIO: AB_addC_ABC
+[0m[42m[1m[PASS][0m [92mAB_addC_ABC array_add_D
+[0m[42m[1m[PASS][0m [92mAB_addC_ABC array_get
+[0m[42m[1m[PASS][0m [92mAB_addC_ABC array_get_count
+[0m[42m[1m[PASS][0m [92mAB_addC_ABC array_size
+[0m[42m[1m[PASS][0m [92mAB_addC_ABC array_index0
+[0m[42m[1m[PASS][0m [92mAB_addC_ABC array_index1
+[0m[42m[1m[PASS][0m [92mAB_addC_ABC array_index2
+[0m[91m[array] Index out of bounds in call to function "array_index"
+[0m[42m[1m[PASS][0m [92mAB_addC_ABC array_index3
+[0m[42m[1m[PASS][0m [92mAB_addC_ABC array_remove0
+[0m[42m[1m[PASS][0m [92mAB_addC_ABC array_remove1
+[0m[42m[1m[PASS][0m [92mAB_addC_ABC array_remove2
+[0m[91m[array] Index out of bounds in call to function "array_remove"
+[0m[42m[1m[PASS][0m [92mAB_addC_ABC array_remove3
+[0m[94m
+Tests: 12, Passed: 12, Failed: 0 (%100.000)
+[0m[94mTotal: 97, Passed: 97, Failed: 0 (%100.000)
+
+[0m[94mScenario: A_remove0_empty
+[0m[42m[1m[PASS][0m [92mA_remove0_empty array_add_A
+[0m[42m[1m[PASS][0m [92mA_remove0_empty array_add_B
+[0m[91m[array] Can not index an empty array in call to function "array_index"
+[0m[42m[1m[PASS][0m [92mA_remove0_empty array_index0
+[0m[91m[array] Can not index an empty array in call to function "array_index"
+[0m[42m[1m[PASS][0m [92mA_remove0_empty array_index1
+[0m[42m[1m[PASS][0m [92mA_remove0_empty array_get
+[0m[42m[1m[PASS][0m [92mA_remove0_empty array_get_count
+[0m[91m[array] Can not index an empty array in call to function "array_remove"
+[0m[42m[1m[PASS][0m [92mA_remove0_empty array_remove0
+[0m[94m
+Tests: 7, Passed: 7, Failed: 0 (%100.000)
+[0m[94mTotal: 104, Passed: 104, Failed: 0 (%100.000)
+
+[0m[94mSCENARIO: AB_remove1_A
+[0m[42m[1m[PASS][0m [92mAB_remove1_A array_add_D
+[0m[42m[1m[PASS][0m [92mAB_remove1_A array_get
+[0m[42m[1m[PASS][0m [92mAB_remove1_A array_get_count
+[0m[42m[1m[PASS][0m [92mAB_remove1_A array_size
+[0m[42m[1m[PASS][0m [92mAB_remove1_A array_index0
+[0m[91m[array] Index out of bounds in call to function "array_index"
+[0m[42m[1m[PASS][0m [92mAB_remove1_A array_index1
+[0m[42m[1m[PASS][0m [92mAB_remove1_A array_remove0
+[0m[91m[array] Index out of bounds in call to function "array_remove"
+[0m[42m[1m[PASS][0m [92mAB_remove1_A array_remove1
+[0m[94m
+Tests: 8, Passed: 8, Failed: 0 (%100.000)
+[0m[94mTotal: 112, Passed: 112, Failed: 0 (%100.000)
+
+[0m[94mSCENARIO: ABC_remove2_AB
+[0m[42m[1m[PASS][0m [92mABC_remove2_AB array_add_D
+[0m[42m[1m[PASS][0m [92mABC_remove2_AB array_get
+[0m[42m[1m[PASS][0m [92mABC_remove2_AB array_get_count
+[0m[42m[1m[PASS][0m [92mABC_remove2_AB array_size
+[0m[42m[1m[PASS][0m [92mABC_remove2_AB array_index0
+[0m[42m[1m[PASS][0m [92mABC_remove2_AB array_index1
+[0m[91m[array] Index out of bounds in call to function "array_index"
+[0m[42m[1m[PASS][0m [92mABC_remove2_AB array_index2
+[0m[42m[1m[PASS][0m [92mABC_remove2_AB array_remove0
+[0m[42m[1m[PASS][0m [92mABC_remove2_AB array_remove1
+[0m[91m[array] Index out of bounds in call to function "array_remove"
+[0m[42m[1m[PASS][0m [92mABC_remove2_AB array_remove2
+[0m[94m
+Tests: 10, Passed: 10, Failed: 0 (%100.000)
+[0m[94mTotal: 122, Passed: 122, Failed: 0 (%100.000)
+
+[0m[94marray took [0m[94m977 us[0m[94m to test
+[0m

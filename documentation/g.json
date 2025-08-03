@@ -1,0 +1,289 @@
+{
+    "core" :
+    {
+        "hash" : 
+        {
+            "name" : "hash",
+            "description" : "Functions for hashing data",
+            "path": "src/core/hash",
+            "markdown" : "md/core/hash.md",
+            "tester" : "src/test/hash_test.c",
+            "example" : "src/example/hash_example.c"
+        },
+        "interfaces" : 
+        {
+            "name": "interfaces",
+            "description": "Abstractions for abstractions",
+            "path": "src/core/interfaces",
+            "markdown": "md/core/interfaces.md",
+            "example": "src/example/interfaces_example.c"
+        },
+        "log" : 
+        {
+            "name": "log",
+            "description": "Log errors, warnings, and information with pretty printing",
+            "path": "src/core/log",
+            "markdown": "md/core/log.md",
+            "example": "src/example/log_example.c"
+        },
+        "pack" : 
+        {
+            "name": "pack",
+            "description": "Composable reflection",
+            "path": "src/reflection/pack",
+            "markdown": "md/reflection/pack.md",
+            "tester": "src/test/pack_test.c",
+            "example": "src/example/pack_example.c"
+        },
+        "rsa" : 
+        {
+            "name": "rsa",
+            "description": "Asymmetric encryption and decryption",
+            "path": "src/core/rsa",
+            "markdown": "md/core/rsa.md",
+            "icon": "resource/icon/crypto.png"
+        },
+        "socket" : 
+        {
+            "name": "socket",
+            "description": "Cross platform network connections",
+            "path": "src/core/socket",
+            "markdown": "md/core/socket.md",
+            "example": "src/example/socket_example.c",
+            "icon": "resource/icon/socket.png"
+        },
+        "sync" : 
+        {
+            "name": "sync",
+            "description": "Cross platform synchronization primitives and high-precision timing",
+            "path": "src/core/sync",
+            "markdown": "md/core/sync.md",
+            "example": "src/example/sync_example.c",
+            "icon": "resource/icon/sync.png"
+        }
+    },
+    "data" :
+    {
+        "adjacency list" : 
+        {
+            "name": "adjacency list",
+            "description": "Model relations between objects using a list of verticies and edges",
+            "path": "src/data/adjacency_list",
+            "example": "src/example/adjacency_list_example.c"
+        },
+        "adjacency matrix" : 
+        {
+            "name": "adjacency matrix",
+            "description": "Model relations between objects using a matrix of verticies and edges",
+            "path": "src/data/adjacency_matrix",
+            "example": "src/example/adjacency_matrix_example.c"
+        },
+        "array" : 
+        {
+            "name": "array",
+            "description": "Mutable, iterable, integer indexed collection",
+            "path": "src/data/array",
+            "markdown": "md/data/array.md",
+            "tester": "src/test/array_test.c",
+            "example": "src/example/array_example.c",
+            "icon": "resource/icon/array.png"
+        },
+        "avl" : 
+        {
+            "name": "avl",
+            "description": "Self-balancing binary search tree",
+            "path": "src/data/avl"
+        },
+        "b" : 
+        {
+            "name": "b tree",
+            "description": "Self-balancing tree data structure",
+            "path": "src/data/b",
+            "tester": "src/test/b_test.c",
+            "example": "src/example/b_example.c"
+        },
+        "binary" : 
+        {
+            "name": "binary",
+            "description": "Binary search tree",
+            "path": "src/data/binary",
+            "tester": "src/test/binary_test.c",
+            "example": "src/example/binary_example.c",
+            "icon" : "resource/icon/binary.png"
+        },
+        "bitmap" : 
+        {
+            "name": "bitmap",
+            "description": "Mutable, iterable, integer indexed boolean collection",
+            "path": "src/data/bitmap",
+            "markdown": "md/data/bitmap.md",
+            "tester": "src/test/bitmap_test.c",
+            "example": "src/example/bitmap_example.c"
+        },
+        "cache" : 
+        {
+            "name": "cache",
+            "description": "Specialized dictionary; Overflows replace the oldest enqueued element",
+            "path": "src/data/cache",
+            "markdown": "md/data/cache.md",
+            "tester": "src/test/cache_test.c",
+            "example": "src/example/cache_example.c"
+        },
+        "circular buffer" : 
+        {
+            "name": "circular buffer",
+            "description": "Specialized FIFO; Overflows replace the oldest enqueued element",
+            "path": "src/data/circular_buffer",
+            "markdown": "md/data/circular_buffer.md",
+            "tester": "src/test/circular_buffer_test.c",
+            "example": "src/example/circular_buffer_example.c",
+            "icon": "resource/icon/circular_buffer.png"
+        },
+        "dict" : 
+        {
+            "name": "dict",
+            "description": "Mutable, string indexed collection",
+            "path": "src/data/dict",
+            "markdown": "md/data/dict.md",
+            "tester": "src/test/dict_test.c",
+            "example": "src/example/dict_example.c",
+            "icon": "resource/icon/dict.png"
+        },
+        "double queue" : 
+        {
+            "name": "double queue",
+            "description": "Specialized FIFO; Enqueue and dequeue from both ends",
+            "path": "src/data/double_queue",
+            "markdown": "md/data/double_queue.md",
+            "tester": "src/test/double_queue_test.c",
+            "example": "src/example/double_queue_example.c",
+            "icon": "resource/icon/double_queue.png"
+        },
+        "edge list" : 
+        {
+            "name": "edge list",
+            "description": "Model relations between objects using lists of edges",
+            "path": "src/data/edge_list"
+        },
+        "graph" : 
+        {
+            "name": "graph",
+            "description": "Model relations between objects using verticies and edges",
+            "path": "src/data/graph",
+            "markdown": "md/data/graph.md",
+            "icon": "resource/icon/graph.png"
+        },
+        "hash table" : 
+        {
+            "name": "hash table",
+            "description": "Specialized dictionary; Open addressing collision resolution",
+            "path": "src/data/hash_table"
+        },
+        "node" : 
+        {
+            "name": "node",
+            "description": "Specialized graph; Model generic directed acyclic depenencies",
+            "path": "src/data/node",
+            "markdown": "md/data/node.md",
+            "icon": "resource/icon/node.png"
+        },
+        "priority queue" : 
+        {
+            "name": "priority queue",
+            "description": "Specialized FIFO; Elements are rearranged according to their priority",
+            "path": "src/data/priority_queue",
+            "markdown": "md/data/priority_queue.md",
+            "tester": "src/test/priority_queue_test.c",
+            "example": "src/example/priority_queue_example.c",
+            "icon": "resource/icon/priority_queue.png"
+        },
+        "queue" : 
+        {
+            "name": "queue",
+            "description": "FIFO data structure",
+            "path": "src/data/queue",
+            "markdown": "md/data/queue.md",
+            "tester": "src/test/queue_test.c",
+            "example": "src/example/queue_example.c",
+            "icon": "resource/icon/queue.png"
+        },
+        "red black" : 
+        {
+            "name": "red black",
+            "description": "Self-balancing binary search tree",
+            "path": "src/data/red_black"
+        },
+        "set" : 
+        {
+            "name": "set",
+            "description": "Mutable, unique collection",
+            "path": "src/data/set",
+            "markdown": "md/data/set.md",
+            "tester": "src/test/set_test.c",
+            "example": "src/example/set_example.c",
+            "icon": "resource/icon/set.png"
+        },
+        "stack" : 
+        {
+            "name": "stack",
+            "description": "LIFO data structure",
+            "path": "src/data/stack",
+            "markdown": "md/data/stack.md",
+            "tester": "src/test/stack_test.c",
+            "example": "src/example/stack_example.c",
+            "icon": "resource/icon/stack.png"
+        },
+        "tuple" : 
+        {
+            "name": "tuple",
+            "description": "Immutable, iterable, integer indexed collection",
+            "path": "src/data/tuple",
+            "markdown": "md/data/tuple.md",
+            "tester": "src/test/tuple_test.c",
+            "example": "src/example/tuple_example.c",
+            "icon": "resource/icon/tuple.png"
+        }
+    },
+    "performance" : 
+    {
+        "parallel" : 
+        {
+            "name": "parallel",
+            "description": "Abstractions for performant computation on many cores",
+            "path": "src/performance/parallel",
+            "markdown": "md/performance/parallel.md",
+            "example": "src/example/parallel_example.c",
+            "icon": { "dark": "resource/icon/parallel_dark.png", "light": "resource/icon/parallel_light.png" }
+        }
+    },
+    "reflection" :
+    {
+        "base64" : 
+        {
+            "name": "base64",
+            "description": "Parse and serialize base64 data",
+            "path": "src/reflection/base64",
+            "markdown": "md/reflection/base64.md",
+            "example": "src/example/base64_example.c",
+            "icon": "resource/icon/base64.png"
+        },
+        "http" : 
+        {
+            "name": "http",
+            "description": "Parse and serialize HTTP requests and responses",
+            "path": "src/reflection/http",
+            "markdown": "md/reflection/http.md",
+            "icon": "resource/icon/http.png"
+        },
+        "json" : 
+        {
+            "name": "json",
+            "description": "Parse and serialize JSON values",
+            "path": "src/reflection/json",
+            "markdown": "md/reflection/json.md",
+            "tester": "src/test/json_test.c",
+            "example": "src/example/json_example.c",
+            "icon": "resource/icon/json.png"
+        }
+    }
+}
