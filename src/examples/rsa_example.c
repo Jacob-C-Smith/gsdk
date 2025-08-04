@@ -22,43 +22,6 @@
 #define BLUE "\033[94m"
 #define RESET "\033[0m"
 
-int certificate_example ( int argc, const char * argv[] )
-{
-
-    // Unused
-    (void) argc;
-    (void) argv;
-
-    // initialized data
-    public_key  *p_public_key  = NULL;
-    private_key *p_private_key = NULL;
-    char y[256] = { 0x12, 0x34, 0xcd, 0xef },
-         z[256] = { 0x00, 0x00, 0x00, 0x00 };
-    
-    printf(RESET "enc = " BLUE "%hhx%hhx%hhx%hhx\n", y[0], y[1], y[2], y[3]);
-
-    dec(&y, &z, p_public_key, p_private_key);
-
-    printf(RESET "dec = " BLUE "%hhx%hhx%hhx%hhx\n", z[0], z[1], z[2], z[3]);
-
-    // success 
-    return 1;
-}
-
-int rsa_example ( int argc, const char * argv[] )
-{
-
-    // Unused
-    (void) argc;
-    (void) argv;
-
-    // initialized data
-
-    // success 
-    return 1;
-    
-}
-
 // entry point
 int main ( int argc, const char *argv[] )
 {
