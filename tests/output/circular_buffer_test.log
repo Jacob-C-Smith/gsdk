@@ -2,105 +2,104 @@
 │ circular buffer tester │
 ╰────────────────────────╯
 
-[96m[1m[4mScenario: empty
-[0m[42m[1m[PASS][0m [92mempty circular_buffer_empty
-[0m[42m[1m[PASS][0m [92mempty circular_buffer_full
-[0m[94m
+Scenario: empty
+[PASS] empty circular_buffer_empty
+[PASS] empty circular_buffer_full
+
 Tests: 2, Passed: 2, Failed: 0 (%100.000)
-[0m[94mTotal: 2, Passed: 2, Failed: 0 (%100.000)
+Total: 2, Passed: 2, Failed: 0 (%100.000)
 
-[0m[96m[1m[4mScenario: empty_pushA_A
-[0m[42m[1m[PASS][0m [92mempty_pushA_A circular_buffer_empty
-[0m[42m[1m[PASS][0m [92mempty_pushA_A circular_buffer_full
-[0m[42m[1m[PASS][0m [92mempty_pushA_A circular_buffer_peek
-[0m[94m
+Scenario: empty_pushA_A
+[PASS] empty_pushA_A circular_buffer_empty
+[PASS] empty_pushA_A circular_buffer_full
+[PASS] empty_pushA_A circular_buffer_peek
+
 Tests: 3, Passed: 3, Failed: 0 (%100.000)
-[0m[94mTotal: 5, Passed: 5, Failed: 0 (%100.000)
+Total: 5, Passed: 5, Failed: 0 (%100.000)
 
-[0m[96m[1m[4mScenario: empty_pushB_B
-[0m[42m[1m[PASS][0m [92mempty_pushB_B circular_buffer_empty
-[0m[42m[1m[PASS][0m [92mempty_pushB_B circular_buffer_full
-[0m[42m[1m[PASS][0m [92mempty_pushB_B circular_buffer_peek
-[0m[94m
+Scenario: empty_pushB_B
+[PASS] empty_pushB_B circular_buffer_empty
+[PASS] empty_pushB_B circular_buffer_full
+[PASS] empty_pushB_B circular_buffer_peek
+
 Tests: 3, Passed: 3, Failed: 0 (%100.000)
-[0m[94mTotal: 8, Passed: 8, Failed: 0 (%100.000)
+Total: 8, Passed: 8, Failed: 0 (%100.000)
 
-[0m[96m[1m[4mScenario: empty_pushC_C
-[0m[42m[1m[PASS][0m [92mempty_pushC_C circular_buffer_empty
-[0m[42m[1m[PASS][0m [92mempty_pushC_C circular_buffer_full
-[0m[42m[1m[PASS][0m [92mempty_pushC_C circular_buffer_peek
-[0m[94m
+Scenario: empty_pushC_C
+[PASS] empty_pushC_C circular_buffer_empty
+[PASS] empty_pushC_C circular_buffer_full
+[PASS] empty_pushC_C circular_buffer_peek
+
 Tests: 3, Passed: 3, Failed: 0 (%100.000)
-[0m[94mTotal: 11, Passed: 11, Failed: 0 (%100.000)
+Total: 11, Passed: 11, Failed: 0 (%100.000)
 
-[0m[96m[1m[4mScenario: A_pop_empty
-[0m[42m[1m[PASS][0m [92mA_pop_empty circular_buffer_empty
-[0m[42m[1m[PASS][0m [92mA_pop_empty circular_buffer_full
-[0m[94m
+Scenario: A_pop_empty
+[PASS] A_pop_empty circular_buffer_empty
+[PASS] A_pop_empty circular_buffer_full
+
 Tests: 2, Passed: 2, Failed: 0 (%100.000)
-[0m[94mTotal: 13, Passed: 13, Failed: 0 (%100.000)
+Total: 13, Passed: 13, Failed: 0 (%100.000)
 
-[0m[96m[1m[4mScenario: B_pop_empty
-[0m[42m[1m[PASS][0m [92mB_pop_empty circular_buffer_empty
-[0m[42m[1m[PASS][0m [92mB_pop_empty circular_buffer_full
-[0m[94m
+Scenario: B_pop_empty
+[PASS] B_pop_empty circular_buffer_empty
+[PASS] B_pop_empty circular_buffer_full
+
 Tests: 2, Passed: 2, Failed: 0 (%100.000)
-[0m[94mTotal: 15, Passed: 15, Failed: 0 (%100.000)
+Total: 15, Passed: 15, Failed: 0 (%100.000)
 
-[0m[96m[1m[4mScenario: C_pop_empty
-[0m[42m[1m[PASS][0m [92mC_pop_empty circular_buffer_empty
-[0m[42m[1m[PASS][0m [92mC_pop_empty circular_buffer_full
-[0m[94m
+Scenario: C_pop_empty
+[PASS] C_pop_empty circular_buffer_empty
+[PASS] C_pop_empty circular_buffer_full
+
 Tests: 2, Passed: 2, Failed: 0 (%100.000)
-[0m[94mTotal: 17, Passed: 17, Failed: 0 (%100.000)
+Total: 17, Passed: 17, Failed: 0 (%100.000)
 
-[0m[96m[1m[4mScenario: AB_pop_A
-[0m[42m[1m[PASS][0m [92mAB_pop_A circular_buffer_empty
-[0m[42m[1m[PASS][0m [92mAB_pop_A circular_buffer_full
-[0m[42m[1m[PASS][0m [92mAB_pop_A circular_buffer_peek
-[0m[94m
+Scenario: AB_pop_A
+[PASS] AB_pop_A circular_buffer_empty
+[PASS] AB_pop_A circular_buffer_full
+[PASS] AB_pop_A circular_buffer_peek
+
 Tests: 3, Passed: 3, Failed: 0 (%100.000)
-[0m[94mTotal: 20, Passed: 20, Failed: 0 (%100.000)
+Total: 20, Passed: 20, Failed: 0 (%100.000)
 
-[0m[96m[1m[4mScenario: AC_pop_A
-[0m[42m[1m[PASS][0m [92mAC_pop_A circular_buffer_empty
-[0m[42m[1m[PASS][0m [92mAC_pop_A circular_buffer_full
-[0m[42m[1m[PASS][0m [92mAC_pop_A circular_buffer_peek
-[0m[94m
+Scenario: AC_pop_A
+[PASS] AC_pop_A circular_buffer_empty
+[PASS] AC_pop_A circular_buffer_full
+[PASS] AC_pop_A circular_buffer_peek
+
 Tests: 3, Passed: 3, Failed: 0 (%100.000)
-[0m[94mTotal: 23, Passed: 23, Failed: 0 (%100.000)
+Total: 23, Passed: 23, Failed: 0 (%100.000)
 
-[0m[96m[1m[4mScenario: BA_pop_B
-[0m[42m[1m[PASS][0m [92mBA_pop_B circular_buffer_empty
-[0m[42m[1m[PASS][0m [92mBA_pop_B circular_buffer_full
-[0m[42m[1m[PASS][0m [92mBA_pop_B circular_buffer_peek
-[0m[94m
+Scenario: BA_pop_B
+[PASS] BA_pop_B circular_buffer_empty
+[PASS] BA_pop_B circular_buffer_full
+[PASS] BA_pop_B circular_buffer_peek
+
 Tests: 3, Passed: 3, Failed: 0 (%100.000)
-[0m[94mTotal: 26, Passed: 26, Failed: 0 (%100.000)
+Total: 26, Passed: 26, Failed: 0 (%100.000)
 
-[0m[96m[1m[4mScenario: BC_pop_B
-[0m[42m[1m[PASS][0m [92mBC_pop_B circular_buffer_empty
-[0m[42m[1m[PASS][0m [92mBC_pop_B circular_buffer_full
-[0m[42m[1m[PASS][0m [92mBC_pop_B circular_buffer_peek
-[0m[94m
+Scenario: BC_pop_B
+[PASS] BC_pop_B circular_buffer_empty
+[PASS] BC_pop_B circular_buffer_full
+[PASS] BC_pop_B circular_buffer_peek
+
 Tests: 3, Passed: 3, Failed: 0 (%100.000)
-[0m[94mTotal: 29, Passed: 29, Failed: 0 (%100.000)
+Total: 29, Passed: 29, Failed: 0 (%100.000)
 
-[0m[96m[1m[4mScenario: CA_pop_C
-[0m[42m[1m[PASS][0m [92mCA_pop_C circular_buffer_empty
-[0m[42m[1m[PASS][0m [92mCA_pop_C circular_buffer_full
-[0m[42m[1m[PASS][0m [92mCA_pop_C circular_buffer_peek
-[0m[94m
+Scenario: CA_pop_C
+[PASS] CA_pop_C circular_buffer_empty
+[PASS] CA_pop_C circular_buffer_full
+[PASS] CA_pop_C circular_buffer_peek
+
 Tests: 3, Passed: 3, Failed: 0 (%100.000)
-[0m[94mTotal: 32, Passed: 32, Failed: 0 (%100.000)
+Total: 32, Passed: 32, Failed: 0 (%100.000)
 
-[0m[96m[1m[4mScenario: CB_pop_C
-[0m[42m[1m[PASS][0m [92mCB_pop_C circular_buffer_empty
-[0m[42m[1m[PASS][0m [92mCB_pop_C circular_buffer_full
-[0m[42m[1m[PASS][0m [92mCB_pop_C circular_buffer_peek
-[0m[94m
+Scenario: CB_pop_C
+[PASS] CB_pop_C circular_buffer_empty
+[PASS] CB_pop_C circular_buffer_full
+[PASS] CB_pop_C circular_buffer_peek
+
 Tests: 3, Passed: 3, Failed: 0 (%100.000)
-[0m[94mTotal: 35, Passed: 35, Failed: 0 (%100.000)
+Total: 35, Passed: 35, Failed: 0 (%100.000)
 
-[0m[94mcircular buffer took [0m[94m189 us[0m[94m to test
-[0m
+circular buffer took 67 us to test

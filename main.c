@@ -74,7 +74,7 @@ int main ( int argc, const char *argv[] )
     }
 
     // construct a tuple
-    tuple_from_elements(&p_tuple, _p_a, 3);
+    tuple_from_elements(&p_tuple, (void *const *)_p_a, 3);
     
     // pack the tuple
     len = tuple_pack(p_tuple, buf, (fn_pack *) pack_array_of_bitmaps);

@@ -17,11 +17,29 @@
 
 // posix
 #include <fcntl.h>
+#include <sys/types.h>
 #include <sys/stat.h>
+#ifndef S_IFMT
+#define S_IFMT  0170000
+#endif
+#ifndef S_IFREG
+#define S_IFREG 0100000
+#endif
+#ifndef S_IFDIR
+#define S_IFDIR 0040000
+#endif
+#ifndef S_IFSOCK
+#define S_IFSOCK 0140000
+#endif
 
 // core
 #include <core/log.h>
 #include <core/stream.h>
+
+// platform dependent includes
+#if defined(_WIN32)
+#include <windows.h>
+#endif
 
 // function declarations
 /** !
