@@ -16,6 +16,7 @@
 // core
 #include <core/log.h>
 #include <core/sha.h>
+#include <core/stream.h>
 
 // data
 /// file for reflection
@@ -35,12 +36,19 @@ int main ( int argc, const char *argv[] )
     // unused 
     (void) argc;
     (void) argv;
+
+    // initialized data
+    unsigned char buffer[4096] = { 0 };
+    size_t bytes_read = 0;
     
     // construct a sha256 hasher
     sha256_construct(&_sha256_state);
 
-    // feed it
-    sha256_update(&_sha256_state, "Hello, World!\0", 14);
+    // read from standard input in chunks
+    while ((bytes_read = fread(buffer, 1, sizeof(buffer), stdin)) > 0)
+        
+        // feed hasher
+        sha256_update(&_sha256_state, buffer, bytes_read);
 
     // digest it
     sha256_final(&_sha256_state, hash);

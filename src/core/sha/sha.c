@@ -301,6 +301,50 @@ int sha256_final ( sha256_state *p_sha256_state, unsigned char *hash)
     }
 }
 
+hash64 sha256_hash64 ( const void *const k, unsigned long long l )
+{
+
+    // argument check
+    if ( k == (void *) 0 ) goto no_k;
+
+    // initialize the hasher
+    sha256_state state = { 0 };
+    sha256_hash  hash  = { 0 };
+    hash64       result = 0;
+
+    // construct a hasher
+    sha256_construct(&state);
+
+    // feed the hasher
+    if ( l ) sha256_update(&state, k, l);
+
+    // digest the input
+    sha256_final(&state, hash);
+
+    // convert the state to a hash
+    result = (((hash64) hash[0]) << 56)
+           | (((hash64) hash[1]) << 48)
+           | (((hash64) hash[2]) << 40)
+           | (((hash64) hash[3]) << 32)
+           | (((hash64) hash[4]) << 24)
+           | (((hash64) hash[5]) << 16)
+           | (((hash64) hash[6]) << 8)
+           | (((hash64) hash[7]) << 0);
+
+    // success
+    return result;
+
+    // error handling
+    {
+        no_k:
+            #ifndef NDEBUG
+                log_error("[sha] Null pointer provided for parameter \"k\" in call to function \"%s\"\n", __FUNCTION__);
+            #endif
+
+            // error
+            return 0;
+    }
+}
 
 int sha256_print ( sha256_hash _hash )
 {
@@ -314,7 +358,6 @@ int sha256_print ( sha256_hash _hash )
     // success
     return 1;
 }
-
 
 int sha256_pack ( void *p_buffer, sha256_hash _hash )
 {

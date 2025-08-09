@@ -3,3 +3,4 @@
 build/*
 .ignore/
 src/utilities/__pycache__/
+**/.DS_Store
