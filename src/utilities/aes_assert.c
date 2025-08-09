@@ -464,7 +464,7 @@ int aes_iv_construct ( char *p_iv )
     return 1;
 }
 
-// Entry point
+// entry point
 int main ( int argc, const char *argv[] )
 {
     

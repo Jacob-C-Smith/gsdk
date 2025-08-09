@@ -1,0 +1,23 @@
+<div 
+    class='module' 
+
+    hx-trigger="every 10s" 
+    hx-get="/module/?name={{ .Name }}" 
+    hx-swap="outerHTML">
+    <img 
+    class="module-icon"
+    src="static/{{.Icon.Single}}" 
+    alt="{{ .Name }} image" 
+    style="max-width: 100px; max-height: 100px;"
+        >
+    <h3>
+        {{ .Name }}
+    </h3>
+    <hr>
+    <p>{{ .Description }}</p>
+    <p>Path: {{ .Path }}</p>
+    <p>Markdown: {{ .Markdown }}</p>
+    <p>Tester: {{ .Tester }}</p>
+    <p>Example: {{ .Example }}</p>
+
+</div>

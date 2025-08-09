@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.min.js"></script>
+    <link rel="stylesheet" href="static/style.css">
+    </head>
+    <body>
+        {{ range . }}
+        <p hx-get="/module/?name={{ .Name }}"
+            hx-trigger="revealed"
+            hx-swap="outerHTML">
+            {{ .Name }}
+        </p>
+        {{ end }}
+    </body>
+</html>

@@ -39,7 +39,7 @@ PERFORMANCE_LIBS = parallel
 # Lists of targets
 LIBS = $(CORE_LIBS) $(DATA_LIBS) $(REFLECTION_LIBS) $(PERFORMANCE_LIBS)
 TESTS = $(DATA_LIBS) $(REFLECTION_LIBS)
-UTILS = rsa_key_generator rsa_key_info hash_optimal lisp_syntax_highlighter aes_assert secure_socket_client secure_socket_server sha_assert
+UTILS = rsa_key_generator rsa_key_info hash_optimal lisp_syntax_highlighter aes_assert secure_socket_client secure_socket_server
 
 # Phony targets
 .PHONY: all clean libs examples utils tests
@@ -228,7 +228,7 @@ $(BUILD_EXAMPLE_DIR)/parallel_example: $(EXAMPLES_DIR)/parallel_example.c $(BUIL
 #############
 # Utilities #
 #############
-utils: $(BUILD_UTIL_DIR)/rsa_key_generator $(BUILD_UTIL_DIR)/rsa_key_info $(BUILD_UTIL_DIR)/hash_optimal $(BUILD_UTIL_DIR)/lisp_syntax_highlighter $(BUILD_UTIL_DIR)/aes_assert $(BUILD_UTIL_DIR)/secure_socket_client $(BUILD_UTIL_DIR)/secure_socket_server $(BUILD_UTIL_DIR)/sha_assert 
+utils: $(BUILD_UTIL_DIR)/rsa_key_generator $(BUILD_UTIL_DIR)/rsa_key_info $(BUILD_UTIL_DIR)/hash_optimal $(BUILD_UTIL_DIR)/lisp_syntax_highlighter $(BUILD_UTIL_DIR)/aes_assert $(BUILD_UTIL_DIR)/secure_socket_client $(BUILD_UTIL_DIR)/secure_socket_server 
 
 $(BUILD_UTIL_DIR):
 	@mkdir -p $@
@@ -253,9 +253,6 @@ $(BUILD_UTIL_DIR)/secure_socket_server: $(UTILS_DIR)/secure_socket_server.c | $(
 
 $(BUILD_UTIL_DIR)/secure_socket_client: $(UTILS_DIR)/secure_socket_client.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/rsa.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/socket.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
-
-$(BUILD_UTIL_DIR)/sha_assert: $(UTILS_DIR)/sha_assert.c | $(BUILD_UTIL_DIR)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
 #########
 # Tests #
