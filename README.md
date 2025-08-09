@@ -45,8 +45,10 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>✅ <a href="./documentation/md/core/pack.md">pack</a></li>
         <li>✔️ <a href="./documentation/md/core/interfaces.md">interfaces</a></li>
         <li>✔️ <a href="./documentation/md/core/log.md">log</a></li>
+        <li>🧪 <a href="./documentation/md/core/rsa.md">rsa</a></li>
+        <li>🧪 <a href="./documentation/md/core/sha.md">sha</a></li>
         <li>🧪 <a href="./documentation/md/core/sync.md">sync</a></li>
-        <li>🏗️ <a href="./documentation/md/core/crypto.md">crypto</a></li>
+        <li>🏗️ <a href="./documentation/md/core/aes.md">aes</a></li>
         <li>🏗️ <a href="./documentation/md/core/socket.md">socket</a></li>
     </ul>
 </details>
@@ -167,15 +169,15 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 
 |                               | `unweighted undirected` | `weighted undirected` | `unweighted directed` | `weighted directed` |
 |-------------------------------|-------------------------|-----------------------|-----------------------|---------------------|
-| `all pairs shortest paths`    | 🏗️                      | 🏗️                    | 🏗️                    | 🏗️                  |
-| `minimum spanning tree`       | 🏗️                      | 🏗️                    |                       |                     |
-| `search`                      | 🏗️                      | 🏗️                    | 🏗️                    | 🏗️                  |
-| `sort`                        |                         |                       | 🏗️                    | 🏗️                  |
 | `flow`                        |                         |                       |                       | 🏗️                  |
+| `graph coloring`              |                         |                       | 🏗️                    | 🏗️                  |
+| `sort`                        |                         |                       | 🏗️                    | 🏗️                  |
+| `minimum spanning tree`       | 🏗️                      | 🏗️                    |                       |                     |
+| `transitive closure`          | 🏗️                      | 🏗️                    |                       |                     |
+| `all pairs shortest paths`    | 🏗️                      | 🏗️                    | 🏗️                    | 🏗️                  |
+| `search`                      | 🏗️                      | 🏗️                    | 🏗️                    | 🏗️                  |
 | `single source shortest path` | 🏗️                      | 🏗️                    | 🏗️                    | 🏗️                  |
 | `cycle detection`             | 🏗️                      | 🏗️                    | 🏗️                    | 🏗️                  |
-| `transitive closure`          | 🏗️                      | 🏗️                    |                       |                     |
-| `graph coloring`              |                         |                       | 🏗️                    | 🏗️                  |
 
 </details>
 </details>
