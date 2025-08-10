@@ -13,6 +13,7 @@
 // core
 #include <core/log.h>
 #include <core/hash.h>
+#include <core/sha.h>
 
 // preprocessor definitions
 #define HASH_TABLE_OPTIMIZER_BUFFER_LENGTH_MAX 4095+1
@@ -277,10 +278,11 @@ void print_usage ( const char *argv0 )
     if ( argv0 == (void *) 0 ) exit(EXIT_FAILURE);
 
     // print a usage message to standard out
-    printf("Usage: %s [ crc | fnv | mmh ]\n\n", argv0);
+    printf("Usage: %s [ crc | fnv | mmh | sha ]\n\n", argv0);
     printf("    crc   Hash values with cyclic redundancy check\n");
     printf("    fnv   Hash values with Fowler-Noll-Vo hash\n");
     printf("    mmh   Hash values with MurMur hash\n");
+    printf("    sha   Hash values with SHA-256 hash (truncates to 64-bit hash)\n");
 
     // done
     return;
@@ -309,6 +311,12 @@ void parse_command_line_arguments ( int argc, const char *argv[], fn_hash64 **pp
 
         // murmur
         *ppfn_hash_function = hash_mmh64;
+
+    // sha
+    else if ( strcmp(argv[1], "sha") == 0 )
+
+        // sha
+        *ppfn_hash_function = sha256_hash64;
 
     // default
     else goto invalid_arguments;

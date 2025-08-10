@@ -81,6 +81,17 @@ int sha256_final ( sha256_state *p_sha256_state, unsigned char *hash );
  */
 int sha256_print ( sha256_hash _hash );
 
+/// hash64
+/** !
+ * Compute the SHA256 hash of a key, and cast it to a 64-bit hash
+ * 
+ * @param k the key
+ * @param l the length
+ * 
+ * @return the hash
+ */
+hash64 sha256_hash64 ( const void *const k, unsigned long long l );
+
 /// pack
 /** !
  * Pack a SHA256 hash into a buffer

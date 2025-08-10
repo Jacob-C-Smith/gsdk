@@ -271,7 +271,7 @@ int key_pair_construct ( public_key **pp_public_key, private_key **pp_private_ke
         {
             no_public_key:
                 #ifndef NDEBUG
-                    log_error("[crypto] [rsa] Null pointer provided for parameter \"pp_public_key\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[rsa] Null pointer provided for parameter \"pp_public_key\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -279,7 +279,7 @@ int key_pair_construct ( public_key **pp_public_key, private_key **pp_private_ke
 
             no_private_key:
                 #ifndef NDEBUG
-                    log_error("[crypto] [rsa] Null pointer provided for parameter \"pp_private_key\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[rsa] Null pointer provided for parameter \"pp_private_key\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -343,7 +343,7 @@ int key_pair_from_files
         {
             no_public_key:
                 #ifndef NDEBUG
-                    log_error("[crypto] [rsa] Null pointer provided for parameter \"pp_public_key\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[rsa] Null pointer provided for parameter \"pp_public_key\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -351,7 +351,7 @@ int key_pair_from_files
 
             no_private_key:
                 #ifndef NDEBUG
-                    log_error("[crypto] [rsa] Null pointer provided for parameter \"pp_private_key\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[rsa] Null pointer provided for parameter \"pp_private_key\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -359,7 +359,7 @@ int key_pair_from_files
 
             no_public_key_path:
                 #ifndef NDEBUG
-                    log_error("[crypto] [rsa] Null pointer provided for parameter \"p_public_key_path\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[rsa] Null pointer provided for parameter \"p_public_key_path\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -367,7 +367,7 @@ int key_pair_from_files
 
             no_private_key_path:
                 #ifndef NDEBUG
-                    printf("[crypto] [rsa] Null pointer provided for parameter \"p_private_key_path\" in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[rsa] Null pointer provided for parameter \"p_private_key_path\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -378,7 +378,7 @@ int key_pair_from_files
         {
             failed_to_parse_public_key:
                 #ifndef NDEBUG
-                    log_error("[crypto] [rsa] Failed to parse public key in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[rsa] Failed to parse public key in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -386,7 +386,7 @@ int key_pair_from_files
 
             failed_to_parse_private_key:
                 #ifndef NDEBUG
-                    log_error("[crypto] [rsa] Failed to parse private key in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[rsa] Failed to parse private key in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -397,7 +397,7 @@ int key_pair_from_files
         {
             failed_to_load_public_key:
                 #ifndef NDEBUG
-                    log_error("[crypto] [rsa] Failed to load public key file \"%s\" in call to function \"%s\"\n", p_public_key_path, __FUNCTION__);
+                    log_error("[rsa] Failed to load public key file \"%s\" in call to function \"%s\"\n", p_public_key_path, __FUNCTION__);
                 #endif
 
                 // error
@@ -405,7 +405,7 @@ int key_pair_from_files
 
             failed_to_load_private_key:
                 #ifndef NDEBUG
-                    log_error("[crypto] [rsa] Failed to load private key file \"%s\" in call to function \"%s\"\n", p_private_key_path, __FUNCTION__);
+                    log_error("[rsa] Failed to load private key file \"%s\" in call to function \"%s\"\n", p_private_key_path, __FUNCTION__);
                 #endif
 
                 // error
@@ -760,7 +760,7 @@ int public_key_unpack ( public_key *p_public_key, void *p_buffer )
         {
             no_public_n:
                 #ifndef NDEBUG
-                    log_error("[crypto] [rsa] Failed to unpack \"n\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[rsa] Failed to unpack \"n\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -768,7 +768,7 @@ int public_key_unpack ( public_key *p_public_key, void *p_buffer )
 
             no_public_a:
                 #ifndef NDEBUG
-                    log_error("[crypto] [rsa] Failed to unpack \"a\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[rsa] Failed to unpack \"a\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -848,7 +848,7 @@ int private_key_unpack ( private_key *p_private_key, void *p_buffer )
         {
             no_private_p:
                 #ifndef NDEBUG
-                    log_error("[crypto] [rsa] Failed to unpack \"p\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[rsa] Failed to unpack \"p\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -856,7 +856,7 @@ int private_key_unpack ( private_key *p_private_key, void *p_buffer )
 
             no_private_q:
                 #ifndef NDEBUG
-                    log_error("[crypto] [rsa] Failed to unpack \"q\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[rsa] Failed to unpack \"q\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -864,7 +864,7 @@ int private_key_unpack ( private_key *p_private_key, void *p_buffer )
 
             no_private_b:
                 #ifndef NDEBUG
-                    log_error("[crypto] [rsa] Failed to unpack \"b\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[rsa] Failed to unpack \"b\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -908,7 +908,7 @@ size_t file_load ( const char *path, void *buffer, bool binary_mode )
         {
             no_path:
                 #ifndef NDEBUG
-                    log_error("[crypto] Null path provided to function \"%s\n", __FUNCTION__);
+                    log_error("[rsa] Null path provided to function \"%s\n", __FUNCTION__);
                 #endif
 
             // error

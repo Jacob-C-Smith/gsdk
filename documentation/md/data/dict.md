@@ -62,7 +62,7 @@ Fish
  int dict_create ( dict **pp_dict );
  
  // constructors
- int dict_construct ( dict **pp_dict, size_t   size, crypto_hash_function_64_t pfn_hash_function );
+ int dict_construct ( dict **pp_dict, size_t   size, fn_hash64 *pfn_hash_function );
  int dict_from_keys ( dict **pp_dict, char   **keys, size_t keys_length );
  
  // accessors

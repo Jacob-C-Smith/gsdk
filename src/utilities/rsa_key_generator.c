@@ -133,7 +133,7 @@ int main ( int argc, const char *argv[] )
                 return EXIT_FAILURE;
         }
 
-        // crypto errors
+        // rsa errors
         {
             failed_to_create_key_pair:
 
