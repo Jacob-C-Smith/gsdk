@@ -24,7 +24,7 @@
 // core
 #include <core/log.h>
 #include <core/rsa.h>
-#include <core/aes.h>
+// #include <core/aes.h>
 #include <core/pack.h>
 #include <core/socket.h>
 

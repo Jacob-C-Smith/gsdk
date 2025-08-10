@@ -18,7 +18,7 @@
 #include <core/socket.h>
 #include <core/secure_socket.h>
 #include <core/rsa.h>
-#include <core/aes.h>
+// #include <core/aes.h>
 #include <core/pack.h>
 
 // data
