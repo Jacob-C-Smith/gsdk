@@ -241,7 +241,7 @@ int checkpoint ( cache *p_cache, const char *p_event )
     // static data
     static int step = 0;
     
-    // print the array
+    // print the cache
     if ( NULL == p_cache )
     log_info("#%d - Cache %s: ", step, p_event),
     printf("NULL\n");

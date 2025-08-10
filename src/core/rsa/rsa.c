@@ -188,8 +188,8 @@ int key_pair_construct ( public_key **pp_public_key, private_key **pp_private_ke
     srand(time(0));
 
     // (Not) random primes
-    p = generate_prime(133, 5); 
-    q = generate_prime(133, 5); 
+    p = generate_prime(100, 5); 
+    q = generate_prime(100, 5); 
 
     // Store the product of the prime factors in the public key
     n = p * q;

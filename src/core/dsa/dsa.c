@@ -8,6 +8,8 @@
 
 // header
 #include <core/dsa.h>
+#include <core/rsa.h>
+#include <string.h>
 
 // function definitions
 int dsa_sign
@@ -28,6 +30,7 @@ int dsa_sign
     // initialized data
     sha256_state   _sha256_state = { 0 };
     sha256_hash    hash          = { 0 };
+    void          *p_hash_val    = NULL; // packed hash block (RSA size)
     void          *p_signature   = NULL;
 
     // construct a sha256 hasher
@@ -39,14 +42,23 @@ int dsa_sign
     // digest it
     sha256_final(&_sha256_state, hash);
 
-    // allocate memory for the signature
-    p_signature = default_allocator(0, sizeof(i2048));
+    // compute RSA block size from key type
+    size_t rsa_block_size = sizeof(((public_key *)0)->n);
+
+    // allocate memory for the signature (RSA block size)
+    p_signature = default_allocator(0, rsa_block_size);
 
     // error check
     if ( NULL == p_signature ) goto no_mem;
 
-    // encrypt the hash with the private key to create the signature
-    if ( 0 == dec(hash, p_signature, p_public_key, p_private_key) ) goto failed_to_sign;
+    // Allocate and zero a block, then pack the 32-byte SHA256 into the lower bytes
+    p_hash_val = default_allocator(0, rsa_block_size);
+    if ( NULL == p_hash_val ) goto no_mem;
+    memset(p_hash_val, 0, rsa_block_size);
+    memcpy(p_hash_val, hash, sizeof(sha256_hash));
+
+    // "Sign" by raising to the private exponent (RSA decrypt)
+    if ( 0 == dec(p_hash_val, p_signature, p_public_key, p_private_key) ) goto failed_to_sign;
 
     // return the signature
     *pp_signature = p_signature;
@@ -58,7 +70,7 @@ int dsa_sign
     {
         no_private_key:
             #ifndef NDEBUG
-                printf("[dsa] Null pointer provided for parameter \"p_private_key\" in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[dsa] Null pointer provided for parameter \"p_private_key\" in call to function \"%s\"\n", __FUNCTION__);
             #endif
 
             // error
@@ -66,7 +78,7 @@ int dsa_sign
 
         no_data:
             #ifndef NDEBUG
-                printf("[dsa] Null pointer provided for parameter \"p_data\" in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[dsa] Null pointer provided for parameter \"p_data\" in call to function \"%s\"\n", __FUNCTION__);
             #endif
 
             // error
@@ -74,7 +86,7 @@ int dsa_sign
 
         no_data_size:
             #ifndef NDEBUG
-                printf("[dsa] Zero provided for parameter \"data_size\" in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[dsa] Zero provided for parameter \"data_size\" in call to function \"%s\"\n", __FUNCTION__);
             #endif
 
             // error
@@ -82,7 +94,7 @@ int dsa_sign
 
         no_signature:
             #ifndef NDEBUG
-                printf("[dsa] Null pointer provided for parameter \"pp_signature\" in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[dsa] Null pointer provided for parameter \"pp_signature\" in call to function \"%s\"\n", __FUNCTION__);
             #endif
 
             // error
@@ -90,7 +102,7 @@ int dsa_sign
 
         no_mem:
             #ifndef NDEBUG
-                printf("[dsa] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[dsa] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
             #endif
 
             // error
@@ -98,11 +110,13 @@ int dsa_sign
 
         failed_to_sign:
             #ifndef NDEBUG
-                printf("[dsa] Failed to sign data in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[dsa] Failed to sign data in call to function \"%s\"\n", __FUNCTION__);
             #endif
 
             // release the signature
             p_signature = default_allocator(p_signature, 0);
+            // release temp hash block
+            p_hash_val  = default_allocator(p_hash_val, 0);
 
             // error
             return 0;
@@ -126,9 +140,13 @@ int dsa_verify
     if ( p_signature  == (void *) 0 ) goto no_signature;
 
     // initialized data
-    sha256_state _sha256_state = { 0 };
-    sha256_hash computed_hash = { 0 };
-    i2048 decrypted_hash_val = { 0 };
+    sha256_state _sha256_state    = { 0 };
+    sha256_hash  computed_hash    = { 0 };
+    void        *p_hash_val       = NULL; // packed hash block (RSA size)
+    void        *p_decrypted_hash = NULL;
+
+    // suppress unused parameter warning (API keeps private key for now)
+    (void) p_private_key;
 
     // construct a sha256 hasher
     sha256_construct(&_sha256_state);
@@ -139,20 +157,32 @@ int dsa_verify
     // digest it
     sha256_final(&_sha256_state, computed_hash);
 
-    // Decrypt the signature with the public key
-    if ( 0 == enc((void *)p_signature, &decrypted_hash_val, p_public_key) ) goto failed_to_verify;
+    // Recover the signed hash with the public key (RSA encrypt)
+    size_t rsa_block_size = sizeof(((public_key *)0)->n);
+    p_decrypted_hash = default_allocator(0, rsa_block_size);
+    if ( NULL == p_decrypted_hash ) goto failed_to_verify;
+    if ( 0 == enc((void *)p_signature, p_decrypted_hash, p_public_key) ) goto failed_to_verify;
 
-    // Compare the decrypted hash with the computed hash
-    if ( 0 != memcmp(&decrypted_hash_val, computed_hash, sizeof(sha256_hash)) ) goto failed_to_verify;
+    // Pack the freshly computed hash into an RSA-sized block for comparison
+    p_hash_val = default_allocator(0, rsa_block_size);
+    if ( NULL == p_hash_val ) goto failed_to_verify;
+    memset(p_hash_val, 0, rsa_block_size);
+    memcpy(p_hash_val, computed_hash, sizeof(sha256_hash));
+
+    // Compare full RSA block (both are zero-padded beyond 32 bytes)
+    if ( 0 != memcmp(p_decrypted_hash, p_hash_val, rsa_block_size) ) goto failed_to_verify;
 
     // success
+    // free temporaries
+    p_decrypted_hash = default_allocator(p_decrypted_hash, 0);
+    p_hash_val       = default_allocator(p_hash_val, 0);
     return 1;
 
     // error handling
     {
         no_public_key:
             #ifndef NDEBUG
-                printf("[dsa] Null pointer provided for parameter \"p_public_key\" in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[dsa] Null pointer provided for parameter \"p_public_key\" in call to function \"%s\"\n", __FUNCTION__);
             #endif
             
             // error
@@ -160,7 +190,7 @@ int dsa_verify
 
         no_data:
             #ifndef NDEBUG
-                printf("[dsa] Null pointer provided for parameter \"p_data\" in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[dsa] Null pointer provided for parameter \"p_data\" in call to function \"%s\"\n", __FUNCTION__);
             #endif
             
             // error
@@ -168,7 +198,7 @@ int dsa_verify
 
         no_data_size:
             #ifndef NDEBUG
-                printf("[dsa] Zero provided for parameter \"data_size\" in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[dsa] Zero provided for parameter \"data_size\" in call to function \"%s\"\n", __FUNCTION__);
             #endif
             
             // error
@@ -176,7 +206,7 @@ int dsa_verify
 
         no_signature:
             #ifndef NDEBUG
-                printf("[dsa] Null pointer provided for parameter \"p_signature\" in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[dsa] Null pointer provided for parameter \"p_signature\" in call to function \"%s\"\n", __FUNCTION__);
             #endif
             
             // error
@@ -184,9 +214,13 @@ int dsa_verify
 
         failed_to_verify:
             #ifndef NDEBUG
-                printf("[dsa] Signature verification failed in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[dsa] Signature verification failed in call to function \"%s\"\n", __FUNCTION__);
             #endif
             
+            // free temporaries if allocated
+            if ( p_decrypted_hash ) p_decrypted_hash = default_allocator(p_decrypted_hash, 0);
+            if ( p_hash_val )       p_hash_val       = default_allocator(p_hash_val, 0);
+
             // error
             return 0;
     }
