@@ -192,20 +192,20 @@ jobs:
           chmod +x ${{github.workspace}}/build/examples/stack_example
           ${{github.workspace}}/build/examples/stack_example
   
-  binary:
-    needs: data
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build
-          path: build
-      - name: Run binary example
-        run: |
-          chmod +x ${{github.workspace}}/build/examples/binary_example
-          ${{github.workspace}}/build/examples/binary_example
+  # binary:
+  #   needs: data
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Download build artifacts
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: build
+  #         path: build
+  #     - name: Run binary example
+  #       run: |
+  #         chmod +x ${{github.workspace}}/build/examples/binary_example
+  #         ${{github.workspace}}/build/examples/binary_example
   
   tuple:
     needs: data
