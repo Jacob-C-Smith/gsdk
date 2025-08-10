@@ -13,7 +13,7 @@
 
 // core
 #include <core/log.h>
-#include <core/dsa.h>
+#include <core/digital_signature.h>
 
 // forward declarations
 /// logs
@@ -50,7 +50,7 @@ int main ( int argc, const char *argv[] )
     {
 
         // sign the message
-        if ( 0 == dsa_sign(
+        if ( 0 == digital_signature_sign(
             p_private_key,
             p_public_key, 
 
@@ -75,9 +75,8 @@ int main ( int argc, const char *argv[] )
         log_info("message: \"%s\"\n", message);
 
         // verify the signature
-        result = dsa_verify(
+        result = digital_signature_verify(
             p_public_key, 
-            NULL, 
             message, 
             strlen(message), 
             p_signature
@@ -111,9 +110,8 @@ int main ( int argc, const char *argv[] )
         log_info("message: \"%s\"\n", tampered_message);
 
         // verify the signature
-        result = dsa_verify(
+        result = digital_signature_verify(
             p_public_key, 
-            NULL, 
             tampered_message, 
             strlen(tampered_message), 
             p_signature

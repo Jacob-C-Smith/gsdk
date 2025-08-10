@@ -1129,15 +1129,15 @@
             ]
         },
         {
-            "name": "utility > dsa sign",
+            "name": "utility > digital sign",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/utilities/dsa_sign",
+            "program": "${workspaceFolder}/build/utilities/digital_sign",
             "args": [
                 "-p", "resources/core/public.key",
                 "-q", "resources/core/private.key",
-                "-i", "include/test/hegel_logic.txt",
-                "-o", "a"
+                "-i", "resources/core/token.json",
+                "-o", "resources/core/signed.token"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/",

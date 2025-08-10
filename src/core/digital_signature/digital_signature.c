@@ -1,18 +1,18 @@
 /** ! 
- * Digital Signature Algorithm
+ * Digital Signature 
  *
- * @file dsa.c
+ * @file digital_signature.c
  *
  * @author Jacob Smith
  */
 
 // header
-#include <core/dsa.h>
+#include <core/digital_signature.h>
 #include <core/rsa.h>
 #include <string.h>
 
 // function definitions
-int dsa_sign
+int digital_signature_sign
 (
     private_key  *p_private_key, 
     public_key   *p_public_key, 
@@ -70,7 +70,7 @@ int dsa_sign
     {
         no_private_key:
             #ifndef NDEBUG
-                log_error("[dsa] Null pointer provided for parameter \"p_private_key\" in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[digital signature] Null pointer provided for parameter \"p_private_key\" in call to function \"%s\"\n", __FUNCTION__);
             #endif
 
             // error
@@ -78,7 +78,7 @@ int dsa_sign
 
         no_data:
             #ifndef NDEBUG
-                log_error("[dsa] Null pointer provided for parameter \"p_data\" in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[digital signature] Null pointer provided for parameter \"p_data\" in call to function \"%s\"\n", __FUNCTION__);
             #endif
 
             // error
@@ -86,7 +86,7 @@ int dsa_sign
 
         no_data_size:
             #ifndef NDEBUG
-                log_error("[dsa] Zero provided for parameter \"data_size\" in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[digital signature] Zero provided for parameter \"data_size\" in call to function \"%s\"\n", __FUNCTION__);
             #endif
 
             // error
@@ -94,7 +94,7 @@ int dsa_sign
 
         no_signature:
             #ifndef NDEBUG
-                log_error("[dsa] Null pointer provided for parameter \"pp_signature\" in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[digital signature] Null pointer provided for parameter \"pp_signature\" in call to function \"%s\"\n", __FUNCTION__);
             #endif
 
             // error
@@ -102,7 +102,7 @@ int dsa_sign
 
         no_mem:
             #ifndef NDEBUG
-                log_error("[dsa] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[digital signature] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
             #endif
 
             // error
@@ -110,7 +110,7 @@ int dsa_sign
 
         failed_to_sign:
             #ifndef NDEBUG
-                log_error("[dsa] Failed to sign data in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[digital signature] Failed to sign data in call to function \"%s\"\n", __FUNCTION__);
             #endif
 
             // release the signature
@@ -123,10 +123,9 @@ int dsa_sign
     }
 }
 
-int dsa_verify
+int digital_signature_verify
 (
     public_key *p_public_key, 
-    private_key *p_private_key, 
     const void *p_data, 
     size_t data_size, 
     const void *p_signature
@@ -144,9 +143,6 @@ int dsa_verify
     sha256_hash  computed_hash    = { 0 };
     void        *p_hash_val       = NULL; // packed hash block (RSA size)
     void        *p_decrypted_hash = NULL;
-
-    // suppress unused parameter warning (API keeps private key for now)
-    (void) p_private_key;
 
     // construct a sha256 hasher
     sha256_construct(&_sha256_state);
@@ -182,7 +178,7 @@ int dsa_verify
     {
         no_public_key:
             #ifndef NDEBUG
-                log_error("[dsa] Null pointer provided for parameter \"p_public_key\" in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[digital signature] Null pointer provided for parameter \"p_public_key\" in call to function \"%s\"\n", __FUNCTION__);
             #endif
             
             // error
@@ -190,7 +186,7 @@ int dsa_verify
 
         no_data:
             #ifndef NDEBUG
-                log_error("[dsa] Null pointer provided for parameter \"p_data\" in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[digital signature] Null pointer provided for parameter \"p_data\" in call to function \"%s\"\n", __FUNCTION__);
             #endif
             
             // error
@@ -198,7 +194,7 @@ int dsa_verify
 
         no_data_size:
             #ifndef NDEBUG
-                log_error("[dsa] Zero provided for parameter \"data_size\" in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[digital signature] Zero provided for parameter \"data_size\" in call to function \"%s\"\n", __FUNCTION__);
             #endif
             
             // error
@@ -206,7 +202,7 @@ int dsa_verify
 
         no_signature:
             #ifndef NDEBUG
-                log_error("[dsa] Null pointer provided for parameter \"p_signature\" in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[digital signature] Null pointer provided for parameter \"p_signature\" in call to function \"%s\"\n", __FUNCTION__);
             #endif
             
             // error
@@ -214,7 +210,7 @@ int dsa_verify
 
         failed_to_verify:
             #ifndef NDEBUG
-                log_error("[dsa] Signature verification failed in call to function \"%s\"\n", __FUNCTION__);
+                log_error("[digital signature] Signature verification failed in call to function \"%s\"\n", __FUNCTION__);
             #endif
             
             // free temporaries if allocated
