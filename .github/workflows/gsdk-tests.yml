@@ -11,12 +11,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install clang 
+      - name: Cache Clang
+        id: cache-clang
+        uses: actions/cache@v4
+        with:
+          path: /usr/lib/llvm-20
+          key: ${{ runner.os }}-clang-20
+      - name: Install clang
+        if: steps.cache-clang.outputs.cache-hit != 'true'
         run: |
-          sudo apt install -y wget gnupg software-properties-common
+          sudo apt-get update
+          sudo apt-get install -y lsb-release wget software-properties-common gnupg
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo ./llvm.sh 20
+          sudo ./llvm.sh 20 all
+      - name: Add clang to path
+        run: echo "/usr/lib/llvm-20/bin" >> $GITHUB_PATH
       - name: make
         run: |
           make CC=clang-20
