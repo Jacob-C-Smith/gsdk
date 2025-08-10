@@ -1127,6 +1127,36 @@
                     "ignoreFailures": true
                 }
             ]
+        },
+        {
+            "name": "utility > dsa sign",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/utilities/dsa_sign",
+            "args": [
+                "-p", "resources/core/public.key",
+                "-q", "resources/core/private.key",
+                "-i", "include/test/hegel_logic.txt",
+                "-o", "a"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "setupCommands":
+            [
+                {
+                    "description": "Enable pretty-printing for lldb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-lldb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
         }
     ]
 }
