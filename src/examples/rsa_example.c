@@ -33,31 +33,25 @@ int main ( int argc, const char *argv[] )
     // initialized data
     public_key  *p_public_key  = NULL;
     private_key *p_private_key = NULL;
-    char x[128] = { 0 },
-         y[128] = { 0 },
-         z[128] = { 0 };
+    char x[256] = { 0 },
+         y[256] = { 0 },
+         z[256] = { 0 };
 
     memcpy(x, "secret\0\0", 8);
     
     // Construct a key pair
     key_pair_from_files
     (
-        &p_public_key,                       // Pointer to public key pointer
-        &p_private_key,                      // Pointer to private key pointer
-        "resources/core/rsa_public_key.bin", // Path to public key
-        "resources/core/rsa_private_key.bin" // Path to private key
+        &p_public_key,               // Pointer to public key pointer
+        &p_private_key,              // Pointer to private key pointer
+        "resources/core/public.key", // Path to public key
+        "resources/core/private.key" // Path to private key
     );
 
     // Print the public and private keys
     print_public_key(p_public_key),
     print_private_key(p_private_key);
 
-    // Encrypt test value x into ciphertext y
-    enc(&x, &y, p_public_key);
-
-    // Decrypt ciphertext y into plaintext z
-    dec(&y, &z, p_public_key, p_private_key);
-    
     // Print the results
     printf(RESET "ENCRYPTION TEST:\n"),
 
@@ -65,14 +59,20 @@ int main ( int argc, const char *argv[] )
     printf(" inp = " RED);
     print_n_bit_int(*(i2048*)x);
 
+    // Encrypt test value x into ciphertext y
+    enc(&x, &y, p_public_key);
+
     // Encrypted text
-    printf(RESET " enc = " BLUE);
+    printf(RESET "\n enc = " BLUE);
     print_n_bit_int(*(i2048*)y);
 
+    // Decrypt ciphertext y into plaintext z
+    dec(&y, &z, p_public_key, p_private_key);
+    
     // Decrypted text
-    printf(RESET " dec = " RED);
+    printf(RESET "\n dec = " RED);
     print_n_bit_int(*(i2048*)z);
-    printf(RESET);
+    printf(RESET "\n");
 
     // success
     return EXIT_SUCCESS;

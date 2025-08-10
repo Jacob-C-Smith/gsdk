@@ -55,9 +55,9 @@ int main ( int argc, const char *argv[] )
     {
 
         // initialized data
-        FILE          *p_public_key_f            = fopen("public.key"   , "wb"),
-                      *p_private_key_f           = fopen("private.key"  , "wb"),
-                      *p_keypair_f               = fopen("key_pair.json", "w");
+        FILE          *p_public_key_f            = fopen("resources/core/public.key"   , "wb"),
+                      *p_private_key_f           = fopen("resources/core/private.key"  , "wb"),
+                      *p_keypair_f               = fopen("resources/core/key_pair.json", "w");
         size_t         public_key_length         = 0,
                        private_key_length        = 0;
         unsigned char  _public_key_buffer [1024] = { 0 },
