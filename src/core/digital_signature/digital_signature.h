@@ -1,5 +1,5 @@
 /** !
- * Digital Signature Algorithm
+ * Digital Signature 
  *
  * @file dsa.h
  *
