@@ -577,14 +577,31 @@ i2048 random_n_bit_int ( size_t bits )
 int print_public_key ( public_key *p_public_key )
 {
 
+            // Print the public key
+            printf("\n" BLUE "PUBLIC KEY" RESET ":\n"),
+            
+            printf(" n = " BLUE),
+            print_n_bit_int(p_public_key->n),
+
+            printf("\n" RESET " a = " BLUE),
+            print_n_bit_int(p_public_key->a),
+            printf(RESET "\n");
+
+            // success
+            return 1;
+}
+
+int print_public_key_short ( public_key *p_public_key )
+{
+
     // Print the public key
     printf("\n" BLUE "PUBLIC KEY" RESET ":\n"),
-    
+
     printf(" n = " BLUE),
-    print_n_bit_int(p_public_key->n),
+    printf("0x%llx", (unsigned long long) p_public_key->n),
 
     printf("\n" RESET " a = " BLUE),
-    print_n_bit_int(p_public_key->a),
+    printf("0x%llx", (unsigned long long) p_public_key->a),
     printf(RESET "\n");
 
     // success

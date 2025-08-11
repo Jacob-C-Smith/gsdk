@@ -91,6 +91,15 @@ int print_n_bit_int ( i2048 a );
 int print_public_key ( public_key *p_public_key );
 
 /** !
+ * Print a shortened representation of a public key
+ * 
+ * @param p_public_key the public key
+ * 
+ * @return 1 on success, 0 on error
+ */
+int print_public_key_short ( public_key *p_public_key );
+
+/** !
  * Print a private key
  * 
  * @param p_private_key the private key
