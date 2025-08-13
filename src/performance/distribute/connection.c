@@ -343,7 +343,7 @@ int connection_read ( connection *p_connection, void *p_data, size_t *p_size )
 
     // read the length from the socket
     if ( 0 == socket_tcp_receive(p_connection->_tcp_socket, &size, sizeof(size_t)) ) goto failed_to_read_size;
-    
+
     // correct the size
     size -= sizeof(size_t);
 

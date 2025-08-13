@@ -40,7 +40,7 @@ int    string_unpack ( void *const p_value, void *p_buffer );
 hash64 string_hash   ( const void *const string, unsigned long long unused );
 
 // data
-unsigned short port = 4009;
+unsigned short port = 6710;
 
 // entry point
 int main ( int argc, const char *argv[] )
@@ -50,8 +50,8 @@ int main ( int argc, const char *argv[] )
     rpc_register(
         "echo", 
         echo_handler,
-        string_pack,  
-        string_unpack
+        string_pack, string_unpack, // request reflection
+        string_pack, string_unpack  // response reflection
     );
 
     // run the server
@@ -73,29 +73,6 @@ int main ( int argc, const char *argv[] )
             exit(EXIT_FAILURE);
     }
 }
-
-void *echo_handler ( connection *p_connection, void *p_input )
-{
-    return (char *)p_input;
-}
-
-int string_pack ( void *p_buffer, const void *const p_value )
-{
-    return pack_pack(p_buffer, "%s", p_value);
-}
-
-int string_unpack ( void *const p_value, void *p_buffer )
-{
-    return pack_unpack(p_buffer, "%s", p_value);
-}
-
-
-
-
-
-
-
-
 
 void print_usage ( const char *argv0 )
 {
@@ -163,9 +140,7 @@ int run_client ( int argc, const char *argv[] )
             &response_size)
         ) goto failed_to_call_rpc;
 
-        
         log_info("Result of echo: '%s'\n", response);
-
     }
 
     // cleanup
@@ -199,6 +174,11 @@ int run_client ( int argc, const char *argv[] )
     }
 }
 
+void *echo_handler ( connection *p_connection, void *p_input )
+{
+    return (char *)p_input;
+}
+
 hash64 string_hash ( const void *const string, unsigned long long unused )
 {
 
@@ -207,4 +187,14 @@ hash64 string_hash ( const void *const string, unsigned long long unused )
 
     // done
     return hash_crc64(string, strlen(string));
+}
+
+int string_pack ( void *p_buffer, const void *const p_value )
+{
+    return pack_pack(p_buffer, "%s", p_value);
+}
+
+int string_unpack ( void *const p_value, void *p_buffer )
+{
+    return pack_unpack(p_buffer, "%s", p_value);
 }

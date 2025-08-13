@@ -38,8 +38,10 @@ int rpc_register
 (
     const char     *p_name, 
     fn_rpc_handler *pfn_handler,
-    fn_pack        *pfn_pack,
-    fn_unpack      *pfn_unpack
+    fn_pack        *pfn_request_pack,
+    fn_unpack      *pfn_request_unpack,
+    fn_pack        *pfn_response_pack,
+    fn_unpack      *pfn_response_unpack
 );
 
 /** !
@@ -69,6 +71,6 @@ int rpc_call
     const char *p_name,
     void       *p_args, 
     size_t      args_size,
-    void      **p_response,
+    void       *p_response_buffer,
     size_t     *p_response_size
 );
