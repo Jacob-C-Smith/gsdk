@@ -594,15 +594,8 @@ int print_public_key ( public_key *p_public_key )
 int print_public_key_short ( public_key *p_public_key )
 {
 
-    // Print the public key
-    printf("\n" BLUE "PUBLIC KEY" RESET ":\n"),
-
-    printf(" n = " BLUE),
-    printf("0x%llx", (unsigned long long) p_public_key->n),
-
-    printf("\n" RESET " a = " BLUE),
-    printf("0x%llx", (unsigned long long) p_public_key->a),
-    printf(RESET "\n");
+    // Print the product of p and q
+    printf(BLUE "0x...%llx" RESET "\n", (unsigned long long) p_public_key->n);
 
     // success
     return 1;

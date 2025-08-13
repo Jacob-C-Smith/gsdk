@@ -95,9 +95,7 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
     <summary><a href="documentation/md/performance.md">performance</a></summary>
     <ul>
         <li>🧪 <a href="./doocumentation/performance/parallel.md">parallel</a></li>
-        <li>🏗️ <a href="./doocumentation/performance/code_gen.md">code gen</a></li>
-        <li>❓ <a href="./doocumentation/performance/allocator.md">allocator</a></li>
-        <li>❓ <a href="./doocumentation/performance/distribute.md">distribute</a></li>
+        <li>🏗️ <a href="./doocumentation/performance/distribute.md">distribute</a></li>
     </ul>
 </details>
 

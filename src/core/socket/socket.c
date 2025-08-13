@@ -183,13 +183,13 @@ int socket_tcp_receive ( socket_tcp _socket_tcp, void *p_buffer, size_t buffer_l
     if ( p_buffer == (void *) 0 ) goto no_buffer;
 
     // initialized data
-    size_t r = (size_t) recv(_socket_tcp, p_buffer, buffer_len, 0);
+    int r = (int) recv(_socket_tcp, p_buffer, buffer_len, 0);
 
     // error check
     if ( r < 1 ) goto failed_to_recv;
 
     // success
-    return 1;
+    return r;
 
     // error handling
     {
@@ -222,13 +222,17 @@ int socket_tcp_send ( socket_tcp _socket_tcp, const void *const p_buffer, size_t
 {
 
     // argument check
-    if ( p_buffer   == (void *) 0 ) goto no_buffer;
+    if ( p_buffer == (void *) 0 ) goto no_buffer;
 
-    // Send data to the TCP socket
-    if ( send(_socket_tcp, p_buffer, buffer_len, 0) == -1 ) goto failed_to_send;
+    // initialized data
+    int result = -1;
+
+    // send data to the TCP socket
+    result = send(_socket_tcp, p_buffer, buffer_len, 0);
+    if ( result == -1 ) goto failed_to_send;
 
     // success
-    return 1;
+    return result;
 
     // error handling
     {

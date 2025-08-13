@@ -1,7 +1,7 @@
 /** !
  * High level abstractions for connection
  *
- * @file distribute/connection.h
+ * @file performance/connection.h
  * 
  * @author Jacob Smith
  */
@@ -10,10 +10,11 @@
 #pragma once
 
 // header files
-#include <distribute/distribute.h>
 
-// Socket module
-#include <socket/socket.h>
+// core 
+#include <core/log.h>
+#include <core/socket.h>
+#include <core/interfaces.h>
 
 // preprocessor definitions
 #define DISTRIBUTE_CONNECTION_MAX_BUFFER_SIZE 65535
@@ -23,17 +24,9 @@ struct connection_s;
 
 // type definitions
 typedef struct connection_s connection;
+typedef int (fn_connection_accept)(connection *p_connection);
 
 // function declarations
-/** !
- * Allocate a connection 
- * 
- * @param pp_connection return
- * 
- * @return 1 on success, 0 on error
- */
-int connection_create ( const connection **const pp_connection );
-
 /** ! 
  * Initiate a connection to a host 
  * 
@@ -43,7 +36,18 @@ int connection_create ( const connection **const pp_connection );
  * 
  * @return 1 on success, 0 on error
  */
-int connection_initiate_hostname ( const connection **const pp_connection, const char *p_hostname, const short port );
+int connection_construct ( connection **const pp_connection, const char *p_hostname, const short port );
+
+/** !
+ * Listen for connections on a port
+ *
+ * @param pp_connection       return
+ * @param port                the port number
+ * @param pfn_accept_callback the callback function to be invoked when a connection is accepted
+ *
+ * @return 1 on success, 0 on error
+ */
+int connection_listen ( connection **pp_connection, const short port, fn_connection_accept *pfn_accept_callback );
 
 /** ! 
  * Write some data to a connection 
@@ -57,12 +61,21 @@ int connection_initiate_hostname ( const connection **const pp_connection, const
 int connection_write ( connection *p_connection, void *p_data, size_t size );
 
 /** ! 
- * Read some data from a connection 
+ * Read some data from a connection. This is a blocking call that waits for a complete message.
  * 
  * @param p_connection the connection
- * @param p_data       pointer to buffer
- * @param size         quantity of bytes to recieve
+ * @param p_data       pointer to a buffer to store the message
+ * @param p_size       in: size of the buffer, out: size of the received message
  * 
+ * @return 1 on success, 0 on error or if the connection was closed
+ */
+int connection_read ( connection *p_connection, void *p_data, size_t *p_size );
+
+/** !
+ * Destroy a connection
+ *
+ * @param pp_connection pointer to the connection pointer
+ *
  * @return 1 on success, 0 on error
  */
-int connection_read ( connection *p_connection, void *p_data, size_t size );
+int connection_destroy(connection **pp_connection);
