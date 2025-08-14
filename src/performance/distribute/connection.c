@@ -15,7 +15,9 @@ int connection_accept_callback ( socket_tcp _socket_tcp, socket_ip_address ip_ad
 // structure definitions
 struct connection_s
 {
-    socket_tcp _tcp_socket;
+    socket_tcp        _tcp_socket;
+    socket_ip_address ip_address;
+    socket_port       port_number;
 };
 
 // function declarations
@@ -257,7 +259,14 @@ int connection_accept_callback
     // create a new connection
     if ( 0 == connection_create(&p_connection) ) goto failed_to_create_connection;
 
-    // store the TCP socket
+    // populate the struct
+    *p_connection = (connection)
+    {
+        ._tcp_socket = _socket_tcp,
+        .ip_address  = ip_address,
+        .port_number = port_number
+    };
+
     p_connection->_tcp_socket = _socket_tcp;
 
     // done
@@ -429,7 +438,44 @@ int connection_read ( connection *p_connection, void *p_data, size_t *p_size )
     }
 }
 
-int connection_destroy(connection **pp_connection) {
+int connection_info ( connection *p_connection )
+{
+
+    // argument check
+    if ( NULL == p_connection ) goto no_connection;
+
+    // log connection info
+    log_info("Connection @%p\n", p_connection);
+    log_info("\tIP Address: %hhd.%hhd.%hhd.%hhd\n",
+        p_connection->ip_address >> 24,
+        p_connection->ip_address >> 16,
+        p_connection->ip_address >> 8,
+        p_connection->ip_address
+    );
+    log_info("\tPort Number: %d\n", p_connection->port_number);
+    log_info("\tSocket fileno: %d\n", p_connection->_tcp_socket);
+
+    // success
+    return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_connection:
+                #ifndef NDEBUG
+                    log_error("[distribute] [connection] Null pointer provided for parameter \"p_connection\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int connection_destroy ( connection **pp_connection )
+{
     if (pp_connection == NULL || *pp_connection == NULL) return 0;
 
     socket_tcp_destroy(&((*pp_connection)->_tcp_socket));

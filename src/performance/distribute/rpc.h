@@ -70,7 +70,6 @@ int rpc_call
     connection *p_connection,
     const char *p_name,
     void       *p_args, 
-    size_t      args_size,
     void       *p_response_buffer,
     size_t     *p_response_size
 );

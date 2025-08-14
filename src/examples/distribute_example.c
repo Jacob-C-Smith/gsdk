@@ -20,10 +20,45 @@
 #include <performance/rpc.h>
 
 // forward declarations
+/** !
+ * Run the RPC server
+ * 
+ * @param argc the argument count
+ * @param argv the argument vector
+ * 
+ * @return EXIT_SUCCESS on success, EXIT_FAILURE on failure
+ */
 int run_server ( int argc, const char *argv[] );
+
+/** !
+ * Run the RPC client
+ * 
+ * @param argc the argument count
+ * @param argv the argument vector
+ * 
+ * @return EXIT_SUCCESS on success, EXIT_FAILURE on failure
+ */
 int run_client ( int argc, const char *argv[] );
 
+/** !
+ * Echo rpc handler
+ * 
+ * @param p_connection the connection object
+ * @param p_input      the request data
+ * 
+ * @return the response data
+ */
 void *echo_handler ( connection *p_connection, void *p_input );
+
+/** !
+ * Add rpc handler
+ * 
+ * @param p_connection the connection object
+ * @param p_input      the request data
+ * 
+ * @return the response data
+ */
+void *add_handler ( connection *p_connection, void *p_input );
 
 /** !
  * Print a usage message to standard out
@@ -34,10 +69,18 @@ void *echo_handler ( connection *p_connection, void *p_input );
  */
 void print_usage ( const char *argv0 );
 
-// string
-int    string_pack   ( void *p_buffer, const void *const p_value );
-int    string_unpack ( void *const p_value, void *p_buffer );
-hash64 string_hash   ( const void *const string, unsigned long long unused );
+// pack/unpack
+/// string
+int string_pack   ( void *p_buffer, const void *const p_value );
+int string_unpack ( void *const p_value, void *p_buffer );
+
+// two number
+int two_number_pack   ( void *p_buffer, const void *const p_value );
+int two_number_unpack ( void *const p_value, void *p_buffer );
+
+// number
+int number_pack   ( void *p_buffer, const void *const p_value );
+int number_unpack ( void *const p_value, void *p_buffer );
 
 // data
 unsigned short port = 6710;
@@ -46,12 +89,18 @@ unsigned short port = 6710;
 int main ( int argc, const char *argv[] )
 {
 
-    // register RPC handlers
+    // register echo rpc
     rpc_register(
-        "echo", 
-        echo_handler,
+        "echo", echo_handler,       // rpc info
         string_pack, string_unpack, // request reflection
         string_pack, string_unpack  // response reflection
+    );
+
+    // register add rpc
+    rpc_register(
+        "add", add_handler,                 // rpc info
+        two_number_pack, two_number_unpack, // request reflection
+        number_pack, number_unpack          // response reflection
     );
 
     // run the server
@@ -125,22 +174,23 @@ int run_client ( int argc, const char *argv[] )
 
     // test 'echo' RPC
     {
+
+        // initialized data
         const char *message = "Hello";
-        char response[100] = {0};
+        char response[100] = { 0 };
         size_t response_size = sizeof(response);
 
-        if ( 0 == rpc_call(
-            p_connection, 
-            "echo", 
-            
-            (void *)message, 
-            strlen(message) + 1, 
-            
-            response, 
-            &response_size)
-        ) goto failed_to_call_rpc;
+        // invoke the remote procedure call
+        rpc_call(
+            p_connection,    // connection
+            "echo",          // RPC name
+            (void *)message, // RPC request 
+            response,        // RPC response 
+            &response_size   // sizeof(response)
+        );
 
-        log_info("Result of echo: '%s'\n", response);
+        // log the result
+        log_info("Result of rpc -> \"%s\"\n", response);
     }
 
     // cleanup
@@ -161,6 +211,7 @@ int run_client ( int argc, const char *argv[] )
 
             // error
             return EXIT_FAILURE;
+            
         failed_to_call_rpc:
 
             // print the error
@@ -179,14 +230,16 @@ void *echo_handler ( connection *p_connection, void *p_input )
     return (char *)p_input;
 }
 
-hash64 string_hash ( const void *const string, unsigned long long unused )
+void *add_handler ( connection *p_connection, void *p_input )
 {
 
-    // unused
-    (void)unused;
+    // initialized data
+    void   **pp_args = (void **)p_input;
+    size_t   a       = (size_t)pp_args[0],
+             b       = (size_t)pp_args[1];
 
-    // done
-    return hash_crc64(string, strlen(string));
+    // success
+    return (void *)(a + b);
 }
 
 int string_pack ( void *p_buffer, const void *const p_value )
@@ -197,4 +250,45 @@ int string_pack ( void *p_buffer, const void *const p_value )
 int string_unpack ( void *const p_value, void *p_buffer )
 {
     return pack_unpack(p_buffer, "%s", p_value);
+}
+
+int two_number_pack ( void *p_buffer, const void *const p_value )
+{
+
+    // initialized data
+    size_t a = (size_t)((void **)p_value)[0];
+    size_t b = (size_t)((void **)p_value)[1];
+
+    // pack
+    return pack_pack(p_buffer, "%2i64", a, b);
+}
+
+int two_number_unpack ( void *const p_value, void *p_buffer )
+{
+
+    // initialized data
+    size_t *p_args = (size_t *)p_value;
+
+    // unpack
+    return pack_unpack(p_buffer, "%2i64", p_args[0], p_args[1]);
+}
+
+int number_pack ( void *p_buffer, const void *const p_value )
+{
+
+    // initialized data
+    size_t a = (size_t)p_value;
+
+    // pack
+    return pack_pack(p_buffer, "%i64", a);
+}
+
+int number_unpack ( void *const p_value, void *p_buffer )
+{
+
+    // initialized data
+    size_t *p_args = (size_t *)p_value;
+
+    // unpack
+    return pack_unpack(p_buffer, "%i64", p_value);
 }

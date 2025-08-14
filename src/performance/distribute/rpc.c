@@ -190,7 +190,7 @@ int rpc_server_listen ( short port )
 {
 
     // initialized data
-    connection  *p_connection  = NULL;
+    connection *p_connection = NULL;
 
     // listen for connections
     if ( 0 == connection_listen(&p_connection, port, (fn_connection_accept *)rpc_dispatch_thread_launcher) ) goto failed_to_listen;
@@ -245,7 +245,7 @@ int rpc_dispatch_thread_launcher( connection *p_connection )
     return 1;
 }
 
-void *rpc_dispatch_worker(void *p_connection_raw)
+void *rpc_dispatch_worker ( void *p_connection_raw )
 {
 
     // initialized data
@@ -268,6 +268,9 @@ void *rpc_dispatch_worker(void *p_connection_raw)
     // parse the rpc name
     p_request_buf += pack_unpack(p_request_buf, "%s", _rpc_name);
 
+    // log the rpc
+    log_info("rpc '%s' received\n", _rpc_name);
+
     // look up the RPC handler
     p_rpc_entry = dict_get(p_rpc_registry, _rpc_name);
 
@@ -279,6 +282,7 @@ void *rpc_dispatch_worker(void *p_connection_raw)
 
     // pack the response
     response_size = p_rpc_entry->pfn_response_pack(p_response_buf, p_response);
+
     // header should contain total message size (header + payload)
     *(size_t *)response_buf = response_size + sizeof(size_t);
     response_size += sizeof(size_t);
@@ -318,7 +322,6 @@ int rpc_call
     connection *p_connection,
     const char *p_name,
     void       *p_args, 
-    size_t      args_size,
     void       *p_response_buffer,
     size_t     *p_response_size
 )
@@ -340,16 +343,20 @@ int rpc_call
     void      *p_request          = request_buf + 8;
     void      *p_response         = p_response_buffer;
 
-    // serialize the RPC 
-    p_request += pack_pack(p_request, "%s", p_name),
+    // serialize the RPC name
+    p_request += pack_pack(p_request, "%s", p_name);
+
+    // serialize the rpc request data
     p_request += p_rpc_entry->pfn_request_pack(p_request, p_args);
 
     // compute the request size
-    request_size = (size_t)p_request - (size_t)request_buf,
-    *(size_t *)request_buf = request_size;
+    request_size = (size_t)p_request - (size_t)request_buf;
 
     // error check
     if ( 0 == request_size ) goto failed_to_serialize_request;
+
+    // store the size of the request
+    *(size_t *)request_buf = request_size;
 
     // send the request
     if ( 0 == connection_write(p_connection, request_buf, request_size) ) goto failed_to_write_request;
@@ -360,9 +367,9 @@ int rpc_call
     // parse the response
     response_size = p_rpc_entry->pfn_response_unpack(p_response, response_buf);
     if ( 0 == response_size ) goto failed_to_parse_response;
-    *p_response_size = response_size;
 
-    // response has been written into caller-provided buffer
+    // return the size to the caller
+    *p_response_size = response_size;
 
     // success
     return 1;
