@@ -13,11 +13,13 @@
 
 // core
 #include <core/log.h>
+#include <core/rsa.h>
 #include <core/hash.h>
 
 // performance
 #include <performance/connection.h>
 #include <performance/rpc.h>
+#include <performance/access_token.h>
 
 // forward declarations
 /** !
@@ -39,6 +41,16 @@ int run_server ( int argc, const char *argv[] );
  * @return EXIT_SUCCESS on success, EXIT_FAILURE on failure
  */
 int run_client ( int argc, const char *argv[] );
+
+/** !
+ * Run the access token client
+ * 
+ * @param argc the argument count
+ * @param argv the argument vector
+ * 
+ * @return EXIT_SUCCESS on success, EXIT_FAILURE on failure
+ */
+int run_access ( int argc, const char *argv[] );
 
 /** !
  * Echo rpc handler
@@ -106,6 +118,7 @@ int main ( int argc, const char *argv[] )
     // run the server
     if      ( 0 == strcmp(argv[1], "server") ) return run_server(argc, argv);
     else if ( 0 == strcmp(argv[1], "client") ) return run_client(argc, argv);
+    else if ( 0 == strcmp(argv[1], "access") ) return run_access(argc, argv);
     else goto usage;
 
     // success
@@ -219,6 +232,66 @@ int run_client ( int argc, const char *argv[] )
 
             // destroy the connection
             connection_destroy(&p_connection);
+
+            // error
+            return EXIT_FAILURE;
+    }
+}
+
+int run_access ( int argc, const char *argv[] )
+{
+
+    // initialized data
+    access_token *p_access_token = NULL;
+    public_key *p_public_key = NULL;
+    private_key *p_private_key = NULL;
+    json_value _header_value  = 
+    {
+        .type = JSON_VALUE_INTEGER,
+        .integer = 765,
+        .len = 0
+    },
+    _payload_value = 
+    {
+        .type = JSON_VALUE_INTEGER,
+        .integer = 123,
+        .len = 0
+    };
+
+    // construct a public key
+    if ( 0 == key_pair_construct(
+        &p_public_key, 
+        &p_private_key) 
+    ) goto failed_to_construct_key_pair;
+
+
+    // construct an access token
+    if ( 0 == access_token_construct(
+        &p_access_token, 
+        p_public_key, 
+        p_private_key, 
+        &_header_value, 
+        &_payload_value)
+    ) goto failed_to_construct_access_token;
+
+    // success
+    return EXIT_SUCCESS;
+
+    // error handling
+    {
+
+        failed_to_construct_key_pair:
+
+            // print the error
+            log_error("Failed to construct key pair.\n");
+
+            // error
+            return EXIT_FAILURE;
+
+        failed_to_construct_access_token:
+
+            // print the error
+            log_error("Failed to construct access token.\n");
 
             // error
             return EXIT_FAILURE;

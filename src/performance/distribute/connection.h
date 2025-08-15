@@ -9,8 +9,6 @@
 // header guard
 #pragma once
 
-// header files
-
 // core 
 #include <core/log.h>
 #include <core/socket.h>

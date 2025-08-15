@@ -1,0 +1,1960 @@
+# 📚 [gsdk](#-gsdk)
+> 🎁 [core](#-core)
+>> 📦 [aes](#-aes)\
+>> 📦 [digital signatures](#-digital_signatures)\
+>> 📦 [gcm](#-gcm)\
+>> 📦 [hash](#-hash)\
+>> 📦 [interfaces](#-interfaces)\
+>> 📦 [log](#-log)\
+>> 📦 [pack](#-pack)\
+>> 📦 [rsa](#-rsa)\
+>> 📦 [secure socket](#-secure_socket)\
+>> 📦 [sha](#-sha)\
+>> 📦 [socket](#-socket)\
+>> 📦 [stream](#-stream)\
+>> 📦 [sync](#-sync)
+>
+> 🎁 [data](#-data)
+>> 📦 [adjacency list](#-adjacency_list)\
+>> 📦 [adjacency matrix](#-adjacency_matrix)\
+>> 📦 [array](#-array)\
+>> 📦 [b](#-b)\
+>> 📦 [binary](#-binary)\
+>> 📦 [bitmap](#-bitmap)\
+>> 📦 [cache](#-cache)\
+>> 📦 [circular buffer](#-circular_buffer)\
+>> 📦 [dict](#-dict)\
+>> 📦 [double queue](#-double_queue)\
+>> 📦 [graph](#-graph)\
+>> 📦 [node](#-node)\
+>> 📦 [priority queue](#-priority_queue)\
+>> 📦 [queue](#-queue)\
+>> 📦 [red black](#-red_black)\
+>> 📦 [set](#-set)\
+>> 📦 [stack](#-stack)\
+>> 📦 [tuple](#-tuple)
+>
+> 🎁 [performance](#-performance)
+>> 📦 [access token](#-access_token)\
+>> 📦 [connection](#-connection)\
+>> 📦 [parallel](#-parallel)\
+>> 📦 [rpc](#-rpc)\
+>> 📦 [schedule](#-schedule)\
+>> 📦 [thread](#-thread)\
+>> 📦 [thread pool](#-thread_pool)
+>
+> 🎁 [reflection](#-reflection)
+>> 📦 [base64](#-base64)\
+>> 📦 [http](#-http)\
+>> 📦 [json](#-json)\
+>> 📦 [json test](#-json_test)
+
+# 📚 gsdk 
+## 🎁 core
+### 📦 aes
+#### 📄 aes.h
+- `int print_block ( void *p_block )`
+- `void key_expansion ( const unsigned char *input, unsigned char *expanded )`
+- `void sub_bytes ( unsigned char *state )`
+- `void shift_rows ( unsigned char *state )`
+- `void mix_cols ( unsigned char *state )`
+- `void add_round_key ( unsigned char *state, unsigned char *round_key )`
+- `int aes_encrypt_block ( unsigned char *p_output, unsigned char *p_input, unsigned char *key )`
+- `void aes_encrypt_cbc ( const void *input, size_t length, const unsigned char *key, unsigned char* output, const unsigned char* iv )`
+- `int aes_iv_construct ( char *p_iv )`
+
+### 📦 digital_signature
+#### 📄 digital_signature.h
+- `int digital_signature_sign ( private_key *p_private_key, public_key *p_public_key, const void *p_data, size_t data_size, void **pp_signature )`: Sign a block of data with a private key
+  - **Parameters:**
+    - `p_private_key`: the private key
+    - `p_public_key`: the public key
+    - `p_data`: the data to sign
+    - `data_size`: the size of the data in bytes
+    - `pp_signature`: the signature
+  - **Returns:** 1 on success, 0 on error
+- `int digital_signature_verify ( public_key * p_public_key, const void *const p_data, size_t data_size, const void *const p_signature )`: Verify a signature with a public key
+  - **Parameters:**
+    - `p_public_key`: the public key
+    - `p_data`: the data
+    - `data_size`: the size of the data in bytes
+    - `p_signature`: the signature
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 gcm
+#### 📄 gcm.h
+
+### 📦 hash
+#### 📄 hash.h
+- `hash64 hash_fnv64 ( const void *const k, unsigned long long l )`: Compute a 64-bit hash using the Fowler–Noll–Vo hash function
+  - **Parameters:**
+    - `k`: pointer to data to be hashed
+    - `l`: number of bytes to hash
+  - **Returns:** the 64-bit hash on success, 0 on error
+- `hash64 hash_mmh64 ( const void *const k, unsigned long long l )`: Compute a 64-bit hash using the MurMur hash function
+  - **Parameters:**
+    - `k`: pointer to data to be hashed
+    - `l`: number of bytes to hash
+  - **Returns:** the 64-bit hash on success, 0 on error
+- `hash64 hash_xxh64 ( const void *const k, unsigned long long l )`: Compute a 64-bit hash using the xxHash hash function
+  - **Parameters:**
+    - `k`: pointer to data to be hashed
+    - `l`: number of bytes to hash
+  - **Returns:** the 64-bit hash on success, 0 on error
+- `hash64 hash_crc64 ( const void *const k, unsigned long long l )`: Compute a 64-bit hash using the CRC hash function
+  - **Parameters:**
+    - `k`: pointer to data to be hashed
+    - `l`: number of bytes to hash
+  - **Returns:** the 64-bit hash on success, 0 on error
+
+### 📦 interfaces
+#### 📄 interfaces.h
+- `void *default_allocator ( void *p_pointer, unsigned long long size )`
+- `int default_comparator ( const void *p_a, const void *p_b )`
+- `int default_equality ( const void *const p_a, const void *const p_b )`
+- `hash64 default_hash ( const void *const k, unsigned long long l )`
+- `void *default_key_accessor ( const void *const p_value )`
+
+### 📦 log
+#### 📄 log.h
+- `void log_init ( void )`: This gets called at runtime before main. By default, log to standard out with ANSI color coding
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+- `int log_update ( const char *const path, bool ansi_color )`: Update the log file and color coding flag
+  - **Parameters:**
+    - `path`: path to the log file if not null pointer else log to standard out
+    - `ansi_color`: color coded logs if true else plain
+  - **Returns:** 1 on success, 0 on error
+- `int log_error ( const char *const format, ... )`: Log an error
+  - **Parameters:**
+    - `format`: printf format parameter
+    - `...`: Additional arguments
+  - **Returns:** 1 on success, 0 on error
+- `int log_warning ( const char *const format, ... )`: Log a warning
+  - **Parameters:**
+    - `format`: printf format parameter
+    - `...`: Additional arguments
+  - **Returns:** 1 on success, 0 on error
+- `int log_info ( const char *const format, ... )`: Log some information
+  - **Parameters:**
+    - `format`: printf format parameter
+    - `...`: Additional arguments
+  - **Returns:** 1 on success, 0 on error
+- `int log_pass ( const char *const format, ... )`: Log a passing test
+  - **Parameters:**
+    - `format`: printf format parameter
+    - `...`: Additional arguments
+  - **Returns:** 1 on success, 0 on error
+- `int log_fail ( const char *const format, ... )`: Log a failing test
+  - **Parameters:**
+    - `format`: printf format parameter
+    - `...`: Additional arguments
+  - **Returns:** 1 on success, 0 on error
+- `int log_scenario ( const char *const format, ... )`: Log a test scenario
+  - **Parameters:**
+    - `format`: printf format parameter
+    - `...`: Additional arguments
+  - **Returns:** 1 on success, 0 on error
+- `int log_colorful ( enum log_color_e color, const char *const format, ... )`: Log with user defined colors
+  - **Parameters:**
+    - `color`: 
+    - `format`: printf format parameter
+    - `...`: Additional arguments
+  - **Returns:** 1 on success, 0 on error
+- `void log_exit ( void )`: This gets called after main
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+
+### 📦 pack
+#### 📄 pack.h
+- `size_t pack_pack ( void *p_buffer, const char *restrict format, ... )`: Pack data into a buffer
+  - **Parameters:**
+    - `p_buffer`: the buffer
+    - `format`: format string
+    - `...`: variadic arguments
+  - **Returns:** bytes written on success, 0 on error
+- `size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )`: Unpack data from a buffer
+  - **Parameters:**
+    - `p_buffer`: the buffer
+    - `format`: format string
+    - `...`: variadic arguments
+  - **Returns:** quantity of matched fields on success, 0 on error
+
+### 📦 rsa
+#### 📄 rsa.h
+- `int key_pair_construct ( public_key **pp_public_key, private_key **pp_private_key )`: Construct a public private key pair from /dev/urandom
+  - **Parameters:**
+    - `pp_public_key`: result
+    - `pp_private_key`: result
+  - **Returns:** 1 on success, 0 on error
+- `int key_pair_from_files ( public_key **pp_public_key, private_key **pp_private_key, const char *p_public_key_path, const char *p_private_key_path )`: Construct a public private key pair from a file
+  - **Parameters:**
+    - `pp_public_key`: result
+    - `pp_private_key`: result
+    - `p_public_key_path`: path to public key file
+    - `p_private_key_path`: path to private key file
+  - **Returns:** 1 on success, 0 on error
+- `int print_n_bit_int ( i2048 a )`: Print 256 hex nibbles
+  - **Parameters:**
+    - `a`: the data
+  - **Returns:** 1 on success, 0 on error
+- `int print_public_key ( public_key *p_public_key )`: Print a public key
+  - **Parameters:**
+    - `p_public_key`: the public key
+  - **Returns:** 1 on success, 0 on error
+- `int print_public_key_short ( public_key *p_public_key )`: Print a shortened representation of a public key
+  - **Parameters:**
+    - `p_public_key`: the public key
+  - **Returns:** 1 on success, 0 on error
+- `int print_private_key ( private_key *p_private_key )`: Print a private key
+  - **Parameters:**
+    - `p_private_key`: the private key
+  - **Returns:** 1 on success, 0 on error
+- `int public_key_pack ( void *p_buffer, public_key *p_public_key )`: Pack a public key into a buffer
+  - **Parameters:**
+    - `p_buffer`: the buffer
+    - `p_public_key`: the public key
+  - **Returns:** 1 on success, 0 on error
+- `int public_key_unpack ( public_key *p_public_key, void *p_buffer )`: Unpack a buffer into a public key
+  - **Parameters:**
+    - `p_public_key`: result
+    - `p_buffer`: the buffer
+  - **Returns:** 1 on success, 0 on error
+- `int private_key_pack ( void *p_buffer, private_key *p_private_key )`: Pack a private key into a buffer
+  - **Parameters:**
+    - `p_buffer`: the buffer
+    - `p_private_key`: the private key
+  - **Returns:** 1 on success, 0 on error
+- `int private_key_unpack ( private_key *p_private_key, void *p_buffer )`: Unpack a buffer into a private key
+  - **Parameters:**
+    - `p_private_key`: result
+    - `p_buffer`: the buffer
+  - **Returns:** 1 on success, 0 on error
+- `int enc ( void *p_x, void *p_y, public_key *p_public_key )`: Encrypt a block
+  - **Parameters:**
+    - `p_x`: pointer to plaintext block
+    - `p_y`: result
+    - `p_public_key`: the public key
+  - **Returns:** 1 on success, 0 on error
+- `int dec ( void *p_y, void *p_z, public_key *p_public_key, private_key *p_private_key )`: Decrypt a block
+  - **Parameters:**
+    - `p_y`: pointer to ciphertext block
+    - `p_z`: result
+    - `p_public_key`: the public key
+    - `p_private_key`: the private key
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 secure_socket
+#### 📄 secure_socket.h
+- `int secure_socket_create ( secure_socket **pp_secure_socket, enum socket_address_family_e address_family, socket_port port_number )`: Create a secure secure socket
+  - **Parameters:**
+    - `pp_secure_socket`: result
+    - `address_family`: socket_address_family_ipv4 -or- socket_address_family_ipv6
+    - `port_number`: the port number
+  - **Returns:** 1 on success, 0 on error
+- `int secure_socket_listen ( secure_socket *p_secure_socket, fn_secure_socket_accept pfn_tcp_accept_callback, void *const p_tcp_accept_callback_parameter )`: Block and listen for a connection on a secure socket, then call pfn_tcp_accept_callback.
+  - **Parameters:**
+    - `p_secure_socket`: the secure socket
+    - `pfn_tcp_accept_callback`: a callback function parameterized with the new socket, the IP address, and the port number
+    - `p_tcp_accept_callback_parameter`: 
+  - **Returns:** 1 on success, 0 on error
+- `int secure_socket_receive ( secure_socket *p_secure_socket, void *p_buffer, size_t buffer_len )`: Receive data from a secure socket, and store in a buffer
+  - **Parameters:**
+    - `p_secure_socket`: the secure socket
+    - `p_buffer`: the buffer
+    - `buffer_len`: the maximum number of bytes to store in p_buffer
+  - **Returns:** 1 on success, 0 on error
+- `int secure_socket_send ( secure_socket *p_secure_socket, const void *p_buffer, size_t buffer_len )`: Send data to a secure socket
+  - **Parameters:**
+    - `p_secure_socket`: the secure socket
+    - `p_buffer`: the data to send
+    - `buffer_len`: the size of the data in bytes
+  - **Returns:** 1 on success, 0 on error
+- `int secure_socket_connect ( secure_socket *const p_secure_socket, socket_address_family address_family, socket_ip_address ip_address, socket_port port_number )`: Connect to a secure socket
+  - **Parameters:**
+    - `p_secure_socket`: the secure socket
+    - `address_family`: 
+    - `ip_address`: the IP address of the server
+    - `port_number`: the port number
+  - **Returns:** 1 on success, 0 on error
+- `int secure_socket_destroy ( secure_socket *p_secure_socket )`: Destroy a secure socket
+  - **Parameters:**
+    - `p_secure_socket`: pointer to the secure socket
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 sha
+#### 📄 sha.h
+- `int sha256_construct ( sha256_state *p_sha256_state )`: Construct a SHA256 hasher
+  - **Parameters:**
+    - `p_sha256_state`: result
+  - **Returns:** 1 on success, 0 on error
+- `int sha256_update ( sha256_state *p_sha256_state, const unsigned char *data, size_t len )`: Feed the SHA256 hasher
+  - **Parameters:**
+    - `p_sha256_state`: the hasher
+    - `data`: the data to feed
+    - `len`: the length of the data
+  - **Returns:** 1 on success, 0 on error
+- `int sha256_final ( sha256_state *p_sha256_state, unsigned char *hash )`: Produce a hash
+  - **Parameters:**
+    - `p_sha256_state`: the hasher
+    - `hash`: result
+  - **Returns:** 1 on success, 0 on error
+- `int sha256_print ( sha256_hash _hash )`: Print a SHA256 hash to standard output
+  - **Parameters:**
+    - `_hash`: the hash
+  - **Returns:** 1 on success, 0 on error
+- `hash64 sha256_hash64 ( const void *const k, unsigned long long l )`: Compute the SHA256 hash of a key, and cast it to a 64-bit hash
+  - **Parameters:**
+    - `k`: the key
+    - `l`: the length
+  - **Returns:** the hash
+- `int sha256_pack ( void *p_buffer, sha256_hash _hash )`: Pack a SHA256 hash into a buffer
+  - **Parameters:**
+    - `p_buffer`: the buffer to pack into
+    - `_hash`: the SHA256 hash to pack
+  - **Returns:** the number of bytes packed, or 0 on error
+- `int sha256_unpack ( sha256_hash *p_sha256_hash, void *p_buffer )`: Unpack a SHA256 hash from a buffer
+  - **Parameters:**
+    - `p_sha256_hash`: the SHA256 hash to unpack
+    - `p_buffer`: the buffer to unpack from
+  - **Returns:** the number of bytes unpacked, or 0 on error
+
+### 📦 socket
+#### 📄 socket.h
+- `int socket_resolve_host ( socket_ip_address *p_ip_address, const char *restrict p_hostname )`: Return an IP address from a host
+  - **Parameters:**
+    - `p_ip_address`: return
+    - `p_hostname`: the name of the host
+  - **Returns:** 1 on success, 0 on error
+- `int socket_tcp_create ( socket_tcp *const p_socket_tcp, enum socket_address_family_e address_family, socket_port port_number )`: Create a TCP socket
+  - **Parameters:**
+    - `p_socket_tcp`: return
+    - `address_family`: socket_address_family_ipv4 -or- socket_address_family_ipv6
+    - `port_number`: the port number
+  - **Returns:** 1 on success, 0 on error
+- `int socket_tcp_listen ( socket_tcp _socket_tcp, fn_socket_tcp_accept pfn_tcp_accept_callback, void *const p_parameter )`: Block and listen for a connection on a TCP socket, then call pfn_tcp_accept_callback.
+  - **Parameters:**
+    - `_socket_tcp`: the TCP socket
+    - `pfn_tcp_accept_callback`: a callback function parameterized with the new socket, the IP address, and the port number
+    - `p_parameter`: 
+  - **Returns:** 1 on success, 0 on error
+- `int socket_tcp_receive ( socket_tcp _socket_tcp, void *const p_buffer, size_t buffer_len )`: Receive data from a TCP socket, and store in a buffer
+  - **Parameters:**
+    - `_socket_tcp`: the TCP socket
+    - `p_buffer`: the buffer
+    - `buffer_len`: the maximum number of bytes to store in p_buffer
+  - **Returns:** 1 on success, 0 on error
+- `int socket_tcp_send ( socket_tcp _socket_tcp, const void *const p_buffer, size_t buffer_len )`: Send data to a TCP socket
+  - **Parameters:**
+    - `_socket_tcp`: the TCP socket
+    - `p_buffer`: the data to send
+    - `buffer_len`: the size of the data in bytes
+  - **Returns:** 1 on success, 0 on error
+- `int socket_tcp_connect ( socket_tcp *const p_socket_tcp, enum socket_address_family_e address_family, socket_ip_address ip_address, socket_port port_number )`: TODO: Connect to a TCP socket
+  - **Parameters:**
+    - `p_socket_tcp`: the TCP socket
+    - `address_family`: 
+    - `ip_address`: the IP address of the server
+    - `port_number`: the port number
+  - **Returns:** 1 on success, 0 on error
+- `int socket_tcp_destroy ( socket_tcp *p_socket_tcp )`: Destroy a TCP socket
+  - **Parameters:**
+    - `p_socket_tcp`: pointer to the TCP socket
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 stream
+#### 📄 stream.h
+- `int stream_from_path ( stream **p_stream, const char *p_path )`: Construct a stream from a path
+  - **Parameters:**
+    - `p_stream`: result
+    - `p_path`: path
+  - **Returns:** 1 on success, 0 on error
+- `int stream_from_fd ( stream **p_stream, int fd )`: Construct a stream from a file descriptor
+  - **Parameters:**
+    - `p_stream`: result
+    - `fd`: file descriptor
+  - **Returns:** 1 on success, 0 on error
+- `int stream_from_socket_tcp ( stream **p_stream, socket_tcp socket )`: Construct a stream from a socket
+  - **Parameters:**
+    - `p_stream`: result
+    - `socket`: the socket
+  - **Returns:** 1 on success, 0 on error
+- `int stream_read ( stream *p_stream, void *buffer, size_t size )`: Read from a stream
+  - **Parameters:**
+    - `p_stream`: the stream
+    - `buffer`: 
+    - `size`: size of the buffer
+  - **Returns:** number of bytes read, 0 on error
+- `int stream_write ( stream *p_stream, const void *buffer, size_t size )`: Write to a stream
+  - **Parameters:**
+    - `p_stream`: the stream
+    - `buffer`: 
+    - `size`: size of the buffer
+  - **Returns:** number of bytes written, 0 on error
+- `int stream_destroy ( stream **pp_stream )`: Destroy a stream
+  - **Parameters:**
+    - `pp_stream`: pointer to stream pointer
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 sync
+#### 📄 sync.h
+- `void sync_init ( void )`: This gets called at runtime before main.
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+- `timestamp timer_high_precision ( void )`: Get a high precision time stamp. Compute differences, and use the SYNC_TIMER_DIVISOR constant to convert time to seconds
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** a high precision time stamp
+- `signed timer_seconds_divisor ( void )`: Get a constant for converting time to seconds. Dividing the difference of two timestamp by the return yields the time between timestamps in seconds.
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** a constant integer for converting time to seconds
+- `int mutex_create ( mutex *p_mutex )`: Create a mutex
+  - **Parameters:**
+    - `p_mutex`: result
+  - **Returns:** 1 on success, 0 on error
+- `int mutex_lock ( mutex *p_mutex )`: Lock a mutex
+  - **Parameters:**
+    - `p_mutex`: the mutex
+  - **Returns:** 1 on success, 0 on error
+- `int mutex_unlock ( mutex *p_mutex )`: Unlock a mutex
+  - **Parameters:**
+    - `p_mutex`: the mutex
+  - **Returns:** 1 on success, 0 on error
+- `int mutex_destroy ( mutex *p_mutex )`: Free a mutex
+  - **Parameters:**
+    - `p_mutex`: the mutex
+  - **Returns:** 1 on success, 0 on error
+- `int semaphore_create ( semaphore *p_semaphore, unsigned int count )`: Create a semaphore
+  - **Parameters:**
+    - `p_semaphore`: result
+    - `count`: the initial count
+  - **Returns:** 1 on success, 0 on error
+- `int semaphore_wait ( semaphore _semaphore )`: Wait on a semaphore
+  - **Parameters:**
+    - `_semaphore`: the semaphore
+  - **Returns:** 1 on success, 0 on error
+- `int semaphore_signal ( semaphore _semaphore )`: Signal a semaphore
+  - **Parameters:**
+    - `_semaphore`: the semaphore
+  - **Returns:** 1 on success, 0 on error
+- `int semaphore_destroy ( semaphore *p_semaphore )`: Free a semaphore
+  - **Parameters:**
+    - `p_semaphore`: the semaphore
+  - **Returns:** 1 on success, 0 on error
+- `int condition_variable_create ( condition_variable *p_condition_variable )`: Create a condition variable
+  - **Parameters:**
+    - `p_condition_variable`: result
+  - **Returns:** 1 on success, 0 on error
+- `int condition_variable_wait ( condition_variable *p_condition_variable, mutex *p_mutex )`: Wait on a condition variable
+  - **Parameters:**
+    - `p_condition_variable`: the condition variable
+    - `p_mutex`: the mutex
+  - **Returns:** 1 on success, 0 on error
+- `int condition_variable_wait_timeout ( condition_variable *p_condition_variable, mutex *p_mutex, timestamp _time )`: Wait on a condition variable with some timeout
+  - **Parameters:**
+    - `p_condition_variable`: the condition variable
+    - `p_mutex`: the mutex
+    - `_time`: the quantity of time to wait, in nanoseconds
+  - **Returns:** 1 on success, 0 on error
+- `int condition_variable_signal ( condition_variable *const p_condition_variable )`: Signal once thread
+  - **Parameters:**
+    - `p_condition_variable`: the condition variable
+  - **Returns:** 1 on success, 0 on error
+- `int condition_variable_broadcast ( condition_variable *const p_condition_variable )`: Signal all threads
+  - **Parameters:**
+    - `p_condition_variable`: the condition variable
+  - **Returns:** 1 on success, 0 on error
+- `int condition_variable_destroy ( condition_variable *p_condition_variable )`: Destroy a condition variable
+  - **Parameters:**
+    - `p_condition_variable`: the condition variable
+  - **Returns:** 1 on success, 0 on error
+- `int monitor_create ( monitor *p_monitor )`: Create a monitor
+  - **Parameters:**
+    - `p_monitor`: result
+  - **Returns:** 1 on success, 0 on error
+- `int monitor_wait ( monitor *p_monitor )`: Wait on a monitor
+  - **Parameters:**
+    - `p_monitor`: the monitor
+  - **Returns:** 1 on success, 0 on error
+- `int monitor_notify ( monitor *p_monitor )`: Signal one thread
+  - **Parameters:**
+    - `p_monitor`: the monitor
+  - **Returns:** 1 on success, 0 on error
+- `int monitor_notify_all ( monitor *p_monitor )`: Signal all threads
+  - **Parameters:**
+    - `p_monitor`: the monitor
+  - **Returns:** 1 on success, 0 on error
+- `int monitor_destroy ( monitor *p_monitor )`: Free a monitor
+  - **Parameters:**
+    - `p_monitor`: the monitor
+  - **Returns:** 1 on success, 0 on error
+- `void sync_exit ( void )`: This gets called at runtime after main
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+
+## 🎁 data
+
+### 📦 adjacency_list
+#### 📄 adjacency_list.h
+- `int adjacency_list_construct ( adjacency_list **pp_adjacency_list, size_t size )`
+- `int adjacency_list_vertex_add(adjacency_list **pp_list, void *p_value)`
+- `int adjacency_list_vertex_remove(adjacency_list **pp_list, void *p_value)`
+- `int adjacency_list_vertex_search(adjacency_list *p_list, void *p_value, void **pp_value)`
+- `int adjacency_list_vertex_count(adjacency_list *p_list, size_t *p_count)`
+- `int adjacency_list_vertex_info(adjacency_list *p_list, void *p_value, char _name[], size_t name_size, void **pp_value)`
+- `int adjacency_list_edge_add(adjacency_list **pp_list, void *p_a_value, void *p_b_value, double weight)`
+- `int adjacency_list_edge_remove(adjacency_list **pp_list, void *p_a_value, void *p_b_value)`
+- `int adjacency_list_edge_search(adjacency_list *p_list, void *p_a_value, void *p_b_value, double *p_weight)`
+- `int adjacency_list_edge_count(adjacency_list *p_list, size_t *p_count)`
+- `int adjacency_list_edge_info(adjacency_list *p_list, void *p_a_value, void *p_b_value, double *p_weight)`
+- `int adjacency_list_print(adjacency_list *p_list, void (*print_func)(void *))`
+
+### 📦 adjacency_matrix
+#### 📄 adjacency_matrix.h
+- `int adjacency_matrix_construct ( adjacency_matrix **pp_adjacency_matrix, size_t size )`
+- `int adjacency_matrix_vertex_add(adjacency_matrix *p_matrix, void *p_value)`
+- `int adjacency_matrix_vertex_remove(adjacency_matrix *p_matrix, void *p_value)`
+- `int adjacency_matrix_vertex_search(adjacency_matrix *p_matrix, void *p_value, void **pp_value)`
+- `int adjacency_matrix_vertex_count(adjacency_matrix *p_matrix, size_t *p_count)`
+- `int adjacency_matrix_vertex_info(adjacency_matrix *p_matrix, void *p_value, char _name[], size_t name_size, void **pp_value)`
+- `int adjacency_matrix_edge_add(adjacency_matrix *p_matrix, void *p_a_value, void *p_b_value, double weight)`
+- `int adjacency_matrix_edge_remove(adjacency_matrix *p_matrix, void *p_a_value, void *p_b_value)`
+- `int adjacency_matrix_edge_search(adjacency_matrix *p_matrix, void *p_a_value, void *p_b_value, double *p_weight)`
+- `int adjacency_matrix_edge_count(adjacency_matrix *p_matrix, size_t *p_count)`
+- `int adjacency_matrix_edge_info(adjacency_matrix *p_matrix, void *p_a_value, void *p_b_value, double *p_weight)`
+- `int adjacency_matrix_print(adjacency_matrix *p_matrix, void (*print_func)(void *))`
+
+### 📦 array
+#### 📄 array.h
+- `int array_construct ( array **pp_array, size_t size )`: Construct an array with a specific size
+  - **Parameters:**
+    - `pp_array`: return
+    - `size`: number of elements in an array
+  - **Returns:** 1 on success, 0 on error
+- `int array_from_elements ( array **pp_array, void *_p_elements[], size_t size )`: Construct an array from an array of elements
+  - **Parameters:**
+    - `pp_array`: return
+    - `elements`: pointer to null terminated array of element pointers
+    - `size`: number of elements.
+  - **Returns:** 1 on success, 0 on error
+- `int array_from_arguments ( array **pp_array, size_t size, size_t count, ... )`: Construct an array from parameters
+  - **Parameters:**
+    - `pp_array`: return
+    - `size`: the size of the array
+    - `element_count`: the quantity of variadic arguments
+    - `...`: variadic elements
+  - **Returns:** 1 on success, 0 on error
+- `int array_index ( array *p_array, signed index, void **pp_value )`: Index an array with a signed number.
+  - **Parameters:**
+    - `p_array`: array
+    - `index`: signed index
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int array_get ( array *p_array, void **pp_elements, size_t *p_count )`: Get an array of elements
+  - **Parameters:**
+    - `p_array`: array
+    - `pp_elements`: return
+    - `p_count`: 
+  - **Returns:** 1 on success, 0 on error
+- `int array_slice ( array *p_array, void *pp_elements[], signed lower_bound, signed upper_bound )`: Get a slice of the array specified by a lower bound and an upper bound
+  - **Parameters:**
+    - `p_array`: array
+    - `pp_elements`: return
+    - `lower_bound`: the lower bound of the array
+    - `upper_bound`: the upper bound of the array
+  - **Returns:** 1 on success, 0 on error
+- `bool array_is_empty ( array *p_array )`: Is an array empty?
+  - **Parameters:**
+    - `p_array`: an array
+  - **Returns:** true if array has no contents else false
+- `size_t array_size ( array *p_array )`: Get the size of an array
+  - **Parameters:**
+    - `p_array`: an array
+  - **Returns:** size of array
+- `int array_add ( array *p_array, void *p_element )`: Add an element to the end of an array.
+  - **Parameters:**
+    - `p_array`: array
+    - `p_element`: the value of the element
+  - **Returns:** 1 on success, 0 on error
+- `int array_set ( array *p_array, signed index, void *p_value )`: Update an array element at an index
+  - **Parameters:**
+    - `p_array`: the array
+    - `index`: the index
+    - `p_value`: the new element
+  - **Returns:** 1 on success, 0 on error
+- `int array_remove ( array *p_array, signed index, void **pp_value )`: Remove an element from an array.
+  - **Parameters:**
+    - `p_array`: the array
+    - `index`: signed index
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int array_sort ( array *p_array, fn_comparator *pfn_comparator )`: Sort an array
+  - **Parameters:**
+    - `p_array`: the array
+    - `pfn_comparator`: pointer to comparator function
+  - **Returns:** 1 on success, 0 on error
+- `int array_map ( array *const p_array, fn_map *pfn_map, fn_allocator *pfn_allocator )`: Apply an operation to each element in an array, optionally releasing elements
+  - **Parameters:**
+    - `p_array`: the array
+    - `pfn_map`: pointer to map function
+    - `pfn_allocator`: pointer to allocator function
+  - **Returns:** 1 on success, 0 on error
+- `int array_fori ( array *const p_array, fn_fori *pfn_fori )`: Call function on every element in an array
+  - **Parameters:**
+    - `p_array`: the array
+    - `pfn_fori`: pointer to fori function
+  - **Returns:** 1 on success, 0 on error
+- `int array_pack ( void *p_buffer, array *p_array, fn_pack *pfn_element )`: Pack an array into a buffer
+  - **Parameters:**
+    - `p_buffer`: the buffer
+    - `p_array`: the array
+    - `pfn_element`: pointer to pack function IF not null ELSE default
+  - **Returns:** 1 on success, 0 on error
+- `int array_unpack ( array **pp_array, void *p_buffer, fn_unpack *pfn_element )`: Unpack a buffer into an array
+  - **Parameters:**
+    - `pp_array`: result
+    - `p_buffer`: the buffer
+    - `pfn_element`: pointer to unpack function IF not null ELSE default
+  - **Returns:** 1 on success, 0 on error
+- `hash64 array_hash ( array *p_array, fn_hash64 *pfn_element )`: Compute a 64-bit hash of an array
+  - **Parameters:**
+    - `p_array`: 
+    - `pfn_element`: 
+  - **Returns:** hash on success, NULL on error
+- `int array_destroy ( array **const pp_array, fn_allocator *pfn_allocator )`: Destroy and deallocate an array
+  - **Parameters:**
+    - `pp_array`: array
+    - `pfn_allocator`: 
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 b
+#### 📄 b.h
+- `int default_comparator ( const void *const p_a, const void *const p_b )`: Default comparator for b tree
+  - **Parameters:**
+    - `p_a`: a property
+    - `p_b`: a property
+  - **Returns:** 1 if a > b, 0 if a == b, -1 if a < b
+- `int b_tree_disk_write ( b_tree *const p_b_tree, b_tree_node *const p_b_tree_node )`: Write a B tree node to disk
+  - **Parameters:**
+    - `p_b_tree`: the B tree
+    - `p_b_tree_node`: the B tree node
+  - **Returns:** 1 on success, 0 on error
+- `int b_tree_create ( b_tree **const pp_b_tree )`: Allocate memory for a b tree
+  - **Parameters:**
+    - `pp_b_tree`: return
+  - **Returns:** 1 on success, 0 on error
+- `int b_tree_construct ( b_tree **const pp_b_tree, const char *const path, fn_comparator *pfn_is_equal, fn_key_accessor *pfn_key_accessor, int degree, unsigned long long node_size )`: Construct an empty b tree
+  - **Parameters:**
+    - `pp_b_tree`: return
+    - `path`: 
+    - `pfn_is_equal`: function for testing equality of elements in set IF parameter is not null ELSE default
+    - `pfn_key_accessor`: 
+    - `degree`: the degree of the b tree
+    - `node_size`: the size of a serialized node in bytes
+  - **Returns:** 1 on success, 0 on error
+- `int b_tree_search ( const b_tree *const p_b_tree, const void *const p_key, const void **const pp_value )`: Search a b tree for an element
+  - **Parameters:**
+    - `p_b_tree`: the b tree
+    - `p_key`: the element
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int b_tree_insert ( b_tree *const p_b_tree, const void *const p_property )`: Insert a property into a b tree
+  - **Parameters:**
+    - `p_b_tree`: the b tree
+    - `p_property`: the property
+  - **Returns:** 1 on success, 0 on error
+- `int b_tree_remove ( b_tree *const p_b_tree, const void *const p_key, const void **const p_value )`: Remove an element from a b tree
+  - **Parameters:**
+    - `p_b_tree`: the b tree
+    - `p_key`: the element
+    - `p_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int b_tree_traverse_preorder ( b_tree *const p_b_tree, fn_b_tree_traverse *pfn_traverse )`: Traverse a b tree using the pre order technique
+  - **Parameters:**
+    - `p_b_tree`: pointer to b tree
+    - `pfn_traverse`: called for each node in the b tree
+  - **Returns:** 1 on success, 0 on error
+- `int b_tree_traverse_inorder ( b_tree *const p_b_tree, fn_b_tree_traverse *pfn_traverse )`: Traverse a b tree using the in order technique
+  - **Parameters:**
+    - `p_b_tree`: pointer to b tree
+    - `pfn_traverse`: called for each node in the b tree
+  - **Returns:** 1 on success, 0 on error
+- `int b_tree_traverse_postorder ( b_tree *const p_b_tree, fn_b_tree_traverse *pfn_traverse )`: Traverse a b tree using the post order technique
+  - **Parameters:**
+    - `p_b_tree`: pointer to b tree
+    - `pfn_traverse`: called for each node in the b tree
+  - **Returns:** 1 on success, 0 on error
+- `int b_tree_parse ( b_tree **const pp_b_tree, FILE *p_file, fn_comparator *pfn_comparator, fn_unpack *pfn_unpack )`: Construct a b tree from a file
+  - **Parameters:**
+    - `pp_b_tree`: return
+    - `p_file`: the file
+    - `pfn_comparator`: function for testing equality of elements in set IF parameter is not null ELSE default
+    - `pfn_unpack`: a function for parsing nodes from the file
+  - **Returns:** 1 on success, 0 on error
+- `int b_tree_serialize ( b_tree *const p_b_tree, const char *p_path, fn_pack *pfn_pack )`: Write a b tree to a file
+  - **Parameters:**
+    - `p_b_tree`: the b tree
+    - `p_path`: path to the file
+    - `pfn_pack`: a function for serializing nodes to the file
+  - **Returns:** 1 on success, 0 on error
+- `int b_tree_destroy ( b_tree **const pp_b_tree )`: Deallocate a b tree
+  - **Parameters:**
+    - `pp_b_tree`: pointer to b tree pointer
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 binary
+#### 📄 binary.h
+- `int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor, unsigned long long node_size )`: Construct an empty binary tree
+  - **Parameters:**
+    - `pp_binary_tree`: return
+    - `pfn_comparator`: function for testing equality of elements in set IF parameter is not null ELSE default
+    - `pfn_key_accessor`: function for accessing the key of a value IF parameter is not null ELSE default
+    - `node_size`: the size of a serialized node in bytes
+  - **Returns:** 1 on success, 0 on error
+- `int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **pp_values, size_t property_quantity, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor, unsigned long long node_size )`: Construct a balanced binary tree from a sorted list of keys and values.
+  - **Parameters:**
+    - `pp_binary_tree`: return
+    - `pp_values`: the list of values
+    - `property_quantity`: the size of the list
+    - `pfn_comparator`: function for testing equality of elements in set IF parameter is not null ELSE default
+    - `pfn_key_accessor`: 
+    - `node_size`: the size of a serialized node in bytes
+- `int binary_tree_search ( binary_tree *const p_binary_tree, const void *const p_key, void **pp_value )`: Search a binary tree for an element
+  - **Parameters:**
+    - `p_binary_tree`: the binary tree
+    - `p_key`: the element
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_value )`: Insert a property into a binary tree
+  - **Parameters:**
+    - `p_binary_tree`: the binary tree
+    - `p_value`: the property value
+  - **Returns:** 1 on success, 0 on error
+- `int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_key, const void **const p_value )`: Remove an element from a binary tree
+  - **Parameters:**
+    - `p_binary_tree`: the binary tree
+    - `p_key`: the element
+    - `p_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse )`: Traverse a binary tree using the pre order technique
+  - **Parameters:**
+    - `p_binary_tree`: pointer to binary tree
+    - `pfn_traverse`: called for each node in the binary tree
+  - **Returns:** 1 on success, 0 on error
+- `int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse )`: Traverse a binary tree using the in order technique
+  - **Parameters:**
+    - `p_binary_tree`: pointer to binary tree
+    - `pfn_traverse`: called for each node in the binary tree
+  - **Returns:** 1 on success, 0 on error
+- `int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse )`: Traverse a binary tree using the post order technique
+  - **Parameters:**
+    - `p_binary_tree`: pointer to binary tree
+    - `pfn_traverse`: called for each node in the binary tree
+  - **Returns:** 1 on success, 0 on error
+- `int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor, fn_binary_tree_parse *pfn_parse_node )`: Construct a binary tree from a file
+  - **Parameters:**
+    - `pp_binary_tree`: return
+    - `p_file`: path to the file
+    - `pfn_comparator`: function for testing equality of elements in set IF parameter is not null ELSE default
+    - `pfn_key_accessor`: 
+    - `pfn_parse_node`: a function for parsing nodes from the file
+  - **Returns:** 1 on success, 0 on error
+- `int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path, fn_binary_tree_serialize *pfn_serialize_node )`: Write a binary tree to a file
+  - **Parameters:**
+    - `p_binary_tree`: the binary tree
+    - `p_path`: path to the file
+    - `pfn_serialize_node`: a function for serializing nodes to the file
+  - **Returns:** 1 on success, 0 on error
+- `int binary_tree_destroy ( binary_tree **const pp_binary_tree )`: Deallocate a binary tree
+  - **Parameters:**
+    - `pp_binary_tree`: pointer to binary tree pointer
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 bitmap
+#### 📄 bitmap.h
+- `int bitmap_construct ( bitmap **pp_bitmap, size_t bits )`: Allocate a bitmap
+  - **Parameters:**
+    - `pp_bitmap`: result
+    - `bits`: the quantity of bits in the bitmap
+  - **Returns:** pointer to bitmap if successful else null pointer
+- `int bitmap_test ( bitmap *p_bitmap, size_t i )`: Get the i'th bit of a bitmap
+  - **Parameters:**
+    - `p_bitmap`: the bitmap
+    - `i`: the index of the bit to set
+  - **Returns:** 1 on success, 0 on error
+- `int bitmap_set ( bitmap *p_bitmap, size_t i )`: Set the i'th bit of a bitmap
+  - **Parameters:**
+    - `p_bitmap`: the bitmap
+    - `i`: the index of the bit to set
+  - **Returns:** 1 on success, 0 on error
+- `int bitmap_clear ( bitmap *p_bitmap, size_t i )`: Clear the i'th bit of a bitmap
+  - **Parameters:**
+    - `p_bitmap`: the bitmap
+    - `i`: the index of the bit to clear
+  - **Returns:** 1 on success, 0 on error
+- `int bitmap_print ( bitmap *p_bitmap )`: Print a bitmap
+  - **Parameters:**
+    - `p_bitmap`: the bitmap
+  - **Returns:** 1 on success, 0 on error
+- `int bitmap_pack ( void *p_buffer, bitmap *p_bitmap )`: Pack a bitmap into a buffer
+  - **Parameters:**
+    - `p_buffer`: the buffer
+    - `p_bitmap`: the bitmap
+  - **Returns:** 1 on success, 0 on error
+- `int bitmap_unpack ( bitmap **pp_bitmap, void *p_buffer )`: Unpack a buffer into a bitmap
+  - **Parameters:**
+    - `pp_bitmap`: result
+    - `p_buffer`: the buffer
+  - **Returns:** 1 on success, 0 on error
+- `int bitmap_destroy ( bitmap **pp_bitmap )`: Release a bitmap
+  - **Parameters:**
+    - `pp_bitmap`: pointer to bitmap pointer
+  - **Returns:** void
+
+### 📦 cache
+#### 📄 cache.h
+- `int cache_construct ( cache **pp_cache, size_t size, fn_equality *pfn_equality, fn_key_accessor *pfn_key_get )`: Construct a cache
+  - **Parameters:**
+    - `pp_cache`: result
+    - `size`: the maximum quantity of properties the cache can fit
+    - `pfn_equality`: pointer to a equality function, NULL for default
+    - `pfn_key_get`: pointer to a key getter, NULL for default
+  - **Returns:** 1 on success, 0 on error
+- `int cache_find ( cache *p_cache, const void *const p_key, void **const pp_result )`: Search a cache for a value using a key
+  - **Parameters:**
+    - `p_cache`: the cache
+    - `p_key`: the key
+    - `pp_result`: return
+  - **Returns:** 1 on success, 0 on error
+- `int cache_insert ( cache *p_cache, const void *const p_key, const void *const p_value )`: Add a property to a cache
+  - **Parameters:**
+    - `p_cache`: the cache
+    - `p_key`: the key of the property
+    - `p_value`: the value of the property
+  - **Returns:** 1 on success, 0 on error
+- `int cacheee_remove ( cache *p_cache, const void *const p_key, void **const pp_result )`: Remove a property from the cache
+  - **Parameters:**
+    - `p_cache`: the cache
+    - `p_key`: the key of the property
+    - `pp_result`: return if not null pointer else value is discarded
+  - **Returns:** 1 on success, 0 on error
+- `int cache_map ( cache *const p_cache, fn_map *pfn_map, fn_allocator *pfn_allocator )`: Apply an operation to each element in a cache, optionally releasing elements
+  - **Parameters:**
+    - `p_cache`: the cache
+    - `pfn_map`: pointer to map function
+    - `pfn_allocator`: pointer to allocator function
+  - **Returns:** 1 on success, 0 on error
+- `int cache_fori ( cache *p_cache, fn_fori pfn_fori )`: Call a function on each element of a cache
+  - **Parameters:**
+    - `p_cache`: the cache
+    - `pfn_fori`: pointer to the function
+  - **Returns:** 1 on success, 0 on error
+- `int cache_for_each ( cache *p_cache, fn_foreach pfn_foreach )`: Call a function on each element of a cache
+  - **Parameters:**
+    - `p_cache`: the cache
+    - `pfn_foreach`: pointer to the function
+  - **Returns:** 1 on success, 0 on error
+- `int cache_pack ( void *p_buffer, cache *p_cache, fn_pack *pfn_element )`: Pack a cache into a buffer
+  - **Parameters:**
+    - `p_buffer`: the buffer
+    - `p_cache`: the cache
+    - `pfn_element`: pointer to pack function IF not null ELSE default
+  - **Returns:** 1 on success, 0 on error
+- `int cache_unpack ( cache **pp_cache, void *p_buffer, fn_unpack *pfn_element )`: Unpack a buffer into a cache
+  - **Parameters:**
+    - `pp_cache`: result
+    - `p_buffer`: the buffer
+    - `pfn_element`: pointer to unpack function IF not null ELSE default
+  - **Returns:** 1 on success, 0 on error
+- `int cacheee_destroy ( cache **const pp_cache )`: Release a cache and all its allocations
+  - **Parameters:**
+    - `pp_cache`: the cache
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 circular_buffer
+#### 📄 circular_buffer.h
+- `int circular_buffer_construct ( circular_buffer **const pp_circular_buffer, size_t size )`: Construct a circular buffer with a specific number of entries
+  - **Parameters:**
+    - `pp_circular_buffer`: return
+    - `size`: the maximum quantity of elements
+  - **Returns:** 1 on success, 0 on error
+- `int circular_buffer_from_contents ( circular_buffer **const pp_circular_buffer, const void *const *pp_contents, size_t size )`: Construct a circular buffer from a void pointer array
+  - **Parameters:**
+    - `pp_circular_buffer`: return
+    - `pp_contents`: pointer to array of void pointers to use as circular buffer contents. 
+    - `size`: number of circular buffer entries.
+  - **Returns:** 1 on success, 0 on error
+- `bool circular_buffer_empty ( circular_buffer *const p_circular_buffer )`: Check if a circular buffer is empty
+  - **Parameters:**
+    - `p_circular_buffer`: the circular buffer
+  - **Returns:** true if circular buffer is empty else false
+- `bool circular_buffer_full ( circular_buffer *const p_circular_buffer )`: Check if a circular buffer is full
+  - **Parameters:**
+    - `p_circular_buffer`: the circular buffer
+  - **Returns:** true if circular buffer is empty else false
+- `int circular_buffer_push ( circular_buffer *const p_circular_buffer, void *p_data )`: Add a value to a circular buffer
+  - **Parameters:**
+    - `p_circular_buffer`: the circular buffer
+    - `p_data`: the value
+  - **Returns:** 1 on success, 0 on error
+- `int circular_buffer_peek ( circular_buffer *const p_circular_buffer, void **pp_data )`: Get the last value in the circular buffer
+  - **Parameters:**
+    - `p_circular_buffer`: the circular buffer
+    - `pp_data`: result
+  - **Returns:** 1 on success, 0 on error
+- `int circular_buffer_pop ( circular_buffer *const p_circular_buffer, void **pp_data )`: Remove a value from a circular buffer
+  - **Parameters:**
+    - `p_circular_buffer`: the circular buffer
+    - `pp_data`: result
+  - **Returns:** 1 on success, 0 on error
+- `int circular_buffer_destroy ( circular_buffer **const pp_circular_buffer )`: Destroy and deallocate a circular buffer
+  - **Parameters:**
+    - `pp_circular_buffer`: pointer to the circular buffer
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 dict
+#### 📄 dict.h
+- `void dict_init ( void )`: This gets called at runtime before main.
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+- `int dict_construct ( dict **const pp_dict, size_t size, fn_hash64 pfn_hash_function )`: Construct a dictionary with a specific number of hash table entries
+  - **Parameters:**
+    - `pp_dict`: return
+    - `size`: number of hash table entries.
+    - `pfn_hash_function`: pointer to a hash function, or 0 for default
+  - **Returns:** 1 on success, 0 on error
+- `int dict_from_keys ( dict **const pp_dict, const char **const keys, size_t size )`: Construct a dictionary from an array of strings
+  - **Parameters:**
+    - `pp_dict`: return
+    - `keys`: pointer to null terminated array of strings
+    - `size`: number of hash table entries.
+  - **Returns:** 1 on success, 0 on error
+- `const void *dict_get ( dict *const p_dict, const char *const key )`: Get a property's value
+  - **Parameters:**
+    - `p_dict`: dictionary
+    - `key`: the name of the property
+  - **Returns:** pointer to specified property's value on success, null pointer on error
+- `size_t dict_values ( dict *const p_dict, void **const values )`: Get a dictionarys' values, or the number of properties in the dictionary
+  - **Parameters:**
+    - `p_dict`: dictionary
+    - `values`: return -OR- null pointer
+  - **Returns:** 1 on success, 0 on error, if values != null, else number of properties in dictionary
+- `size_t dict_keys ( dict *const p_dict, const char **const keys )`: Get a dictionarys' keys, or the number of properties in the dictionary
+  - **Parameters:**
+    - `p_dict`: dictionary
+    - `keys`: return -OR- null pointer
+  - **Returns:** 1 on success, 0 on error, if keys != null, else number of properties in dictionary
+- `int dict_add ( dict *const p_dict, const char *const key, void * const p_value )`: Add a property to a dictionary.
+  - **Parameters:**
+    - `p_dict`: dictionary
+    - `key`: the name of the property
+    - `p_value`: the value of the property
+  - **Returns:** 1 on success, 0 on error
+- `int dict_pop ( dict *const p_dict, const char *const key, const void **const pp_value )`: Remove a property from a dictionary.
+  - **Parameters:**
+    - `p_dict`: dictionary
+    - `key`: the name of the property
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int dict_foreach ( dict *const p_dict, void (*function)(const void *const, size_t i) )`: Call a function on each value in a dictionary
+  - **Parameters:**
+    - `p_dict`: dictionary
+    - `function`: the function to call.
+  - **Returns:** 1 on success, 0 on error
+- `int dict_copy ( dict *const p_dict, dict **const pp_dict )`: Make a shallow copy of a dictionary
+  - **Parameters:**
+    - `p_dict`: source dictionary
+    - `pp_dict`: return
+  - **Returns:** 1 on success, 0 on error
+- `int dict_pack ( dict *p_dict, void *p_buffer, fn_pack *pfn_element )`: Pack a dict into a buffer
+  - **Parameters:**
+    - `p_dict`: the dict
+    - `p_buffer`: the buffer
+    - `pfn_element`: pointer to pack function IF not null ELSE default
+  - **Returns:** 1 on success, 0 on error
+- `int dict_unpack ( dict **pp_dict, void *p_buffer, fn_unpack *pfn_element )`: Unpack a buffer into a dict
+  - **Parameters:**
+    - `pp_dict`: result
+    - `p_buffer`: the buffer
+    - `pfn_element`: pointer to unpack function IF not null ELSE default
+  - **Returns:** 1 on success, 0 on error
+- `int dict_clear ( dict *const p_dict )`: Remove all properties from a dictionary
+  - **Parameters:**
+    - `p_dict`: dictionary
+  - **Returns:** 1 on success, 0 on error
+- `int dict_free_clear ( dict *const p_dict, void (*const free_func)(const void *const) )`: Remove all properties from a dictionary, and deallocate values with free_func
+  - **Parameters:**
+    - `p_dict`: dictionary
+    - `free_fun_ptr`: pointer to deallocator function
+  - **Returns:** 1 on success, 0 on error
+- `int dict_destroy ( dict **const pp_dict, fn_allocator *pfn_allocator )`: Destroy and deallocate a dictionary
+  - **Parameters:**
+    - `pp_dict`: dictionary
+    - `pfn_allocator`: 
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 double_queue
+#### 📄 double_queue.h
+- `void double_queue_init ( void )`: This is called before main
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+- `int double_queue_create ( double_queue **const pp_double_queue )`: Allocate memory for a double queue
+  - **Parameters:**
+    - `pp_double_queue`: return
+  - **Returns:** 1 on success, 0 on error
+- `int double_queue_construct ( double_queue **const pp_double_queue )`: Construct a double queue with a specific number of entries
+  - **Parameters:**
+    - `pp_double_queue`: return
+  - **Returns:** 1 on success, 0 on error
+- `int double_queue_from_contents ( double_queue **const pp_double_queue, void * const* const pp_contents, size_t size )`: Construct a double queue from a void pointer array
+  - **Parameters:**
+    - `pp_double_queue`: return
+    - `pp_contents`: pointer to array of void pointers to use as double queue contents.
+    - `size`: number of double queue entries.
+  - **Returns:** 1 on success, 0 on error
+- `int double_queue_front ( const double_queue *const p_double_queue, void **const pp_value )`: Get the element at the front of the double queue
+  - **Parameters:**
+    - `p_double_queue`: double queue
+    - `pp_value`: 
+  - **Returns:** element value on success, null pointer on error
+- `int double_queue_rear ( const double_queue *const p_double_queue, void **const pp_value )`: Get the element at the rear of the double queue
+  - **Parameters:**
+    - `p_double_queue`: double queue
+    - `pp_value`: 
+  - **Returns:** element on success, null pointer on error
+- `bool double_queue_empty ( const double_queue *const p_double_queue )`: Check if a double queue is empty
+  - **Parameters:**
+    - `p_double_queue`: double queue
+  - **Returns:** true if double queue is empty else false
+- `int double_queue_front_add ( double_queue *const p_double_queue, void *const data )`: Add an element to the front of a double queue
+  - **Parameters:**
+    - `p_double_queue`: the double queue
+    - `data`: element to add to the double queue
+  - **Returns:** 1 on success, 0 on error
+- `int double_queue_front_remove ( double_queue *const p_double_queue, void **const pp_value )`: Remove an element from the front of a double queue
+  - **Parameters:**
+    - `p_double_queue`: the double queue
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int double_queue_rear_add ( double_queue *const p_double_queue, void *const data )`: Add an element to the rear of a double queue
+  - **Parameters:**
+    - `p_double_queue`: the double queue
+    - `data`: element to add to the double queue
+  - **Returns:** 1 on success, 0 on error
+- `int double_queue_rear_remove ( double_queue *const p_double_queue, void **const pp_value )`: Remove an element from the rear of a double queue
+  - **Parameters:**
+    - `p_double_queue`: the double queue
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int double_queue_destroy ( double_queue **const pp_double_queue )`: Destroy and deallocate a double queue
+  - **Parameters:**
+    - `pp_double_queue`: pointer to double queue
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 graph
+#### 📄 graph.h
+- `int graph_construct ( graph **pp_graph, enum graph_type_e _type, enum graph_type_e _storage )`: Construct a graph
+  - **Parameters:**
+    - `pp_graph`: result
+    - `_type`: the type of the graph < (un)weighted / (un)directed >
+    - `_storage`: the storage solution < adjacency matrix / adjacency list / edge list >
+  - **Returns:** 1 on success, 0 on error
+- `int graph_vertex_add ( graph *p_graph, void *p_value )`: Add a vertex to a graph
+  - **Parameters:**
+    - `p_graph`: pointer to graph pointer
+    - `p_value`: the value of the vertex
+  - **Returns:** 1 on success, 0 on error
+- `int graph_depth_first_search ( graph *p_graph, char *p_source, char *p_value )`: Search for a vertex in the graph using depth first search
+  - **Parameters:**
+    - `p_graph`: the graph
+    - `p_source`: the name of the source
+    - `p_value`: the value of the vertex
+  - **Returns:** 1 on success, 0 on error
+- `int graph_breadth_first_search ( graph *p_graph, char *p_source, char *p_value )`: Search for a vertex in the graph using breadth first search
+  - **Parameters:**
+    - `p_graph`: the graph
+    - `p_source`: the name of the source
+    - `p_value`: the value of the vertex
+  - **Returns:** 1 on success, 0 on error
+- `int graph_info ( graph *p_graph )`: Print a graph
+  - **Parameters:**
+    - `p_graph`: the graph
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 node
+#### 📄 node.h
+- `void node_init ( void )`: This gets called at runtime before main.
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+- `int node_construct ( node **pp_node, const char *const p_name, const json_value *const p_value, fn_node_data_constructor *pfn_node_data_constructor )`: Construct a node from a json object
+  - **Parameters:**
+    - `pp_node`: result
+    - `p_name`: the name of the node
+    - `p_value`: the json object
+    - `pfn_node_data_constructor`: pointer to function that constructs node data from "data" property
+  - **Returns:** 1 on success, 0 on error
+- `int node_graph_construct ( node_graph **pp_node_graph, const json_value *const p_value )`: Construct a node graph from a json object
+  - **Parameters:**
+    - `pp_node_graph`: result
+    - `p_value`: the json object
+  - **Returns:** 1 on success, 0 on error
+- `int node_graph_print ( const node_graph *const p_node_graph )`: Print a node graph to standard out
+  - **Parameters:**
+    - `p_node_graph`: the node graph
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 priority_queue
+#### 📄 priority_queue.h
+- `int priority_queue_create ( priority_queue **const pp_priority_queue )`: Allocate memory for a priority queue
+  - **Parameters:**
+    - `pp_priority_queue`: return
+  - **Returns:** 1 on success, 0 on error
+- `int priority_queue_construct ( priority_queue **const pp_priority_queue, size_t size, priority_queue_equal_fn pfn_compare_function )`: Construct a priority queue with a specific number of entries
+  - **Parameters:**
+    - `pp_priority_queue`: return
+    - `size`: number of priority queue entries.
+    - `pfn_compare_function`: pointer to a compare function, or 0 for default
+  - **Returns:** 1 on success, 0 on error
+- `int priority_queue_from_keys ( priority_queue **const pp_priority_queue, const void **const keys, size_t size, priority_queue_equal_fn pfn_compare_function )`: Construct a priority queue with a specific number of entries
+  - **Parameters:**
+    - `pp_priority_queue`: return
+    - `keys`: pointer to null terminated array of keys
+    - `size`: number of priority queue entries.
+    - `pfn_compare_function`: pointer to a compare function, or 0 for default
+  - **Returns:** 1 on success, 0 on error
+- `bool priority_queue_empty ( priority_queue *const p_priority_queue )`: Is the priority queue empty?
+  - **Parameters:**
+    - `p_priority_queue`: the priority queue
+  - **Returns:** 1 on success, 0 on error
+- `int priority_queue_enqueue ( priority_queue *const p_priority_queue, void *p_key )`: Add a key to the back of the priority queue
+  - **Parameters:**
+    - `p_priority_queue`: the priority queue
+    - `p_key`: the key to insert
+  - **Returns:** 1 on success, 0 on error
+- `int priority_queue_extract_max ( priority_queue *const p_priority_queue, void **pp_value )`: Get the maximum element in the heap
+  - **Parameters:**
+    - `p_priority_queue`: the priority queue
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int priority_queue_max ( priority_queue *const p_priority_queue, void **pp_value )`: Get the maximum element in the heap
+  - **Parameters:**
+    - `p_priority_queue`: the priority queue
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int priority_queue_increase_key ( priority_queue *const p_priority_queue, size_t index, void *p_key )`: Increase the priority of a key in the heap
+  - **Parameters:**
+    - `p_priority_queue`: the priority queue
+    - `index`: the index of the key to increase
+    - `p_key`: the key
+  - **Returns:** 1 on success, 0 on error
+- `int priority_queue_insert ( priority_queue *const pp_priority_queue, void *p_key )`: Insert an element into the max heap
+  - **Parameters:**
+    - `pp_priority_queue`: the priority queue
+    - `p_key`: the key to be inserted into the heap
+  - **Returns:** 1 on success, 0 on error
+- `int priority_queue_dequeue ( priority_queue *const p_priority_queue, void **pp_key )`: Remove the key in the front of the priority queue
+  - **Parameters:**
+    - `p_priority_queue`: the priority queue
+    - `pp_key`: return
+  - **Returns:** 1 on success, 0 on error
+- `int priority_queue_destroy ( priority_queue **const pp_priority_queue )`: Destroy and deallocate a priority queue
+  - **Parameters:**
+    - `pp_priority_queue`: pointer to priority queue pointer
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 queue
+#### 📄 queue.h
+- `void queue_init ( void )`: This gets called at runtime before main.
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+- `int queue_create ( queue **const pp_queue )`: Allocate memory for a queue
+  - **Parameters:**
+    - `pp_queue`: return
+  - **Returns:** 1 on success, 0 on error
+- `int queue_construct ( queue **const pp_queue )`: Construct a queue with a specific number of entries
+  - **Parameters:**
+    - `pp_queue`: return
+  - **Returns:** 1 on success, 0 on error
+- `int queue_from_contents ( queue **const pp_queue, void * const* const pp_contents, size_t size )`: Construct a queue from a void pointer array
+  - **Parameters:**
+    - `pp_queue`: return
+    - `pp_contents`: pointer to array of void pointers to use as queue contents.
+    - `size`: number of queue entries.
+  - **Returns:** 1 on success, 0 on error
+- `int queue_front ( queue *const p_queue, void **const pp_value )`: Get the element at the front of the queue
+  - **Parameters:**
+    - `p_queue`: queue
+    - `pp_value`: 
+  - **Returns:** element value on success, null pointer on error
+- `int queue_rear ( queue *const p_queue, void **const pp_value )`: Get the element at the rear of the queue
+  - **Parameters:**
+    - `p_queue`: queue
+    - `pp_value`: 
+  - **Returns:** element on success, null pointer on error
+- `int queue_enqueue ( queue *const p_queue, void *const data )`: Add an element to a queue
+  - **Parameters:**
+    - `p_queue`: queue
+    - `data`: element to add to the queue
+  - **Returns:** 1 on success, 0 on error
+- `int queue_dequeue ( queue *const p_queue, void **const pp_value )`: Remove an element from a queue
+  - **Parameters:**
+    - `p_queue`: queue
+    - `pp_value`: 
+  - **Returns:** element on success, null pointer on error
+- `bool queue_empty ( queue *const p_queue )`: Check if a queue is empty
+  - **Parameters:**
+    - `p_queue`: queue
+  - **Returns:** true if queue is empty else false
+- `int queue_destroy ( queue **const pp_queue )`: Destroy and deallocate a queue
+  - **Parameters:**
+    - `pp_queue`: queue
+  - **Returns:** 1 on success, 0 on error
+- `void queue_exit ( void )`: This gets called at runtime after main
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+
+### 📦 red_black
+#### 📄 red_black.h
+- `int red_black_tree_construct ( red_black_tree **const pp_red_black_tree, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor, unsigned long long node_size )`: Construct an empty red_black tree
+  - **Parameters:**
+    - `pp_red_black_tree`: return
+    - `pfn_comparator`: function for testing equality of elements in set IF parameter is not null ELSE default
+    - `pfn_key_accessor`: function for accessing the key of a value IF parameter is not null ELSE default
+    - `node_size`: the size of a serialized node in bytes
+  - **Returns:** 1 on success, 0 on error
+- `int red_black_tree_construct_balanced ( red_black_tree **const pp_red_black_tree, void **pp_values, size_t property_quantity, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor, unsigned long long node_size )`: Construct a balanced red_black tree from a sorted list of keys and values.
+  - **Parameters:**
+    - `pp_red_black_tree`: return
+    - `pp_values`: the list of values
+    - `property_quantity`: the size of the list
+    - `pfn_comparator`: function for testing equality of elements in set IF parameter is not null ELSE default
+    - `pfn_key_accessor`: 
+    - `node_size`: the size of a serialized node in bytes
+- `int red_black_tree_search ( red_black_tree *const p_red_black_tree, const void *const p_key, void **pp_value )`: Search a red_black tree for an element
+  - **Parameters:**
+    - `p_red_black_tree`: the red_black tree
+    - `p_key`: the element
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int red_black_tree_insert ( red_black_tree *const p_red_black_tree, const void *const p_value )`: Insert a property into a red_black tree
+  - **Parameters:**
+    - `p_red_black_tree`: the red_black tree
+    - `p_value`: the property value
+  - **Returns:** 1 on success, 0 on error
+- `int red_black_tree_remove ( red_black_tree *const p_red_black_tree, const void *const p_key, const void **const p_value )`: Remove an element from a red_black tree
+  - **Parameters:**
+    - `p_red_black_tree`: the red_black tree
+    - `p_key`: the element
+    - `p_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int red_black_tree_traverse_preorder ( red_black_tree *const p_red_black_tree, fn_red_black_tree_traverse *pfn_traverse )`: Traverse a red_black tree using the pre order technique
+  - **Parameters:**
+    - `p_red_black_tree`: pointer to red_black tree
+    - `pfn_traverse`: called for each node in the red_black tree
+  - **Returns:** 1 on success, 0 on error
+- `int red_black_tree_traverse_inorder ( red_black_tree *const p_red_black_tree, fn_red_black_tree_traverse *pfn_traverse )`: Traverse a red_black tree using the in order technique
+  - **Parameters:**
+    - `p_red_black_tree`: pointer to red_black tree
+    - `pfn_traverse`: called for each node in the red_black tree
+  - **Returns:** 1 on success, 0 on error
+- `int red_black_tree_traverse_postorder ( red_black_tree *const p_red_black_tree, fn_red_black_tree_traverse *pfn_traverse )`: Traverse a red_black tree using the post order technique
+  - **Parameters:**
+    - `p_red_black_tree`: pointer to red_black tree
+    - `pfn_traverse`: called for each node in the red_black tree
+  - **Returns:** 1 on success, 0 on error
+- `int red_black_tree_parse ( red_black_tree **const pp_red_black_tree, const char *p_file, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor, fn_red_black_tree_parse *pfn_parse_node )`: Construct a red_black tree from a file
+  - **Parameters:**
+    - `pp_red_black_tree`: return
+    - `p_file`: path to the file
+    - `pfn_comparator`: function for testing equality of elements in set IF parameter is not null ELSE default
+    - `pfn_key_accessor`: 
+    - `pfn_parse_node`: a function for parsing nodes from the file
+  - **Returns:** 1 on success, 0 on error
+- `int red_black_tree_serialize ( red_black_tree *const p_red_black_tree, const char *p_path, fn_red_black_tree_serialize *pfn_serialize_node )`: Write a red_black tree to a file
+  - **Parameters:**
+    - `p_red_black_tree`: the red_black tree
+    - `p_path`: path to the file
+    - `pfn_serialize_node`: a function for serializing nodes to the file
+  - **Returns:** 1 on success, 0 on error
+- `int red_black_tree_destroy ( red_black_tree **const pp_red_black_tree )`: Deallocate a red_black tree
+  - **Parameters:**
+    - `pp_red_black_tree`: pointer to red_black tree pointer
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 set
+#### 📄 set.h
+- `void set_init ( void )`: This gets called at runtime before main.
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+- `int set_create ( set **const pp_set )`: Allocate memory for a set
+  - **Parameters:**
+    - `pp_set`: return
+  - **Returns:** 1 on success, 0 on error
+- `int set_construct ( set **const pp_set, size_t size, set_equal_fn *pfn_is_equal )`: Construct a set with a specific number of elements
+  - **Parameters:**
+    - `pp_set`: return
+    - `size`: number of set elements.
+    - `pfn_is_equal`: function for testing equality of elements in set IF parameter is not null ELSE default
+  - **Returns:** 1 on success, 0 on error
+- `int set_from_elements ( set **const pp_set, const void **const pp_elements, size_t size, set_equal_fn *pfn_is_equal )`: Construct a set from an array of elements
+  - **Parameters:**
+    - `pp_set`: return
+    - `pp_elements`: pointer to array of elements
+    - `size`: quantity of elements in element parameter.
+    - `pfn_is_equal`: function for testing equality of elements in set IF parameter is not null ELSE default
+  - **Returns:** 1 on success, 0 on error
+- `int set_union ( set **const pp_set, const set *const p_a, const set *const p_b, set_equal_fn *pfn_is_equal )`: Construct a set from the union of set A and set B
+  - **Parameters:**
+    - `pp_set`: return
+    - `p_a`: pointer to set A
+    - `p_b`: pointer to set B
+    - `pfn_is_equal`: function for testing equality of elements in set IF parameter is not null ELSE default
+  - **Returns:** 1 on success, 0 on error
+- `int set_difference ( set **const pp_set, const set *const p_a, const set *const p_b, set_equal_fn *pfn_is_equal )`: Construct a set from the difference of set A and set B
+  - **Parameters:**
+    - `pp_set`: return
+    - `p_a`: set A
+    - `p_b`: set B
+    - `pfn_is_equal`: function for testing equality of elements in set IF parameter is not null ELSE default
+  - **Returns:** 1 on success, 0 on error
+- `int set_intersection ( set **const pp_set, const set *const p_a, const set *const p_b, set_equal_fn *pfn_is_equal )`: Construct a set from the intersection of set A and set B
+  - **Parameters:**
+    - `pp_set`: return
+    - `p_a`: set A
+    - `p_b`: set B
+    - `pfn_is_equal`: 
+  - **Returns:** 1 on success, 0 on error
+- `size_t set_count ( const set *const p_set )`: Return the quantity of elements in the set
+  - **Parameters:**
+    - `p_set`: the set
+  - **Returns:** The quantity of elements in the set
+- `int set_contents ( const set *const p_set, void **const pp_contents )`: Get the contents of a set
+  - **Parameters:**
+    - `p_set`: the set
+    - `pp_contents`: the contents of the set
+  - **Returns:** 1 on success, 0 on error
+- `int set_add ( set *const p_set, void *const p_element )`: Add an element to a set.
+  - **Parameters:**
+    - `p_set`: pointer to the set
+    - `p_element`: the element
+  - **Returns:** 1 on success, 0 on error
+- `int set_pop ( set *const p_set, void **const pp_value )`
+- `int set_remove ( set *const p_set, void *const p_element )`
+- `int set_foreach_i ( const set *const p_set, void (*function)(void *const value, size_t index) )`: Call function on every element in p_set
+  - **Parameters:**
+    - `p_set`: set
+    - `function`: pointer to function of type void (*)(void *value, size_t index)
+  - **Returns:** 1 on success, 0 on error
+- `int set_destroy ( set **const pp_set )`: Destroy and deallocate a set
+  - **Parameters:**
+    - `pp_set`: pointer to a set pointer
+  - **Returns:** 1 on success, 0 on error
+- `void set_exit ( void )`: This gets called after main
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+
+### 📦 stack
+#### 📄 stack.h
+- `int stack_construct ( stack **const pp_stack, size_t size )`: Construct a stack of a specified size
+  - **Parameters:**
+    - `pp_stack`: result
+    - `size`: 
+  - **Returns:** 1 on success, 0 on error
+- `int stack_push ( stack *const p_stack, const void *const p_value )`: Push a value onto a stack
+  - **Parameters:**
+    - `p_stack`: the stack
+    - `p_value`: the value
+  - **Returns:** 1 on success, 0 on error
+- `int stack_pop ( stack *const p_stack, const void **const ret )`: Pop a value off a stack
+  - **Parameters:**
+    - `p_stack`: the stack
+    - `ret`: result
+  - **Returns:** 1 on success, 0 on error
+- `int stack_peek ( stack *p_stack, void **ret )`: Peek the top of the stack
+  - **Parameters:**
+    - `p_stack`: the stack
+    - `ret`: result
+  - **Returns:** 1 on success, 0 on error
+- `int stack_fori ( stack *const p_stack, fn_fori *pfn_fori )`: Call function on every element in a stack
+  - **Parameters:**
+    - `p_stack`: the stack
+    - `pfn_fori`: pointer to fori function
+  - **Returns:** 1 on success, 0 on error
+- `int stack_pack ( void *p_buffer, stack *p_stack, fn_pack *pfn_element )`: Pack a stack into a buffer
+  - **Parameters:**
+    - `p_buffer`: the buffer
+    - `p_stack`: the stack
+    - `pfn_element`: pointer to pack function IF not null ELSE default
+  - **Returns:** 1 on success, 0 on error
+- `int stack_unpack ( stack **pp_stack, void *p_buffer, fn_unpack *pfn_element )`: Unpack a buffer into a stack
+  - **Parameters:**
+    - `pp_stack`: result
+    - `p_buffer`: the buffer
+    - `pfn_element`: pointer to unpack function IF not null ELSE default
+  - **Returns:** 1 on success, 0 on error
+- `hash64 stack_hash ( stack *p_stack, fn_hash64 *pfn_element )`: Compute a 64-bit hash of a stack
+  - **Parameters:**
+    - `p_stack`: 
+    - `pfn_element`: 
+  - **Returns:** hash on success, NULL on error
+- `int stack_destroy ( stack **const pp_stack )`: Deallocate a stack
+  - **Parameters:**
+    - `pp_stack`: pointer to stack pointer
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 tuple
+#### 📄 tuple.h
+- `void tuple_init ( void )`: This gets called once before main
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+- `int tuple_create ( tuple **const pp_tuple )`: Allocate memory for a tuple
+  - **Parameters:**
+    - `pp_tuple`: return
+  - **Returns:** 1 on success, 0 on error
+- `int tuple_construct ( tuple **const pp_tuple, size_t size )`: Construct a tuple with a specific size
+  - **Parameters:**
+    - `pp_tuple`: return
+    - `size`: number of elements in a tuple
+  - **Returns:** 1 on success, 0 on error
+- `int tuple_from_elements ( tuple **const pp_tuple, void *const *const elements, size_t size )`: Construct a tuple from a list of elements
+  - **Parameters:**
+    - `pp_tuple`: return
+    - `elements`: pointer to null terminated tuple of element pointers
+    - `size`: number of elements. 
+  - **Returns:** 1 on success, 0 on error
+- `int tuple_from_arguments ( tuple **const pp_tuple, size_t element_count, ... )`: Construct a tuple from parameters
+  - **Parameters:**
+    - `pp_tuple`: return
+    - `element_count`: the quantity of variadic arguments
+    - `...`: variadic elements
+  - **Returns:** 1 on success, 0 on error
+- `int tuple_index ( const tuple *const p_tuple, signed long long index, void **const pp_value )`: Index a tuple with a signed number.
+  - **Parameters:**
+    - `p_tuple`: tuple
+    - `index`: signed index.
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int tuple_slice ( const tuple *const p_tuple, const void **const pp_elements, signed long long lower_bound, signed long long upper_bound )`: Get a slice of the tuple specified by a lower bound and an upper bound
+  - **Parameters:**
+    - `p_tuple`: tuple
+    - `pp_elements`: return
+    - `lower_bound`: the lower bound of the tuple
+    - `upper_bound`: the upper bound of the tuple
+  - **Returns:** 1 on success, 0 on error
+- `bool tuple_is_empty ( const tuple *const p_tuple )`: Is a tuple empty?
+  - **Parameters:**
+    - `p_tuple`: a tuple
+  - **Returns:** true if tuple has no contents else false
+- `size_t tuple_size ( const tuple *const p_tuple )`: Get the size of a tuple
+  - **Parameters:**
+    - `p_tuple`: a tuple
+  - **Returns:** size of tuple
+- `int tuple_foreach_i ( const tuple *const p_tuple, void (*const function)(void *const value, size_t index) )`: Call function on every element in p_tuple
+  - **Parameters:**
+    - `p_tuple`: tuple
+    - `function`: pointer to function of type void (*)(void *value, size_t index)
+  - **Returns:** 1 on success, 0 on error
+- `int tuple_pack ( tuple *p_tuple, void *p_buffer, fn_pack *pfn_element )`
+- `int tuple_unpack ( tuple **pp_tuple, void *p_buffer, fn_unpack *pfn_element )`
+- `int tuple_destroy ( tuple **const pp_tuple )`: Destroy and deallocate a tuple
+  - **Parameters:**
+    - `pp_tuple`: tuple
+  - **Returns:** 1 on success, 0 on error
+- `void tuple_exit ( void )`: This gets called once after main
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+
+## 🎁 performance
+
+### 📦 access_token
+#### 📄 access_token.h
+- `int access_token_construct ( access_token **pp_access_token, public_key *p_public_key, private_key *p_private_key, json_value *p_header_value, json_value *p_payload_value )`
+- `int access_token_verify ( const char *token_string, public_key *p_public_key, access_token **pp_access_token )`
+- `int access_token_destroy ( access_token **pp_access_token )`
+
+### 📦 connection
+#### 📄 connection.h
+- `int connection_construct ( connection **const pp_connection, const char *p_hostname, const short port )`: Initiate a connection to a host
+  - **Parameters:**
+    - `pp_connection`: return
+    - `p_hostname`: hostname string
+    - `port`: the port number
+  - **Returns:** 1 on success, 0 on error
+- `int connection_listen ( connection **pp_connection, const short port, fn_connection_accept *pfn_accept_callback )`: Listen for connections on a port
+  - **Parameters:**
+    - `pp_connection`: return
+    - `port`: the port number
+    - `pfn_accept_callback`: the callback function to be invoked when a connection is accepted
+  - **Returns:** 1 on success, 0 on error
+- `int connection_write ( connection *p_connection, void *p_data, size_t size )`: Write some data to a connection
+  - **Parameters:**
+    - `p_connection`: the connection
+    - `p_data`: pointer to data
+    - `size`: quantity of bytes to write
+  - **Returns:** 1 on success, 0 on error
+- `int connection_read ( connection *p_connection, void *p_data, size_t *p_size )`: Read some data from a connection. This is a blocking call that waits for a complete message.
+  - **Parameters:**
+    - `p_connection`: the connection
+    - `p_data`: pointer to a buffer to store the message
+    - `p_size`: in: size of the buffer, out: size of the received message
+  - **Returns:** 1 on success, 0 on error or if the connection was closed
+- `int connection_destroy(connection **pp_connection)`: Destroy a connection
+  - **Parameters:**
+    - `pp_connection`: pointer to the connection pointer
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 parallel
+#### 📄 parallel.h
+- `void parallel_init ( void )`: This gets called at runtime before main.
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+- `int parallel_register_task ( const char *const name, fn_parallel_task *pfn_parallel_task )`: Register a task with the scheduler
+  - **Parameters:**
+    - `name`: the name of the task
+    - `pfn_task`: pointer to task function
+  - **Returns:** 1 on success, 0 on error
+- `int parallel_find_task ( const char *const name, fn_parallel_task **p_pfn_parallel_task )`
+- `void parallel_exit ( void )`: This gets called at runtime after main
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+
+### 📦 rpc
+#### 📄 rpc.h
+- `int rpc_register ( const char *p_name, fn_rpc_handler *pfn_handler, fn_pack *pfn_request_pack, fn_unpack *pfn_request_unpack, fn_pack *pfn_response_pack, fn_unpack *pfn_response_unpack )`: Register a function as an RPC handler
+  - **Parameters:**
+    - `p_name`: the name of the RPC
+    - `pfn_handler`: the function pointer to the handler
+    - `pfn_request_pack`: the function pointer to the packer
+    - `pfn_request_unpack`: the function pointer to the unpacker
+    - `pfn_response_pack`: 
+    - `pfn_response_unpack`: 
+  - **Returns:** 1 on success, 0 on error
+- `int rpc_server_listen ( short port )`: Start an RPC server and listen for connections
+  - **Parameters:**
+    - `port`: the port to listen on
+  - **Returns:** 1 on success, 0 on error
+- `int rpc_call ( connection *p_connection, const char *p_name, void *p_args, void *p_response_buffer, size_t *p_response_size )`: Make an RPC call to a server
+  - **Parameters:**
+    - `p_connection`: the connection to the server
+    - `p_name`: the name of the RPC to call
+    - `p_args`: pointer to the arguments buffer
+    - `p_response_buffer`: pointer to a buffer to store the response
+    - `p_response_size`: in: size of the response buffer, out: size of the received response
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 schedule
+#### 📄 schedule.h
+- `int schedule_create ( schedule **const pp_schedule )`: Allocate memory for a schedule
+  - **Parameters:**
+    - `pp_schedule`: return
+  - **Returns:** 1 on success, 0 on error
+- `int schedule_load ( schedule **const pp_schedule, const char *const path )`: Construct a schedule from a file
+  - **Parameters:**
+    - `pp_schedule`: return
+    - `path`: path to the file
+  - **Returns:** 1 on success, 0 on error
+- `int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value *const p_value )`: Construct a schedule from a json value
+  - **Parameters:**
+    - `pp_schedule`: return
+    - `p_value`: the json value
+  - **Returns:** 1 on success, 0 on error
+- `int schedule_start ( schedule *const p_schedule, void *const p_parameter )`: Start running a schedule
+  - **Parameters:**
+    - `p_schedule`: the schedule
+    - `p_parameter`: this parameter is passed to each task
+  - **Returns:** 1 on success, 0 on error
+- `int schedule_wait_idle ( schedule *const p_schedule )`: Block until a schedule is done
+  - **Parameters:**
+    - `p_schedule`: the schedule
+  - **Returns:** 1 on success, 0 on error
+- `int schedule_pause ( schedule *const p_schedule )`: Clear a schedule's repeat flag
+  - **Parameters:**
+    - `p_schedule`: the schedule
+  - **Returns:** 1 on success, 0 on error
+- `int schedule_stop ( schedule *const p_schedule )`: Stop running a schedule
+  - **Parameters:**
+    - `p_schedule`: the schedule
+  - **Returns:** 1 on success, 0 on error
+- `int schedule_destroy ( schedule **const pp_schedule )`: Destroy a schedule
+  - **Parameters:**
+    - `pp_schedule`: the schedule
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 thread
+#### 📄 thread.h
+- `int parallel_thread_create ( parallel_thread **pp_parallel_thread )`: Allocate a parallel thread
+  - **Parameters:**
+    - `pp_parallel_thread`: return
+  - **Returns:** 1 on success, 0 on error
+- `int parallel_thread_start ( parallel_thread **pp_parallel_thread, fn_parallel_task *pfn_task, void *p_parameter )`: Start a new parallel thread
+  - **Parameters:**
+    - `pp_parallel_thread`: return
+    - `pfn_task`: pointer to start function
+    - `p_parameter`: parameter for start function
+  - **Returns:** 1 on success, 0 on error
+- `int parallel_thread_cancel ( parallel_thread *p_parallel_thread )`: Stop a thread
+  - **Parameters:**
+    - `p_parallel_thread`: the thread
+  - **Returns:** 1 on success, 0 on error
+- `int parallel_thread_join ( parallel_thread **pp_parallel_thread )`: Wait for a thread to end, then destory it
+  - **Parameters:**
+    - `pp_parallel_thread`: pointer to a parallel thread pointer
+  - **Returns:** 1 on success, 0 on error
+- `int parallel_thread_destory ( parallel_thread **pp_parallel_thread )`: Destroy a thread
+  - **Parameters:**
+    - `pp_parallel_thread`: pointer to a parallel thread pointer
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 thread_pool
+#### 📄 thread_pool.h
+- `int thread_pool_construct ( thread_pool **pp_thread_pool, size_t thread_quantity )`: Construct a thread pool
+  - **Parameters:**
+    - `pp_thread_pool`: result
+    - `thread_quantity`: the quantity of threads
+  - **Returns:** 1 on success, 0 on error
+- `int thread_pool_execute ( thread_pool *p_thread_pool, fn_parallel_task *pfn_parallel_task, void *p_parameter )`: Execute a job on a thread pool
+  - **Parameters:**
+    - `p_thread_pool`: the thread pool
+    - `pfn_parallel_task`: pointer to job function
+    - `p_parameter`: the parameter of the parallel task
+  - **Returns:** 1 on success, 0 on error
+- `bool thread_pool_is_idle ( thread_pool *p_thread_pool )`: Test if the thread pool is idle
+  - **Parameters:**
+    - `p_thread_pool`: the thread pool
+  - **Returns:** 1 on success, 0 on error
+- `int thread_pool_wait_idle ( thread_pool *p_thread_pool )`: Block until a thread pool finishes it's active jobs
+  - **Parameters:**
+    - `p_thread_pool`: the thread pool
+  - **Returns:** 1 on success, 0 on error
+- `int thread_pool_destroy ( thread_pool **pp_thread_pool )`: Destroy a thread pool
+  - **Parameters:**
+    - `pp_thread_pool`: pointer to thread pool pointer
+  - **Returns:** 1 on success, 0 on error
+
+## 🎁 reflection
+
+### 📦 base64
+#### 📄 base64.h
+- `int base64_encode ( const void *const p_data, size_t len, char *const p_output )`: Encode len bytes of data in base 64, and store in p_output
+  - **Parameters:**
+    - `p_data`: the data to be encoded
+    - `len`: the quantity of bytes to be encoded
+    - `p_output`: the output, encoded in base 64
+  - **Returns:** 1 on success, 0 on error
+- `int base64_decode ( const char *const p_data, size_t len, void *const p_output )`: Decode len bytes of base 64 data, and store in p_output
+  - **Parameters:**
+    - `p_data`: the data to be decoded
+    - `len`: the quantity of bytes to be decoded
+    - `p_output`: the output, decoded from base 64
+  - **Returns:** 1 on success, 0 on error
+
+### 📦 http
+#### 📄 http.h
+- `void http_init ( void )`: This gets called at runtime before main.
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+- `void http_exit ( void )`: This gets called at runtime after main
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+
+### 📦 json
+#### 📄 json.h
+- `void json_init ( void )`: This gets called at runtime before main.
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+- `int json_value_parse ( char *text, char **return_pointer, json_value **const pp_value )`: Parse json text into a json_value
+  - **Parameters:**
+    - `text`: pointer to json text
+    - `return_pointer`: null or pointer to end of json value
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int json_value_serialize ( const json_value *const p_value, char *_buffer )`: Serialize a json_value to a buffer
+  - **Parameters:**
+    - `p_value`: pointer to json_value
+    - `_buffer`: pointer to text buffer
+  - **Returns:** 1 on success, 0 on error
+- `int json_value_print ( const json_value *const p_value )`: Serialize a json value to standard out
+  - **Parameters:**
+    - `p_value`: the json value
+  - **Returns:** 1 on success, 0 on error
+- `int json_value_fprint ( const json_value *const p_value, FILE *p_f )`: Serialize a json value to a file
+  - **Parameters:**
+    - `p_value`: the json value
+    - `p_f`: the file
+  - **Returns:** 1 on success, 0 on error
+- `void *json_value_free ( json_value *p_value, unsigned long long unused )`: Free a json value, and its contents
+  - **Parameters:**
+    - `p_value`: pointer to json_value
+    - `unused`: 
+  - **Returns:** void
+- `void json_exit ( void )`: This gets called at runtime after main
+  - **Parameters:**
+    - `void`: 
+  - **Returns:** void
+
+### 📦 json_test
+#### 📄 json_test.h
+- `bool value_equals ( json_value *a, json_value *b )`: Recursively compare a to b.
+  - **Parameters:**
+    - `a`: a value
+    - `b`: b value
+  - **Returns:** true if a is exactly equal to b else false
+- `int construct_null ( json_value **pp_value )`: Returns null as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_bool_false ( json_value **pp_value )`: Returns false as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_bool_true ( json_value **pp_value )`: Returns true as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_int_minus_one ( json_value **pp_value )`: Returns -1 as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_int_zero ( json_value **pp_value )`: Returns 0 as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_int_one ( json_value **pp_value )`: Returns 1 as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_int_max ( json_value **pp_value )`: Returns 9223372036854775807 as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_int_min ( json_value **pp_value )`: Returns -9223372036854775807 - 1 as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_float_minus_one( json_value **pp_value )`: Returns -1.0 as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_float_zero ( json_value **pp_value )`: Returns 0.0 as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_float_one ( json_value **pp_value )`: Returns 1.0 as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_float_max ( json_value **pp_value )`: Returns DBL_MAX as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_float_min ( json_value **pp_value )`: Returns -DBL_MAX as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_string_empty ( json_value **pp_value )`: Returns "" as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_string_a ( json_value **pp_value )`: Returns "a" as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_string_abc ( json_value **pp_value )`: Returns "abc" as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_string_quote_abc_quote ( json_value **pp_value )`: Returns ""abc"" as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_string_quote ( json_value **pp_value )`: Returns "\"" as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_string_quote_quote ( json_value **pp_value )`: Returns "\"\"" as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_string_whitespaces_abc ( json_value **pp_value )`: Returns "\"abc\"" as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_string_reverse_solidus ( json_value **pp_value )`: Returns "\\\" as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_string_solidus ( json_value **pp_value )`: Returns "/" as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_string_backspace ( json_value **pp_value )`: Returns "\b" as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_string_formfeed ( json_value **pp_value )`: Returns "\f" as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_string_linefeed ( json_value **pp_value )`: Returns "\n" as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_string_carriage_return ( json_value **pp_value )`: Returns "\r" as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_string_horizontal_tab ( json_value **pp_value )`: Returns "\t" as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_object_empty ( json_value **pp_value )`: Returns { } as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_object_string ( json_value **pp_value )`: Returns { "abc" : "def" } as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_object_int ( json_value **pp_value )`: Returns { "abc" : 123 } as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_object_float ( json_value **pp_value )`: Returns { "pi" : 3.14 } as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_object_false ( json_value **pp_value )`: Returns { "abc" : false } as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_object_true ( json_value **pp_value )`: Returns { "abc" : true } as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_object_strings ( json_value **pp_value )`: Returns { "abc" : "def", "ghi" : "jkl", "mno" : "pqr" } as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_object_mixed_values ( json_value **pp_value )`: Returns { "name" : "jake", "age" : 20, "height" : 1.779 } as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_object_object ( json_value **pp_value )`: Returns { "abc" : { "def" : 123 } } as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_object_object_object ( json_value **pp_value )`: Returns { "abc" : { "def" : { "ghi" : 123 } } } as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_object_recursive ( json_value **pp_value )`: Returns { "a" : { "b" : { "c" : {...{ "z" : { } ... } as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_object_array ( json_value **pp_value )`: Returns { "abc" : [ 1, 2, 3 ] } as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_object_array_objects ( json_value **pp_value )`: Returns { "a" : [ { "a" : 1 }, { "b" : 2 }, { "c" : 3 } ] } as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_object_array_object ( json_value **pp_value )`: Returns { "a" : [ { "a" : 1 } ] } as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_empty ( json_value **pp_value )`: Returns [] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_null ( json_value **pp_value )`: Returns [ null ] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_nulls ( json_value **pp_value )`: Returns [ null, null, null ] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_bool ( json_value **pp_value )`: Returns [ true ] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_bools ( json_value **pp_value )`: Returns [ true, false, true ] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_int ( json_value **pp_value )`: Returns [ 1 ] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_ints ( json_value **pp_value )`: Returns [ 1, 2, 3 ] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_float ( json_value **pp_value )`: Returns [ 3.14 ] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_floats ( json_value **pp_value )`: Returns [ 1.2, 3.4, 5.6 ] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_string_empty ( json_value **pp_value )`: Returns [ "" ] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_string ( json_value **pp_value )`: Returns [ "abc" ] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_strings ( json_value **pp_value )`: Returns [ "abc", "def", "ghi" ] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_object_empty ( json_value **pp_value )`: Returns [ { } ] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_object ( json_value **pp_value )`: Returns [ { "a" : 1 } ] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_objects ( json_value **pp_value )`: Returns [ [ { "a" : 1 }, { "b" : 2 }, { "c" : 3 } ] ] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_array_empty ( json_value **pp_value )`: Returns [ [ ] ] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_array_array_empty ( json_value **pp_value )`: Returns [ [ [ ] ] ] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_matrix ( json_value **pp_value )`: Returns [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
+- `int construct_array_tensor ( json_value **pp_value )`: Returns [ [ [ 1, 2 ], [ 3, 4 ] ], [ [ 5, 6 ], [ 7, 8 ] ] ] as a json_value
+  - **Parameters:**
+    - `pp_value`: return
+  - **Returns:** 1 on success, 0 on error
