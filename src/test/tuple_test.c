@@ -186,7 +186,7 @@ bool test_size ( int(*tuple_constructor)(tuple **pp_tuple), size_t expected_size
     else result = zero;
 
     // Free the tuple
-    tuple_destroy(&p_tuple);
+    tuple_destroy(&p_tuple, NULL);
 
     // Return result
     return (result == expected);
@@ -212,7 +212,7 @@ bool test_index ( int(*tuple_constructor)(tuple **pp_tuple), signed idx, void *e
         if ( result_value == expected_value ) result = match;
 
     // Free the tuple
-    tuple_destroy(&p_tuple);
+    tuple_destroy(&p_tuple, NULL);
 
     // Return result
     return (result == expected);
@@ -246,7 +246,7 @@ bool test_slice ( int(*tuple_constructor)(tuple **pp_tuple), signed lower, signe
     done:
 
     // Free the tuple
-    tuple_destroy(&p_tuple);
+    tuple_destroy(&p_tuple, NULL);
 
     // Return result
     return (result == expected);

@@ -9,36 +9,12 @@
 // headers
 #include <data/tuple.h>
 
-// core
-#include <core/log.h>
-#include <core/pack.h>
-#include <core/sync.h>
-
 // structure definitions
 struct tuple_s
 {
     size_t   element_count; // Quantity of elements
     void   *_p_elements[];  // Tuple contents
 };
-
-// Data
-static bool initialized = false;
-
-void tuple_init ( void ) 
-{
-
-    // State check
-    if ( initialized == true ) return;
-
-    // Initialize the log library
-    log_init();
-
-    // Set the initialized flag
-    initialized = true;
-
-    // done
-    return;
-}
 
 // function declarations
 int tuple_create ( tuple **const pp_tuple )
@@ -449,18 +425,18 @@ size_t tuple_size ( const tuple *const p_tuple )
     }
 }
 
-int tuple_foreach ( const tuple *const p_tuple, void (*const pfn_function)(void *const value, size_t index) )
+int tuple_fori ( tuple *p_tuple, fn_fori *pfn_fori ) 
 {
 
     // argument check
-    if ( p_tuple      == (void *) 0 ) goto no_tuple;
-    if ( pfn_function == (void *) 0 ) goto no_func;
+    if ( NULL == p_tuple  ) goto no_tuple;
+    if ( NULL == pfn_fori ) goto no_fn_fori;
 
     // Iterate over each element in the tuple
     for (size_t i = 0; i < p_tuple->element_count; i++)
-        
+
         // Call the function
-        pfn_function(p_tuple->_p_elements[i], i);
+        pfn_fori(p_tuple->_p_elements[i], i);
 
     // success
     return 1;
@@ -472,15 +448,15 @@ int tuple_foreach ( const tuple *const p_tuple, void (*const pfn_function)(void 
         {
             no_tuple:
                 #ifndef NDEBUG
-                    log_error("[tuple] Null pointer provided for parameter \"p_tuple\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[tuple] Null pointer provided for \"p_tuple\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
                 return 0;
             
-            no_func:
+            no_fn_fori:
                 #ifndef NDEBUG
-                    log_error("[tuple] Null pointer provided for parameter \"pfn_function\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[tuple] Null pointer provided for \"pfn_fori\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -489,7 +465,7 @@ int tuple_foreach ( const tuple *const p_tuple, void (*const pfn_function)(void 
     }
 }
 
-int tuple_pack ( tuple *p_tuple, void *p_buffer, fn_pack *pfn_element )
+int tuple_pack ( void *p_buffer, tuple *p_tuple, fn_pack *pfn_element )
 {
     
     // argument check
@@ -586,7 +562,40 @@ int tuple_unpack ( tuple **pp_tuple, void *p_buffer, fn_unpack *pfn_element )
     }
 }
 
-int tuple_destroy ( tuple **const pp_tuple )
+hash64 tuple_hash ( tuple *p_tuple, fn_hash64 *pfn_element )
+{
+
+    // argument check
+    if ( p_tuple == (void *) 0 ) goto no_tuple;
+
+    // initialized data
+    hash64     result     = 0;
+    fn_hash64 *pfn_hash64 = (pfn_element) ? pfn_element : hash_crc64;
+
+    // iterate through each element in the tuple
+    for (size_t i = 0; i < p_tuple->element_count; i++)
+        result ^= pfn_hash64(p_tuple->_p_elements[i], 8);
+
+    // success
+    return result;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_tuple:
+                #ifndef NDEBUG
+                    log_error("[tuple] Null pointer provided for \"p_tuple\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int tuple_destroy ( tuple **pp_tuple, fn_allocator *pfn_allocator )
 {
 
     // argument check
@@ -595,10 +604,15 @@ int tuple_destroy ( tuple **const pp_tuple )
     // initialized data
     tuple *p_tuple = *pp_tuple;
 
-    // No more pointer for caller
-    *pp_tuple = (void *) 0;
+    // no more pointer for end user
+    *pp_tuple = (tuple *) 0;
 
-    // Free the tuple
+    // release the elements
+    if ( pfn_allocator )
+        for (size_t i = 0; i < p_tuple->element_count; i++)
+            pfn_allocator(p_tuple->_p_elements[i], 0);
+    
+    // release the tuple
     p_tuple = default_allocator(p_tuple, 0);
     
     // success
@@ -611,30 +625,11 @@ int tuple_destroy ( tuple **const pp_tuple )
         {
             no_tuple:
                 #ifndef NDEBUG
-                    log_error("[tuple] Null pointer provided for parameter \"pp_tuple\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[tuple] Null pointer provided for \"pp_tuple\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
                 return 0;
         }
     }
-}
-
-void tuple_exit ( void ) 
-{
-
-    // State check
-    if ( initialized == false ) return;
-
-    // Clean up log
-    log_exit();
-
-    // TODO: Anything else?
-    // 
-
-    // Clear the initialized flag
-    initialized = false;
-
-    // done
-    return;
 }

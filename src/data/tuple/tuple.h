@@ -18,6 +18,10 @@
 
 // core
 #include <core/interfaces.h>
+#include <core/pack.h>
+#include <core/hash.h>
+#include <core/log.h>
+#include <core/sync.h>
 
 // Debug mode
 #undef NDEBUG
@@ -31,29 +35,8 @@ struct tuple_s;
  */
 typedef struct tuple_s tuple;
 
-// initializers
-/** !
- * This gets called once before main
- * 
- * @param void
- * 
- * @return void
-*/
-void tuple_init ( void ) __attribute__((constructor));
-
-// Allocaters
-/** !
- *  Allocate memory for a tuple
- *
- * @param pp_tuple return
- *
- * @sa tuple_destroy
- *
- * @return 1 on success, 0 on error
- */
-int tuple_create ( tuple **const pp_tuple );
-
-// constructors
+// function declarations
+/// constructors
 /** !
  *  Construct a tuple with a specific size
  *
@@ -97,7 +80,7 @@ int tuple_from_elements ( tuple **const pp_tuple, void *const *const elements, s
  */
 int tuple_from_arguments ( tuple **const pp_tuple, size_t element_count, ... );
 
-// accessors
+/// accessors
 /** !
  * Index a tuple with a signed number. If index is negative, index = size - |index|, such that
  * [A,B,C,D,E] index(-2) -> D
@@ -146,39 +129,58 @@ bool tuple_is_empty ( const tuple *const p_tuple );
  */
 size_t tuple_size ( const tuple *const p_tuple );
 
-// iterators
+/// iterators
 /** !
- * Call function on every element in p_tuple
+ * Call function on every element in a tuple
  *
- * @param p_tuple tuple
- * @param function pointer to function of type void (*)(void *value, size_t index)
+ * @param p_tuple  the tuple
+ * @param pfn_fori pointer to fori function
  * 
  * @return 1 on success, 0 on error
  */
-int tuple_foreach_i ( const tuple *const p_tuple, void (*const function)(void *const value, size_t index) );
+int tuple_fori ( tuple *p_tuple, fn_fori *pfn_fori );
 
-int tuple_pack ( tuple *p_tuple, void *p_buffer, fn_pack *pfn_element );
+/// reflection
+/** !
+ * Pack a tuple into a buffer
+ *
+ * @param p_tuple     the tuple
+ * @param p_buffer    the buffer
+ * @param pfn_element the packing function for each element
+ *
+ * @return 1 on success, 0 on error
+ */
+int tuple_pack ( void *p_buffer, tuple *p_tuple, fn_pack *pfn_element );
 
+/** !
+ * Unpack a buffer into a tuple
+ *
+ * @param pp_tuple    the tuple
+ * @param p_buffer    the buffer
+ * @param pfn_element the unpacking function for each element
+ *
+ * @return 1 on success, 0 on error
+ */
 int tuple_unpack ( tuple **pp_tuple, void *p_buffer, fn_unpack *pfn_element );
 
-// destructors
+/// hash
+/** !
+ * Compute a 64-bit hash of a tuple
+ *
+ * @param p_tuple     the tuple to hash
+ * @param pfn_element the hashing function applied to each element
+ *
+ * @return hash on success, NULL on error
+ */
+hash64 tuple_hash ( tuple *p_tuple, fn_hash64 *pfn_element );
+
+/// destructors
 /** !
  *  Destroy and deallocate a tuple
  *
- * @param pp_tuple tuple
- *
- * @sa tuple_create
+ * @param pp_tuple the tuple
+ * @param pfn_allocator pointer to element deallocator IF NOT NULL ELSE, elements are not deallocated.
  *
  * @return 1 on success, 0 on error
  */
-int tuple_destroy ( tuple **const pp_tuple );
-
-// cleanup
-/** !
- * This gets called once after main
- * 
- * @param void
- * 
- * @return void
-*/
-void tuple_exit ( void ) __attribute__((destructor));
+int tuple_destroy ( tuple **pp_tuple, fn_allocator *pfn_allocator );

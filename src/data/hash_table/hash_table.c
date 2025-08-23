@@ -1,5 +1,5 @@
 // header
-#include <core/hash_table.h>
+#include <data/hash_table.h>
 
 // function declarations
 /** !
@@ -252,7 +252,6 @@ int hash_table_insert ( hash_table *const p_hash_table, void *p_property )
     }
 }
 
-
 int hash_table_destroy ( hash_table **const pp_hash_table )
 {
 
@@ -320,5 +319,3 @@ signed hash_table_positive_mod ( signed dividend, signed divisor )
     // success
     return ( quotient < 0 ) ? quotient + divisor : quotient;
 }
-
-

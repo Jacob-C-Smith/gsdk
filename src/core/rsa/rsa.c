@@ -500,7 +500,7 @@ i2048 dec_block ( i2048 y, public_key *p_public_key, private_key *p_private_key 
     return mod_exp(y, p_private_key->b, p_public_key->n);
 }
 
-int enc ( void *p_x, void *p_y, public_key *p_public_key )
+int rsa_encrypt ( void *p_x, void *p_y, public_key *p_public_key )
 {
 
     // initialized data
@@ -514,7 +514,7 @@ int enc ( void *p_x, void *p_y, public_key *p_public_key )
     return 1;
 }
 
-int dec ( void *p_y, void *p_z, public_key *p_public_key, private_key *p_private_key )
+int rsa_decrypt ( void *p_y, void *p_z, public_key *p_public_key, private_key *p_private_key )
 {
 
     // initialized data

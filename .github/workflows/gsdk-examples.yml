@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build
-          path: build/
+          path: ${{github.workspace}}/build/
 
   core:
     needs: build
@@ -53,7 +53,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-          path: build
+          path: ${{github.workspace}}/build
       - name: Run log example
         run: |
           chmod +x ${{github.workspace}}/build/examples/log_example
@@ -68,7 +68,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-          path: build
+          path: ${{github.workspace}}/build
       - name: Run hash example
         run: |
           chmod +x ${{github.workspace}}/build/examples/hash_example
@@ -83,7 +83,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-          path: build
+          path: ${{github.workspace}}/build
       - name: Run sha example
         run: |
           chmod +x ${{github.workspace}}/build/examples/sha_example
@@ -98,7 +98,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-          path: build
+          path: ${{github.workspace}}/build
       - name: Run rsa example
         run: |
           chmod +x ${{github.workspace}}/build/examples/rsa_example
@@ -113,7 +113,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-          path: build
+          path: ${{github.workspace}}/build
       - name: Run dsa example
         run: |
           chmod +x ${{github.workspace}}/build/examples/dsa_example
@@ -128,7 +128,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-          path: build
+          path: ${{github.workspace}}/build
       - name: Run pack example
         run: |
           chmod +x ${{github.workspace}}/build/examples/pack_example
@@ -143,7 +143,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-          path: build
+          path: ${{github.workspace}}/build
       - name: Run sync example
         run: |
           chmod +x ${{github.workspace}}/build/examples/sync_example
@@ -166,7 +166,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-          path: build
+          path: ${{github.workspace}}/build
       - name: Run array example
         run: |
           chmod +x ${{github.workspace}}/build/examples/array_example
@@ -181,7 +181,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-          path: build
+          path: ${{github.workspace}}/build
       - name: Run circular buffer example
         run: |
           chmod +x ${{github.workspace}}/build/examples/circular_buffer_example
@@ -196,7 +196,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-          path: build
+          path: ${{github.workspace}}/build
       - name: Run dict example
         run: |
           chmod +x ${{github.workspace}}/build/examples/dict_example
@@ -211,7 +211,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-          path: build
+          path: ${{github.workspace}}/build
       - name: Run priority queue example
         run: |
           chmod +x ${{github.workspace}}/build/examples/priority_queue_example
@@ -226,7 +226,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-          path: build
+          path: ${{github.workspace}}/build
       - name: Run queue example
         run: |
           chmod +x ${{github.workspace}}/build/examples/queue_example
@@ -241,7 +241,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-          path: build
+          path: ${{github.workspace}}/build
       - name: Run stack example
         run: |
           chmod +x ${{github.workspace}}/build/examples/stack_example
@@ -256,7 +256,7 @@ jobs:
   #       uses: actions/download-artifact@v4
   #       with:
   #         name: build
-  #         path: build
+  #         path: ${{github.workspace}}/build
   #     - name: Run binary example
   #       run: |
   #         chmod +x ${{github.workspace}}/build/examples/binary_example
@@ -271,7 +271,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-          path: build
+          path: ${{github.workspace}}/build
       - name: Run tuple example
         run: |
           chmod +x ${{github.workspace}}/build/examples/tuple_example
@@ -294,7 +294,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-          path: build
+          path: ${{github.workspace}}/build
       - name: Run base64 example
         run: |
           chmod +x ${{github.workspace}}/build/examples/base64_example
@@ -309,7 +309,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
-          path: build
+          path: ${{github.workspace}}/build
       - name: Run json example
         run: |
           chmod +x ${{github.workspace}}/build/examples/json_example

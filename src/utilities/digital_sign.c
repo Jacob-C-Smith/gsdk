@@ -75,7 +75,7 @@ int main ( int argc, const char *argv[] )
 
     // read the message
     result = fread(_buffer, sizeof(char), sizeof(_buffer), input_file);
-    if ( 0 == result) goto failed_to_read_message;
+    if ( 0 == result ) goto failed_to_read_message;
 
     // sign the message
     if ( 0 == digital_signature_sign(

@@ -201,7 +201,7 @@ int array_map ( array *const p_array, fn_map *pfn_map, fn_allocator *pfn_allocat
  * 
  * @return 1 on success, 0 on error
  */
-int array_fori ( array *const p_array, fn_fori *pfn_fori );
+int array_fori ( array *p_tuple, fn_fori *pfn_fori );
 
 /// reflection
 /** !
@@ -230,7 +230,8 @@ int array_unpack ( array **pp_array, void *p_buffer, fn_unpack *pfn_element );
 /** !
  * Compute a 64-bit hash of an array
  * 
- * @param p_array
+ * @param p_array     the array
+ * @param pfn_element hashing function applied to each element
  * 
  * @return hash on success, NULL on error
  */
@@ -240,7 +241,8 @@ hash64 array_hash ( array *p_array, fn_hash64 *pfn_element );
 /** !
  *  Destroy and deallocate an array
  *
- * @param pp_array array
+ * @param pp_array pointer to array pointer
+ * @param pfn_allocator pointer to allocator function for deallocating elements
  *
  * @sa array_create
  *

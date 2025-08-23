@@ -8,8 +8,6 @@
 
 // header
 #include <core/digital_signature.h>
-#include <core/rsa.h>
-#include <string.h>
 
 // function definitions
 int digital_signature_sign
@@ -58,7 +56,7 @@ int digital_signature_sign
     memcpy(p_hash_val, hash, sizeof(sha256_hash));
 
     // "Sign" by raising to the private exponent (RSA decrypt)
-    if ( 0 == dec(p_hash_val, p_signature, p_public_key, p_private_key) ) goto failed_to_sign;
+    if ( 0 == rsa_decrypt(p_hash_val, p_signature, p_public_key, p_private_key) ) goto failed_to_sign;
 
     // return the signature
     *pp_signature = p_signature;
@@ -157,7 +155,7 @@ int digital_signature_verify
     size_t rsa_block_size = sizeof(((public_key *)0)->n);
     p_decrypted_hash = default_allocator(0, rsa_block_size);
     if ( NULL == p_decrypted_hash ) goto failed_to_verify;
-    if ( 0 == enc((void *)p_signature, p_decrypted_hash, p_public_key) ) goto failed_to_verify;
+    if ( 0 == rsa_encrypt((void *)p_signature, p_decrypted_hash, p_public_key) ) goto failed_to_verify;
 
     // Pack the freshly computed hash into an RSA-sized block for comparison
     p_hash_val = default_allocator(0, rsa_block_size);

@@ -218,7 +218,7 @@ int secure_socket_connect ( secure_socket *p_secure_socket, enum socket_address_
             );
 
             // encrypt the client's private key
-            enc
+            rsa_encrypt
             (
                 _client_response_plain,
                 _client_response,

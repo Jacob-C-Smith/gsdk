@@ -1,5 +1,5 @@
 /** !
- * Tuple example program
+ * Example program for tuple module
  * 
  * @file main.c
  * 
@@ -8,140 +8,271 @@
 
 // standard library
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
-// log module
+// core
 #include <core/log.h>
 #include <core/sync.h>
+#include <core/hash.h>
 #include <core/pack.h>
 
-// tuple
+// data
 #include <data/tuple.h>
 
-int pack_string ( void *p_buffer, const void *const p_value )
+// enumeration definitions
+enum color_e
 {
+    RED            = 0,
+    ORANGE         = 1,
+    YELLOW         = 2,
+    GREEN          = 3,
+    BLUE           = 4,
+    PURPLE         = 5,
+    COLOR_QUANTITY = 6
+};
 
-    // success
-    return pack_pack(p_buffer, "%s", p_value);
-}
+// forward declarations
+/// logs
+int checkpoint ( tuple *p_tuple, const char *p_event );
 
-int unpack_string ( void *const p_value, void *p_buffer )
+/// string
+void    string_print ( void *p_value, int i );
+int     string_compare ( const void *const p_a, const void *const p_b );
+hash64  string_hash ( const void *const string, unsigned long long unused );
+int     string_pack ( void *p_buffer, const void *const p_value );
+int     string_unpack ( void *const p_value, void *p_buffer );
+ 
+// data
+/// immutable color strings
+const char *_p_colors[COLOR_QUANTITY] =
 {
+    [RED]    = "Red",
+    [ORANGE] = "Orange",
+    [YELLOW] = "Yellow",
+    [GREEN]  = "Green",
+    [BLUE]   = "Blue",
+    [PURPLE] = "Purple"
+};
 
-    // success
-    return pack_unpack(p_buffer, "%s", p_value);
-}
+/// file for reflection
+FILE *p_f = NULL;
 
-// Forward declaration
-/** !
- *  Print each element in a tuple 
- * 
- * @param p_tuple the tuple
- * 
- * @return 1 on success, 0 on error
-*/
-int print_all_elements ( tuple *p_tuple );
+/// hashes
+hash64 h1 = 0,
+       h2 = 0;
+
+/// working tuple
+tuple *p_tuple = NULL;
+size_t file_len = 0;
 
 // entry point
 int main ( int argc, const char* argv[] )
 {
 
-    // Suppress warnings
+    // unused
     (void) argc;
     (void) argv;
 
-    // initialized data
-    tuple *p_tuple          = (void *) 0;
-    const char *_p_slice_of_tuple[] = { 0, 0, (void *)0 };
-    char  *buf[1024] = { 0 };
-    FILE  *p_f = fopen("resources/reflection/tuple.bin", "wb");
-    size_t len = 0;
-
-    // Output
-    log_info("Constructing tuple (\"Dogs\", \"Cats\", \"Birds\", \"Fish\")\n");
-
-    // Make a 4 element tuple with variadic arguments
-    tuple_from_arguments(&p_tuple, 4, "Dogs", "Cats", "Birds", "Fish");
-
-    // Print the tuples' keys
-    print_all_elements(p_tuple);
-
-    // Output
-    log_info("Tuple slice [1:2]\n");
-
-    // Get elements [1:2]
-    tuple_slice(p_tuple, (const void **const) &_p_slice_of_tuple, 1, 2);
-
-    // Print the slice
-    printf("%s\n",_p_slice_of_tuple[0]);
-    printf("%s\n",_p_slice_of_tuple[1]);
+    // #0 - start
+    checkpoint(p_tuple, "start");
     
-    // Reflect the tuple to a buffer
-    len = tuple_pack(p_tuple, buf, pack_string);
+    // #1 - initial
+    {
+
+        // construct the tuple
+        tuple_from_arguments(&p_tuple, 6,
+            (void *)_p_colors[RED],
+            (void *)_p_colors[ORANGE],
+            (void *)_p_colors[YELLOW],
+            (void *)_p_colors[GREEN],
+            (void *)_p_colors[BLUE],
+            (void *)_p_colors[PURPLE]
+        );
+
+        // checkpoint
+        checkpoint(p_tuple, "after construction");
+    }
+
+    // #2 - slice 
+    {
+
+        // initialized data
+        char *slice_of_tuple[] = { 0, 0, NULL };
+
+        // take a slice
+        tuple_slice(p_tuple, (void**)slice_of_tuple, 1, 2);
+
+        // formatting
+        printf("\nSlice [1..2]\n");
+
+        // print the tuple slice
+        for ( int i = 0; i < 2; i++ )
+            printf("[%d] : %s\n", i, slice_of_tuple[i]);
+        
+        // formatting
+        putchar('\n');
+
+        // checkpoint
+        checkpoint(p_tuple, "after slice");
+    }
+
+    // #3 - to binary
+    {
+
+        // initialized data
+        char buf[1024] = { 0 };
+        
+        // Open a file for writing
+        p_f = fopen("resources/reflection/tuple.bin", "wb");
+
+        // reflect the tuple to a buffer
+        file_len = tuple_pack(buf, p_tuple, string_pack),
+        
+        // write the buffer to a file
+        fwrite(buf, file_len, 1, p_f),
+
+        // close the file
+        fclose(p_f);
+
+        // checkpoint
+        checkpoint(p_tuple, "after serialize");
+    }
+
+    // #4 - hash 1
+    {
+
+        // initialized data
+        h1 = tuple_hash(p_tuple, (fn_hash64 *)string_hash);
+
+        // print the hash
+        printf("hash 1 -> 0x%llx\n", h1);
+
+        // checkpoint
+        checkpoint(p_tuple, "after hash 1");
+    }
+
+    // #5 - destroy
+    {
+
+        // destroy the tuple
+        tuple_destroy(&p_tuple, NULL);
+
+        // checkpoint
+        checkpoint(p_tuple, "after destroy");
+    }
+
+    // #6 - from binary
+    {
+        
+        // initialized data
+        char buf[1024] = { 0 };
+        
+        // read a buffer from a file
+        p_f = fopen("resources/reflection/tuple.bin", "rb"),
+        fread(buf, file_len, 1, p_f),
+        
+        // reflect an tuple from the buffer
+        tuple_unpack(&p_tuple, buf, string_unpack),
+
+        // checkpoint
+        checkpoint(p_tuple, "after parse");
+    }
+
+    // #7 - hash
+    {
+
+        // initialized data
+        h2 = tuple_hash(p_tuple, (fn_hash64 *)string_hash);
+
+        // print the hash
+        printf("hash 2 -> 0x%llx\n", h2);
+
+        // error check
+        if ( h1 != h2 ) log_error("Error: hash 1 != hash 2\n");
+
+        // checkpoint
+        checkpoint(p_tuple, "after hash 2");
+    }
+
+    // #8 - destroy
+    {
+
+        // destroy the tuple
+        tuple_destroy(&p_tuple, NULL);
+
+        // checkpoint
+        checkpoint(p_tuple, "after destroy");
+    }
+
+    // #9 - end
+    checkpoint(p_tuple, "end");
     
-    // Write the buffer to a file
-    fwrite(buf, len, 1, p_f),
-    memset(buf, 0, sizeof(buf)),
-
-    // Close the file
-    fclose(p_f),
-    log_info("\nSerializig tuple to \"resources/reflection/tuple.bin\"\n\n");
-
-    // Destroy the tuple
-    tuple_destroy(&p_tuple),
-    log_info("Destroyed tuple\n\n");
-    
-    // Read a buffer from a file
-    p_f = fopen("resources/reflection/tuple.bin", "rb"),
-    fread(buf, len, 1, p_f),
-    
-    // Reflect an tuple from the buffer
-    tuple_unpack(&p_tuple, buf, unpack_string);
-
-    // Print the tuples' elements
-    log_info("Reflected tuple \"resources/reflection/tuple.bin\""),
-    putchar(':'), putchar('\n'),
-    print_all_elements(p_tuple);
-
     // success
     return EXIT_SUCCESS;
 }
 
-// Print the tuples' elements
-int print_all_elements ( tuple *p_tuple )
+int checkpoint ( tuple *p_tuple, const char *p_event )
+
 {
 
-    // argument check
-    if ( p_tuple == 0 ) return 0;
+    // static data
+    static int step = 0;
 
-    // initialized data
-    const void **pp_elements = 0;
-    size_t       size        = 0;
+    // print the tuple
+    if ( NULL == p_tuple )
+        log_info("#%d - Tuple %s: ", step, p_event),
+        printf("NULL\n");
+    else
+        log_info("#%d - Tuple %s:\n", step, p_event),
+        tuple_fori(p_tuple, string_print),
+        putchar('\n');
 
-    // Get quantity of elements in the tuple
-    size = tuple_size(p_tuple);
+    // increment counter
+    step++;
 
-    // Allocate memory for tuple contents
-    pp_elements = calloc(size, sizeof(void *));
-
-    // error check
-    if ( pp_elements == (void *) 0 ) return 0;
-
-    // Get the contents of the tuple
-    tuple_slice(p_tuple, pp_elements, 0, (signed long long) size);
-
-    // Iterate over each element
-    for (size_t i = 0; i < size; i++)
-
-        // Print each key
-        printf("[%lu] %s\n", i, (char *)pp_elements[i]);
-    
-    // Formatting
-    putchar('\n');
-
-    // Clean up
-    free(pp_elements);
-    
     // success
     return 1;
+}
+
+void string_print ( void *p_value, int i )
+{
+    
+    // print the element
+    printf("[%d] - %s\n", i, (char *)p_value);
+    
+    // done
+    return ;
+}
+
+int string_compare ( const void *const p_a, const void *const p_b )
+{
+    char *a = *(char **)p_a,
+         *b = *(char **)p_b;
+
+    return strcmp(a, b);
+}
+
+hash64 string_hash ( const void *const string, unsigned long long unused )
+{
+
+    // unused
+    (void)unused;
+
+    // done
+    return hash_crc64(string, strlen(string));
+}
+
+int string_pack ( void *p_buffer, const void *const p_value )
+{
+
+    // done
+    return pack_pack(p_buffer, "%s", p_value);
+}
+
+int string_unpack ( void *const p_value, void *p_buffer )
+{
+
+    // done
+    return pack_unpack(p_buffer, "%s", p_value);
 }

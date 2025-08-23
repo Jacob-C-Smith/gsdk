@@ -68,7 +68,7 @@ typedef int (fn_red_black_tree_traverse)(void *p_value);
 // Color enumeration for red-black tree nodes
 typedef enum
 {
-    RED = 0,
+    RED   = 0,
     BLACK = 1
 } red_black_color;
 
@@ -77,8 +77,8 @@ struct red_black_tree_node_s
 { 
     void *p_value;
     red_black_tree_node *p_left,
-                     *p_right,
-                     *p_parent;
+                        *p_right,
+                        *p_parent;
     red_black_color color;
     unsigned long long  node_pointer;
 };
@@ -87,12 +87,12 @@ struct red_black_tree_s
 {
     mutex _lock;
     red_black_tree_node *p_root;
-    FILE             *p_random_access;
+    FILE                *p_random_access;
     
     struct 
     {
-        fn_comparator              *pfn_comparator;
-        fn_key_accessor          *pfn_key_accessor;
+        fn_comparator               *pfn_comparator;
+        fn_key_accessor             *pfn_key_accessor;
         fn_red_black_tree_serialize *pfn_serialize_node;
         fn_red_black_tree_parse     *pfn_parse_node;
     } functions;
@@ -108,26 +108,40 @@ struct red_black_tree_s
 /** !
  * Construct an empty red_black tree
  * 
- * @param pp_red_black_tree   return
- * @param pfn_comparator     function for testing equality of elements in set IF parameter is not null ELSE default
- * @param pfn_key_accessor function for accessing the key of a value IF parameter is not null ELSE default
- * @param node_size        the size of a serialized node in bytes
+ * @param pp_red_black_tree return
+ * @param pfn_comparator    function for testing equality of elements in set IF parameter is not null ELSE default
+ * @param pfn_key_accessor  function for accessing the key of a value IF parameter is not null ELSE default
+ * @param node_size         the size of a serialized node in bytes
  * 
  * @return 1 on success, 0 on error
  */
-int red_black_tree_construct ( red_black_tree **const pp_red_black_tree, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor, unsigned long long node_size );
+int red_black_tree_construct 
+(
+    red_black_tree     **pp_red_black_tree, 
+    fn_comparator       *pfn_comparator, 
+    fn_key_accessor     *pfn_key_accessor, 
+    unsigned long long   node_size 
+);
 
 /** !
- * Construct a balanced red_black tree from a sorted list of keys and values. 
+ * Construct a red black tree from a sorted list of values. 
  * 
- * @param pp_red_black_tree    return
+ * @param pp_red_black_tree return
  * @param pp_values         the list of values
  * @param property_quantity the size of the list
- * @param pfn_comparator      function for testing equality of elements in set IF parameter is not null ELSE default
+ * @param pfn_comparator    function for testing equality of elements in set IF parameter is not null ELSE default
  * @param node_size         the size of a serialized node in bytes
  * 
 */
-int red_black_tree_construct_balanced ( red_black_tree **const pp_red_black_tree, void **pp_values, size_t property_quantity, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor, unsigned long long node_size );
+int red_black_tree_construct_balanced 
+( 
+    red_black_tree     **pp_red_black_tree, 
+    void               **pp_values, 
+    size_t               property_quantity, 
+    fn_comparator       *pfn_comparator, 
+    fn_key_accessor     *pfn_key_accessor, 
+    unsigned long long   node_size 
+);
 
 // accessors
 /** !
