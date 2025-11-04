@@ -12,15 +12,43 @@ import (
 	"time"
 )
 
-// custom type to handle flexible icon field
+// type definitions
 type IconField struct {
 	Single string
 	Dark   string
 	Light  string
 }
 
-var mt *template.Template = nil
-var pt *template.Template = nil
+type Module struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Path        string `json:"path"`
+	Markdown    string `json:"markdown"`
+	Tester      string `json:"tester"`
+	Example     string `json:"example"`
+	Array       []string
+	Icon        IconField `json:"icon"`
+}
+
+type Package map[string]Module
+type Library map[string]Package
+
+// data
+var (
+	mt *template.Template = nil
+	pt *template.Template = nil
+	it *template.Template = nil
+
+	library Library
+	verbose int
+)
+
+// function declarations
+func ok(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
 
 // custom unmarshal logic for icon field
 func (i *IconField) UnmarshalJSON(data []byte) error {
@@ -44,24 +72,6 @@ func (i *IconField) UnmarshalJSON(data []byte) error {
 
 	return fmt.Errorf("invalid icon format: %s", string(data))
 }
-
-// type definitions
-type Module struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Path        string `json:"path"`
-	Markdown    string `json:"markdown"`
-	Tester      string `json:"tester"`
-	Example     string `json:"example"`
-	Array       []string
-	Icon        IconField `json:"icon"`
-}
-type Package map[string]Module
-type Library map[string]Package
-
-// data
-var library Library
-var verbose int
 
 // indent function for pretty printing
 func indent(depth int, isLast []bool) {
@@ -218,12 +228,6 @@ func ifEmpty(s string) string {
 	return s
 }
 
-func ok(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
 func init() {
 	var json_text []byte
 	var err error
@@ -265,19 +269,49 @@ func (m Module) ModuleHTMLTemplate() (output string) {
 	return
 }
 
-func packageHTML(w http.ResponseWriter, r *http.Request) {
-	pt.Execute(w, library["data"])
+func indexHTML(w http.ResponseWriter, r *http.Request) {
+	it.Execute(w, library)
 }
 
-func moduleHTML(w http.ResponseWriter, r *http.Request) {
-
+func packageHTML(w http.ResponseWriter, r *http.Request) {
 	var name string = r.URL.Query().Get("name")
 	if name == "" {
 		http.Error(w, "Module name is required", http.StatusBadRequest)
 		return
 	}
 
-	module, exists := library["data"][name]
+	pkg, exists := library[name]
+	if !exists {
+		http.Error(w, "Module not found", http.StatusNotFound)
+		return
+	}
+
+	pt.Execute(w, struct {
+		Name string
+		Pkg  Package
+	}{
+		Pkg:  pkg,
+		Name: name,
+	})
+}
+
+func moduleHTML(w http.ResponseWriter, r *http.Request) {
+
+	var pkg string = r.URL.Query().Get("pkg")
+	var name string = r.URL.Query().Get("name")
+
+	// error checking
+	if pkg == "" {
+		http.Error(w, "Package name is required", http.StatusBadRequest)
+		return
+	}
+
+	if name == "" {
+		http.Error(w, "Module name is required", http.StatusBadRequest)
+		return
+	}
+
+	module, exists := library[pkg][name]
 	if !exists {
 		http.Error(w, "Module not found", http.StatusNotFound)
 		return
@@ -306,8 +340,9 @@ func periodicTask() {
 
 			mt, err = template.ParseFiles("tmpl/m.html")
 			pt, err = template.ParseFiles("tmpl/p.html")
+			it, err = template.ParseFiles("tmpl/index.html")
 			ok(err)
-			fmt.Println("Periodic task executed, library reloaded.")
+			fmt.Println("Periodic task executed, library reloaded.\r")
 
 		}
 	}
@@ -318,8 +353,9 @@ func main() {
 	go periodicTask()
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
-	http.HandleFunc("/", packageHTML)
+	http.HandleFunc("/", indexHTML)
 	http.HandleFunc("/module/", moduleHTML)
+	http.HandleFunc("/package/", packageHTML)
 
 	http.ListenAndServe(":8080", nil)
 }

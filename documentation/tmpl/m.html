@@ -1,23 +1,60 @@
-<div 
-    class='module' 
+<article class='module'>
+    
+    <header class='module'>
 
-    hx-trigger="every 10s" 
-    hx-get="/module/?name={{ .Name }}" 
-    hx-swap="outerHTML">
-    <img 
-    class="module-icon"
-    src="static/{{.Icon.Single}}" 
-    alt="{{ .Name }} image" 
-    style="max-width: 100px; max-height: 100px;"
+        <div class="module-icon-wrap">
+            {{ if .Icon.Single }}
+            <img 
+                class="module-icon invertable"
+                src="static/{{.Icon.Single}}" 
+            >
+            {{ else }}
+            <picture>
+                <source 
+                    media="(prefers-color-scheme: dark)" 
+                    srcset="static/{{.Icon.Dark}}"
+                >
+                <img 
+                    class="module-icon"
+                    src="static/{{.Icon.Light}}"
+                >
+            </picture>
+            {{ end }}
+        </div>
+        
+        <div
+            class='name_description'
         >
-    <h3>
-        {{ .Name }}
-    </h3>
-    <hr>
-    <p>{{ .Description }}</p>
-    <p>Path: {{ .Path }}</p>
-    <p>Markdown: {{ .Markdown }}</p>
-    <p>Tester: {{ .Tester }}</p>
-    <p>Example: {{ .Example }}</p>
+            <h1>{{ .Name }}</h1>
+            <i>{{ .Description }}</i>
+        </div>
+    </header>
 
-</div>
+    <figure class="example-test">
+        <!--
+            {{ if .Tester }}
+            <a href="https://github.com/Jacob-C-Smith/gsdk/tree/main/{{.Tester}}">
+                <button class="test">Tester</button>
+            </a>
+            {{ else }}
+                <button class="test">TODO</button>
+            {{ end }}
+
+            {{ if .Tester }}
+            <a href="https://github.com/Jacob-C-Smith/gsdk/tree/main/{{.Example}}">
+                <button class="example">Example</button>
+            </a>
+            {{ else }}
+                <button class="example">TODO</button>
+            {{ end }}
+         -->
+    </figure>
+
+    <nav class="module">
+        <b>
+            <a href='https://github.com/Jacob-C-Smith/gsdk/tree/main/documentation/{{ .Markdown }}'>README</a> •
+            <a href='https://github.com/Jacob-C-Smith/gsdk/tree/main/{{ .Path }}/{{.Name}}.h'>interface</a> • 
+            <a href='https://github.com/Jacob-C-Smith/gsdk/tree/main/{{ .Path }}'>source code</a> 
+        </b>
+    </nav>
+</article>

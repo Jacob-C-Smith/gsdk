@@ -1,67 +1,69 @@
 # GSDK
 
-*A modular C SDK with tons of generic data structures, abstractions for high-performance computing, and highly flexable reflection.*
+*A modular C SDK with tons of generic data structures, abstractions for performance computing, and highly flexable reflection.*
 
 <p align="center">
     <img src="https://img.shields.io/badge/language-C-blue.svg" alt="Language: C">
     <img src="https://img.shields.io/badge/build-make-green.svg" alt="Build: make">
     <img src="https://img.shields.io/badge/license-MIT-lightgrey.svg" alt="License: MIT">
-    <br>
     <a href="https://github.com/Jacob-C-Smith/gsdk/actions/workflows/gsdk-build.yml"><img src="https://github.com/Jacob-C-Smith/gsdk/actions/workflows/gsdk-build.yml/badge.svg" alt="gsdk build" ></a>
-    <a href="https://github.com/Jacob-C-Smith/gsdk/actions/workflows/gsdk-examples.yml"><img src="https://github.com/Jacob-C-Smith/gsdk/actions/workflows/gsdk-examples.yml/badge.svg" alt="gsdk examples" ></a>
-    <a href="https://github.com/Jacob-C-Smith/gsdk/actions/workflows/gsdk-tests.yml"><img src="https://github.com/Jacob-C-Smith/gsdk/actions/workflows/gsdk-tests.yml/badge.svg" alt="gsdk tests" ></a>
-    <a href="https://github.com/Jacob-C-Smith/gsdk/actions/workflows/gsdk-utilities.yml"><img src="https://github.com/Jacob-C-Smith/gsdk/actions/workflows/gsdk-utilities.yml/badge.svg" alt="gsdk tests" ></a>
 </p>
 
 > **Jump to:**  
-> [Features](#features) • [Getting Started](#getting-started) • [Highlights](#highlights) • [Modules](#modules) • [Interfaces](#interfaces) • [Structure](#structure) • [Build](#build) • [Testing](#testing) • [License](#license)
+> [Features](#features) • [Getting Started](#getting-started) • [Build](#build) • [Modules](#modules) • [Interfaces](#interfaces) • [Structure](#structure) • [Testing](#testing) • [License](#license)
 
 ---
 
 ## Features
 - **Core**: Interfaces, logging, synchronization, binary packing, cryptography, sockets, and hashing
-- **Data**: Arrays, maps, stacks, queues, sets, trees, graphs, and more
-- **Reflection**: JSON and base64 
+- **Data**: Arrays, maps, stacks, queues, sets, trees and more
+- **Reflection**: json / base64 
 - **Examples**: Example programs for each module
-- **Tests**: Test suites for many modules
+- **Tests**: Test suites for each modules
 - **Documentation**: Detailed READMEs and extensive inline comments
 
 ## Getting started
-The fastest way to get started is with GitHub Codespaces. You'll be able to view, modify, and run the code without leaving your browser.
+The fastest way to get started is with GitHub Codespaces. You'll be able to view, modify, and run the examples without leaving your browser.
 
 <a href="https://codespaces.new/Jacob-C-Smith/gsdk?quickstart=1"><img src="https://github.com/codespaces/badge.svg" alt="Open in GitHub Codespaces"></a>
+
+## Build
+To build the GSDK, run
+```bash
+$ make
+```
 
 ## Modules
 
 <b>key</b><br>
-✅ → Complete<br>
-✔️ → Needs interfaces<br>
-🧪 → Needs testing<br>
-🏗️ → Work in progress<br>
-❓ → Thinking about it
+⭐ → **Standout**<br>
+✅ → **Complete**<br>
+✔️ → **Needs interfaces**<br>
+🧪 → **Needs testing**<br>
+🏗️ → **Work in progress**<br>
+❓ → **Thinking about it**
 <details open>
-    <summary><a href="documentation/md/core.md">core</a></summary>
+    <summary><a href="documentation/md/core.md"><b>core</b></a></summary>
     <ul>
+        <li>⭐ <a href="./documentation/md/core/pack.md">pack</a></li>
         <li>✅ <a href="./documentation/md/core/hash.md">hash</a></li>
-        <li>✅ <a href="./documentation/md/core/pack.md">pack</a></li>
         <li>✅ <a href="./documentation/md/core/sha.md">sha</a></li>
         <li>✔️ <a href="./documentation/md/core/interfaces.md">interfaces</a></li>
         <li>✔️ <a href="./documentation/md/core/log.md">log</a></li>
-        <li>🧪 <a href="./documentation/md/core/dsa.md">dsa</a></li>
+        <li>🧪 <a href="./documentation/md/core/dsa.md">digital signature</a></li>
         <li>🧪 <a href="./documentation/md/core/rsa.md">rsa</a></li>
         <li>🧪 <a href="./documentation/md/core/sync.md">sync</a></li>
-        <li>🏗️ <a href="./documentation/md/core/aes.md">aes</a></li>
         <li>🏗️ <a href="./documentation/md/core/socket.md">socket</a></li>
     </ul>
 </details>
 
 <details open>
-    <summary><a href="documentation/md/data.md">data</a></summary>
+    <summary><a href="documentation/md/data.md"><b>data</b></a></summary>
     <ul>
         <li>✅ <a href="./documentation/md/data/array.md">array</a></li>
         <li>✅ <a href="./documentation/md/data/stack.md">stack</a></li>
         <li>✅ <a href="./documentation/md/data/tuple.md">tuple</a></li>
-        <li>✔️ <a href="./documentation/md/data/tree.md">binary</a></li>
+        <li>✔️ ⭐ <a href="./documentation/md/data/tree.md">binary</a></li>
         <li>✔️ <a href="./documentation/md/data/circular_buffer.md">circular buffer</a></li>
         <li>✔️ <a href="./documentation/md/data/dict.md">dict</a></li>
         <li>✔️ <a href="./documentation/md/data/queue.md">queue</a></li>
@@ -69,33 +71,24 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>🧪 <a href="./documentation/md/data/bitmap.md">bitmap</a></li>
         <li>🧪 <a href="#">cache</a></li>
         <li>🧪 <a href="./documentation/md/data/double_queue.md">double ended queue</a></li>
-        <li>🧪 <a href="./documentation/md/data/node.md">node</a></li>
         <li>🧪 <a href="./documentation/md/data/priority_queue.md">priority queue</a></li>
-        <li>🏗️ <a href="#">adjacency list</a></li>
-        <li>🏗️ <a href="#">adjacency matrix</a></li>
         <li>🏗️ <a href="./documentation/md/data/b.md">b</a></li>
-        <li>🏗️ <a href="./documentation/md/data/graph.md">graph</a></li>
-        <li>❓ <a href="#">edge list</a></li>
         <li>❓ <a href="#">hash table</a></li>
-        <li>❓ <a href="#">avl</a></li>
-        <li>❓ <a href="#">red black</a></li>
     </ul>
 </details>
 
 <details open>
-    <summary><a href="documentation/md/reflection.md">reflection</a></summary>
+    <summary><a href="documentation/md/reflection.md"><b>reflection</b></a></summary>
     <ul>
+        <li>⭐ <a href="./documentation/md/reflection/json.md">json</a></li>
         <li>✅ <a href="./documentation/md/reflection/base64.md">base64</a></li>
-        <li>✅ <a href="./documentation/md/reflection/json.md">json</a></li>
-        <li>🏗️ <a href="./documentation/md/reflection/http.md">http</a></li>
     </ul>
 </details>
 
 <details open>
-    <summary><a href="documentation/md/performance.md">performance</a></summary>
+    <summary><a href="documentation/md/performance.md"><b>performance</b></a></summary>
     <ul>
-        <li>🧪 <a href="./doocumentation/performance/parallel.md">parallel</a></li>
-        <li>🏗️ <a href="./doocumentation/performance/distribute.md">distribute</a></li>
+        <li>🧪 ⭐ <a href="./doocumentation/performance/parallel.md">parallel</a></li>
     </ul>
 </details>
 
@@ -106,17 +99,17 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 🏗️ → TODO<br>
 
 <details>
-    <summary>identity</summary>
+    <summary>🏗️ <b>identity</b></summary>
     
-|                   | `array` | `avl` | `b`   | `binary` | `cache` | `dict` | `graph` | `hash table` | `node` | `priority queue` | `red black` | `set` | `tree` |
-|-------------------|---------|-------|-------|----------|---------|--------|---------|--------------|--------|------------------|-------------|-------|--------|
-| `equality`        | ✅      | ✅    | ✅    | ✅       | ✅      |        |         | ✅           |        | ✅               | ✅         | ✅    | ✅     |
-| `comparator`      | ✅      | ✅    | ✅    | ✅       |         | ✅     |         |              |        | ✅               | ✅         | ✅    | ✅     |
-| `key_accessor`    |         | ✅    | ✅    | ✅       | ✅      | ✅     | ✅      | ✅           | ✅     | ✅               | ✅         | 🏗️    | ✅     |
+|                   | `array`  | `b`   | `binary` | `cache` | `dict` | `graph` | `hash table` | `node` | `priority queue` | `red black` | `set` | `tree` |
+|-------------------|----------|-------|----------|---------|--------|---------|--------------|--------|------------------|-------------|-------|--------|
+| `equality`        | ✅      | ✅    | ✅       | ✅      |        |         | ✅           |        | ✅               | ✅         | ✅    | ✅     |
+| `comparator`      | ✅      | ✅    | ✅       |         | ✅     |         |              |        | ✅               | ✅         | ✅    | ✅     |
+| `key_accessor`    |         | ✅    | ✅       | ✅      | ✅     | ✅      | ✅           | ✅     | ✅               | ✅         | 🏗️    | ✅     |
 </details>
 
 <details>
-    <summary>iterator</summary>
+    <summary>🏗️ <b>iterator</b></summary>
 
 |                   | `array` | `bitmap` | `cache` | `circular buffer` | `dict` | `double queue` | `hash table` | `priority queue` | `queue` | `set` | `stack` | `tuple` |
 |-------------------|---------|----------|---------|-------------------|--------|----------------|--------------|------------------|---------|-------|---------|---------|
@@ -127,7 +120,7 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 </details>
 
 <details>
-    <summary>reflection</summary>
+    <summary>🏗️ <b>reflection</b></summary>
 
 |                   | `array` | `bitmap` | `cache` | `circular buffer` | `dict` | `double queue` | `graph` | `hash table` | `node` | `priority queue` | `queue` | `set` | `stack` | `tree` | `tuple` |
 |-------------------|---------|----------|---------|-------------------|--------|----------------|---------|--------------|--------|------------------|---------|-------|---------|--------|---------|
@@ -137,50 +130,68 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 </details>
 
 <details>
-    <summary>tree</summary>
+    <summary>🏗️ <b>tree</b></summary>
 
-|                   | `avl` | `b` | `binary` | `red black` |
-|-------------------|-------|-----|----------|-------------|
-| `search`          | 🏗️    | 🏗️  | ✅       | 🏗️          |
-| `insert`          | 🏗️    | 🏗️  | ✅       | 🏗️          |
-| `remove`          | 🏗️    | 🏗️  | ✅       | 🏗️          |
-| `pre-order`       | 🏗️    | 🏗️  | ✅       | 🏗️          |
-| `in-order`        | 🏗️    | 🏗️  | ✅       | 🏗️          |
-| `post-order`      | 🏗️    | 🏗️  | ✅       | 🏗️          |
-
-</details>
-
-<details open>
-    <summary>graph</summary>
-<details>
-    <summary> storage</summary>
-
-|                   | `adjacency list` | `adjacency matrix` | `edge list` |
-|-------------------|------------------|--------------------|-------------|
-| `add vertex`      | ✅               | ✅                  | 🏗️          |
-| `remove vertex`   | ✅               | ✅                  | 🏗️          |
-| `add vertex`      | ✅               | ✅                  | 🏗️          |
-| `remove vertex`   | ✅               | ✅                  | 🏗️          |
-| `adjacent`        | ✅               | ✅                  | 🏗️          |
+|                   | `b` | `binary` |
+|-------------------|-----|----------|
+| `search`          | 🏗️  | ✅       |
+| `insert`          | 🏗️  | ✅       |
+| `remove`          | 🏗️  | ✅       |
+| `pre-order`       | 🏗️  | ✅       |
+| `in-order`        | 🏗️  | ✅       |
+| `post-order`      | 🏗️  | ✅       |
 
 </details>
-<details>
-    <summary> algorithms</summary>
 
-|                               | `unweighted undirected` | `weighted undirected` | `unweighted directed` | `weighted directed` |
-|-------------------------------|-------------------------|-----------------------|-----------------------|---------------------|
-| `flow`                        |                         |                       |                       | 🏗️                  |
-| `graph coloring`              |                         |                       | 🏗️                    | 🏗️                  |
-| `sort`                        |                         |                       | 🏗️                    | 🏗️                  |
-| `minimum spanning tree`       | 🏗️                      | 🏗️                    |                       |                     |
-| `transitive closure`          | 🏗️                      | 🏗️                    |                       |                     |
-| `all pairs shortest paths`    | 🏗️                      | 🏗️                    | 🏗️                    | 🏗️                  |
-| `search`                      | 🏗️                      | 🏗️                    | 🏗️                    | 🏗️                  |
-| `single source shortest path` | 🏗️                      | 🏗️                    | 🏗️                    | 🏗️                  |
-| `cycle detection`             | 🏗️                      | 🏗️                    | 🏗️                    | 🏗️                  |
+## Examples
+<b>key</b><br>
+✅ → Complete<br>
+✔️ → Incomplete<br>
+❓ → Not implemented<br>
 
-</details>
-</details>
+## Core
+| example           | status |
+|-------------------|--------|
+| hash              | ✅     |
+| pack              | ✔️     |
+| sha               | ✅     |
+| interfaces        | ❓     |
+| log               | ✅     | 
+| digital signature | ✔️     |
+| rsa               | ✔️     |
+| sync              | ✔️     |
+| socket            | ❓     |
+
+### Data
+| example            | status |
+|--------------------|--------|
+| array              | ✅     |
+| cache              | ✅     |
+| stack              | ✅     |
+| tuple              | ✅     |
+| binary             | ✅     |
+| circular buffer    | ✔️     |
+| dict               | ✔️     |
+| queue              | ✔️     |
+| set                | ✔️     |
+| bitmap             | ✔️     |
+| double ended queue | ✔️     |
+| priority queue     | ✔️     |
+| hash table         | ✔️     |
+
+
+### Reflection
+| example            | status |
+|--------------------|--------|
+| base64             | ✅     |
+| json               | ✅     |
+
+### Performance
+| example            | status |
+|--------------------|--------|
+| parallel           | ✅     |
+
+
 
 ## Structure
 
@@ -192,12 +203,6 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 | [examples](./src/examples/) | Examples of module usage           |
 | [tests](./src/test/)        | Unit tests                         |
 | [resources](./resources/)   | Sample data for examples           |
-
-## Build
-To build the GSDK, run
-```bash
-$ make
-```
 
 ## Testing
 To build the tests, run
