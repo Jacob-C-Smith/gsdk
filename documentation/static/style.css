@@ -204,6 +204,25 @@ article.module:hover{
     i {
         color: var(--accent-4);
     }
+    h2{
+        
+        padding: 0.333rem 0.5rem;
+
+        border: 1px solid var(--foreground);
+        border-radius: 1rem;
+
+
+        position: absolute;
+        top: -1rem;
+        right: -1rem;
+
+        margin: 0;
+        
+        font-size: 2rem;
+
+        background-color: var(--background);
+
+    }
     margin-left: 1.5rem;
     width: 25rem;
 }

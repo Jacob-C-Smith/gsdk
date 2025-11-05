@@ -24,16 +24,20 @@
         "digital signature" : 
         {
             "name" : "digital signature",
-            "description" : "Digitally sign/verify data",
+            "description" : "Digitally sign / verify data",
             "path": "src/core/digital_signature",
             "markdown" : "md/core/digital_signature.md",
             "tester" : "src/test/digital_signature_test.c",
             "example" : "src/examples/digital_signature_example.c",
-            "icon": "resource/icon/digital_signature.png"
+            "icon": {
+                "light" : "resource/icon/digital_signature_light.png",
+                "dark" : "resource/icon/digital_signature_dark.png"
+            }
         },
         "interfaces" : 
         {
             "name": "interfaces",
+            "status" : "⭐",
             "description": "Abstractions for abstractions",
             "path": "src/core/interfaces",
             "markdown": "md/core/interfaces.md",
@@ -60,6 +64,7 @@
         "pack" : 
         {
             "name": "pack",
+            "status" : "⭐",
             "description": "Composable reflection",
             "path": "src/reflection/pack",
             "markdown": "md/core/pack.md",
@@ -111,6 +116,7 @@
         "binary" : 
         {
             "name": "binary",
+            "status" : "⭐",
             "description": "Binary search tree",
             "path": "src/data/binary",
             "tester": "src/test/binary_test.c",
@@ -239,6 +245,7 @@
         "json" : 
         {
             "name": "json",
+            "status" : "⭐",
             "description": "Parse and serialize JSON values",
             "path": "src/reflection/json",
             "markdown": "md/reflection/json.md",
@@ -252,6 +259,7 @@
         "parallel" : 
         {
             "name": "parallel",
+            "status" : "⭐",
             "description": "Abstractions for performant computation on many cores",
             "path": "src/performance/parallel",
             "markdown": "md/performance/parallel.md",

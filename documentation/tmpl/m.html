@@ -25,6 +25,7 @@
         <div
             class='name_description'
         >
+            {{if .Status }}<h2>{{.Status}}</h2>{{end}}
             <h1>{{ .Name }}</h1>
             <i>{{ .Description }}</i>
         </div>
