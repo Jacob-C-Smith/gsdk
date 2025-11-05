@@ -21,6 +21,7 @@ type IconField struct {
 
 type Module struct {
 	Name        string `json:"name"`
+	Status      string `json:"status,omitempty"`
 	Description string `json:"description"`
 	Path        string `json:"path"`
 	Markdown    string `json:"markdown"`
@@ -322,7 +323,7 @@ func moduleHTML(w http.ResponseWriter, r *http.Request) {
 }
 
 func periodicTask() {
-	ticker := time.NewTicker(2 * time.Second)
+	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
 
 	for {
