@@ -21,6 +21,16 @@
             "example" : "src/examples/sha_example.c",
             "icon": "resource/icon/sha.png"
         },
+        "digital signature" : 
+        {
+            "name" : "digital signature",
+            "description" : "Digitally sign/verify data",
+            "path": "src/core/digital_signature",
+            "markdown" : "md/core/digital_signature.md",
+            "tester" : "src/test/digital_signature_test.c",
+            "example" : "src/examples/digital_signature_example.c",
+            "icon": "resource/icon/digital_signature.png"
+        },
         "interfaces" : 
         {
             "name": "interfaces",
