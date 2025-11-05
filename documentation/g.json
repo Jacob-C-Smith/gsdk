@@ -37,7 +37,6 @@
         "interfaces" : 
         {
             "name": "interfaces",
-            "status" : "⭐",
             "description": "Abstractions for abstractions",
             "path": "src/core/interfaces",
             "markdown": "md/core/interfaces.md",
@@ -64,7 +63,6 @@
         "pack" : 
         {
             "name": "pack",
-            "status" : "⭐",
             "description": "Composable reflection",
             "path": "src/reflection/pack",
             "markdown": "md/core/pack.md",
@@ -116,7 +114,6 @@
         "binary" : 
         {
             "name": "binary",
-            "status" : "⭐",
             "description": "Binary search tree",
             "path": "src/data/binary",
             "tester": "src/test/binary_test.c",
@@ -245,7 +242,6 @@
         "json" : 
         {
             "name": "json",
-            "status" : "⭐",
             "description": "Parse and serialize JSON values",
             "path": "src/reflection/json",
             "markdown": "md/reflection/json.md",
@@ -259,7 +255,6 @@
         "parallel" : 
         {
             "name": "parallel",
-            "status" : "⭐",
             "description": "Abstractions for performant computation on many cores",
             "path": "src/performance/parallel",
             "markdown": "md/performance/parallel.md",
