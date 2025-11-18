@@ -188,7 +188,7 @@ bool test_size ( int(*tuple_constructor)(tuple **pp_tuple), size_t expected_size
     // Free the tuple
     tuple_destroy(&p_tuple, NULL);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -214,7 +214,7 @@ bool test_index ( int(*tuple_constructor)(tuple **pp_tuple), signed idx, void *e
     // Free the tuple
     tuple_destroy(&p_tuple, NULL);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -248,7 +248,7 @@ bool test_slice ( int(*tuple_constructor)(tuple **pp_tuple), signed lower, signe
     // Free the tuple
     tuple_destroy(&p_tuple, NULL);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 

@@ -430,7 +430,7 @@ bool test_push ( int (*stack_constructor)(stack **), char *value, result_t expec
     // Free the stack
     stack_destroy(&p_stack);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -460,7 +460,7 @@ bool test_peek ( int (*stack_constructor)(stack **), char *expected_value, resul
     // Free the stack
     stack_destroy(&p_stack);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -495,6 +495,6 @@ bool test_pop ( int (*stack_constructor)(stack **), char *expected_value, size_t
     // Free the stack
     stack_destroy(&p_stack);
 
-    // Return result
+    // return result
     return (result == expected);
 }

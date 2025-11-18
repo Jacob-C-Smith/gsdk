@@ -600,7 +600,7 @@ bool test_add ( int(*dict_constructor)(dict **pp_dict), char *key, void *value, 
     // Free the dict
     dict_destroy(&p_dict, 0);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -626,7 +626,7 @@ bool test_get ( int(*dict_constructor)(dict **pp_dict), char *key, void *expecte
     // Free the dict
     dict_destroy(&p_dict, 0);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -654,7 +654,7 @@ bool test_key_count ( int(*dict_constructor)(dict **pp_dict), char **expected_ke
     // Free the dict
     dict_destroy(&p_dict, 0);
 
-    // Return result
+    // return result
     return (expected_keys_count == keys_count) ? true : false;
 }
 
@@ -682,7 +682,7 @@ bool test_value_count ( int(*dict_constructor)(dict **pp_dict), void **expected_
     // Free the dict
     dict_destroy(&p_dict, 0);
 
-    // Return result
+    // return result
     return (expected_value_count == value_count) ? true : false;
 }
 
@@ -741,7 +741,7 @@ bool test_keys ( int(*dict_constructor)(dict **pp_dict), char **expected_keys, r
     // Free the dict
     dict_destroy(&p_dict, 0);
 
-    // Return result
+    // return result
     return (result == expected);    
 }
 
@@ -803,7 +803,7 @@ bool test_values ( int(*dict_constructor)(dict **pp_dict), void **expected_value
     // Free the dict
     dict_destroy(&p_dict, 0);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -829,6 +829,6 @@ bool test_pop ( int (*dict_constructor)(dict **), char *key , void *expected_val
     // Free the dict
     dict_destroy(&p_dict, 0);
 
-    // Return result
+    // return result
     return (result == expected);
 } 

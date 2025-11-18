@@ -93,10 +93,10 @@ int http_parse_request (
     // Increment the pointer past the null terminator
     http_request_after_path++;
     
-    // Return the request type to the caller
+    // return the request type to the caller
     //*p_request_type = http_request_type_hash_table_mmh64[crypto_mmh64(request_text, strlen(request_text)) % HTTP_REQUEST_TYPE_MMH64_HASH_TABLE_COUNT];
 
-    // Return the requested path to the caller
+    // return the requested path to the caller
     //*pp_path = http_request_after_type;
 
     //dict_construct(&p_request_headers, 32, 0);

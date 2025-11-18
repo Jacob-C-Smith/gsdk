@@ -233,7 +233,7 @@ int json_string_parse ( char *const pointer, char **return_pointer )
     // Insert a null terminator
     pointer[i] = '\0';
 
-    // Return the updated pointer
+    // return the updated pointer
     *return_pointer = &pointer[j];
 
     // success
@@ -342,7 +342,7 @@ int json_object_parse ( char *pointer, char **return_pointer, dict **const pp_di
     // Increment the cursor
     pointer++;
 
-    // Return the cursor to the caller
+    // return the cursor to the caller
     if ( return_pointer ) *return_pointer = pointer;
 
     // return a pointer to the caller
@@ -447,7 +447,7 @@ int json_array_parse ( char *pointer, char **return_pointer, array **const pp_ar
     // Increment the cursor
     pointer++;
 
-    // Return the cursor to the caller
+    // return the cursor to the caller
     if ( return_pointer ) *return_pointer = pointer;
 
     // return a pointer to the caller
@@ -485,7 +485,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
     if ( return_pointer  ) 
     {
 
-        // Allocate memory
+        // allocate memory
         p_value = default_allocator(0, sizeof(json_value));
         
         // error check
@@ -500,7 +500,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
         // initialized data
         size_t len = strlen(text);
 
-        // Allocate memory
+        // allocate memory
         p_value = default_allocator(0, sizeof(json_value) + len + 1);
 
         // error check
@@ -543,7 +543,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             // Compute the length of the string
             string_len = strlen(last_text); 
 
-            // Allocate memory for the string
+            // allocate memory for the string
             p_value->string = default_allocator(0, ( (string_len + 1 + 8) & 0xFFFFFFFFFFFFFFF8) * sizeof(char));
         
             // error check
@@ -1031,7 +1031,7 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                 // Get the contents of the array
                 {
 
-                    // Allocate memory for the elements
+                    // allocate memory for the elements
                     elements = default_allocator(0, element_count * sizeof(json_value*));
 
                     // error check
@@ -1292,7 +1292,7 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
                 // Get the contents of the array
                 {
 
-                    // Allocate memory for the elements
+                    // allocate memory for the elements
                     elements = default_allocator(0, element_count * sizeof(json_value*));
 
                     // error check

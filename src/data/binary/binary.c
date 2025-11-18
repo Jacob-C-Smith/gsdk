@@ -227,7 +227,7 @@ int binary_tree_node_allocate ( binary_tree *p_binary_tree, binary_tree_node **p
     // initialized data
     binary_tree_node *p_binary_tree_node = (void *) 0;
 
-    // Allocate a node
+    // allocate a node
     if ( binary_tree_node_create(&p_binary_tree_node) == 0 ) goto failed_to_allocate_node;
 
     // store the node pointer
@@ -354,7 +354,7 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
     if ( start == end )
     {
 
-        // Allocate a binary tree node
+        // allocate a binary tree node
         if (binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node) == 0) goto failed_to_allocate_node;
 
         // store the value
@@ -368,13 +368,13 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
     else if ( end - start == 1 )
     {
 
-        // Allocate a binary tree node
+        // allocate a binary tree node
         if (binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node) == 0) goto failed_to_allocate_node;
 
         // store the value
         p_binary_tree_node->p_value = pp_values[end];
 
-        // Allocate the left node
+        // allocate the left node
         if (binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node->p_left) == 0) goto failed_to_allocate_node;
 
         // store the left value
@@ -391,7 +391,7 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
         // initialized data
         size_t median = (start + end) / 2;
 
-        // Allocate a binary tree node
+        // allocate a binary tree node
         if (binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node) == 0) goto failed_to_allocate_node;
 
         // store the value
@@ -1187,7 +1187,7 @@ int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, 
         fread(&node_size, sizeof(unsigned long long), 1, p_f);
     }
 
-    // Allocate a binary tree
+    // allocate a binary tree
     if ( binary_tree_construct(&p_binary_tree, pfn_comparator, pfn_key_accessor, node_size) == 0 ) goto failed_to_construct_binary_tree;
 
     // Read the root node

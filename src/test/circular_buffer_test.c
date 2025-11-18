@@ -602,7 +602,7 @@ bool test_empty ( int (*circular_buffer_constructor)(circular_buffer **), result
     // Free the queue
     circular_buffer_destroy(&p_queue);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -622,7 +622,7 @@ bool test_full ( int (*circular_buffer_constructor)(circular_buffer **), result_
     // Free the queue
     circular_buffer_destroy(&p_queue);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -650,6 +650,6 @@ bool test_peek ( int (*circular_buffer_constructor)(circular_buffer **), void *e
     // Free the circular buffer
     circular_buffer_destroy(&p_circular_buffer);
 
-    // Return result
+    // return result
     return (result == expected);
 }

@@ -68,7 +68,7 @@ int circular_buffer_construct ( circular_buffer **const pp_circular_buffer, size
 	// initialized data
 	circular_buffer *p_circular_buffer = 0;
 
-	// Allocate memory for a circular buffer
+	// allocate memory for a circular buffer
 	if ( circular_buffer_create(&p_circular_buffer) == 0 ) goto failed_to_create_circular_buffer;
 
 	// Grow the circular buffer
@@ -350,7 +350,7 @@ int circular_buffer_peek ( circular_buffer *const p_circular_buffer, void **pp_d
 	// state check
 	if ( p_circular_buffer->full == false && p_circular_buffer->read == p_circular_buffer->write ) goto circular_buffer_empty;
 
-	// Return data to the caller
+	// return data to the caller
 	*pp_data = p_circular_buffer->_p_data[p_circular_buffer->read];
 
 	// unlock

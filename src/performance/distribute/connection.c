@@ -89,7 +89,7 @@ int connection_construct ( connection **const pp_connection, const char *p_hostn
     socket_tcp   _socket     = 0;
     socket_ip_address ip = 0;
 
-    // Allocate a connection
+    // allocate a connection
     if ( connection_create(&p_connection) == 0 ) goto no_mem;
 
     // Resolve the hostname

@@ -845,7 +845,7 @@ bool test_add ( void(*set_constructor)(set **pp_set), void *value, result_t expe
     // Free the set
     set_destroy(&p_set);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -865,7 +865,7 @@ bool test_count ( void(*set_constructor)(set **pp_set), size_t count, result_t e
     // Free the set
     set_destroy(&p_set);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -935,7 +935,7 @@ bool test_union ( void(*set_constructor)(set **pp_set), void(*set_constructor2)(
     set_destroy(&p_set2);
     set_destroy(&p_set);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -1003,7 +1003,7 @@ bool test_intersection ( void(*set_constructor)(set **pp_set), void(*set_constru
     set_destroy(&p_set2);
     set_destroy(&p_set);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -1073,7 +1073,7 @@ bool test_difference ( void(*set_constructor)(set **pp_set), void(*set_construct
     set_destroy(&p_set2);
     set_destroy(&p_set);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 

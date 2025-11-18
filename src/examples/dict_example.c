@@ -101,6 +101,6 @@ void print_value_as_integer ( const void *const p_value, size_t i )
     // Print the value as a hexidecimal number
     printf("0x%zx\n",(size_t) p_value);
 
-    // Return
+    // return
     return;
 }

@@ -259,7 +259,7 @@ int key_pair_construct ( public_key **pp_public_key, private_key **pp_private_ke
         .b = b
     },
 
-    // Return pointers to the caller
+    // return pointers to the caller
     *pp_private_key = p_private_key,
     *pp_public_key  = p_public_key;
 
@@ -331,7 +331,7 @@ int key_pair_from_files
     p_public_key_buffer  = default_allocator(p_public_key_buffer, 0),
     p_private_key_buffer = default_allocator(p_private_key_buffer, 0);
 
-    // Return pointers to the caller
+    // return pointers to the caller
     *pp_public_key  = p_public_key,
     *pp_private_key = p_private_key;
 

@@ -48,7 +48,7 @@
  ```
  ### Function definitions
  ```c
-// Allocaters
+// allocaters
 int set_create ( set **const pp_set );
 
 // constructors

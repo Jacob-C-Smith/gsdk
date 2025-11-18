@@ -1549,7 +1549,7 @@ int construct_object_empty ( json_value **pp_value )
     // Value
     dict_construct(&p_value->object, 1, 0);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -1578,7 +1578,7 @@ int construct_object_string ( json_value **pp_value )
     dict_construct(&p_value->object, 1, 0);
     dict_add(p_value->object, "abc", p_abc_value);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -1601,7 +1601,7 @@ int construct_object_int  ( json_value **pp_value )
     dict_construct(&p_value->object, 1, 0);
     dict_add(p_value->object, "abc", p_abc_value);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -1624,7 +1624,7 @@ int construct_object_float  ( json_value **pp_value )
     dict_construct(&p_value->object, 1, 0);
     dict_add(p_value->object, "pi", p_abc_value);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -1647,7 +1647,7 @@ int construct_object_false  ( json_value **pp_value )
     dict_construct(&p_value->object, 1, 0);
     dict_add(p_value->object, "abc", p_abc_value);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -1670,7 +1670,7 @@ int construct_object_true  ( json_value **pp_value )
     dict_construct(&p_value->object, 1, 0);
     dict_add(p_value->object, "abc", p_abc_value);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -1719,7 +1719,7 @@ int construct_object_strings ( json_value **pp_value )
     dict_add(p_value->object, "ghi", p_ghi_value);
     dict_add(p_value->object, "mno", p_mno_value);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -1758,7 +1758,7 @@ int construct_object_mixed_values ( json_value **pp_value )
     dict_add(p_value->object, "age"   , p_age_value);
     dict_add(p_value->object, "height", p_height_value);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -1786,7 +1786,7 @@ int construct_object_object ( json_value **pp_value )
     dict_add(p_value->object, "abc", p_abc_value);
     dict_add(p_abc_value->object, "def", p_def_value);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -1819,7 +1819,7 @@ int construct_object_object_object ( json_value **pp_value )
     dict_add(p_abc_value->object, "def", p_def_value);
     dict_add(p_value->object, "abc", p_abc_value);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -1853,7 +1853,7 @@ int construct_object_recursive ( json_value **pp_value )
         p_last_value = p_iter_value;
     }
     
-    // Return
+    // return
     *pp_value = p_iter_value;
 
     // success
@@ -1893,7 +1893,7 @@ int construct_object_array ( json_value **pp_value )
 
     dict_add(p_value->object, "abc", p_array_value);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -1946,7 +1946,7 @@ int construct_object_array_objects ( json_value **pp_value )
 
     dict_add(p_value->object, "a", p_array_value);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -1981,7 +1981,7 @@ int construct_object_array_object ( json_value **pp_value )
 
     dict_add(p_value->object, "a", p_array_value);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2000,7 +2000,7 @@ int construct_array_empty ( json_value **pp_value )
     // Value
     array_construct(&p_value->list, 1);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2020,7 +2020,7 @@ int construct_array_null ( json_value **pp_value )
     array_construct(&p_value->list, 1);
     array_add(p_value->list, 0);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2042,7 +2042,7 @@ int construct_array_nulls ( json_value **pp_value )
     array_add(p_value->list, 0);
     array_add(p_value->list, 0);
     
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2066,7 +2066,7 @@ int construct_array_bool ( json_value **pp_value )
     array_construct(&p_value->list, 1);
     array_add(p_value->list, p_bool);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2102,7 +2102,7 @@ int construct_array_bools ( json_value **pp_value )
     p_bool->boolean = true;
     array_add(p_value->list, p_bool);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2126,7 +2126,7 @@ int construct_array_int ( json_value **pp_value )
     array_construct(&p_value->list, 1);
     array_add(p_value->list, p_bool);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2162,7 +2162,7 @@ int construct_array_ints ( json_value **pp_value )
     p_int->integer = 3;
     array_add(p_value->list, p_int);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2186,7 +2186,7 @@ int construct_array_float ( json_value **pp_value )
     array_construct(&p_value->list, 1);
     array_add(p_value->list, p_float);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2222,7 +2222,7 @@ int construct_array_floats ( json_value **pp_value )
     p_float->number = 5.6;
     array_add(p_value->list, p_float);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2250,7 +2250,7 @@ int construct_array_string_empty ( json_value **pp_value )
     array_construct(&p_value->list, 1);
     array_add(p_value->list, p_string);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2280,7 +2280,7 @@ int construct_array_string ( json_value **pp_value )
     array_construct(&p_value->list, 1);
     array_add(p_value->list, p_string);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2334,7 +2334,7 @@ int construct_array_strings ( json_value **pp_value )
     p_string->string = z;
     array_add(p_value->list, p_string);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2358,7 +2358,7 @@ int construct_array_object_empty ( json_value **pp_value )
     dict_construct(&p_object->object, 2, 0);
     array_add(p_value->list, p_object);
     
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2389,7 +2389,7 @@ int construct_array_object ( json_value **pp_value )
     dict_add(p_object->object, "a", p_object_property);
     array_add(p_value->list, p_object);
     
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2444,7 +2444,7 @@ int construct_array_objects ( json_value **pp_value )
     dict_add(p_object->object, "c", p_object_property);
     array_add(p_value->list, p_object);
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2470,7 +2470,7 @@ int construct_array_array_empty ( json_value **pp_value )
     // Value 2
     array_add(p_value->list, p_array);
     
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2503,7 +2503,7 @@ int construct_array_array_array_empty ( json_value **pp_value )
     // Value 2
     array_add(p_value->list, p_array);
     
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2590,7 +2590,7 @@ int construct_array_matrix ( json_value **pp_value )
         array_add(p_value->list, p_subarray);
     }
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success
@@ -2699,7 +2699,7 @@ int construct_array_tensor ( json_value **pp_value )
         array_add(p_value->list, p_subarray);
     }
 
-    // Return
+    // return
     *pp_value = p_value;
 
     // success

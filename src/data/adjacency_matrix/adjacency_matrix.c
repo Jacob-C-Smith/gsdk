@@ -19,10 +19,10 @@ int adjacency_matrix_construct ( adjacency_matrix **pp_adjacency_matrix, size_t 
     // The size parameter is ignored for now, we'll allocate as needed
     p_adjacency_matrix->p_vertices = NULL;
     
-    // Return the constructed adjacency_matrix
+    // return the constructed adjacency_matrix
     *pp_adjacency_matrix = p_adjacency_matrix;
 
-    // Return success
+    // return success
     return 1;
 
     // error handling

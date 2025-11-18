@@ -41,7 +41,7 @@ typedef struct priority_queue_s priority_queue;
  */
 typedef int (priority_queue_equal_fn)(const void *const p_a, const void *const p_b);
 
-// Allocaters
+// allocaters
 /** !
  *  Allocate memory for a priority queue
  *

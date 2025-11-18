@@ -289,7 +289,7 @@ int red_black_tree_node_allocate ( red_black_tree *p_red_black_tree, red_black_t
     // initialized data
     red_black_tree_node *p_red_black_tree_node = (void *) 0;
 
-    // Allocate a node
+    // allocate a node
     if ( red_black_tree_node_create(&p_red_black_tree_node) == 0 ) goto failed_to_allocate_node;
 
     // store the node pointer
@@ -416,7 +416,7 @@ red_black_tree_node *red_black_tree_construct_balanced_recursive ( red_black_tre
     if ( start == end )
     {
 
-        // Allocate a red_black tree node
+        // allocate a red_black tree node
         if (red_black_tree_node_allocate(p_red_black_tree, &p_red_black_tree_node) == 0) goto failed_to_allocate_node;
 
         // store the value
@@ -433,13 +433,13 @@ red_black_tree_node *red_black_tree_construct_balanced_recursive ( red_black_tre
     else if ( end - start == 1 )
     {
 
-        // Allocate a red_black tree node
+        // allocate a red_black tree node
         if (red_black_tree_node_allocate(p_red_black_tree, &p_red_black_tree_node) == 0) goto failed_to_allocate_node;
 
         // store the value
         p_red_black_tree_node->p_value = pp_values[end];
 
-        // Allocate the left node
+        // allocate the left node
         if (red_black_tree_node_allocate(p_red_black_tree, &p_red_black_tree_node->p_left) == 0) goto failed_to_allocate_node;
 
         // store the left value
@@ -463,7 +463,7 @@ red_black_tree_node *red_black_tree_construct_balanced_recursive ( red_black_tre
         // initialized data
         size_t median = (start + end) / 2;
 
-        // Allocate a red_black tree node
+        // allocate a red_black tree node
         if (red_black_tree_node_allocate(p_red_black_tree, &p_red_black_tree_node) == 0) goto failed_to_allocate_node;
 
         // store the value
@@ -711,7 +711,7 @@ int red_black_tree_insert ( red_black_tree *p_red_black_tree, const void *const 
         }
     }
 
-    // Allocate a new node
+    // allocate a new node
     if ( red_black_tree_node_allocate(p_red_black_tree, &p_new_node) == 0 ) goto failed_to_allocate_red_black_tree_node;
 
     // Initialize the new node
@@ -827,7 +827,7 @@ int red_black_tree_remove ( red_black_tree *const p_red_black_tree, const void *
         return 0;
     }
 
-    // Return the value
+    // return the value
     if ( pp_value != (void *) 0 )
         *pp_value = p_node->p_value;
 
@@ -1284,7 +1284,7 @@ int red_black_tree_parse ( red_black_tree **const pp_red_black_tree, const char 
         fread(&node_size, sizeof(unsigned long long), 1, p_f);
     }
 
-    // Allocate a red_black tree
+    // allocate a red_black tree
     if ( red_black_tree_construct(&p_red_black_tree, pfn_comparator, pfn_key_accessor, node_size) == 0 ) goto failed_to_construct_red_black_tree;
 
     // Read the root node

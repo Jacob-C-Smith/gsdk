@@ -535,7 +535,7 @@ bool test_increase_key(int (*priority_queue_constructor)(priority_queue **pp_pri
     // Free the priority queue
     priority_queue_destroy(&p_priority_queue);
 
-    // Return result
+    // return result
     return (expected_value_count == value_count) ? true : false;
 }
 
@@ -555,7 +555,7 @@ bool test_enqueue(int (*priority_queue_constructor)(priority_queue **pp_priority
     // Free the priority queue
     priority_queue_destroy(&p_priority_queue);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -581,7 +581,7 @@ bool test_dequeue(int (*priority_queue_constructor)(priority_queue **pp_priority
     // Free the priority queue
     priority_queue_destroy(&p_priority_queue);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -605,7 +605,7 @@ bool test_max(int (*priority_queue_constructor)(priority_queue **pp_priority_que
     // Free the priority queue
     priority_queue_destroy(&p_priority_queue);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -625,6 +625,6 @@ bool test_isempty(int (*priority_queue_constructor)(priority_queue **pp_priority
     // Free the priority queue
     priority_queue_destroy(&p_priority_queue);
 
-    // Return result
+    // return result
     return (result == expected);
 }

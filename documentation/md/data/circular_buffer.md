@@ -44,7 +44,7 @@ Dumping contents of circular buffer
  ```
  ### Function definitions
  ```c 
-// Allocaters
+// allocaters
 int circular_buffer_create ( circular_buffer **const pp_circular_buffer );
 
 // constructors

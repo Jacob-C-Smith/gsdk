@@ -67,7 +67,7 @@ int parallel_thread_start ( parallel_thread **pp_parallel_thread, fn_parallel_ta
     // initialized data
     parallel_thread *p_parallel_thread = (void *) 0;
 
-    // Allocate a parallel thread
+    // allocate a parallel thread
     if ( parallel_thread_create(&p_parallel_thread) == 0 ) goto failed_to_allocate_parallel_thread;
 
     // Platform dependent implementation

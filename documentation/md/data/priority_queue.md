@@ -31,7 +31,7 @@
 
  ### Function definitions
  ```c 
-// Allocaters
+// allocaters
 int priority_queue_create ( priority_queue **const pp_priority_queue );
 
 // constructors

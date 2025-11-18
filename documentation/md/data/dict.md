@@ -58,7 +58,7 @@ Fish
  ```
  ### Function definitions
  ```c 
- // Allocaters
+ // allocaters
  int dict_create ( dict **pp_dict );
  
  // constructors

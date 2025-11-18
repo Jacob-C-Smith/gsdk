@@ -49,7 +49,7 @@ int digital_signature_sign
     // error check
     if ( NULL == p_signature ) goto no_mem;
 
-    // Allocate and zero a block, then pack the 32-byte SHA256 into the lower bytes
+    // allocate and zero a block, then pack the 32-byte SHA256 into the lower bytes
     p_hash_val = default_allocator(0, rsa_block_size);
     if ( NULL == p_hash_val ) goto no_mem;
     memset(p_hash_val, 0, rsa_block_size);

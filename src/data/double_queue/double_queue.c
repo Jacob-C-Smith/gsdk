@@ -60,7 +60,7 @@ int double_queue_create ( double_queue **const pp_double_queue )
 	// Zero set
 	memset(ret, 0, sizeof(double_queue));
 
-	// Return the queue
+	// return the queue
 	*pp_double_queue = ret;
 
 	// success
@@ -102,7 +102,7 @@ int double_queue_construct ( double_queue **const pp_double_queue )
 	// initialized data
 	double_queue *p_double_queue = 0;
 
-	// Allocate for a queue
+	// allocate for a queue
 	if ( double_queue_create(pp_double_queue) == 0 ) goto failed_to_create_queue;
 
 	// Get a pointer to the allocated memory
@@ -262,7 +262,7 @@ int double_queue_rear ( const double_queue *const p_double_queue, void **const p
 	// state check
 	if ( double_queue_empty(p_double_queue) ) goto no_double_queue_contents;
 
-	// Return a pointer to the rear element
+	// return a pointer to the rear element
 	if ( pp_value )
 		*pp_value = ((struct double_queue_node_s *)(p_double_queue->rear))->content;
 	

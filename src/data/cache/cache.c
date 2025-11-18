@@ -78,7 +78,7 @@ int cache_construct
     // initialized data
     cache *p_cache = (void *) 0;
 
-    // Allocate memory for the cache
+    // allocate memory for the cache
     if ( cache_create(&p_cache) == 0 ) goto failed_to_allocate_cache;
 
     // Populate the cache
@@ -598,7 +598,7 @@ int cache_unpack ( cache **pp_cache, void *p_buffer, fn_unpack *pfn_element )
         // Advance the buffer
         p += len_result;
 
-        // Allocate memory for the element
+        // allocate memory for the element
         p_element = default_allocator(0, len_result),
 
         // Copy the memory
@@ -608,7 +608,7 @@ int cache_unpack ( cache **pp_cache, void *p_buffer, fn_unpack *pfn_element )
         cache_insert(p_cache, p_element, p_element);
     }
 
-    // Return the cache to the caller
+    // return the cache to the caller
     *pp_cache = p_cache;
 
     // success

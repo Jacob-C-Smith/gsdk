@@ -40,8 +40,8 @@ typedef struct tuple_s tuple;
 /** !
  *  Construct a tuple with a specific size
  *
- * @param pp_tuple return
- * @param size number of elements in a tuple
+ * @param pp_tuple result
+ * @param size     number of elements in a tuple
  *
  * @sa tuple_create
  * @sa tuple_destroy
@@ -53,9 +53,9 @@ int tuple_construct ( tuple **const pp_tuple, size_t size );
 /** !
  *  Construct a tuple from a list of elements
  *
- * @param pp_tuple return
+ * @param pp_tuple result
  * @param elements pointer to null terminated tuple of element pointers
- * @param size number of elements. 
+ * @param size     number of elements. 
  *
  * @sa tuple_construct
  * @sa tuple_from_arguments
@@ -68,7 +68,7 @@ int tuple_from_elements ( tuple **const pp_tuple, void *const *const elements, s
 /** !
  *  Construct a tuple from parameters
  *
- * @param pp_tuple      return
+ * @param pp_tuple      result
  * @param element_count the quantity of variadic arguments 
  * @param ...           variadic elements
  *
@@ -85,8 +85,8 @@ int tuple_from_arguments ( tuple **const pp_tuple, size_t element_count, ... );
  * Index a tuple with a signed number. If index is negative, index = size - |index|, such that
  * [A,B,C,D,E] index(-2) -> D
  * 
- * @param p_tuple tuple
- * @param index signed index. 
+ * @param p_tuple  the tuple
+ * @param index    signed index. 
  * @param pp_value return
  * 
  * @sa tuple_get
@@ -99,7 +99,7 @@ int tuple_index ( const tuple *const p_tuple, signed long long index, void **con
 /** !
  * Get a slice of the tuple specified by a lower bound and an upper bound
  * 
- * @param p_tuple tuple
+ * @param p_tuple     the tuple
  * @param pp_elements return
  * @param lower_bound the lower bound of the tuple
  * @param upper_bound the upper bound of the tuple
@@ -114,7 +114,7 @@ int tuple_slice ( const tuple *const p_tuple, const void **const pp_elements, si
 /** !
  *  Is a tuple empty?
  * 
- * @param p_tuple a tuple
+ * @param p_tuple the tuple
  * 
  * @return true if tuple has no contents else false
  */
@@ -123,7 +123,7 @@ bool tuple_is_empty ( const tuple *const p_tuple );
 /** !
  *  Get the size of a tuple
  * 
- * @param p_tuple a tuple
+ * @param p_tuple the tuple
  * 
  * @return size of tuple
  */

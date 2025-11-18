@@ -12,7 +12,7 @@
  ## Example
  To run the example program, execute this command
  ```
- $ ./tuple_example
+ $ ./build/examples/tuple_example
  ```
  ## Definitions
  ### Type definitions
@@ -21,24 +21,26 @@
  ```
  ### Function definitions
  ```c 
-// Allocaters
-int tuple_create ( tuple **pp_tuple );
+/// constructors
+int tuple_from_elements  ( tuple **const pp_tuple, void *const *const elements     , size_t size );
+int tuple_from_arguments ( tuple **const pp_tuple, size_t             element_count, ... );
 
-// constructors
-int tuple_construct      ( tuple **pp_tuple, size_t size );
-int tuple_from_elements  ( tuple **pp_tuple, void **elements, size_t size );
-int tuple_from_arguments ( tuple **pp_tuple, int element_count, ... );
+/// accessors
+int   tuple_index    ( const tuple *const p_tuple, signed long long   index, void **const pp_value );
+int   tuple_slice    ( const tuple *const p_tuple, const void **const pp_elements, signed long long lower_bound, signed long long upper_bound );
+bool  tuple_is_empty ( const tuple *const p_tuple );
+size_t tuple_size    ( const tuple *const p_tuple );
 
-// accessors
-int    tuple_index    ( const tuple *p_tuple, signed index, void **pp_value );
-int    tuple_get      ( const tuple *p_tuple, void **pp_elements, size_t *p_count );
-int    tuple_slice    ( const tuple *p_tuple, void **pp_elements, signed lower_bound, signed upper_bound );
-bool   tuple_is_empty ( const tuple *p_tuple );
-size_t tuple_size     ( const tuple *p_tuple );
+/// iterators
+int tuple_fori ( tuple *p_tuple, fn_fori *pfn_fori );
 
-// iterators
-int tuple_foreach_i ( const tuple *p_tuple, void (*function)(void *value, size_t index) );
+/// reflection
+int tuple_pack ( void *p_buffer, tuple *p_tuple, fn_pack *pfn_element );
+int tuple_unpack ( tuple **pp_tuple, void *p_buffer, fn_unpack *pfn_element );
 
-// destructors
-int tuple_destroy ( tuple **pp_tuple );
+/// hash
+hash64 tuple_hash ( tuple *p_tuple, fn_hash64 *pfn_element );
+
+/// destructors
+int tuple_destroy ( tuple **pp_tuple, fn_allocator *pfn_allocator );
 ```

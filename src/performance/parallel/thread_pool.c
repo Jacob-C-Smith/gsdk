@@ -114,7 +114,7 @@ int thread_pool_create ( thread_pool **const pp_thread_pool )
     // initialized data
     thread_pool *p_thread_pool = (void *) 0;
 
-    // Allocate memory for the thread_pool
+    // allocate memory for the thread_pool
     p_thread_pool = default_allocator(0, sizeof(thread_pool));
 
     // error check

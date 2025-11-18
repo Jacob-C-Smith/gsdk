@@ -53,11 +53,11 @@ int mutex_create ( mutex *p_mutex )
         // Create a mutex
         *p_mutex = CreateMutex(0, FALSE, 0);
 
-        // Return
+        // return
         return ( *p_mutex != 0 );
     #else
 
-        // Return
+        // return
         return ( pthread_mutex_init(p_mutex, NULL) == 0 );
     #endif
 
@@ -86,7 +86,7 @@ int mutex_lock ( mutex *p_mutex )
         // Platform dependent argument check
         if ( _mutex == INVALID_HANDLE_VALUE ) goto no_mutex;
 
-        // Return
+        // return
         return ( WaitForSingbject(_mutex, INFINITE) == WAIT_FAILED ? 0 : 1 );
     #else
 
@@ -95,7 +95,7 @@ int mutex_lock ( mutex *p_mutex )
             log_info("[sync] [mutex] Locking mutex @ 0x%x\n", (size_t)p_mutex & 0xffff);
         #endif
         
-        // Return
+        // return
         return ( pthread_mutex_lock(p_mutex) == 0 );
     #endif
 
@@ -124,7 +124,7 @@ int mutex_unlock ( mutex *p_mutex )
     #ifdef _WIN64
         // Platform dependent argument check
         if ( p_mutex == INVALID_HANDLE_VALUE ) goto no_mutex;
-        // Return
+        // return
         return ReleaseMutex(_mutex);
     #else
 
@@ -133,7 +133,7 @@ int mutex_unlock ( mutex *p_mutex )
             log_info("[sync] [mutex] Unlocking mutex @ 0x%x\n", (size_t)p_mutex & 0xffff);
         #endif
         
-        // Return
+        // return
         return ( pthread_mutex_unlock(p_mutex) == 0 );
     #endif
 
@@ -165,11 +165,11 @@ int mutex_destroy ( mutex *p_mutex )
     // Platform dependent implementation
     #ifdef _WIN64
 
-        // Return
+        // return
         return ( CloseHandle(*p_mutex) );
     #else
 
-        // Return
+        // return
         return ( pthread_mutex_destroy(p_mutex) == 0 );
     #endif
 
@@ -202,7 +202,7 @@ int spinlock_create ( spinlock *p_spinlock )
         return 0;
     #else
 
-        // Return
+        // return
         return ( pthread_spin_init(p_spinlock, 0) == 0 );
     #endif
 
@@ -233,7 +233,7 @@ int spinlock_lock ( spinlock *p_spinlock )
         (void) p_spinlock;
         return 0;
     #else
-        // Return
+        // return
         return ( pthread_spin_lock(p_spinlock) == 0 );
     #endif
 
@@ -266,7 +266,7 @@ int spinlock_unlock ( spinlock *p_spinlock )
         (void) p_spinlock;
         return 0;
     #else
-        // Return
+        // return
         return ( pthread_spin_unlock(p_spinlock) == 0 );
     #endif
 
@@ -301,7 +301,7 @@ int spinlock_destroy ( spinlock *p_spinlock )
     #elif defined __APPLE__
         return 0;
     #else
-        // Return
+        // return
         return ( pthread_spin_destroy(p_spinlock) == 0 );
     #endif
 
@@ -332,7 +332,7 @@ int rwlock_create ( rwlock *p_rwlock )
     #ifdef _WIN64
     #else
 
-        // Return
+        // return
         return ( pthread_rwlock_init(p_rwlock, NULL) == 0 );
     #endif
 
@@ -361,7 +361,7 @@ int rwlock_lock_rd ( rwlock *p_rwlock )
     #ifdef _WIN64
     #else
 
-        // Return
+        // return
         return ( pthread_rwlock_rdlock(p_rwlock) == 0 );
     #endif
 
@@ -390,7 +390,7 @@ int rwlock_lock_wr ( rwlock *p_rwlock )
     #ifdef _WIN64
     #else
 
-        // Return
+        // return
         return ( pthread_rwlock_wrlock(p_rwlock) == 0 );
     #endif
 
@@ -434,7 +434,7 @@ int rwlock_lock_timeout_rd ( rwlock *p_rwlock, timestamp _time )
         (void) _time;
         return 0;
     #else
-        // Return
+        // return
         return ( pthread_rwlock_timedrdlock(p_rwlock, &abstime) == 0 );
     #endif
 
@@ -476,7 +476,7 @@ int rwlock_lock_timeout_wr ( rwlock *p_rwlock, timestamp _time )
         (void) _time;
         return 0;
     #else
-        // Return
+        // return
         return ( pthread_rwlock_timedwrlock(p_rwlock, &abstime) == 0 );
     #endif
 
@@ -505,7 +505,7 @@ int rwlock_unlock ( rwlock *p_rwlock )
     #ifdef _WIN64
     #else
 
-        // Return
+        // return
         return ( pthread_rwlock_unlock(p_rwlock) == 0 );
     #endif
 
@@ -535,7 +535,7 @@ int rwlock_destroy ( rwlock *p_rwlock )
     #ifdef _WIN64
     #else
 
-        // Return
+        // return
         return ( pthread_rwlock_destroy(p_rwlock) == 0 );
     #endif
 
@@ -568,7 +568,7 @@ int semaphore_create ( semaphore *p_semaphore, unsigned int count )
         // Create a semaphore with the specified count
         *p_semaphore = CreateSemaphore(NULL, count, count, NULL);
 
-        // Return
+        // return
         return ( p_semaphore != 0 );
     #else
 
@@ -581,7 +581,7 @@ int semaphore_create ( semaphore *p_semaphore, unsigned int count )
             sem_unlink(sem_name); // Remove the name but keep the semaphore
             return (*p_semaphore != SEM_FAILED);
         #else
-            // Return
+            // return
             return ( sem_init(p_semaphore, 0, count) == 0 );
         #endif
     #endif
@@ -611,13 +611,13 @@ int semaphore_wait ( semaphore _semaphore )
         // Platform dependent argument check
         if ( _semaphore == INVALID_HANDLE_VALUE ) goto no_semaphore;
         
-        // Return
+        // return
         return ( WaitForSingbject(_semaphore, INFINITE) == WAIT_FAILED ? 0 : 1 );
     #elif defined(__APPLE__)
-        // Return (using pointer type for macOS)
+        // return (using pointer type for macOS)
         return (sem_wait(_semaphore) == 0);
     #else
-        // Return
+        // return
         return (sem_wait(&_semaphore) == 0);
     #endif
 
@@ -648,13 +648,13 @@ int semaphore_signal ( semaphore _semaphore )
         // Platform dependent argument check
         if ( _semaphore == INVALID_HANDLE_VALUE ) goto no_semaphore;
 
-        // Return
+        // return
         return ( ReleaseSemaphore(_semaphore, 1, 0) );
     #elif defined(__APPLE__)
-        // Return (using pointer type for macOS)
+        // return (using pointer type for macOS)
         return ( sem_post(_semaphore) == 0 );
     #else
-        // Return
+        // return
         return ( sem_post(&_semaphore) == 0 );
     #endif
 
@@ -687,11 +687,11 @@ int semaphore_destroy ( semaphore *p_semaphore )
     // Platform dependent implementation
     #ifdef _WIN64
 
-        // Return
+        // return
         return ( CloseHandle(*p_semaphore) );
     #else
 
-        // Return
+        // return
         #ifdef __APPLE__
             return (sem_close(*p_semaphore) == 0);
         #else
@@ -725,7 +725,7 @@ int condition_variable_create ( condition_variable *p_condition_variable )
     #ifdef _WIN64
     #else
 
-        // Return
+        // return
         return ( pthread_cond_init(p_condition_variable, NULL) == 0 );
     #endif
 
@@ -756,7 +756,7 @@ int condition_variable_wait ( condition_variable *p_condition_variable, mutex *p
     #ifdef _WIN64
     #else
 
-        // Return
+        // return
         return ( pthread_cond_wait(p_condition_variable, p_mutex) == 0 );
     #endif
 
@@ -806,7 +806,7 @@ int condition_variable_wait_timeout ( condition_variable *p_condition_variable, 
         // TODO
     #else
 
-        // Return
+        // return
         return ( pthread_cond_timedwait(p_condition_variable, p_mutex, &abstime) == 0 );
     #endif
 
@@ -841,7 +841,7 @@ int condition_variable_signal ( condition_variable *p_condition_variable )
     #ifdef _WIN64
     #else
 
-        // Return
+        // return
         return pthread_cond_signal(p_condition_variable);
     #endif
 }
@@ -853,7 +853,7 @@ int condition_variable_broadcast ( condition_variable *p_condition_variable )
     #ifdef _WIN64
     #else
 
-        // Return
+        // return
         return pthread_cond_broadcast(p_condition_variable);
     #endif
 }
@@ -868,7 +868,7 @@ int condition_variable_destroy ( condition_variable *p_condition_variable )
     #ifdef _WIN64
     #else
 
-        // Return
+        // return
         return ( pthread_cond_destroy(p_condition_variable) == 0 );
     #endif
 
@@ -903,7 +903,7 @@ int monitor_create ( monitor *p_monitor )
         int ret = ( pthread_cond_init(&p_monitor->_cond, NULL) == 0 );
         ret &= ( pthread_mutex_init(&p_monitor->_mutex, NULL) == 0 );
 
-        // Return
+        // return
         return  ret;
     #endif
 
@@ -944,7 +944,7 @@ int monitor_wait ( monitor *p_monitor )
         // unlock
         mutex_unlock(&p_monitor->_mutex);
 
-        // Return
+        // return
         return ret;
     #endif
 }
@@ -958,7 +958,7 @@ int monitor_notify ( monitor *p_monitor )
         // TODO
     #else
 
-        // Return
+        // return
         return pthread_cond_signal(&p_monitor->_cond);
     #endif
 }
@@ -972,7 +972,7 @@ int monitor_notify_all ( monitor *p_monitor )
         // TODO
     #else
 
-        // Return
+        // return
         return pthread_cond_broadcast(&p_monitor->_cond);
     #endif
 }
@@ -990,7 +990,7 @@ int monitor_destroy ( monitor *p_monitor )
 
     #else
 
-        // Return
+        // return
         return ( pthread_cond_destroy(&p_monitor->_cond) == 0 ) && ( pthread_mutex_destroy(&p_monitor->_mutex) == 0 );
     #endif
 

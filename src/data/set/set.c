@@ -25,7 +25,7 @@ struct set_s
 int equals_function ( const void *const a, const void *const b )
 {
     
-    // Return
+    // return
     return !( a == b );
 }
 
@@ -63,7 +63,7 @@ int set_create ( set **const pp_set )
     // Zero set
     memset(p_set, 0, sizeof(set));
 
-    // Return the allocated memory
+    // return the allocated memory
     *pp_set = p_set;
 
     // success
@@ -105,7 +105,7 @@ int set_construct ( set **const pp_set, size_t size, set_equal_fn *pfn_is_equal 
     // initialized data
     set *p_set = (void *) 0;
 
-    // Allocate the set
+    // allocate the set
     if ( set_create(pp_set) == 0 ) goto failed_to_allocate_set;
 
     // Get a pointer to the allocated set
@@ -114,7 +114,7 @@ int set_construct ( set **const pp_set, size_t size, set_equal_fn *pfn_is_equal 
     // Set the maximum number of elements in the set
     p_set->max = size;
 
-    // Allocate memory for set elements
+    // allocate memory for set elements
     p_set->elements = default_allocator(0, size * sizeof(void *));
 
     // error checking
@@ -392,7 +392,7 @@ int set_union ( set **const pp_set, const set *const p_a, const set *const p_b, 
         // Add each element to the new set
         set_add(p_set, p_b->elements[i]);
 
-    // Return a pointer to the set to the caller
+    // return a pointer to the set to the caller
     *pp_set = p_set;
 
     // success
@@ -488,7 +488,7 @@ int set_difference ( set **const pp_set, const set *const p_a, const set *const 
         }
     }
 
-    // Return a pointer to the set to the caller
+    // return a pointer to the set to the caller
     *pp_set = p_set;
 
     // success
@@ -573,7 +573,7 @@ int set_intersection ( set **const pp_set, const set *const p_a, const set *cons
         }
     }
 
-    // Return a pointer to the set to the caller
+    // return a pointer to the set to the caller
     *pp_set = p_set;
 
     // success
@@ -629,7 +629,7 @@ size_t set_count ( const set *const p_set )
     // argument check
     if ( p_set == (void *) 0 ) goto no_set;
 
-    // Return
+    // return
     return p_set->count;
 
     // error handling
@@ -660,7 +660,7 @@ int set_pop ( set *const p_set, void **const pp_value )
     // Decrement the quantity of elements in the set
     p_set->count--;
 
-    // Return the value to the caller
+    // return the value to the caller
     *pp_value = p_set->elements[p_set->count];
 
     // Zero set the pop()'d element

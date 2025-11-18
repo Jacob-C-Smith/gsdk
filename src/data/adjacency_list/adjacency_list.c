@@ -20,10 +20,10 @@ int adjacency_list_construct ( adjacency_list **pp_adjacency_list, size_t size )
     // The size parameter is ignored for now, we'll allocate as needed
     p_adjacency_list->p_vertices = NULL;
     
-    // Return the constructed adjacency list
+    // return the constructed adjacency list
     *pp_adjacency_list = p_adjacency_list;
 
-    // Return success
+    // return success
     return 1;
 
     // error handling
@@ -157,7 +157,7 @@ int adjacency_list_vertex_search(adjacency_list *p_list, void *p_value, void **p
 
 int adjacency_list_vertex_count(adjacency_list *p_list, size_t *p_count)
 {
-    // Return the vertex count
+    // return the vertex count
     *p_count = p_list->size;
     
     return 1;

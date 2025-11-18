@@ -40,7 +40,7 @@ typedef struct double_queue_s double_queue;
  */
 void double_queue_init ( void ) __attribute__((constructor));
 
-// Allocaters
+// allocaters
 /** !
  *  Allocate memory for a double queue
  *

@@ -506,7 +506,7 @@ bool test_add ( void(*array_constructor)(array **pp_array), void *value, result_
     // Free the array
     array_destroy(&p_array, NULL);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -530,7 +530,7 @@ bool test_remove ( void(*array_constructor)(array **pp_array), void *value, sign
     // Free the array
     array_destroy(&p_array, NULL);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -553,7 +553,7 @@ bool test_get ( void(*array_constructor)(array **pp_array), void **expected_valu
     // Free the array
     array_destroy(&p_array, NULL);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -577,7 +577,7 @@ bool test_get_count ( void(*array_constructor)(array **pp_array), size_t expecte
     // Free the array
     array_destroy(&p_array, NULL);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -597,7 +597,7 @@ bool test_size ( void(*array_constructor)(array **pp_array), size_t expected_siz
     // Free the array
     array_destroy(&p_array, NULL);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -622,7 +622,7 @@ bool test_index ( void(*array_constructor)(array **pp_array), signed idx, void *
     // Free the array
     array_destroy(&p_array, NULL);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -660,7 +660,7 @@ bool test_slice ( void(*array_constructor)(array **pp_array), signed lower, sign
     // Free the array
     array_destroy(&p_array, NULL);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 

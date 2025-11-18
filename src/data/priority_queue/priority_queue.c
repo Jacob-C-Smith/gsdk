@@ -39,7 +39,7 @@ struct priority_queue_s
 int priority_queue_compare_function ( const void *const a, const void *const b )
 {
     
-    // Return
+    // return
     return ( a == b ) ? 0 : ( a < b ) ? 1 : -1;
 }
 
@@ -77,7 +77,7 @@ int priority_queue_create ( priority_queue **const pp_priority_queue )
     // argument check
     if ( pp_priority_queue == (void *) 0 ) goto no_priority_queue;
 
-    // Allocate memory for a priority queue
+    // allocate memory for a priority queue
     priority_queue *p_priority_queue = default_allocator(0, sizeof(priority_queue));
 
     // error checking
@@ -86,7 +86,7 @@ int priority_queue_create ( priority_queue **const pp_priority_queue )
     // Zero set
     memset(p_priority_queue, 0, sizeof(priority_queue));
 
-    // Return the allocated memory
+    // return the allocated memory
     *pp_priority_queue = p_priority_queue;
 
     // success
@@ -129,7 +129,7 @@ int priority_queue_construct ( priority_queue **const pp_priority_queue, size_t 
     // initialized data
     priority_queue *p_priority_queue = 0;
 
-    // Allocate a priority queue
+    // allocate a priority queue
     if ( priority_queue_create(pp_priority_queue) == 0 ) goto failed_to_create_priority_queue;
 
     // Get a pointer to the allocated priority queue
@@ -138,7 +138,7 @@ int priority_queue_construct ( priority_queue **const pp_priority_queue, size_t 
     // Set the count and iterator max
     p_priority_queue->entries.max  = size;
 
-    // Allocate "size" number of properties
+    // allocate "size" number of properties
     p_priority_queue->entries.data = default_allocator(0, size * sizeof(void *));
 
     // Zero set the allocated memory
@@ -226,7 +226,7 @@ int priority_queue_from_keys ( priority_queue **const pp_priority_queue, const v
     // initialized data
     priority_queue *p_priority_queue = 0;
 
-    // Allocate a priority queue
+    // allocate a priority queue
     if ( priority_queue_construct(&p_priority_queue, size, pfn_compare_function) == 0 ) goto failed_to_construct_priority_queue;
 
     // iterate over each key
@@ -242,7 +242,7 @@ int priority_queue_from_keys ( priority_queue **const pp_priority_queue, const v
     // Build the priority queue
     priority_queue_build_max_heap(p_priority_queue);
 
-    // Return
+    // return
     *pp_priority_queue = p_priority_queue;
 
     // success
@@ -436,7 +436,7 @@ int priority_queue_max ( priority_queue *const p_priority_queue, void **pp_value
     // Check for underflow
     if ( p_priority_queue->entries.count == 0 ) goto underflow;
 
-    // Return the max value
+    // return the max value
     *pp_value = p_priority_queue->entries.data[0];
 
     // success
@@ -502,7 +502,7 @@ int priority_queue_extract_max ( priority_queue *const p_priority_queue, void **
     // Fix the heap
     priority_queue_heapify(p_priority_queue, 0);
 
-    // Return the maximum value to the caller
+    // return the maximum value to the caller
     if ( pp_value ) *pp_value = ret;
      
     // success

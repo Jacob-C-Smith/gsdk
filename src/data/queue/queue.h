@@ -41,7 +41,7 @@ typedef struct queue_s queue;
  */
 void queue_init ( void ) __attribute__((constructor));
 
-// Allocaters
+// allocaters
 /** !
  *  Allocate memory for a queue
  *

@@ -42,7 +42,7 @@ typedef int (set_equal_fn)(const void *a, const void *b);
  */
 void set_init ( void ) __attribute__((constructor));
 
-// Allocaters
+// allocaters
 /** !
  *  Allocate memory for a set
  *

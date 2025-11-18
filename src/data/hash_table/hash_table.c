@@ -105,7 +105,7 @@ int hash_table_construct
     // Unused
     (void)size;
 
-    // Allocate memory for a hash table
+    // allocate memory for a hash table
     if ( hash_table_create(&p_hash_table) == 0 ) goto failed_to_allocate_hash_table;
 
     // Populate the hash table interfaces

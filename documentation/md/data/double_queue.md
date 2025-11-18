@@ -57,7 +57,7 @@ TODO:
  ```
  ### Function definitions
  ```c 
-// Allocaters
+// allocaters
 int double_queue_create ( double_queue **const pp_double_queue );
 
 // constructors

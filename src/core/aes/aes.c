@@ -312,7 +312,7 @@ int aes_iv_construct ( char *p_iv )
 {
     FILE* urandom = fopen("/dev/urandom", "rb");
     if (urandom == NULL) {
-        return 0; // Return error if can't open /dev/urandom
+        return 0; // return error if can't open /dev/urandom
     }
     fread(p_iv, 1, 16, urandom);
     PRINT_IV(p_iv);

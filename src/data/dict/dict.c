@@ -57,7 +57,7 @@ int dict_create ( dict **const pp_dict )
     // argument check
     if ( pp_dict == (void *) 0 ) goto no_dictionary;
 
-    // Allocate memory for a dictionary
+    // allocate memory for a dictionary
     dict *p_dict = default_allocator(0, sizeof(dict));
 
     // error checking
@@ -66,7 +66,7 @@ int dict_create ( dict **const pp_dict )
     // Zero set
     memset(p_dict, 0, sizeof(dict));
 
-    // Return the allocated memory
+    // return the allocated memory
     *pp_dict = p_dict;
 
     // success
@@ -109,7 +109,7 @@ int dict_construct ( dict **const pp_dict, size_t size, fn_hash64 pfn_hash_funct
     // initialized data
     dict *p_dict = 0;
 
-    // Allocate a dictionary
+    // allocate a dictionary
     if ( dict_create(pp_dict) == 0 ) goto failed_to_create_dict;
 
     // Get a pointer to the allocated dictionary
@@ -119,10 +119,10 @@ int dict_construct ( dict **const pp_dict, size_t size, fn_hash64 pfn_hash_funct
     p_dict->entries.max  = size;
     p_dict->iterable.max = 1;
 
-    // Allocate "size" number of properties
+    // allocate "size" number of properties
     p_dict->entries.data = default_allocator(0, size * sizeof(dict_item *));
 
-    // Allocate key and value lists
+    // allocate key and value lists
     p_dict->iterable.keys   = default_allocator(0, sizeof(char *));
     p_dict->iterable.values = default_allocator(0, sizeof(void *));
 
@@ -218,7 +218,7 @@ int dict_from_keys ( dict **const pp_dict, const char **const keys, size_t size 
     // initialized data
     dict *p_dict = 0;
 
-    // Allocate a dictionary
+    // allocate a dictionary
     if ( dict_construct(&p_dict, size, 0) == 0 ) goto failed_to_construct_dict;
 
     // iterate over each key
@@ -227,7 +227,7 @@ int dict_from_keys ( dict **const pp_dict, const char **const keys, size_t size 
         // Add the key to the dictionary
         dict_add(p_dict, keys[i], (void *)0);
 
-    // Return
+    // return
     *pp_dict = p_dict;
 
     // success
@@ -301,7 +301,7 @@ const void *dict_get ( dict *const p_dict, const char *const key )
     // unlock
     mutex_unlock(&p_dict->_lock);
 
-    // Return the value if it exists, otherwise null pointer
+    // return the value if it exists, otherwise null pointer
     return val;
 
     // error handling
@@ -395,7 +395,7 @@ size_t dict_keys ( dict *const p_dict, const char **const keys )
         // unlock
         mutex_unlock(&p_dict->_lock);
 
-        // Return
+        // return
         return entry_count;
     }
 
@@ -470,7 +470,7 @@ int dict_add ( dict *const p_dict, const char *const key,   void * const p_value
             if ( p_dict->iterable.values == (void *) 0 ) goto no_mem;
         }
 
-        // Allocate a new dict_item
+        // allocate a new dict_item
         property = default_allocator(0, sizeof(dict_item));
 
         // Zero
@@ -606,7 +606,7 @@ int dict_pop ( dict *const p_dict, const char *const key, const void **const pp_
     if ( strcmp(key, i->key) == 0 )
         k=i;
 
-    // Return the value
+    // return the value
     if (pp_value)
         *pp_value = k->value;
 
@@ -949,7 +949,7 @@ int dict_unpack ( dict **pp_dict, void *p_buffer, fn_unpack *pfn_element )
     // Construct an dict
     dict_construct(&p_dict, len, 0);
 
-    // Return the dict to the caller
+    // return the dict to the caller
     *pp_dict = p_dict;
 
     // success

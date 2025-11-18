@@ -79,7 +79,7 @@ int socket_tcp_create ( socket_tcp *const p_socket_tcp, enum socket_address_fami
 
     #endif
 
-    // Return a socket to the caller
+    // return a socket to the caller
     *p_socket_tcp = _socket_tcp;
 
     // success
@@ -307,7 +307,7 @@ int socket_tcp_connect ( socket_tcp *const p_socket_tcp, enum socket_address_fam
         if ( connect(_socket_tcp, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) ) goto failed_to_connect; 
     #endif
 
-    // Return a socket to the caller
+    // return a socket to the caller
     *p_socket_tcp = _socket_tcp;
 
     // success

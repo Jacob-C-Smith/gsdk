@@ -142,7 +142,7 @@ int schedule_create ( schedule **const pp_schedule )
     // initialized data
     schedule *p_schedule = (void *) 0;
 
-    // Allocate memory for the schedule
+    // allocate memory for the schedule
     p_schedule = default_allocator(0, sizeof(schedule));
 
     // error check
@@ -193,7 +193,7 @@ int parallel_schedule_thread_create ( parallel_schedule_thread **const pp_schedu
     // initialized data
     parallel_schedule_thread *p_schedule_thread = (void *) 0;
 
-    // Allocate memory for the schedule thread
+    // allocate memory for the schedule thread
     p_schedule_thread = default_allocator(0, sizeof(parallel_schedule_thread) + (task_quantity * sizeof(parallel_schedule_task)));
 
     // error check
@@ -256,7 +256,7 @@ int schedule_load ( schedule **pp_schedule, const char *const path )
     // error check
     if ( file_size == 0 ) goto invalid_file;
     
-    // Allocate memory for the file
+    // allocate memory for the file
     p_file_contents = default_allocator(0, file_size);
 
     // error check
@@ -539,7 +539,7 @@ int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value
         }
     }
 
-    // Allocate memory for a schedule
+    // allocate memory for a schedule
     if ( schedule_create(&p_schedule) == 0 ) goto failed_to_create_schedule;
 
     // Copy the schedule from the stack to the heap
@@ -708,7 +708,7 @@ int parallel_schedule_thread_load_as_json_value ( parallel_schedule_thread **con
            thread_name_len = strlen(name);
     char *error_state = (void *) 0;
 
-    // Allocate memory for a schedule thread
+    // allocate memory for a schedule thread
     if ( parallel_schedule_thread_create(&p_schedule_thread, task_quantity) == 0 ) goto failed_to_allocate_schedule_thread;
 
     // Copy the name of the thread

@@ -62,7 +62,7 @@ int queue_create ( queue **const pp_queue )
 	// Zero set
 	memset(ret, 0, sizeof(queue));
 
-	// Return the queue
+	// return the queue
 	*pp_queue = ret;
 
 	// success
@@ -104,7 +104,7 @@ int queue_construct ( queue **const pp_queue )
 	// initialized data
 	queue *p_queue = 0;
 
-	// Allocate for a queue
+	// allocate for a queue
 	if ( queue_create(pp_queue) == 0 ) goto failed_to_create_queue;
 
 	// Get a pointer to the allocated memory
@@ -267,7 +267,7 @@ int queue_rear ( queue *const p_queue, void **const pp_value )
 	// state check
 	if ( p_queue->front == 0 ) goto no_queue_contents;
 
-	// Return a pointer to the rear element
+	// return a pointer to the rear element
 	if ( pp_value )
 		*pp_value = ((struct queue_node_s *)(p_queue->rear))->content;
 	

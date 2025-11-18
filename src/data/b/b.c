@@ -372,7 +372,7 @@ int b_tree_construct (
     // error check
     if ( p_random_access_file == (void *) 0 ) goto failed_to_get_random_access_file;
 
-    // Allocate a b tree
+    // allocate a b tree
     if ( b_tree_create(&p_b_tree) == 0 ) goto failed_to_allocate_b_tree;
     
     // Populate the struct
@@ -418,7 +418,7 @@ int b_tree_construct (
     // Populate B tree metadata. Write root
     else
     {
-        // Allocate the root node
+        // allocate the root node
         if ( b_tree_node_construct(&p_b_tree->p_root, p_b_tree, false) == 0 ) goto failed_to_construct_b_tree_node;
 
         // Set root address in metadata
@@ -513,7 +513,7 @@ int b_tree_node_allocate ( b_tree *p_b_tree, b_tree_node **pp_b_tree_node )
     // initialized data
     b_tree_node *p_b_tree_node = (void *) 0;
 
-    // Allocate a node
+    // allocate a node
     if ( b_tree_node_create(&p_b_tree_node) == 0 ) goto failed_to_allocate_node;
 
     // store the node pointer
@@ -580,7 +580,7 @@ int b_tree_node_construct ( b_tree_node **const pp_b_tree_node, b_tree *const p_
     p_b_tree_node->leaf = true;
     p_b_tree_node->key_quantity = 0;
 
-    // Allocate memory for properties
+    // allocate memory for properties
     p_b_tree_node->properties = malloc(sizeof(void *) * ( (p_b_tree->_metadata.degree * 2) - 1 ));
 
     // error check
@@ -710,7 +710,7 @@ int b_tree_split_root ( b_tree *const p_b_tree )
     // initialized data
     b_tree_node *p_new_root_node = (void *) 0;
 
-    // Allocate a node using proper construction
+    // allocate a node using proper construction
     if ( b_tree_node_construct(&p_new_root_node, p_b_tree, true) == 0 ) goto failed_to_allocate_node;
 
     // Populate the new root (don't overwrite the allocated properties and child pointers)
@@ -1190,7 +1190,7 @@ int b_tree_disk_read ( b_tree *p_b_tree, unsigned long long disk_address, b_tree
     int max_keys = (p_b_tree->_metadata.degree * 2) - 1;
     int max_children = p_b_tree->_metadata.degree * 2;
 
-    // Allocate memory for the node
+    // allocate memory for the node
     p_b_tree_node = malloc(sizeof(b_tree_node) + (max_children * sizeof(unsigned long long)));
 
     // error check
@@ -1204,7 +1204,7 @@ int b_tree_disk_read ( b_tree *p_b_tree, unsigned long long disk_address, b_tree
     fread(&p_b_tree_node->key_quantity, sizeof(int), 1, p_b_tree->p_random_access);
     fread(&p_b_tree_node->node_pointer, sizeof(unsigned long long), 1, p_b_tree->p_random_access);
 
-    // Allocate and read properties
+    // allocate and read properties
     p_b_tree_node->properties = malloc(sizeof(void *) * max_keys);
     if ( p_b_tree_node->properties == (void *) 0 ) goto no_mem;
     fread(p_b_tree_node->properties, sizeof(void *), max_keys, p_b_tree->p_random_access);

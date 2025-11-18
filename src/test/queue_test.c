@@ -564,7 +564,7 @@ bool test_front ( int (*queue_constructor)(queue **), void *expected_value, resu
     // Free the queue
     queue_destroy(&p_queue);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -601,7 +601,7 @@ bool test_rear ( int (*queue_constructor)(queue **), void *expected_value, resul
     // Free the queue
     queue_destroy(&p_queue);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -620,7 +620,7 @@ bool test_enqueue ( int (*queue_constructor)(queue **), void *value, result_t  e
     // Free the queue
     queue_destroy(&p_queue);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -651,7 +651,7 @@ bool test_dequeue ( int (*queue_constructor)(queue **), void *expected_value  , 
     // Free the queue
     queue_destroy(&p_queue);
 
-    // Return result
+    // return result
     return (result == expected);
 }
 
@@ -673,6 +673,6 @@ bool test_empty ( int (*queue_constructor)(queue **), void **expected_values, re
     // Free the queue
     queue_destroy(&p_queue);
 
-    // Return result
+    // return result
     return (result == expected);
 }

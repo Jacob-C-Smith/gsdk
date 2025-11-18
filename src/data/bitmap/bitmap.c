@@ -365,7 +365,7 @@ int bitmap_unpack ( bitmap **pp_bitmap, void *p_buffer )
         // unpack 8 bits at a time
         p += pack_unpack(p, "%i8", &((char *)p_bitmap->p_bitmap)[i]);
     
-    // Return the bitmap to the caller
+    // return the bitmap to the caller
     *pp_bitmap = p_bitmap;
 
     // success

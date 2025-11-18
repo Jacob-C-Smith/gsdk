@@ -148,7 +148,7 @@ int node_graph_construct ( node_graph **pp_node_graph, const json_value *const p
     // initialized data
     node_graph *p_node_graph = (void *) 0;
 
-    // Allocate a node graph
+    // allocate a node graph
     if ( node_graph_create(&p_node_graph) == 0 ) goto failed_to_allocate_node_graph;
 
     // Parse the json object into a node graph
@@ -182,7 +182,7 @@ int node_graph_construct ( node_graph **pp_node_graph, const json_value *const p
             // store the node quantity
             p_node_graph->node_quantity = node_quantity;
 
-            // Allocate memory for keys
+            // allocate memory for keys
             pp_keys = default_allocator(0, node_quantity * sizeof(node *));
 
             // Construct a lookup for nodes
@@ -420,7 +420,7 @@ int node_construct ( node **pp_node, const char *const p_name, const json_value 
     // initialized data
     node *p_node = (void *) 0;
 
-    // Allocate a node
+    // allocate a node
     if ( node_create(&p_node) == 0 ) goto failed_to_create_node;
 
     // Construct a node from a json value
