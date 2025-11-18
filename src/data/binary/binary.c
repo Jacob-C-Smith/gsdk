@@ -160,7 +160,7 @@ int binary_tree_create ( binary_tree **pp_binary_tree )
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[standard library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -208,7 +208,7 @@ int binary_tree_node_create ( binary_tree_node **pp_binary_tree_node )
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[standard library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -230,7 +230,7 @@ int binary_tree_node_allocate ( binary_tree *p_binary_tree, binary_tree_node **p
     // Allocate a node
     if ( binary_tree_node_create(&p_binary_tree_node) == 0 ) goto failed_to_allocate_node;
 
-    // Store the node pointer
+    // store the node pointer
     p_binary_tree_node->node_pointer = p_binary_tree->metadata.node_quantity;
 
     // Increment the node quantity
@@ -357,7 +357,7 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
         // Allocate a binary tree node
         if (binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node) == 0) goto failed_to_allocate_node;
 
-        // Store the value
+        // store the value
         p_binary_tree_node->p_value = pp_values[start];
         
         // done
@@ -371,13 +371,13 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
         // Allocate a binary tree node
         if (binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node) == 0) goto failed_to_allocate_node;
 
-        // Store the value
+        // store the value
         p_binary_tree_node->p_value = pp_values[end];
 
         // Allocate the left node
         if (binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node->p_left) == 0) goto failed_to_allocate_node;
 
-        // Store the left value
+        // store the left value
         p_binary_tree_node->p_left->p_value = pp_values[start];
         
         // done
@@ -394,7 +394,7 @@ binary_tree_node *binary_tree_construct_balanced_recursive ( binary_tree *p_bina
         // Allocate a binary tree node
         if (binary_tree_node_allocate(p_binary_tree, &p_binary_tree_node) == 0) goto failed_to_allocate_node;
 
-        // Store the value
+        // store the value
         p_binary_tree_node->p_value = pp_values[median];
 
         // Construct the left
@@ -496,7 +496,7 @@ int binary_tree_search ( binary_tree *p_binary_tree, const void *const p_key, vo
     // argument check
     if ( p_binary_tree == (void *) 0 ) goto no_binary_tree;
 
-    // State check
+    // state check
     if ( p_binary_tree->p_root == (void *) 0 ) return 0;
 
     // lock
@@ -597,7 +597,7 @@ int binary_tree_insert ( binary_tree *p_binary_tree, const void *const p_value )
     binary_tree_node *p_node = p_binary_tree->p_root;
     int comparator_return = 0;
 
-    // State check
+    // state check
     if ( p_binary_tree->p_root == (void *) 0 ) goto no_root;
 
     try_again:
@@ -609,7 +609,7 @@ int binary_tree_insert ( binary_tree *p_binary_tree, const void *const p_value )
         p_binary_tree->functions.pfn_key_accessor(p_value)
     );
 
-    // Store the node on the left 
+    // store the node on the left 
     if ( comparator_return < 0 )
     {
 
@@ -627,11 +627,11 @@ int binary_tree_insert ( binary_tree *p_binary_tree, const void *const p_value )
         // Construct a binary tree node
         if ( binary_tree_node_allocate(p_binary_tree, &p_node->p_left) == 0 ) goto failed_to_allocate_binary_tree_node;
 
-        // Store the value
+        // store the value
         p_node->p_left->p_value = (void *) p_value;
     }
 
-    // Store the node on the right
+    // store the node on the right
     else if ( comparator_return > 0 )
     {
 
@@ -649,7 +649,7 @@ int binary_tree_insert ( binary_tree *p_binary_tree, const void *const p_value )
         // Construct a binary tree node
         if ( binary_tree_node_allocate(p_binary_tree, &p_node->p_right) == 0 ) goto failed_to_allocate_binary_tree_node;
 
-        // Store the value
+        // store the value
         p_node->p_right->p_value = (void *) p_value;
         
     }
@@ -670,10 +670,10 @@ int binary_tree_insert ( binary_tree *p_binary_tree, const void *const p_value )
         // Construct a binary tree node
         if ( binary_tree_node_allocate(p_binary_tree, &p_node) == 0 ) goto failed_to_allocate_binary_tree_node;
 
-        // Store the value
+        // store the value
         p_node->p_value = (void *) p_value;
 
-        // Store the node as the root of the tree
+        // store the node as the root of the tree
         p_binary_tree->p_root = p_node;
 
         // unlock
@@ -722,7 +722,7 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
     // lock
     mutex_lock(&p_binary_tree->_lock);
 
-    // State check
+    // state check
     if ( p_binary_tree->p_root == (void *) 0 ) 
     {
         mutex_unlock(&p_binary_tree->_lock);
@@ -1276,15 +1276,15 @@ int binary_tree_parse_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tr
     // User provided parsing function
     pfn_binary_tree_parse(p_file, p_binary_tree_node);
     
-    // Store the left pointer
+    // store the left pointer
     fread(&left_pointer, 8, 1, p_file);
     // printf("[%04d] -> left : < %llu, %lld >\n", p_binary_tree_node->node_pointer, ftell(p_file), left_pointer);
 
-    // Store the right pointer
+    // store the right pointer
     fread(&right_pointer, 8, 1, p_file);
     // printf("       -> right: < %llu, %lld >\n", ftell(p_file), right_pointer);
     
-    // State check
+    // state check
     if ( left_pointer == eight_bytes_of_f ) goto parse_right;
 
     // Set the pointer correctly
@@ -1295,7 +1295,7 @@ int binary_tree_parse_node ( FILE *p_file, binary_tree *p_binary_tree, binary_tr
 
     parse_right:
 
-    // State check
+    // state check
     if ( right_pointer == eight_bytes_of_f ) goto done;
 
     // Set the pointer correctly
@@ -1526,7 +1526,7 @@ int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path
         {
             failed_to_open_file:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Failed to open file\n");
+                    printf("[standard library] Failed to open file\n");
                 #endif
 
                 // error

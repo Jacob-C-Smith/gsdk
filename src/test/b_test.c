@@ -31,7 +31,7 @@ enum result_e {
 // type definitions
 typedef enum result_e result_t;
 
-// Global variables
+// global variables
 int total_tests      = 0,
     total_passes     = 0,
     total_fails      = 0,

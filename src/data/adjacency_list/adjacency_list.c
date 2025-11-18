@@ -44,7 +44,7 @@ int adjacency_list_construct ( adjacency_list **pp_adjacency_list, size_t size )
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[Standard Library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[standard library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -246,7 +246,7 @@ int adjacency_list_edge_add(adjacency_list *p_list, void *p_a_value, void *p_b_v
     struct adjacency_list_node_s *p_new_node = malloc(sizeof(struct adjacency_list_node_s));
     if (p_new_node == NULL) {
         #ifndef NDEBUG
-            printf("[Standard Library] Call to function \"malloc\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+            printf("[standard library] Call to function \"malloc\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
         #endif
         return 0;
     }

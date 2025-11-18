@@ -92,10 +92,10 @@ int main ( int argc, const char *argv[] )
         0                                // Calculate sizeof(node) automatically
     );
 
-    // Iterate over each property
+    // iterate over each property
     for (size_t i = 0; i < b_TREE_EXAMPLE_LIST_LENGTH; i++)
         
-        // Store the property in the tree
+        // store the property in the tree
         b_tree_insert(p_b_tree, &_values[i]);
 
     // Serialize the b tree to a file

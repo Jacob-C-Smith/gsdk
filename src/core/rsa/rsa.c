@@ -27,6 +27,8 @@
 size_t file_load ( const char *path, void *buffer, bool binary_mode );
 
 // Data
+// TODO: make this an array of u16's and cast them in the code. 
+//       this is a 25KB array, and it should be a 200 byte array
 i2048 primes[] =
 {
     2WB  , 3WB  , 5WB  , 7WB  , 11WB , 13WB , 17WB , 19WB , 23WB , 29WB , 31WB ,
@@ -54,7 +56,7 @@ i2048 random_n_bit_int ( size_t bits );
 bool is_divisible_by_small_primes ( i2048 n )
 {
 
-    // Iterate through some small prime numbers
+    // iterate through some small prime numbers
     for (size_t i = 0; i < len_primes; i++)
 
         // Test
@@ -191,7 +193,7 @@ int key_pair_construct ( public_key **pp_public_key, private_key **pp_private_ke
     p = generate_prime(100, 5); 
     q = generate_prime(100, 5); 
 
-    // Store the product of the prime factors in the public key
+    // store the product of the prime factors in the public key
     n = p * q;
 
     // Public
@@ -507,7 +509,7 @@ int rsa_encrypt ( void *p_x, void *p_y, public_key *p_public_key )
     i2048 x = *(i2048 *)p_x,
           y = mod_exp(x, p_public_key->a, p_public_key->n);
 
-    // Store the result
+    // store the result
     *(i2048 *)p_y = y;
         
     // done
@@ -521,7 +523,7 @@ int rsa_decrypt ( void *p_y, void *p_z, public_key *p_public_key, private_key *p
     i2048 y = *(i2048 *)p_y,
           z = mod_exp(y, p_private_key->b, p_public_key->n);
 
-    // Store the result
+    // store the result
     *(i2048 *)p_z = z;
     
     // done
@@ -929,7 +931,7 @@ size_t file_load ( const char *path, void *buffer, bool binary_mode )
         {
             invalid_file:
                 #ifndef NDEBUG
-                    log_error("[Standard library] Failed to load file \"%s\". %s\n", path, strerror(errno));
+                    log_error("[standard library] Failed to load file \"%s\". %s\n", path, strerror(errno));
                 #endif
 
             // error

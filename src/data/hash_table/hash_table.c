@@ -280,7 +280,7 @@ int hash_table_destroy ( hash_table **const pp_hash_table )
 bool hash_table_is_prime ( size_t n )
 {
 
-    // Iterate from 2 to the upper bound
+    // iterate from 2 to the upper bound
     for (size_t i = 2; i < n; i++)
 
         // Check for a remainder
@@ -296,7 +296,7 @@ bool hash_table_is_prime ( size_t n )
 size_t hash_table_generate_twin_prime ( size_t start, size_t end )
 {
 
-    // Iterate through the range
+    // iterate through the range
     for (size_t i = start; i < end; i++)
     
         

@@ -545,7 +545,7 @@ int cache_pack ( void *p_buffer, cache *p_cache, fn_pack *pfn_element )
     // Pack the length
     p += pack_pack(p, "%i64", p_cache->properties.count);
 
-    // Iterate through the cache
+    // iterate through the cache
     for (size_t i = p_cache->properties.count; i-- > 0; )
 
         p += pfn_element(p, p_cache->properties.pp_data[i]);

@@ -17,6 +17,7 @@
 #include <string.h>
 
 // core
+#include <core/hash.h>
 #include <core/log.h>
 #include <core/sync.h>
 #include <core/pack.h>
@@ -46,7 +47,7 @@ int bitmap_construct ( bitmap **pp_bitmap, size_t bits );
  * @param p_bitmap the bitmap
  * @param index    the index of the bit to set
  * 
- * @return 1 on success, 0 on error
+ * @return 1 if set else 0
  */
 int bitmap_test ( bitmap *p_bitmap, size_t i );
 
@@ -103,6 +104,17 @@ int bitmap_pack ( void *p_buffer, bitmap *p_bitmap );
  * @return 1 on success, 0 on error
  */
 int bitmap_unpack ( bitmap **pp_bitmap, void *p_buffer );
+
+/// hash
+/** !
+ * Compute a 64-bit hash of a bitmap
+ * 
+ * @param p_bitmap    the bitmap
+ * @param pfn_element hashing function applied to the bits
+ * 
+ * @return hash on success, NULL on error
+ */
+hash64 bitmap_hash ( bitmap *p_bitmap, fn_hash64 *pfn_hash64 );
 
 // destructors
 /** !

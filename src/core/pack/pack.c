@@ -26,7 +26,7 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
     
     parse_format_specifier:
 
-    // Iterate through the format string
+    // iterate through the format string
     while ( format[read] )
     {
 
@@ -124,7 +124,7 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
     parse_len:
     {
 
-        // Store the length of the format specifier
+        // store the length of the format specifier
         format_specifier_length = atoi(&format[read]);
 
         // Update the read index
@@ -138,14 +138,14 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
     write_8:
     {
 
-        // Iterate through each variadic argument
+        // iterate through each variadic argument
         for (size_t i = 0; i < format_specifier_length; i++)
         {
 
             // initialized data
             char c = va_arg(list, int);
 
-            // Store the value
+            // store the value
             *((char *)p_buffer) = c;
             
             // Update the buffer and written byte counter
@@ -166,14 +166,14 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
     write_16:
     {
 
-        // Iterate through each variadic argument
+        // iterate through each variadic argument
         for (size_t i = 0; i < format_specifier_length; i++)
         {
 
             // initialized data
             short s = va_arg(list, int);
 
-            // Store the value
+            // store the value
             *((short *)p_buffer) = s;
             
             // Update the buffer and written byte counter
@@ -194,14 +194,14 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
     write_32:
     {
 
-        // Iterate through each variadic argument
+        // iterate through each variadic argument
         for (size_t i = 0; i < format_specifier_length; i++)
         {
 
             // initialized data
             int l = va_arg(list, int);
 
-            // Store the value
+            // store the value
             *((int *)p_buffer) = l;
             
             // Update the buffer and written byte counter
@@ -222,14 +222,14 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
     write_64:
     {
 
-        // Iterate through each variadic argument
+        // iterate through each variadic argument
         for (size_t i = 0; i < format_specifier_length; i++)
         {
 
             // initialized data
             long l = va_arg(list, long);
 
-            // Store the value
+            // store the value
             *((long *)p_buffer) = l;
             
             // Update the buffer and written byte counter
@@ -250,14 +250,14 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
     write_f32:
     {
 
-        // Iterate through each variadic argument
+        // iterate through each variadic argument
         for (size_t i = 0; i < format_specifier_length; i++)
         {
 
             // initialized data
             float f = va_arg(list, double);
 
-            // Store the value
+            // store the value
             *((float *)p_buffer) = f;
             
             // Update the buffer and written byte counter
@@ -278,14 +278,14 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
     write_f64:
     {
 
-        // Iterate through each variadic argument
+        // iterate through each variadic argument
         for (size_t i = 0; i < format_specifier_length; i++)
         {
 
             // initialized data
             double d = va_arg(list, double);
 
-            // Store the value
+            // store the value
             *((double *)p_buffer) = d;
             
             // Update the buffer and written byte counter
@@ -306,7 +306,7 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
     write_str:
     {
 
-        // Iterate through each variadic argument
+        // iterate through each variadic argument
         for (size_t i = 0; i < format_specifier_length; i++)
         {
 
@@ -317,13 +317,13 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
             // error check
             if ( len > USHRT_MAX - 1 ) return 0;
 
-            // Store the length
+            // store the length
             *((unsigned short *)p_buffer) = (unsigned short) len;
 
             // Update the buffer and written byte counter
             p_buffer += sizeof(unsigned short), written += sizeof(unsigned short);
             
-            // Store the value
+            // store the value
             memcpy(p_buffer, s, len);
 
             // Update the buffer and written byte counter
@@ -377,7 +377,7 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
     
     parse_format_specifier:
 
-    // Iterate through the format string
+    // iterate through the format string
     while ( format[read] )
     {
 
@@ -474,7 +474,7 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
     parse_len:
     {
 
-        // Store the length of the format specifier
+        // store the length of the format specifier
         format_specifier_length = atoi(&format[read]);
 
         // Update the read index
@@ -488,14 +488,14 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
     read_8:
     {
 
-        // Iterate through each variadic argument
+        // iterate through each variadic argument
         for (size_t i = 0; i < format_specifier_length; i++)
         {
 
             // initialized data
             char *c = va_arg(list, void *);
 
-            // Store the value
+            // store the value
             *c = *(char *)p_buffer;
             
             // Update the buffer and written byte counter
@@ -516,14 +516,14 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
     read_16:
     {
 
-        // Iterate through each variadic argument
+        // iterate through each variadic argument
         for (size_t i = 0; i < format_specifier_length; i++)
         {
 
             // initialized data
             short *s = va_arg(list, void *);
 
-            // Store the value
+            // store the value
             *s = *(short *)p_buffer;
             
             // Update the buffer and written byte counter
@@ -544,14 +544,14 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
     read_32:
     {
 
-        // Iterate through each variadic argument
+        // iterate through each variadic argument
         for (size_t i = 0; i < format_specifier_length; i++)
         {
 
             // initialized data
             int *l = va_arg(list, void *);
 
-            // Store the value
+            // store the value
             *l = *(int *)p_buffer;
             
             // Update the buffer and written byte counter
@@ -572,14 +572,14 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
     read_64:
     {
 
-        // Iterate through each variadic argument
+        // iterate through each variadic argument
         for (size_t i = 0; i < format_specifier_length; i++)
         {
 
             // initialized data
             long *l = va_arg(list, void *);
 
-            // Store the value
+            // store the value
             *l = *(long *)p_buffer;
             
             // Update the buffer and written byte counter
@@ -600,14 +600,14 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
     read_f32:
     {
 
-        // Iterate through each variadic argument
+        // iterate through each variadic argument
         for (size_t i = 0; i < format_specifier_length; i++)
         {
 
             // initialized data
             float *f = va_arg(list, void *);
 
-            // Store the value
+            // store the value
             *f = *(float *)p_buffer;
             
             // Update the buffer and written byte counter
@@ -628,14 +628,14 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
     read_f64:
     {
 
-        // Iterate through each variadic argument
+        // iterate through each variadic argument
         for (size_t i = 0; i < format_specifier_length; i++)
         {
 
             // initialized data
             double *d = va_arg(list, void *);
 
-            // Store the value
+            // store the value
             *d = *(double *)p_buffer;
             
             // Update the buffer and written byte counter
@@ -656,7 +656,7 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
     read_str:
     {
 
-        // Iterate through each variadic argument
+        // iterate through each variadic argument
         for (size_t i = 0; i < format_specifier_length; i++)
         {
 
@@ -664,7 +664,7 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
             char *s = va_arg(list, void *);
             size_t len = *((unsigned short *)p_buffer);
 
-            // Store the value
+            // store the value
             memcpy(s, p_buffer + 2, len);
 
             // Update the buffer and written byte counter

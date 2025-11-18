@@ -56,7 +56,7 @@ int tuple_create ( tuple **const pp_tuple )
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
                 
                 // error
@@ -121,7 +121,7 @@ int tuple_construct ( tuple **const pp_tuple, size_t size )
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error 
@@ -143,7 +143,7 @@ int tuple_from_elements ( tuple **const pp_tuple, void *const *const elements, s
     // Allocate a tuple
     if ( tuple_construct(&p_tuple, size) == 0 ) goto failed_to_allocate_tuple;        
 
-    // Iterate over each key
+    // iterate over each key
     for (size_t i = 0; elements[i]; i++)
 
         // Add the key to the tuple
@@ -212,7 +212,7 @@ int tuple_from_arguments ( tuple **const pp_tuple, size_t element_count, ... )
     // Allocate a tuple
     if ( tuple_construct(&p_tuple, element_count) == 0 ) goto failed_to_allocate_tuple;        
 
-    // Iterate over each key
+    // iterate over each key
     for (size_t i = 0; i < element_count; i++)
 
         // Add the key to the tuple
@@ -432,7 +432,7 @@ int tuple_fori ( tuple *p_tuple, fn_fori *pfn_fori )
     if ( NULL == p_tuple  ) goto no_tuple;
     if ( NULL == pfn_fori ) goto no_fn_fori;
 
-    // Iterate over each element in the tuple
+    // iterate over each element in the tuple
     for (size_t i = 0; i < p_tuple->element_count; i++)
 
         // Call the function
@@ -478,7 +478,7 @@ int tuple_pack ( void *p_buffer, tuple *p_tuple, fn_pack *pfn_element )
     // Pack the length
     p += pack_pack(p, "%i64", p_tuple->element_count);
 
-    // Iterate through the tuple
+    // iterate through the tuple
     for (size_t i = 0; i < p_tuple->element_count; i++)
         p += pfn_element(p, p_tuple->_p_elements[i]);
 

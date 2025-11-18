@@ -175,7 +175,7 @@ int schedule_create ( schedule **const pp_schedule )
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
                 
                 // error
@@ -202,7 +202,7 @@ int parallel_schedule_thread_create ( parallel_schedule_thread **const pp_schedu
     // Zero set memory
     memset(p_schedule_thread, 0, sizeof(parallel_schedule_thread));
 
-    // Store the task quantity
+    // store the task quantity
     p_schedule_thread->task_quantity = task_quantity;
 
     // return a pointer to the caller
@@ -229,7 +229,7 @@ int parallel_schedule_thread_create ( parallel_schedule_thread **const pp_schedu
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
                 
                 // error
@@ -303,7 +303,7 @@ int schedule_load ( schedule **pp_schedule, const char *const path )
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
                 
                 // error
@@ -424,16 +424,16 @@ int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value
         if ( threads_quantity == 0 ) goto threads_property_is_empty;
         if ( threads_quantity > PARALLEL_SCHEDULE_MAX_THREADS ) goto threads_property_is_too_large;
 
-        // Store the names of the threads
+        // store the names of the threads
         dict_keys(p_dict, _keys);
 
-        // Store the values of the threads
+        // store the values of the threads
         dict_values(p_dict, (void **)_p_values);
 
         // Construct a dictionary for the threads
         (void) dict_construct(&_schedule.p_threads, threads_quantity * 2, 0);
 
-        // Iterate over each thread
+        // iterate over each thread
         for (size_t i = 0; i < threads_quantity; i++)
         {
 
@@ -457,7 +457,7 @@ int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value
     // Parse the repeat property
     if ( p_repeat->type == JSON_VALUE_BOOLEAN ) 
 
-        // Store the repeat property
+        // store the repeat property
         _schedule.repeat = p_repeat->boolean;
 
     // Default
@@ -474,21 +474,21 @@ int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value
         parallel_schedule_thread *p_thread = (void *) 0;
         parallel_schedule_task   *p_task = (void *) 0;
         
-        // Store the threads from the schedule
+        // store the threads from the schedule
         dict_values(_schedule.p_threads, (void **)_p_threads);
 
-        // Iterate over each thread
+        // iterate over each thread
         for (size_t i = 0; i < thread_quantity; i++)
         {
             
-            // Store the thread
+            // store the thread
             p_thread = _p_threads[i];
 
-            // Iterate through each task
+            // iterate through each task
             for (size_t j = 0; j < p_thread->task_quantity; j++)
             {
                 
-                // Store the task
+                // store the task
                 p_task = &p_thread->tasks[j];
 
                 // Will this task wait for something else?
@@ -501,7 +501,7 @@ int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value
                     // TODO: Error check
                     //
 
-                    // Iterate through each task
+                    // iterate through each task
                     for (size_t k = 0; k < p_dependency_thread->task_quantity; k++)
                     {
                         
@@ -524,17 +524,17 @@ int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value
             }
         }
     
-        // Iterate over each thread
+        // iterate over each thread
         for (size_t i = 0; i < thread_quantity; i++)
         {
             
-            // Store the thread
+            // store the thread
             p_thread = _p_threads[i];
 
-            // Iterate through each task
+            // iterate through each task
             for (size_t j = 0; j < p_thread->task_quantity; j++)
                 
-                // Store the task
+                // store the task
                 p_task = &p_thread->tasks[j];            
         }
     }
@@ -714,14 +714,14 @@ int parallel_schedule_thread_load_as_json_value ( parallel_schedule_thread **con
     // Copy the name of the thread
     strncpy(p_schedule_thread->_name, name, thread_name_len);
 
-    // Iterate through the array
+    // iterate through the array
     for (size_t i = 0; i < task_quantity; i++)
     {
         
         // initialized data
         const json_value *p_ith_value = (void *) 0;
         
-        // Store the ith json value
+        // store the ith json value
         (void) array_index(p_array, i, (void **)&p_ith_value);
 
         // error check
@@ -758,7 +758,7 @@ int parallel_schedule_thread_load_as_json_value ( parallel_schedule_thread **con
                     goto unrecognized_task;
                 }
 
-                // Store the length of the task name
+                // store the length of the task name
                 len = strlen(p_task->string);
 
                 // TODO: Bounds check
@@ -767,7 +767,7 @@ int parallel_schedule_thread_load_as_json_value ( parallel_schedule_thread **con
                 // Copy the task name
                 strncpy(p_schedule_thread->tasks[i]._name, p_task->string, len);
 
-                // Store the task function pointer
+                // store the task function pointer
                 p_schedule_thread->tasks[i].pfn_task = pfn_task;
             }
 
@@ -799,7 +799,7 @@ int parallel_schedule_thread_load_as_json_value ( parallel_schedule_thread **con
                 // Increment past the ':'
                 wait_task++;
 
-                // Store the length of the wait task
+                // store the length of the wait task
                 wait_task_len = strlen(wait_task);
 
                 // error check
@@ -919,20 +919,20 @@ int schedule_start ( schedule *const p_schedule, void *const p_parameter )
     parallel_schedule_thread *p_main_thread = (void *)0;
     parallel_schedule_work_parameter *p_main_thread_work_parameter = (void *) 0;
 
-    // Store the parameter
+    // store the parameter
     p_schedule->p_parameter = p_parameter;
 
-    // Store the threads from the schedule
+    // store the threads from the schedule
     dict_values(p_schedule->p_threads, (void **)_p_threads);
 
-    // Iterate over each thread
+    // iterate over each thread
     for (size_t i = 0; i < thread_quantity; i++)
     {
         
         // initialized data
         parallel_schedule_thread *p_thread = _p_threads[i];
 
-        // Store the thread parameter
+        // store the thread parameter
         p_schedule->_work_parameters[i] = (parallel_schedule_work_parameter)
         {
             .p_schedule = p_schedule,
@@ -943,10 +943,10 @@ int schedule_start ( schedule *const p_schedule, void *const p_parameter )
         if ( strcmp(p_schedule->_main_thread_name, p_thread->_name) == 0 )
         {
 
-            // Store the main thread
+            // store the main thread
             p_main_thread = p_thread;
 
-            // Store the work parameter
+            // store the work parameter
             p_main_thread_work_parameter = &p_schedule->_work_parameters[i];
 
             // done 
@@ -1044,10 +1044,10 @@ int schedule_stop ( schedule *const p_schedule )
     // Clear the repeat flag
     p_schedule->repeat = false;
 
-    // Store the threads from the schedule
+    // store the threads from the schedule
     dict_values(p_schedule->p_threads, (void **)_p_threads);
 
-    // Iterate over each thread
+    // iterate over each thread
     for (size_t i = 0; i < thread_quantity; i++)
     {
         
@@ -1135,7 +1135,7 @@ void *parallel_schedule_work ( parallel_schedule_work_parameter *p_parameter )
 
     turnover:
 
-    // Iterate through each task
+    // iterate through each task
     for (size_t i = 0; i < p_schedule_thread->task_quantity; i++)
     {
 
@@ -1255,7 +1255,7 @@ void *parallel_schedule_main_work ( parallel_schedule_work_parameter *p_paramete
     
     turnover:
 
-    // Iterate through each task
+    // iterate through each task
     for (size_t i = 0; i < p_schedule_thread->task_quantity; i++)
     {
 
@@ -1394,7 +1394,7 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode )
         {
             invalid_file:
                 #ifndef NDEBUG
-                    printf("[Standard library] Failed to load file \"%s\". %s\n",path, strerror(errno));
+                    printf("[standard library] Failed to load file \"%s\". %s\n",path, strerror(errno));
                 #endif
 
             // error

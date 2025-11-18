@@ -25,7 +25,7 @@ enum result_e
 // type definitions
 typedef enum result_e result_t;
 
-// Global variables
+// global variables
 int total_tests      = 0,
     total_passes     = 0,
     total_fails      = 0,
@@ -1841,7 +1841,7 @@ int construct_object_recursive ( json_value **pp_value )
 
     p_last_value = p_iter_value;
     
-    // Iterate through the alphabet
+    // iterate through the alphabet
     for (size_t i = 'z'; i > 'a'-1; i--)
     {
 
@@ -2899,7 +2899,7 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode )
         {
             invalid_file:
                 #ifndef NDEBUG
-                    printf("[Standard library] Failed to load file \"%s\". %s\n", path, strerror(errno));
+                    printf("[standard library] Failed to load file \"%s\". %s\n", path, strerror(errno));
                 #endif
 
             // error

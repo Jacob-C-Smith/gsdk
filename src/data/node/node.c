@@ -16,7 +16,7 @@ static bool initialized = false;
 void node_init ( void ) 
 {
 
-    // State check
+    // state check
     if ( initialized == true ) return;
 
     // Initialize the sync library
@@ -80,7 +80,7 @@ int node_create ( node **pp_node )
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
                 
                 // error
@@ -128,7 +128,7 @@ int node_graph_create ( node_graph **pp_node_graph )
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
                 
                 // error
@@ -179,7 +179,7 @@ int node_graph_construct ( node_graph **pp_node_graph, const json_value *const p
             // Grow the allocation
             p_node_graph = default_allocator(p_node_graph, sizeof(node_graph) + (node_quantity * sizeof(node *)));
 
-            // Store the node quantity
+            // store the node quantity
             p_node_graph->node_quantity = node_quantity;
 
             // Allocate memory for keys
@@ -203,7 +203,7 @@ int node_graph_construct ( node_graph **pp_node_graph, const json_value *const p
                 // Construct the node
                 if ( node_construct(&p_node, p_key, p_node_value, 0) == 0 ) goto failed_to_construct_node;
 
-                // Store the node in the node graph
+                // store the node in the node graph
                 p_node_graph->_p_nodes[i] = p_node;
 
                 // Add the node to the dictionary
@@ -228,7 +228,7 @@ int node_graph_construct ( node_graph **pp_node_graph, const json_value *const p
                 // initialized data
                 json_value *p_connection = (void *) 0;
                 
-                // Store the connection
+                // store the connection
                 array_index(p_array, i, (void **)&p_connection);
 
                 // error check
@@ -286,51 +286,51 @@ int node_graph_construct ( node_graph **pp_node_graph, const json_value *const p
                         // Increment the cursor
                         in_connection_text++, out_connection_text++;
 
-                        // Store the node
+                        // store the node
                         p_node_in  = dict_get(p_node_graph->p_nodes, in_node_text);
                         p_node_out = dict_get(p_node_graph->p_nodes, out_node_text);
 
                         // Make the connection from the input
                         {
 
-                            // Iterate through each output in the input node
+                            // iterate through each output in the input node
                             for (j = 0; j < p_node_in->out_quantity; j++)
 
                                 // Find the corresponding connection
                                 if ( strcmp(p_node_in->out[j]._name, in_connection_text) == 0 ) break;
                             
-                            // Store the output node
+                            // store the output node
                             p_node_in->out[j].p_out = p_node_out;
 
-                            // Iterate through each input in the output node
+                            // iterate through each input in the output node
                             for (k = 0; k < p_node_out->in_quantity; k++)
 
                                 // Find the corresponding connection
                                 if ( strcmp(p_node_out->in[k]._name, out_connection_text) == 0 ) break;
                             
-                            // Store the index of the input connection
+                            // store the index of the input connection
                             p_node_in->out[j].in_index = k;
                         }
 
                         // Make the connection to the output
                         {
 
-                            // Iterate through each input in the output node
+                            // iterate through each input in the output node
                             for (j = 0; j < p_node_out->in_quantity; j++)
 
                                 // Find the corresponding connection
                                 if ( strcmp(p_node_out->in[j]._name, out_connection_text) == 0 ) break;
                             
-                            // Store the output node
+                            // store the output node
                             p_node_out->in[j].p_in = p_node_in;
 
-                            // Iterate through each output in the input node
+                            // iterate through each output in the input node
                             for (k = 0; k < p_node_in->out_quantity; k++)
 
                                 // Find the corresponding connection
                                 if ( strcmp(p_node_in->out[k]._name, in_connection_text) == 0 ) break;
                             
-                            // Store the index of the output connection
+                            // store the index of the output connection
                             p_node_out->in[j].out_index = k;
                         }
                     }
@@ -484,7 +484,7 @@ int node_construct ( node **pp_node, const char *const p_name, const json_value 
             }
         }
 
-        // Store the node data
+        // store the node data
         p_node->value = p_data;
     }
 
@@ -573,7 +573,7 @@ int node_graph_print ( const node_graph *const p_node_graph )
         // Print the outputs
         log_info("        - out:\n");
 
-        // Iterate through each output
+        // iterate through each output
         for (size_t j = 0; j < p_node_graph->_p_nodes[i]->out_quantity; j++)
         {
             
@@ -590,13 +590,13 @@ int node_graph_print ( const node_graph *const p_node_graph )
         
         no_outputs:
 
-        // State check
+        // state check
         if ( p_node_graph->_p_nodes[i]->in_quantity == 0 ) goto no_inputs;
 
         // Print the inputs
         log_error("        - in:\n");
 
-        // Iterate through each node
+        // iterate through each node
         for (size_t j = 0; j < p_node_graph->_p_nodes[i]->in_quantity; j++)
         {
 

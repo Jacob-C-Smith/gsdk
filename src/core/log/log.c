@@ -17,7 +17,7 @@ static bool  initialized = false;
 void log_init ( void )
 {
 
-    // State check
+    // state check
     if ( initialized == true ) return;
 
     // Log to standard out
@@ -397,7 +397,7 @@ int log_colorful ( enum log_color_e color, const char *const format, ... )
 void log_exit ( void )
 {
 
-    // State check
+    // state check
     if ( initialized == false ) return;
 
     // Close the log file

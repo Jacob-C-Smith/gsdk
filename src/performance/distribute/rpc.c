@@ -46,7 +46,7 @@ void *rpc_dispatch_worker ( void *p_connection_raw );
 // function definitions
 void rpc_init ( void )
 {
-    // State check
+    // state check
     if ( p_rpc_registry != NULL ) return;
 
     // Construct a dictionary for the RPC registry

@@ -166,7 +166,7 @@ void parse_command_line_arguments ( int argc, const char *argv[] )
     // error check
     //
     
-    // Iterate through each command line argument
+    // iterate through each command line argument
     for (size_t i = 1; i < (size_t) argc; i++)
     {
         

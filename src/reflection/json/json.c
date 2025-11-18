@@ -16,7 +16,7 @@ static bool initialized = false;
 void json_init ( void )
 {
 
-    // State check
+    // state check
     if ( initialized == true ) return;
 
     // Initialize the log library
@@ -509,7 +509,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
         // Initialize data
         memset(p_value, 0, sizeof(json_value) + len + 1);
 
-        // Store the length
+        // store the length
         p_value->len = len;
 
         // Copy the json text
@@ -834,7 +834,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
         {
             no_mem:
                 #ifndef NDEBUG
-					printf("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+					printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
 				#endif
 
 				// error
@@ -896,7 +896,7 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                 // Formatting
                 written_characters += (size_t) sprintf(&_buffer[written_characters], "\"");
                 
-                // Iterate over each character
+                // iterate over each character
                 for (size_t i = 0; i < len; i++)
                 {
 
@@ -1044,7 +1044,7 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                 // Print the first element
                 if ( element_count ) written_characters += json_value_serialize(elements[0], &_buffer[written_characters]);
                 
-                // Iterate over each element
+                // iterate over each element
                 for (size_t i = 1; i < element_count; i++)
                 {
 
@@ -1145,7 +1145,7 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
                 // Formatting
                 written_characters += fprintf(p_f, "\"");
                 
-                // Iterate over each character
+                // iterate over each character
                 for (size_t i = 0; i < len; i++)
                 {
 
@@ -1305,7 +1305,7 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
                 // Print the first element
                 if ( element_count ) written_characters += json_value_fprint(elements[0],p_f);
                 
-                // Iterate over each element
+                // iterate over each element
                 for (size_t i = 1; i < element_count; i++)
                 {
 
@@ -1349,7 +1349,7 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
+                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
                 #endif
 
                 // error
@@ -1415,7 +1415,7 @@ void *json_value_free ( json_value *p_value, unsigned long long unused )
 void json_exit ( void )
 {
     
-    // State check
+    // state check
     if ( initialized == false ) return;
 
     // Clean up the log library

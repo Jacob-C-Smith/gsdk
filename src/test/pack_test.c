@@ -30,7 +30,7 @@ enum result_e
 // type definitions
 typedef enum result_e result_t;
 
-// Global variables
+// global variables
 int total_tests      = 0,
     total_passes     = 0,
     total_fails      = 0,
@@ -327,7 +327,7 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode )
         {
             invalid_file:
                 #ifndef NDEBUG
-                    printf("[Standard library] Failed to load file \"%s\". %s\n", path, strerror(errno));
+                    printf("[standard library] Failed to load file \"%s\". %s\n", path, strerror(errno));
                 #endif
 
             // error

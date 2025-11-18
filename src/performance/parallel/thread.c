@@ -48,7 +48,7 @@ int parallel_thread_create ( parallel_thread **pp_parallel_thread )
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
                 
                 // error

@@ -382,7 +382,7 @@ int aes_encrypt_block ( unsigned char *p_output, unsigned char *p_input, unsigne
     add_round_key(state, expanded_key);
     PRINT_ROUND_KEY(expanded_key);
 
-    // Iterate over rounds (1 to nround-1)
+    // iterate over rounds (1 to nround-1)
     for (iround = 1; iround < nround; iround++)
     {
         printf(" Round #%zu\n", iround);

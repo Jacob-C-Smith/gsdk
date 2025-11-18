@@ -28,8 +28,8 @@ typedef struct array_s array;
 /** !
  *  Construct an array with a specific size
  *
- * @param pp_array return
- * @param size number of elements in an array
+ * @param pp_array result
+ * @param size     number of elements in an array
  *
  * @sa array_create
  * @sa array_destroy
@@ -41,9 +41,9 @@ int array_construct ( array **pp_array, size_t size );
 /** !
  *  Construct an array from an array of elements
  *
- * @param pp_array return
+ * @param pp_array result
  * @param elements pointer to null terminated array of element pointers
- * @param size number of elements. 
+ * @param size     number of elements. 
  *
  * @sa array_create
  * @sa array_destroy
@@ -73,9 +73,9 @@ int array_from_arguments ( array **pp_array, size_t size, size_t count, ... );
  * Index an array with a signed number. If index is negative, index = size - |index|, such that
  * [A,B,C,D,E] index(-2) -> D
  * 
- * @param p_array array
- * @param index signed index
- * @param pp_value return
+ * @param p_array  the array
+ * @param index    signed index
+ * @param pp_value result
  * 
  * @sa array_get
  * @sa array_slice
@@ -87,8 +87,8 @@ int array_index ( array *p_array, signed index, void **pp_value );
 /** !
  *  Get an array of elements
  *
- * @param p_array array
- * @param pp_elements return
+ * @param p_array     the array
+ * @param pp_elements result
  *
  * @sa array_index
  * @sa array_slice
@@ -100,7 +100,7 @@ int array_get ( array *p_array, void **pp_elements, size_t *p_count );
 /** !
  * Get a slice of the array specified by a lower bound and an upper bound
  * 
- * @param p_array array
+ * @param p_array     the array
  * @param pp_elements return
  * @param lower_bound the lower bound of the array
  * @param upper_bound the upper bound of the array
@@ -115,7 +115,7 @@ int array_slice ( array *p_array, void *pp_elements[], signed lower_bound, signe
 /** !
  *  Is an array empty?
  * 
- * @param p_array an array
+ * @param p_array the array
  * 
  * @return true if array has no contents else false
  */
@@ -124,7 +124,7 @@ bool array_is_empty ( array *p_array );
 /** !
  *  Get the size of an array
  * 
- * @param p_array an array
+ * @param p_array the array
  * 
  * @return size of array
  */
@@ -134,7 +134,7 @@ size_t array_size ( array *p_array );
 /** !
  *  Add an element to the end of an array. 
  *
- * @param p_array array
+ * @param p_array the array
  * @param p_element the value of the element
  *
  * @return 1 on success, 0 on error
@@ -203,6 +203,16 @@ int array_map ( array *const p_array, fn_map *pfn_map, fn_allocator *pfn_allocat
  */
 int array_fori ( array *p_tuple, fn_fori *pfn_fori );
 
+/** !
+ * Call function on every element in an array
+ *
+ * @param p_array     the array
+ * @param pfn_foreach pointer to foreach function
+ * 
+ * @return 1 on success, 0 on error
+ */
+int array_foreach ( array *p_tuple, fn_foreach *pfn_foreach );
+
 /// reflection
 /** !
  * Pack an array into a buffer
@@ -241,7 +251,7 @@ hash64 array_hash ( array *p_array, fn_hash64 *pfn_element );
 /** !
  *  Destroy and deallocate an array
  *
- * @param pp_array pointer to array pointer
+ * @param pp_array      pointer to array pointer
  * @param pfn_allocator pointer to allocator function for deallocating elements
  *
  * @sa array_create

@@ -596,7 +596,7 @@ bool test_empty ( int (*circular_buffer_constructor)(circular_buffer **), result
     // Build the queue
     circular_buffer_constructor(&p_queue);
 
-    // Store the result
+    // store the result
     result = circular_buffer_empty(p_queue);
 
     // Free the queue
@@ -616,7 +616,7 @@ bool test_full ( int (*circular_buffer_constructor)(circular_buffer **), result_
     // Build the queue
     circular_buffer_constructor(&p_queue);
 
-    // Store the result
+    // store the result
     result = circular_buffer_full(p_queue);
 
     // Free the queue

@@ -43,7 +43,7 @@ int adjacency_matrix_construct ( adjacency_matrix **pp_adjacency_matrix, size_t 
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[Standard Library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[standard library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

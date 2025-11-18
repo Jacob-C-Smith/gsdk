@@ -130,7 +130,7 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode )
         {
             invalid_file:
                 #ifndef NDEBUG
-                    log_error("[Standard library] Failed to load file \"%s\". %s\n",path, strerror(errno));
+                    log_error("[standard library] Failed to load file \"%s\". %s\n",path, strerror(errno));
                 #endif
 
                 // error

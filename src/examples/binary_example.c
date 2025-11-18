@@ -126,10 +126,10 @@ int main ( int argc, const char *argv[] )
         16                                // sizeof(node)
     );
 
-    // Iterate over each property
+    // iterate over each property
     for (size_t i = 0; i < BINARY_TREE_EXAMPLE_LIST_LENGTH; i++)
         
-        // Store the property in the tree
+        // store the property in the tree
         binary_tree_insert(p_binary_tree, &_values[i]);
 
     // Serialize the binary tree to a file
@@ -202,7 +202,7 @@ int binary_tree_example_parser ( FILE *p_file, binary_tree_node *p_binary_tree_n
     // Read a double from the input
     fread(&p_number_and_string->number, 4, 1, p_file);
 
-    // Store the value
+    // store the value
     p_binary_tree_node->p_value = p_number_and_string;
     
     // success

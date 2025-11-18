@@ -50,7 +50,7 @@ struct tests_s
 };
 
 
-// Global variables
+// global variables
 const char *alphabet[] = {
     "a",
     "b",
@@ -1819,7 +1819,7 @@ int construct_object_recursive ( json_value **pp_value )
 
     p_last_value = p_iter_value;
     
-    // Iterate through the alphabet
+    // iterate through the alphabet
     for (size_t i = 'z'; i > 'a'-1; i--)
     {
 
@@ -2875,7 +2875,7 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode )
         {
             invalid_file:
                 #ifndef NDEBUG
-                    printf("[Standard library] Failed to load file \"%s\". %s\n", path, strerror(errno));
+                    printf("[standard library] Failed to load file \"%s\". %s\n", path, strerror(errno));
                 #endif
 
             // error

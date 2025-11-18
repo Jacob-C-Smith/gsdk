@@ -21,7 +21,7 @@ static bool initialized = false;
 void parallel_init ( void ) 
 {
 
-    // State check
+    // state check
     if ( initialized == true ) return;
 
     // Initialize the log library
@@ -48,7 +48,7 @@ int parallel_register_task ( const char *const name, fn_parallel_task *pfn_paral
 
     // TODO: Argument check
 
-    // Store the task
+    // store the task
     dict_add(parallel_parallel_tasks, name, pfn_parallel_task);
 
     // success
@@ -70,7 +70,7 @@ int parallel_find_task ( const char *const name, fn_parallel_task **p_pfn_parall
 void parallel_exit ( void )
 {
 
-    // State check
+    // state check
     if ( initialized == false ) return;
 
     // Clean up the log library

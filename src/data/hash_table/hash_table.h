@@ -38,6 +38,8 @@ struct hash_table_s
     } properties;
 };
 
+typedef struct hash_table_s hash_table;
+
 // constructors
 /** !
  * Construct a hash table

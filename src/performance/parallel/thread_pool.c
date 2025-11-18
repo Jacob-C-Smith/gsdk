@@ -147,7 +147,7 @@ int thread_pool_create ( thread_pool **const pp_thread_pool )
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
                 
                 // error
@@ -179,7 +179,7 @@ int thread_pool_construct ( thread_pool **pp_thread_pool, size_t thread_quantity
     // error check
     if ( p_thread_pool == (void *) 0 ) goto no_mem;
 
-    // Store the quantity of threads
+    // store the quantity of threads
     *p_thread_pool = (thread_pool)
     {
         .thread_quantity = thread_quantity,
@@ -193,7 +193,7 @@ int thread_pool_construct ( thread_pool **pp_thread_pool, size_t thread_quantity
     for (size_t i = 0; i < thread_quantity; i++)
     {
     
-        // Store the thread pool in the parameter
+        // store the thread pool in the parameter
         p_thread_pool->_threads[i].p_thread_pool = p_thread_pool;
 
         // Construct a monitor
@@ -269,7 +269,7 @@ int thread_pool_construct ( thread_pool **pp_thread_pool, size_t thread_quantity
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
                 
                 // error

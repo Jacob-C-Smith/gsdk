@@ -55,7 +55,7 @@ int base64_encode ( const void *const p_data, size_t len, char *const p_output )
     // initialized data
     size_t output_length = ( 4 * ( ( len + 2 ) / 3 ) ) - remainders[len % 3];
 
-    // Iterate through len bytes of p_data
+    // iterate through len bytes of p_data
     for (size_t i = 0, j = 0; i < len; i+=3, j+=4)
     {
 
@@ -111,7 +111,7 @@ int base64_decode ( const char *const p_data, size_t len, void *const p_output )
     if ( len      ==          0 ) goto no_len;
     if ( p_output == (void *) 0 ) goto no_output;
 
-    // Iterate through len bytes of p_data
+    // iterate through len bytes of p_data
     for (size_t i = 0, j = 0; i < (( (len+5) * 3 ) / 4 ); i+=4, j+=3)
     {
 

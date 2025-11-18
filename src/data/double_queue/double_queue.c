@@ -84,7 +84,7 @@ int double_queue_create ( double_queue **const pp_double_queue )
 		{
 			no_mem:
 				#ifndef NDEBUG
-					printf("[Standard Library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
+					printf("[standard library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
 				#endif
 
 				// error
@@ -160,7 +160,7 @@ int double_queue_from_contents ( double_queue **const pp_double_queue, void* con
 	// Construct a queue
 	if ( double_queue_construct(pp_double_queue) == 0 ) goto failed_to_construct_queue;
 	
-	// Iterate over each item
+	// iterate over each item
 	for (size_t i = 0; i < size; i++)
 
 		// Add the item to the queue
@@ -213,7 +213,7 @@ int double_queue_front ( const double_queue *const p_double_queue, void ** const
 	// lock
 	mutex_lock(&p_double_queue->_lock);
 
-	// State check
+	// state check
 	if ( double_queue_empty(p_double_queue) ) goto no_double_queue_contents;
 
 	// return a pointer to the caller
@@ -259,7 +259,7 @@ int double_queue_rear ( const double_queue *const p_double_queue, void **const p
 	// lock
 	mutex_lock(&p_double_queue->_lock);
 
-	// State check
+	// state check
 	if ( double_queue_empty(p_double_queue) ) goto no_double_queue_contents;
 
 	// Return a pointer to the rear element
@@ -394,7 +394,7 @@ int double_queue_front_add ( double_queue *const p_double_queue, void *const dat
 		{
 			no_mem:
 				#ifndef NDEBUG
-					printf("[Standard Library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
+					printf("[standard library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
 				#endif
 
 				// error
@@ -412,7 +412,7 @@ int double_queue_front_remove ( double_queue *const p_double_queue, void **const
 	// lock
 	mutex_lock(&p_double_queue->_lock);
 	
-	// State check
+	// state check
 	if ( p_double_queue->front == 0 ) goto queue_empty;
 
 	// initialized data
@@ -533,7 +533,7 @@ int double_queue_rear_add ( double_queue *const p_double_queue, void *const data
 		{
 			no_mem:
 				#ifndef NDEBUG
-					printf("[Standard Library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
+					printf("[standard library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
 				#endif
 
 				// error
@@ -551,7 +551,7 @@ int double_queue_rear_remove ( double_queue *const p_double_queue, void **const 
 	// lock
 	mutex_lock(&p_double_queue->_lock);
 	
-	// State check
+	// state check
 	if ( p_double_queue->rear == 0 ) goto queue_empty;
 
 	// initialized data

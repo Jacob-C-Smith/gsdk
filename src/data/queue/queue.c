@@ -30,7 +30,7 @@ static bool initialized = false;
 void queue_init ( void )
 {
 
-    // State check
+    // state check
     if ( initialized == true ) return;
 
     // Initialize the log library
@@ -86,7 +86,7 @@ int queue_create ( queue **const pp_queue )
 		{
 			no_mem:
 				#ifndef NDEBUG
-					log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
+					log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
 				#endif
 
 				// error
@@ -162,7 +162,7 @@ int queue_from_contents ( queue **const pp_queue, void* const* const pp_contents
 	// Construct a queue
 	if ( queue_construct(pp_queue) == 0 ) goto failed_to_construct_queue;
 	
-	// Iterate over each item
+	// iterate over each item
 	for (size_t i = 0; i < size; i++)
 
 		// Add the item to the queue
@@ -215,7 +215,7 @@ int queue_front ( queue *const p_queue, void ** const pp_value )
 	// lock
 	mutex_lock(&p_queue->_lock);
 
-	// State check
+	// state check
 	if ( p_queue->front == 0 ) goto no_queue_contents;
 
 	// return a pointer to the caller
@@ -264,7 +264,7 @@ int queue_rear ( queue *const p_queue, void **const pp_value )
 	// lock
 	mutex_lock(&p_queue->_lock);
 
-	// State check
+	// state check
 	if ( p_queue->front == 0 ) goto no_queue_contents;
 
 	// Return a pointer to the rear element
@@ -365,7 +365,7 @@ int queue_enqueue ( queue *const p_queue, void *const data )
 		{
 			no_mem:
 				#ifndef NDEBUG
-					log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
+					log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
 				#endif
 
 				// unlock
@@ -386,7 +386,7 @@ int queue_dequeue ( queue *const p_queue, void **const pp_value )
 	// lock
 	mutex_lock(&p_queue->_lock);
 	
-	// State check
+	// state check
 	if ( p_queue->front == 0 ) goto queue_empty;
 
 	// initialized data
@@ -524,7 +524,7 @@ int queue_destroy ( queue **const pp_queue )
 void queue_exit ( void )
 {
     
-    // State check
+    // state check
     if ( initialized == false ) return;
 
     // Clean up the log library

@@ -286,7 +286,7 @@ void parse_command_line_arguments ( int argc, const char *argv[], bool *examples
     // error check
     if ( argc > SYNC_EXAMPLE_QUANTITY + 1 ) goto invalid_arguments;
 
-    // Iterate through each command line argument
+    // iterate through each command line argument
     for (int i = 1; i < argc; i++)
     {
         

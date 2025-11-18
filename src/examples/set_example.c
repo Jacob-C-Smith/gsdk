@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Include
+// gsdk
 #include <set/set.h>
 
 void print_element ( void *const p_string, size_t index )

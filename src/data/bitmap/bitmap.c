@@ -1,7 +1,7 @@
 /** !
  * bitmap library
  * 
- * @file bitmap.c 
+ * @file src/data/bitmap.c 
  * 
  * @author Jacob Smith
  */
@@ -23,6 +23,7 @@ struct bitmap_s
     void    *p_bitmap; // Bitmap contents
 };
 
+/// constructors
 int bitmap_construct ( bitmap **pp_bitmap, size_t bits )
 {
 
@@ -94,6 +95,7 @@ int bitmap_construct ( bitmap **pp_bitmap, size_t bits )
     }
 }
 
+/// mutators
 int bitmap_set ( bitmap *p_bitmap, size_t index )
 {
     
@@ -182,6 +184,7 @@ int bitmap_clear ( bitmap *p_bitmap, size_t index )
     }
 }
 
+/// accessors
 int bitmap_test ( bitmap *p_bitmap, size_t index )
 {
     
@@ -227,6 +230,7 @@ int bitmap_test ( bitmap *p_bitmap, size_t index )
     }
 }
 
+/// logs
 int bitmap_print ( bitmap *p_bitmap )
 {
   
@@ -276,7 +280,7 @@ int bitmap_print ( bitmap *p_bitmap )
     }
 }
 
-
+/// reflection
 int bitmap_pack ( void *p_buffer, bitmap *p_bitmap )
 {
     
@@ -297,7 +301,7 @@ int bitmap_pack ( void *p_buffer, bitmap *p_bitmap )
     // Pack the quantity of properties
     p += pack_pack(p, "%i64", p_bitmap->max);
 
-    // Iterate through the bitmap
+    // iterate through the bitmap
     for (size_t i = 0; i < bytes_required; i++)
         p += pack_pack(p, "%i8", p_bytes[i]);
     
@@ -391,6 +395,43 @@ int bitmap_unpack ( bitmap **pp_bitmap, void *p_buffer )
     }
 }
 
+/// hash
+hash64 bitmap_hash ( bitmap *p_bitmap, fn_hash64 *pfn_hash64 )
+{
+
+    // argument check
+    if ( p_bitmap == (void *) 0 ) goto no_bitmap;
+
+    // initialized data
+    hash64 result = 0;
+    size_t bytes_required = (p_bitmap->max % 8 == 0) ? 
+                            (p_bitmap->max / 8) :
+                            (p_bitmap->max / 8) + 1;
+
+    // TODO: Use user supplied hash
+    // compute the hash of the bitmap
+    result = default_hash(p_bitmap->p_bitmap, bytes_required);
+
+    // success
+    return result;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_bitmap:
+                #ifndef NDEBUG
+                    log_error("[bitmap] Null pointer provided for \"pp_bitmap\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+/// destructor
 int bitmap_destroy ( bitmap **pp_bitmap )
 {
 

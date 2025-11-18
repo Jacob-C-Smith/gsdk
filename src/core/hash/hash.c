@@ -316,7 +316,7 @@ hash64 hash_crc64 ( const void *const k, unsigned long long l )
     const unsigned char *p = k;
     hash64 h = 0xFFFFFFFFFFFFFFFF;
 
-    // Iterate through the input
+    // iterate through the input
     for (size_t i = 0; i < l; i++)
 
         // Update the CRC

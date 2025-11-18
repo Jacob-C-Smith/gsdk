@@ -110,7 +110,7 @@ int priority_queue_create ( priority_queue **const pp_priority_queue )
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -206,7 +206,7 @@ int priority_queue_construct ( priority_queue **const pp_priority_queue, size_t 
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -229,7 +229,7 @@ int priority_queue_from_keys ( priority_queue **const pp_priority_queue, const v
     // Allocate a priority queue
     if ( priority_queue_construct(&p_priority_queue, size, pfn_compare_function) == 0 ) goto failed_to_construct_priority_queue;
 
-    // Iterate over each key
+    // iterate over each key
     for (size_t i = 0; i < size; i++)
     {
         // Add the key to the priority queue
@@ -391,7 +391,7 @@ int priority_queue_build_heap_sort ( priority_queue *const p_priority_queue )
     // Build the max heap
     priority_queue_build_max_heap(p_priority_queue);
 
-    // Iterate through the max heap
+    // iterate through the max heap
     for ( long i = p_priority_queue->entries.count - 1; i >= 1; i-- )
     {
         
@@ -546,7 +546,7 @@ int priority_queue_increase_key ( priority_queue *const p_priority_queue, size_t
     // Ensure the key is increasing priority 
     if ( p_priority_queue->pfn_compare_function(p_key, p_priority_queue->entries.data[index]) < 0 ) goto decrease_key;
 
-    // Store the key in the heap
+    // store the key in the heap
     p_priority_queue->entries.data[index] = p_key;
 
     // Increase the key in the heap to its maximum priority
@@ -600,7 +600,7 @@ int priority_queue_insert ( priority_queue *const p_priority_queue, void *p_key 
     if ( p_priority_queue == (void *) 0 ) goto no_priority_queue;
     if ( p_key            == (void *) 0 ) goto no_key;
 
-    // State check
+    // state check
     if ( p_priority_queue->entries.count >= p_priority_queue->entries.max ) goto heap_overflow;
 
     // Increment the size of the heap

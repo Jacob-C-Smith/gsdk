@@ -14,7 +14,7 @@ enum http_request_type_e    _http_request_types[HTTP_REQUEST_MAP_SIZE]      = { 
 void http_init ( void )
 {
 
-    // State check
+    // state check
     if ( initialized == true ) return;
 
     // Initialize the log library
@@ -34,19 +34,19 @@ void http_init ( void )
     // Populate the headers map
     for (size_t i = 0; i < HTTP_HEADER_QUANTITY; i++)
 
-        // Store the header enum
+        // store the header enum
         _http_headers[ hash_fnv64(http_headers[i], strlen(http_headers[i])) % HTTP_HEADER_MAP_SIZE ] = i;
 
     // Populate the request map
     for (size_t i = 0; i < HTTP_REQUEST_QUANTITY; i++)
 
-        // Store the request enum
+        // store the request enum
         _http_request_types[ hash_fnv64(http_request_types[i], strlen(http_request_types[i])) % HTTP_REQUEST_MAP_SIZE ] = i;
 
     // Populate the response map
     for (size_t i = 0; i < HTTP_RESPONSE_STATUS_QUANTITY; i++)
 
-        // Store the response enum
+        // store the response enum
         _http_response_statuses[ hash_fnv64(http_response_status_phrases[i], strlen(http_response_status_phrases[i])) % HTTP_RESPONSE_MAP_SIZE ] = i;
 
     // Set the initialized flag
@@ -59,7 +59,7 @@ void http_init ( void )
 void http_exit ( void )
 {
     
-    // State check
+    // state check
     if ( initialized == false ) return;
 
     // Clean up the log library

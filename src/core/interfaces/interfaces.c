@@ -26,7 +26,7 @@ void *default_allocator ( void *p_pointer, unsigned long long size )
         // store the result
         p_result = realloc(p_pointer, size);
 
-        // check for error
+        // error check
         if ( NULL == p_result )
         {
             free(p_pointer);
@@ -59,6 +59,13 @@ int default_equality ( const void *const p_a, const void *const p_b )
     return p_a == p_b;
 }
 
+void *default_key_accessor ( const void *const p_value )
+{
+
+    // default
+    return (void *) p_value;
+}
+
 hash64 default_hash ( const void *const k, unsigned long long l )
 {
 
@@ -73,11 +80,4 @@ hash64 default_hash ( const void *const k, unsigned long long l )
 
     // default
     return ret;
-}
-
-void *default_key_accessor ( const void *const p_value )
-{
-
-    // default
-    return (void *) p_value;
 }

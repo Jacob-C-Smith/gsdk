@@ -90,7 +90,7 @@ int dict_create ( dict **const pp_dict )
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -196,7 +196,7 @@ int dict_construct ( dict **const pp_dict, size_t size, fn_hash64 pfn_hash_funct
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -221,7 +221,7 @@ int dict_from_keys ( dict **const pp_dict, const char **const keys, size_t size 
     // Allocate a dictionary
     if ( dict_construct(&p_dict, size, 0) == 0 ) goto failed_to_construct_dict;
 
-    // Iterate over each key
+    // iterate over each key
     for (size_t i = 0; keys[i]; i++)
 
         // Add the key to the dictionary
@@ -291,7 +291,7 @@ const void *dict_get ( dict *const p_dict, const char *const key )
         if ( strcmp(key, ret->key) == 0 )
             break;
 
-        // Iterate
+        // iterate
         ret = ret->next;
     }
 
@@ -539,7 +539,7 @@ int dict_add ( dict *const p_dict, const char *const key,   void * const p_value
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[Standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // unlock
@@ -713,7 +713,7 @@ int dict_pop ( dict *const p_dict, const char *const key, const void **const pp_
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_warning("[Standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    log_warning("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // unlock
@@ -724,7 +724,7 @@ int dict_pop ( dict *const p_dict, const char *const key, const void **const pp_
                 
             failed_to_free:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Call to \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[standard library] Call to \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -744,7 +744,7 @@ int dict_foreach ( dict *const p_dict, void (*function)(const void * const, size
     // lock
     mutex_lock(&p_dict->_lock);
 
-    // Iterate over each hash table item
+    // iterate over each hash table item
     for (size_t i = 0; i < p_dict->entries.count; i++)
 
         // Call the function on the item
@@ -807,7 +807,7 @@ int dict_copy ( dict *const p_dict, dict **const pp_dict )
     dict_keys(p_dict, keys);
     dict_values(p_dict, values);
 
-    // Iterate over each value
+    // iterate over each value
     for (size_t i = 0; i < p_dict->entries.count && keys[i]; i++)
 
         // Insert each value
@@ -850,7 +850,7 @@ int dict_copy ( dict *const p_dict, dict **const pp_dict )
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_warning("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    log_warning("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // unlock
@@ -864,7 +864,7 @@ int dict_copy ( dict *const p_dict, dict **const pp_dict )
         {
             failed_to_free:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Call to \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[standard library] Call to \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -889,7 +889,7 @@ int dict_pack ( dict *p_dict, void *p_buffer, fn_pack *pfn_element )
     // Pack the quantity of properties
     p += pack_pack(p, "%i64", p_dict->entries.count);
 
-    // Iterate through the dict
+    // iterate through the dict
     for (size_t i = 0; i < p_dict->entries.max; i++)
     {
 
@@ -981,7 +981,7 @@ int dict_clear ( dict *const p_dict )
     // lock
     mutex_lock(&p_dict->_lock);
 
-    // Iterate over each hash table item
+    // iterate over each hash table item
     for (size_t i = 0; i < p_dict->entries.max; i++)
     {
 
@@ -992,7 +992,7 @@ int dict_clear ( dict *const p_dict )
             // initialized data
             dict_item *i_di = p_dict->entries.data[i];
 
-            // Iterate through linked list
+            // iterate through linked list
             while ( i_di )
             {
 
@@ -1002,7 +1002,7 @@ int dict_clear ( dict *const p_dict )
                 // Free the item
                 i_di = default_allocator(i_di, 0);
                 
-                // Iterate
+                // iterate
                 i_di = n;
             }
 
@@ -1019,7 +1019,7 @@ int dict_clear ( dict *const p_dict )
     // Check for a valid pointer
     if ( p_dict->iterable.keys )
 
-        // Iterate over each key
+        // iterate over each key
         for (size_t i = 0; i < p_dict->entries.count; i++)
 
             // Zero set the key
@@ -1028,7 +1028,7 @@ int dict_clear ( dict *const p_dict )
     // Check for a valid pointer
     if ( p_dict->iterable.values )
 
-        // Iterate over each value
+        // iterate over each value
         for (size_t i = 0; i < p_dict->entries.count; i++)
 
             // Zero the value
@@ -1072,7 +1072,7 @@ int dict_free_clear ( dict *const p_dict, void (*const free_func)(const void *co
     // lock
     mutex_lock(&p_dict->_lock);
 
-    // Iterate over each hash table item
+    // iterate over each hash table item
     for (size_t i = 0; i < p_dict->entries.max; i++)
     {
 
@@ -1083,7 +1083,7 @@ int dict_free_clear ( dict *const p_dict, void (*const free_func)(const void *co
             // Initialzied data
             dict_item *i_di = p_dict->entries.data[i];
 
-            // Iterate through linked list
+            // iterate through linked list
             while ( i_di )
             {
                 dict_item *n = i_di->next;
@@ -1094,7 +1094,7 @@ int dict_free_clear ( dict *const p_dict, void (*const free_func)(const void *co
                 // Free the item
                 i_di = default_allocator(i_di, 0);
                 
-                // Iterate
+                // iterate
                 i_di = n;
             }
 
@@ -1155,7 +1155,7 @@ int dict_destroy ( dict **const pp_dict, fn_allocator *pfn_allocator )
     // release the elements
     if (pfn_allocator) 
     {
-        // Iterate over each hash table bucket
+        // iterate over each hash table bucket
         for (size_t i = 0; i < p_dict->entries.max; i++)
         {
             dict_item *item = p_dict->entries.data[i];

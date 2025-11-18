@@ -32,7 +32,7 @@ int equals_function ( const void *const a, const void *const b )
 void set_init ( void )
 {
 
-    // State check
+    // state check
     if ( initialized == true ) return;
 
     // Initialize log
@@ -87,7 +87,7 @@ int set_create ( set **const pp_set )
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -165,7 +165,7 @@ int set_construct ( set **const pp_set, size_t size, set_equal_fn *pfn_is_equal 
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -189,7 +189,7 @@ int set_from_elements ( set **const pp_set, const void **const pp_elements, size
     // Get a pointer to the allocated set
     p_set = *pp_set;
 
-    // Iterate over each element
+    // iterate over each element
     for (size_t i = 0; i < size; i++)
     {
         
@@ -229,7 +229,7 @@ int set_from_elements ( set **const pp_set, const void **const pp_elements, size
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -299,7 +299,7 @@ int set_add ( set *const p_set, void *const p_element )
     // lock
     mutex_lock(&p_set->_lock);
 
-    // Iterate over each element
+    // iterate over each element
     for (size_t i = 0; i < p_set->count; i++)
     {
 
@@ -315,7 +315,7 @@ int set_add ( set *const p_set, void *const p_element )
         }
     }
     
-    // Store the element 
+    // store the element 
     p_set->elements[p_set->count] = p_element;
 
     // Increment the element quantity
@@ -356,7 +356,7 @@ int set_add ( set *const p_set, void *const p_element )
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -380,13 +380,13 @@ int set_union ( set **const pp_set, const set *const p_a, const set *const p_b, 
     // Construct a set
     if ( set_construct(&p_set, max_set_size, pfn_is_equal) == 0 ) goto failed_to_construct_set;
 
-    // Iterate through set a
+    // iterate through set a
     for (size_t i = 0; i < p_a->count; i++)
 
         // Add each element to the new set
         set_add(p_set, p_a->elements[i]);
     
-    // Iterate through set b
+    // iterate through set b
     for (size_t i = 0; i < p_b->count; i++)
 
         // Add each element to the new set
@@ -456,26 +456,26 @@ int set_difference ( set **const pp_set, const set *const p_a, const set *const 
     // Construct a set
     if ( set_construct(&p_set, max_set_size, pfn_is_equal) == 0 ) goto failed_to_construct_set;
 
-    // Iterate through set a
+    // iterate through set a
     for (size_t i = 0; i < p_a->count; i++)
 
         // Add each element to the new set
         set_add(p_set, p_a->elements[i]);
     
-    // Iterate through set b
+    // iterate through set b
     for (size_t i = 0; i < p_b->count; i++)
 
         // Add each element to the new set
         set_add(p_set, p_b->elements[i]);
 
-    // Iterate through set a
+    // iterate through set a
     for (size_t i = 0; i < p_a->count; i++)
     {
 
         // initialized data
         bool is_a_i_in_b = false;
 
-        // Iterate through set b
+        // iterate through set b
         for (size_t j = 0; j < p_b->count; j++)
         {
             // If a[i] is in b
@@ -553,14 +553,14 @@ int set_intersection ( set **const pp_set, const set *const p_a, const set *cons
     // Construct a set
     if ( set_construct(&p_set, max_set_size, pfn_is_equal) == 0 ) goto failed_to_construct_set;
 
-    // Iterate through set a
+    // iterate through set a
     for (size_t i = 0; i < p_a->count; i++)
     {
 
         // initialized data
         bool is_a_i_in_b = false;
 
-        // Iterate through set b
+        // iterate through set b
         for (size_t j = 0; j < p_b->count; j++)
         {
             // If a[i] is in b
@@ -696,7 +696,7 @@ int set_pop ( set *const p_set, void **const pp_value )
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -714,7 +714,7 @@ int set_remove ( set *const p_set , void *const p_element )
     // lock
     mutex_lock(&p_set->_lock);
 
-    // Iterate over each element
+    // iterate over each element
     for (size_t i = 0; i < p_set->count; i++)
     {
 
@@ -736,7 +736,7 @@ int set_remove ( set *const p_set , void *const p_element )
         }
     }
     
-    // Store the element 
+    // store the element 
     p_set->elements[p_set->count] = p_element;
 
     // Increment the element quantity
@@ -766,7 +766,7 @@ int set_remove ( set *const p_set , void *const p_element )
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -782,7 +782,7 @@ int set_foreach_i ( const set *const p_set, void (*const function)(void *const v
     if ( p_set    == (void *) 0 ) goto no_set;
     if ( function == (void *) 0 ) goto no_free_func;
 
-    // Iterate over each element in the set
+    // iterate over each element in the set
     for (size_t i = 0; i < p_set->count; i++)
         
         // Call the function
@@ -875,7 +875,7 @@ int set_destroy ( set **const pp_set )
 void set_exit ( void )
 {
 
-    // State check
+    // state check
     if ( initialized == false ) return;
 
     // Clean up sync

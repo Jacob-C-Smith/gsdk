@@ -274,7 +274,7 @@ int b_tree_node_create ( b_tree_node **const pp_b_tree_node )
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -322,7 +322,7 @@ int b_tree_create ( b_tree **const pp_b_tree )
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -516,7 +516,7 @@ int b_tree_node_allocate ( b_tree *p_b_tree, b_tree_node **pp_b_tree_node )
     // Allocate a node
     if ( b_tree_node_create(&p_b_tree_node) == 0 ) goto failed_to_allocate_node;
 
-    // Store the node pointer
+    // store the node pointer
     p_b_tree_node->node_pointer = p_b_tree->_metadata.node_quantity;
 
     // Increment the node quantity
@@ -596,7 +596,7 @@ int b_tree_node_construct ( b_tree_node **const pp_b_tree_node, b_tree *const p_
     if ( on_disk )
     {
         
-        // Store the next node address
+        // store the next node address
         p_b_tree_node->node_pointer = p_b_tree->_metadata.next_disk_address;
 
         // Update the next node address
@@ -641,7 +641,7 @@ int b_tree_node_construct ( b_tree_node **const pp_b_tree_node, b_tree *const p_
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -717,7 +717,7 @@ int b_tree_split_root ( b_tree *const p_b_tree )
     p_new_root_node->leaf = false;
     p_new_root_node->key_quantity = 0;
 
-    // Store the pointer to the old root
+    // store the pointer to the old root
     p_new_root_node->_child_pointers[0] = p_b_tree->p_root->node_pointer;
 
     // Update the root node
@@ -919,7 +919,7 @@ int b_tree_insert_not_full ( b_tree *p_b_tree, b_tree_node *const p_b_tree_node,
             i--;
         }
 
-        // Store the property
+        // store the property
         p_b_tree_node->properties[i + 1] = (void *) p_property;
         
         // Increment the quantity of keys
@@ -1235,7 +1235,7 @@ int b_tree_disk_read ( b_tree *p_b_tree, unsigned long long disk_address, b_tree
             return 0;
         no_mem:
             #ifndef NDEBUG
-                printf("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
             #endif
             return 0;
     }
@@ -1415,7 +1415,7 @@ int b_tree_insert ( b_tree *const p_b_tree, const void *const p_property )
     if ( p_b_tree->p_root->key_quantity == ( ( 2 * p_b_tree->_metadata.degree ) - 1 ) )
     {
 
-        // Edge case
+        // edge case
         if ( p_b_tree->p_root->leaf )
             
             // Increment the quantity of nodes

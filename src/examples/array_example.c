@@ -1,7 +1,7 @@
 /** !
  * Example program for array module
  * 
- * @file main.c
+ * @file src/examples/array_example.c
  * 
  * @author Jacob Smith
  */
@@ -271,7 +271,6 @@ int main ( int argc, const char* argv[] )
 }
 
 int checkpoint ( array *p_array, const char *p_event )
-
 {
 
     // static data
@@ -350,14 +349,17 @@ void string_print ( void *p_value, int i )
     printf("[%d] - %s\n", i, (char *)p_value);
     
     // done
-    return ;
+    return;
 }
 
 int string_compare ( const void *const p_a, const void *const p_b )
 {
+    
+    // initialized data
     char *a = *(char **)p_a,
          *b = *(char **)p_b;
 
+    // done
     return strcmp(a, b);
 }
 

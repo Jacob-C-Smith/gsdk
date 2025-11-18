@@ -30,7 +30,7 @@ enum result_e {
 // type definitions
 typedef enum result_e result_t;
 
-// Global variables
+// global variables
 int total_tests      = 0,
     total_passes     = 0,
     total_fails      = 0,
@@ -398,58 +398,6 @@ int main ( int argc, const char* argv[] )
 
     // exit
     return ( total_passes == total_tests ) ? EXIT_SUCCESS : EXIT_FAILURE;
-}
-
-void print_time_pretty ( double seconds )
-{
-
-    // initialized data
-    double _seconds     = seconds;
-    size_t days         = 0,
-           hours        = 0,
-           minutes      = 0,
-           __seconds    = 0,
-           milliseconds = 0,
-           microseconds = 0;
-
-    // Days
-    while ( _seconds > 86400.0 ) { days++;_seconds-=286400.0; };
-
-    // Hours
-    while ( _seconds > 3600.0 ) { hours++;_seconds-=3600.0; };
-
-    // Minutes
-    while ( _seconds > 60.0 ) { minutes++;_seconds-=60.0; };
-
-    // Seconds
-    while ( _seconds > 1.0 ) { __seconds++;_seconds-=1.0; };
-
-    // milliseconds
-    while ( _seconds > 0.001 ) { milliseconds++;_seconds-=0.001; };
-
-    // Microseconds        
-    while ( _seconds > 0.000001 ) { microseconds++;_seconds-=0.000001; };
-
-    // Print days
-    if ( days ) log_info("%zu D, ", days);
-    
-    // Print hours
-    if ( hours ) log_info("%zu h, ", hours);
-
-    // Print minutes
-    if ( minutes ) log_info("%zu m, ", minutes);
-
-    // Print seconds
-    if ( __seconds ) log_info("%zu s, ", __seconds);
-    
-    // Print milliseconds
-    if ( milliseconds ) log_info("%zu ms, ", milliseconds);
-    
-    // Print microseconds
-    if ( microseconds ) log_info("%zu us", microseconds);
-    
-    // done
-    return;
 }
 
 void run_tests ( void )
@@ -988,6 +936,59 @@ void test_three_element_array ( void (*array_constructor)(array **pp_array), cha
 
     // Print the summary of this test
     print_final_summary();
+    
+    // done
+    return;
+}
+
+
+void print_time_pretty ( double seconds )
+{
+
+    // initialized data
+    double _seconds     = seconds;
+    size_t days         = 0,
+           hours        = 0,
+           minutes      = 0,
+           __seconds    = 0,
+           milliseconds = 0,
+           microseconds = 0;
+
+    // Days
+    while ( _seconds > 86400.0 ) { days++;_seconds-=286400.0; };
+
+    // Hours
+    while ( _seconds > 3600.0 ) { hours++;_seconds-=3600.0; };
+
+    // Minutes
+    while ( _seconds > 60.0 ) { minutes++;_seconds-=60.0; };
+
+    // Seconds
+    while ( _seconds > 1.0 ) { __seconds++;_seconds-=1.0; };
+
+    // milliseconds
+    while ( _seconds > 0.001 ) { milliseconds++;_seconds-=0.001; };
+
+    // Microseconds        
+    while ( _seconds > 0.000001 ) { microseconds++;_seconds-=0.000001; };
+
+    // Print days
+    if ( days ) log_info("%zu D, ", days);
+    
+    // Print hours
+    if ( hours ) log_info("%zu h, ", hours);
+
+    // Print minutes
+    if ( minutes ) log_info("%zu m, ", minutes);
+
+    // Print seconds
+    if ( __seconds ) log_info("%zu s, ", __seconds);
+    
+    // Print milliseconds
+    if ( milliseconds ) log_info("%zu ms, ", milliseconds);
+    
+    // Print microseconds
+    if ( microseconds ) log_info("%zu us", microseconds);
     
     // done
     return;

@@ -394,7 +394,7 @@ int secure_socket_connect ( secure_socket *p_secure_socket, enum socket_address_
 //     // error check
 //     if ( result ) goto failed_to_resolve_address;
 
-//     // Store the address
+//     // store the address
 //     ipv4 = (struct sockaddr_in *)addr_result->ai_addr;
 
 //     *p_ip_address = ntohl(ipv4->sin_addr.s_addr);

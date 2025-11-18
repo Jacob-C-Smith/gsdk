@@ -53,7 +53,7 @@ int main ( int argc, const char* argv[] )
     // Check for valid argument
     if ( argc == 1 ) goto no_argument;
 
-    // Iterate over command line arguments
+    // iterate over command line arguments
     for (int i = 1; i < argc; i++)
     {
 
@@ -197,7 +197,7 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode )
         {
             invalid_file:
                 #ifndef NDEBUG
-                    printf("[Standard library] Failed to load file \"%s\". %s\n",path, strerror(errno));
+                    printf("[standard library] Failed to load file \"%s\". %s\n",path, strerror(errno));
                 #endif
 
                 // error

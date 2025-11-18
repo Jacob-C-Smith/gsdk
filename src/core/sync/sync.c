@@ -19,7 +19,7 @@ static bool initialized = false;
 void sync_init ( void ) 
 {
 
-    // State check
+    // state check
     if ( initialized == true ) return;
 
     // Initialize the log library
@@ -1158,7 +1158,7 @@ signed timer_seconds_divisor ( void )
 void sync_exit ( void ) 
 {
 
-    // State check
+    // state check
     if ( initialized == false ) return;
 
     // Clean up log

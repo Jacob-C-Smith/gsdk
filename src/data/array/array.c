@@ -1,7 +1,7 @@
 /** !
  * array library
  * 
- * @file array.c 
+ * @file src/data/array/array.c 
  * 
  * @author Jacob Smith
  */
@@ -82,7 +82,7 @@ int array_construct ( array **pp_array, size_t size )
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
                 
                 // error 
@@ -185,19 +185,19 @@ int array_from_arguments ( array **pp_array, size_t size, size_t count, ... )
     // Initialize the variadic list
     va_start(list, count);
 
-    // Allocate an array
+    // allocate an array
     if ( array_construct(&p_array, size) == 0 ) goto failed_to_allocate_array;        
 
-    // Iterate over each key
+    // iterate over each key
     for (size_t i = 0; i < count; i++)
 
-        // Add the key to the array
+        // add the key to the array
         array_add(p_array, va_arg(list, void *));
     
-    // Update the element count
+    // update the element count
     p_array->count = count;
 
-    // End the variadic list
+    // end the variadic list
     va_end(list);
 
     // return a pointer to the caller
@@ -256,11 +256,11 @@ int array_index ( array *p_array, signed index, void **const pp_value )
     // error check
     if ( p_array->count == (size_t) abs(index) ) goto bounds_error;
 
-    // Positive index
+    // positive index
     if ( index >= 0 )
         *pp_value = p_array->p_p_elements[index];
 
-    // Negative numbers
+    // negative numbers
     else 
         *pp_value = p_array->p_p_elements[p_array->count - (size_t) abs(index)];
 
@@ -318,11 +318,11 @@ int array_get ( array *p_array, void **const pp_elements, size_t *const p_count 
     // lock
     mutex_lock(&p_array->_lock);
 
-    // Return the elements
+    // return the elements
     if ( pp_elements )
         memcpy(pp_elements, p_array->p_p_elements, (sizeof(void *) * p_array->count) );
     
-    // Return the count
+    // return the count
     if ( p_count )
         *p_count = p_array->count;
 
@@ -352,16 +352,16 @@ int array_slice ( array *p_array, void *pp_elements[], signed lower_bound, signe
 {
 
     // argument check
-    if ( p_array == (void *) 0 ) goto no_array;
-    if ( lower_bound < 0 ) goto erroneous_lower_bound;
-    if ( p_array->count < (size_t) upper_bound ) goto erroneous_upper_bound;
+    if ( p_array        ==           (void *) 0 ) goto no_array;
+    if ( lower_bound    <                     0 ) goto erroneous_lower_bound;
+    if ( p_array->count <  (size_t) upper_bound ) goto erroneous_upper_bound;
 
     // lock
     mutex_lock(&p_array->_lock);
 
-    // Return the elements
+    // return the elements
     if ( pp_elements )
-        memcpy(pp_elements, &p_array->p_p_elements[lower_bound], sizeof(void *) * (size_t) ( upper_bound - lower_bound + 1LL ) );
+        memcpy(pp_elements, &p_array->p_p_elements[lower_bound], sizeof(void *) * (size_t) ( upper_bound - lower_bound + 1 ) );
     
     // unlock
     mutex_unlock(&p_array->_lock);
@@ -413,7 +413,7 @@ bool array_is_empty ( array *p_array )
     // lock
     mutex_lock(&p_array->_lock);
 
-    // Is empty?
+    // is empty?
     ret = ( 0 == p_array->count );
 
     // unlock
@@ -516,7 +516,7 @@ int array_add ( array *p_array, void *p_element )
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[Standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // unlock
@@ -534,7 +534,7 @@ int array_set ( array *p_array, signed index, void *p_value )
     // argument check   
     if ( p_array == (void *) 0 ) goto no_array;
 
-    // State check
+    // state check
     if ( p_array->count == 0 ) goto no_elements;
     
     // initialized data
@@ -546,10 +546,10 @@ int array_set ( array *p_array, signed index, void *p_value )
     // error check
     if ( p_array->count == (size_t) abs(index) ) goto bounds_error;
 
-    // Store the correct index
+    // store the correct index
     _index = ( index >= 0 ) ? (size_t) index : (size_t) p_array->count - (size_t) abs(index);
     
-    // Store the element
+    // store the element
     p_array->p_p_elements[_index] = p_value;
 
     // unlock
@@ -603,7 +603,7 @@ int array_remove ( array *p_array, signed index, void **const pp_value )
     // argument check
     if ( p_array == (void *) 0 ) goto no_array;
 
-    // State check
+    // state check
     if ( p_array->count == 0 ) goto no_elements;
     
     // initialized data
@@ -615,24 +615,24 @@ int array_remove ( array *p_array, signed index, void **const pp_value )
     // error check
     if ( p_array->count == (size_t) abs(index) ) goto bounds_error;
 
-    // Store the correct index
+    // store the correct index
     _index = ( index >= 0 ) ? (size_t) index : (size_t) p_array->count - (size_t) abs(index);
     
-    // Store the element
+    // store the element
     if ( pp_value != (void *) 0 ) *pp_value = p_array->p_p_elements[_index];
 
-    // Edge case
+    // edge case
     if ( (size_t) index == p_array->count-1 ) goto done;
 
-    // Iterate from the index of the removed element to the end of the array
+    // iterate from the index of the removed element to the end of the array
     for (size_t i = _index; i < p_array->count-1; i++)
     
-        // Shift elements
+        // shift elements
         p_array->p_p_elements[i] = p_array->p_p_elements[i+1];
 
     done:
 
-    // Decrement the element counter
+    // decrement the element counter
     p_array->count--;
 
     // unlock
@@ -772,8 +772,8 @@ int array_map ( array *const p_array, fn_map *pfn_map, fn_allocator *pfn_allocat
             p_array->p_p_elements[i] = p_new;
 
             // release
-            if ( p_old != p_new && pfn_allocator )
-                pfn_allocator(p_array, 0);
+            if ( p_old != p_new )
+                pfn_allocator(p_old, 0);
         }
 
         // done
@@ -814,10 +814,10 @@ int array_fori ( array *p_array, fn_fori *pfn_fori )
     // lock
     mutex_lock(&p_array->_lock);
 
-    // Iterate over each element in the array
+    // iterate over each element in the array
     for (size_t i = 0; i < p_array->count; i++)
         
-        // Call the function
+        // call the function
         pfn_fori(p_array->p_p_elements[i], i);
 
     // unlock
@@ -850,30 +850,24 @@ int array_fori ( array *p_array, fn_fori *pfn_fori )
     }
 }
 
-int array_log ( array *p_array, void *pfn_next, const char *const restrict format, ... )
+int array_foreach ( array *p_array, fn_foreach *pfn_foreach ) 
 {
 
     // argument check
-    if ( p_array  == (void *) 0 ) goto no_array;
-    if ( pfn_next == (void *) 0 ) return 0;
-
-    // Print the header
-    log_info("=== %s : %p ===\n", format, p_array);
+    if ( NULL ==     p_array ) goto no_array;
+    if ( NULL == pfn_foreach ) goto no_fn_foreach;
 
     // lock
     mutex_lock(&p_array->_lock);
 
-    // Iterate over each element in the array
+    // iterate over each element in the array
     for (size_t i = 0; i < p_array->count; i++)
         
-        // TODO: Call the function
-        ; 
+        // call the function
+        pfn_foreach(p_array->p_p_elements[i]);
 
     // unlock
     mutex_unlock(&p_array->_lock);
-
-    // Print a newline
-    putchar('\n');
 
     // success
     return 1;
@@ -890,9 +884,18 @@ int array_log ( array *p_array, void *pfn_next, const char *const restrict forma
 
                 // error
                 return 0;
+            
+            no_fn_foreach:
+                #ifndef NDEBUG
+                    log_error("[array] Null pointer provided for \"pfn_foreach\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
         }
     }
 }
+
 
 int array_pack ( void *p_buffer, array *p_array, fn_pack *pfn_element )
 {
@@ -907,10 +910,10 @@ int array_pack ( void *p_buffer, array *p_array, fn_pack *pfn_element )
     // lock
     mutex_lock(&p_array->_lock);
 
-    // Pack the length
+    // pack the length
     p += pack_pack(p, "%i64", p_array->count);
 
-    // Iterate through the array
+    // iterate through the array
     for (size_t i = 0; i < p_array->count; i++)
         p += pfn_element(p, p_array->p_p_elements[i]);
 
@@ -948,10 +951,10 @@ int array_unpack ( array **pp_array, void *p_buffer, fn_unpack *pfn_element )
     char *p = p_buffer;
     size_t len = 0;
 
-    // Unpack the length
+    // unpack the length
     p += pack_unpack(p, "%i64", &len);
 
-    // Construct an array
+    // construct an array
     array_construct(&p_array, len);
 
     for (size_t i = 0; i < len; i++)
@@ -962,20 +965,20 @@ int array_unpack ( array **pp_array, void *p_buffer, fn_unpack *pfn_element )
         void *p_element = NULL;
         size_t len_result = pfn_element(_result, p);
 
-        // Advance the buffer
+        // advance the buffer
         p += len_result;
 
-        // Allocate memory for the element
+        // allocate memory for the element
         p_element = default_allocator(0, len_result),
 
-        // Copy the memory
+        // copy the memory
         memcpy(p_element, _result, len_result),
         
-        // Add the element to the array
+        // add the element to the array
         array_add(p_array, p_element);
     }
 
-    // Return the array to the caller
+    // return the array to the caller
     *pp_array = p_array;
 
     // success
@@ -988,7 +991,7 @@ int array_unpack ( array **pp_array, void *p_buffer, fn_unpack *pfn_element )
         {
             no_array:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for \"pp_array\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

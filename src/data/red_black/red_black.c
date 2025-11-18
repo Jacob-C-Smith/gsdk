@@ -218,7 +218,7 @@ int red_black_tree_create ( red_black_tree **pp_red_black_tree )
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[standard library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -270,7 +270,7 @@ int red_black_tree_node_create ( red_black_tree_node **pp_red_black_tree_node )
         {
             no_mem:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[standard library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -292,7 +292,7 @@ int red_black_tree_node_allocate ( red_black_tree *p_red_black_tree, red_black_t
     // Allocate a node
     if ( red_black_tree_node_create(&p_red_black_tree_node) == 0 ) goto failed_to_allocate_node;
 
-    // Store the node pointer
+    // store the node pointer
     p_red_black_tree_node->node_pointer = p_red_black_tree->metadata.node_quantity;
 
     // Increment the node quantity
@@ -419,7 +419,7 @@ red_black_tree_node *red_black_tree_construct_balanced_recursive ( red_black_tre
         // Allocate a red_black tree node
         if (red_black_tree_node_allocate(p_red_black_tree, &p_red_black_tree_node) == 0) goto failed_to_allocate_node;
 
-        // Store the value
+        // store the value
         p_red_black_tree_node->p_value = pp_values[start];
         
         // Set color to black for balanced tree construction
@@ -436,13 +436,13 @@ red_black_tree_node *red_black_tree_construct_balanced_recursive ( red_black_tre
         // Allocate a red_black tree node
         if (red_black_tree_node_allocate(p_red_black_tree, &p_red_black_tree_node) == 0) goto failed_to_allocate_node;
 
-        // Store the value
+        // store the value
         p_red_black_tree_node->p_value = pp_values[end];
 
         // Allocate the left node
         if (red_black_tree_node_allocate(p_red_black_tree, &p_red_black_tree_node->p_left) == 0) goto failed_to_allocate_node;
 
-        // Store the left value
+        // store the left value
         p_red_black_tree_node->p_left->p_value = pp_values[start];
         
         // Set parent pointer
@@ -466,7 +466,7 @@ red_black_tree_node *red_black_tree_construct_balanced_recursive ( red_black_tre
         // Allocate a red_black tree node
         if (red_black_tree_node_allocate(p_red_black_tree, &p_red_black_tree_node) == 0) goto failed_to_allocate_node;
 
-        // Store the value
+        // store the value
         p_red_black_tree_node->p_value = pp_values[median];
 
         // Construct the left
@@ -585,7 +585,7 @@ int red_black_tree_search ( red_black_tree *p_red_black_tree, const void *const 
     // argument check
     if ( p_red_black_tree == (void *) 0 ) goto no_red_black_tree;
 
-    // State check
+    // state check
     if ( p_red_black_tree->p_root == (void *) 0 ) return 0;
 
     // lock
@@ -791,7 +791,7 @@ int red_black_tree_remove ( red_black_tree *const p_red_black_tree, const void *
     // lock
     mutex_lock(&p_red_black_tree->_lock);
 
-    // State check
+    // state check
     if ( p_red_black_tree->p_root == (void *) 0 ) 
     {
         mutex_unlock(&p_red_black_tree->_lock);
@@ -1373,15 +1373,15 @@ int red_black_tree_parse_node ( FILE *p_file, red_black_tree *p_red_black_tree, 
     // User provided parsing function
     pfn_red_black_tree_parse(p_file, p_red_black_tree_node);
     
-    // Store the left pointer
+    // store the left pointer
     fread(&left_pointer, 8, 1, p_file);
     // printf("[%04d] -> left : < %llu, %lld >\n", p_red_black_tree_node->node_pointer, ftell(p_file), left_pointer);
 
-    // Store the right pointer
+    // store the right pointer
     fread(&right_pointer, 8, 1, p_file);
     // printf("       -> right: < %llu, %lld >\n", ftell(p_file), right_pointer);
     
-    // State check
+    // state check
     if ( left_pointer == eight_bytes_of_f ) goto parse_right;
 
     // Set the pointer correctly
@@ -1392,7 +1392,7 @@ int red_black_tree_parse_node ( FILE *p_file, red_black_tree *p_red_black_tree, 
 
     parse_right:
 
-    // State check
+    // state check
     if ( right_pointer == eight_bytes_of_f ) goto done;
 
     // Set the pointer correctly
@@ -1623,7 +1623,7 @@ int red_black_tree_serialize ( red_black_tree *const p_red_black_tree, const cha
         {
             failed_to_open_file:
                 #ifndef NDEBUG
-                    printf("[Standard Library] Failed to open file\n");
+                    printf("[standard library] Failed to open file\n");
                 #endif
 
                 // error

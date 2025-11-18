@@ -49,7 +49,7 @@ int circular_buffer_create ( circular_buffer **const pp_circular_buffer )
 		{
 			no_mem:
 				#ifndef NDEBUG
-					log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
+					log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
 				#endif
 
 				// error
@@ -77,7 +77,7 @@ int circular_buffer_construct ( circular_buffer **const pp_circular_buffer, size
 	// error check
 	if ( p_circular_buffer == (void *) 0 ) goto no_mem;
 
-	// Store the size of the circular buffer
+	// store the size of the circular buffer
 	p_circular_buffer->length = size;
 
 	// Create a mutex
@@ -134,7 +134,7 @@ int circular_buffer_construct ( circular_buffer **const pp_circular_buffer, size
 		{
 			no_mem:
 				#ifndef NDEBUG
-					log_error("[Standard Library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
+					log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
 				#endif
 
 				// error
@@ -157,7 +157,7 @@ int circular_buffer_from_contents ( circular_buffer **const pp_circular_buffer, 
 	// Construct a circular buffer
 	if ( circular_buffer_construct(&p_circular_buffer, size) == 0 ) goto failed_to_construct_circular_buffer;
 	
-	// Iterate over each item
+	// iterate over each item
 	for (size_t i = 0; i < size; i++)
 
 		// Add the item to the circular buffer
@@ -282,7 +282,7 @@ int circular_buffer_push ( circular_buffer *const p_circular_buffer, void *p_dat
 	// lock
 	mutex_lock(&p_circular_buffer->_lock);
 
-	// Store the element
+	// store the element
 	p_circular_buffer->_p_data[p_circular_buffer->write] = p_data;
 
 	// Update the write index
@@ -347,7 +347,7 @@ int circular_buffer_peek ( circular_buffer *const p_circular_buffer, void **pp_d
 	// lock
 	mutex_lock(&p_circular_buffer->_lock);
 
-	// State check
+	// state check
 	if ( p_circular_buffer->full == false && p_circular_buffer->read == p_circular_buffer->write ) goto circular_buffer_empty;
 
 	// Return data to the caller
