@@ -1,7 +1,7 @@
 /** !
  * Implementation of cache
  *
- * @file cache.c
+ * @file src/data/cache/cache.c
  *
  * @author Jacob Smith
  */
@@ -622,6 +622,39 @@ int cache_unpack ( cache **pp_cache, void *p_buffer, fn_unpack *pfn_element )
             no_cache:
                 #ifndef NDEBUG
                     log_error("[cache] Null pointer provided for \"p_cache\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+hash64 cache_hash ( cache *p_cache, fn_hash64 *pfn_element )
+{
+
+    // argument check
+    if ( p_cache == (void *) 0 ) goto no_cache;
+
+    // initialized data
+    hash64     result     = 0;
+    fn_hash64 *pfn_hash64 = (pfn_element) ? pfn_element : hash_crc64;
+
+    // iterate through each element in the cache
+    for (size_t i = 0; i < p_cache->properties.count; i++)
+        result ^= pfn_hash64(p_cache->properties.pp_data[i], 8);
+
+    // success
+    return result;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_cache:
+                #ifndef NDEBUG
+                    log_error("[cache] Null pointer provided for \"pp_cache\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

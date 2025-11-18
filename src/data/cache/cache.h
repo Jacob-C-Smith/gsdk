@@ -1,7 +1,7 @@
 /** !
  * Header for cache
  * 
- * @file hash_cache/cache.h 
+ * @file src/data/cache/cache.h 
  *
  * @author Jacob Smith
  */
@@ -20,6 +20,7 @@
 #include <core/hash.h>
 
 // preprocessor definitions
+// NOTE: MacOS wierdness
 #define cache_destroy cacheee_destroy
 #define cache_remove cacheee_remove
 
@@ -97,7 +98,6 @@ int cache_insert ( cache *p_cache, const void *const p_key, const void *const p_
  */
 int cacheee_remove ( cache *p_cache, const void *const p_key, void **const pp_result );
 
-
 /// map
 /** !
  * Apply an operation to each element in a cache,
@@ -132,7 +132,7 @@ int cache_fori ( cache *p_cache, fn_fori pfn_fori );
  */
 int cache_for_each ( cache *p_cache, fn_foreach pfn_foreach );
 
-// reflection
+/// reflection
 /** !
  * Pack a cache into a buffer
  * 
@@ -154,6 +154,17 @@ int cache_pack ( void *p_buffer, cache *p_cache, fn_pack *pfn_element );
  * @return 1 on success, 0 on error
  */
 int cache_unpack ( cache **pp_cache, void *p_buffer, fn_unpack *pfn_element );
+
+/// hash
+/** !
+ * Compute a 64-bit hash of a cache
+ * 
+ * @param p_cache     the cache
+ * @param pfn_element hashing function applied to each element
+ * 
+ * @return hash on success, NULL on error
+ */
+hash64 cache_hash ( cache *p_cache, fn_hash64 *pfn_element );
 
 /// destructors
 /** !

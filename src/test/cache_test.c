@@ -167,10 +167,20 @@ void print_time_pretty ( double seconds )
 
 void run_tests ( void )
 {
+
+    // empty 
     test_empty_cache_scenario();
+
+    // one element
     test_one_element_cache_scenario();
+
+    // two element
     test_two_element_cache_scenario();
+
+    // full
     test_full_cache_scenario();
+
+    
     test_eviction_scenario();
     test_lru_find_scenario();
     test_remove_scenario();
