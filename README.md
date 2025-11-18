@@ -1,6 +1,6 @@
 # GSDK
 
-*A modular C SDK with tons of generic data structures, abstractions for high-performance computing, and highly flexable reflection.*
+*A modular C SDK with tons of generic data structures, abstractions for high-performance computing, and highly flexible reflection.*
 
 <p align="center">
     <img src="https://img.shields.io/badge/language-C-blue.svg" alt="Language: C">

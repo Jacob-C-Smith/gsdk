@@ -13,7 +13,7 @@
 struct stack_s
 {
 	size_t      size;      // the quantity of elements that could fit on the stack
-	size_t      offset;    // the quantity of elements in the stack
+	size_t      offset;    // the quantity of elements that are on the stack
 	mutex       _lock;     // locked when reading/writing values
 	const void *_p_data[]; // the stack elements
 };
@@ -278,7 +278,7 @@ int stack_fori ( stack *p_stack, fn_fori *pfn_fori )
     // iterate over each element in the stack
     for (size_t i = 0; i < p_stack->offset; i++)
         
-        // Call the function (casting away const as the interface expects non-const)
+        // call the function (casting away const as the interface expects non-const)
         pfn_fori((void *)p_stack->_p_data[i], i);
 
     // unlock
@@ -432,7 +432,7 @@ hash64 stack_hash ( stack *p_stack, fn_hash64 *pfn_element )
     if ( pfn_element == (void *) 0 ) goto no_pfn_element;
 
     // initialized data
-    hash64     result     = 0;
+    hash64 result = 0;
 
     // iterate through each element in the stack
     for (size_t i = 0; i < p_stack->offset; i++)
@@ -480,16 +480,16 @@ int stack_destroy ( stack **const pp_stack )
 	// lock
     mutex_lock(&p_stack->_lock);
 
-	// No more pointer for caller
+	// no more pointer for caller
 	*pp_stack = 0;
 
 	// unlock
     mutex_unlock(&p_stack->_lock);
 
-	// Destroy the mutex
+	// destroy the mutex
     mutex_destroy(&p_stack->_lock);
 	
-	// Free the stack
+	// free the stack
 	p_stack = default_allocator(p_stack, 0);
 
 	// success

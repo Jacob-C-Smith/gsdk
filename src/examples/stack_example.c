@@ -36,9 +36,6 @@ int checkpoint ( stack *p_stack, const char *p_event );
 
 /// string
 void    string_print ( void *p_value, int i );
-int     string_compare ( const void *const p_a, const void *const p_b );
-void   *string_upper_case ( void *p_value );
-void   *string_lower_case ( void *p_value );
 hash64  string_hash ( void *p_value );
 int     string_pack ( void *p_buffer, const void *const p_value );
 int     string_unpack ( void *const p_value, void *p_buffer );
@@ -133,7 +130,6 @@ int main ( int argc, const char* argv[] )
         char buf[1024] = { 0 };
         
         // open a file for writing
-        printf("Writing resources/reflection/stack.bin "),
         p_f = fopen("resources/reflection/stack.bin", "wb");
 
         // reflect the stack to a buffer
@@ -144,7 +140,6 @@ int main ( int argc, const char* argv[] )
 
         // close the file
         fclose(p_f),
-        printf("[DONE]\n");
 
         // checkpoint
         checkpoint(p_stack, "after serialize");
@@ -206,11 +201,9 @@ int main ( int argc, const char* argv[] )
         char buf[1024] = { 0 };
         
         // read a buffer from a file
-        printf("Reading resources/reflection/stack.bin"),
         p_f = fopen("resources/reflection/stack.bin", "rb"),
         fread(buf, file_len, 1, p_f),
         fclose(p_f),
-        printf("[DONE]\n");
 
         // reflect an stack from the buffer
         stack_unpack(&p_stack, buf, string_unpack),
@@ -265,56 +258,6 @@ int checkpoint ( stack *p_stack, const char *p_event )
     return 1;
 }
 
-void *string_upper_case ( void *p_value )
-{
-
-    // initialized data
-    char *p_string = strdup((char *)p_value),
-         *p_result = p_string;
-         
-    // iterate upto null terminator
-    while (*p_string)
-    {
-
-        // initialized data
-        char c = *p_string;
-
-        // convert offending characters
-        if ( islower(c) ) c = toupper(c);
-        
-        // store the upper case character
-        *p_string++ = c;
-    }
-
-    // success
-    return p_result;
-}
-
-void *string_lower_case ( void *p_value )
-{
-
-    // initialized data
-    char *p_string = strdup((char *)p_value),
-         *p_result = p_string;
-         
-    // iterate upto null terminator
-    while (*p_string)
-    {
-
-        // initialized data
-        char c = *p_string;
-
-        // convert offending characters
-        if ( isupper(c) ) c = tolower(c);
-        
-        // store the lower case character
-        *p_string++ = c;
-    }
-
-    // success
-    return p_result;
-}
-
 void string_print ( void *p_value, int i )
 {
     
@@ -323,14 +266,6 @@ void string_print ( void *p_value, int i )
     
     // done
     return ;
-}
-
-int string_compare ( const void *const p_a, const void *const p_b )
-{
-    char *a = *(char **)p_a,
-         *b = *(char **)p_b;
-
-    return strcmp(a, b);
 }
 
 hash64 string_hash ( void *string )
