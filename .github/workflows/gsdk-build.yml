@@ -203,7 +203,7 @@ jobs:
           fi
 
   array-example:
-    needs: data-examples
+    needs: data-examples log-example
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
