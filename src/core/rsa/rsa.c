@@ -29,7 +29,7 @@ size_t file_load ( const char *path, void *buffer, bool binary_mode );
 // Data
 // TODO: make this an array of u16's and cast them in the code. 
 //       this is a 25KB array, and it should be a 200 byte array
-i2048 primes[] =
+unsigned short primes[] =
 {
     2WB  , 3WB  , 5WB  , 7WB  , 11WB , 13WB , 17WB , 19WB , 23WB , 29WB , 31WB ,
     37WB , 41WB , 43WB , 47WB , 53WB , 59WB , 61WB , 67WB , 71WB , 73WB , 79WB ,
@@ -60,7 +60,7 @@ bool is_divisible_by_small_primes ( i2048 n )
     for (size_t i = 0; i < len_primes; i++)
 
         // Test
-        if ( n % primes[i] == 0 ) return true;
+        if ( n % (i2048)primes[i] == 0 ) return true;
 
     // done
     return false;
@@ -71,7 +71,7 @@ bool miller_rabin_iteration ( i2048 n )
 
     // Fast exit
     if ( is_divisible_by_small_primes(n) )
-        return (n <= primes[len_primes - 1]);
+        return (n <= (i2048)primes[len_primes - 1]);
 
     // initialized data
     i2048 a = 2 + random_n_bit_int(1024) % (n - 4);
