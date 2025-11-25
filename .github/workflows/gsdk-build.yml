@@ -16,14 +16,45 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /usr/lib/llvm-20
-          key: ${{ runner.os }}-llvm-20
+          key: ${{ runner.os }}-clang-20
       - name: Install clang
         if: steps.cache-clang.outputs.cache-hit != 'true'
         run: |
-          sudo apt install -y wget gnupg software-properties-common
+          sudo apt-get update
+          sudo apt-get install -y wget gnupg software-properties-common
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
           sudo ./llvm.sh 20
+      - name: Add clang to PATH
+        run: echo "/usr/lib/llvm-20/bin" | sudo tee -a /etc/environment
       - name: make
         run: |
-          make CC=/usr/bin/clang-20
+          make CC=clang-20
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: ${{github.workspace}}/build/
+
+  core:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run core examples
+        run: |
+
+  log:
+    needs: core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: ${{github.workspace}}/build
+      - name: Run log example
+        run: |
+          chmod +x ${{github.workspace}}/build/examples/log_example
+          ${{github.workspace}}/build/examples/log_example
