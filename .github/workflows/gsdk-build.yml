@@ -11,51 +11,79 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Cache clang
-        id: cache-clang
+
+      # Optional: cache the build output or ccache, not system directories
+      - name: Cache build
         uses: actions/cache@v4
         with:
-          path: /usr/lib/llvm-20
-          key: ${{ runner.os }}-clang-20
-      - name: Install clang
-        if: steps.cache-clang.outputs.cache-hit != 'true'
+          path: build   # cache your build dir or ccache dir (e.g. ~/.cache/ccache)
+          key: ${{ runner.os }}-build-${{ hashFiles('**/Makefile') }}
+
+      - name: Install dependencies & clang-20
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget gnupg software-properties-common
+          sudo apt-get install -y wget gnupg software-properties-common ca-certificates lsb-release
+          # Use the LLVM install script to add the apt repo and install clang-20
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
           sudo ./llvm.sh 20
-      - name: Add clang to PATH
-        run: echo "/usr/lib/llvm-20/bin" | sudo tee -a /etc/environment
-      - name: make
+          # Add clang bin to the job PATH for subsequent steps (this persists for the remainder of the job)
+          echo "/usr/lib/llvm-20/bin" >> $GITHUB_PATH
+
+      - name: Show clang version (sanity check)
         run: |
+          which clang-20
+          clang-20 --version
+
+      - name: Build
+        run: |
+          # either rely on clang-20 being in PATH (we wrote to $GITHUB_PATH above)
           make CC=clang-20
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build
-          path: ${{github.workspace}}/build/
+          path: build   # upload the build directory (relative to workspace)
 
   core:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build   # downloads into ./build
+
       - name: Run core examples
         run: |
+          # example: run binaries from build/examples
+          ls -al build/examples || true
+          chmod +x build/examples/* || true
+          # run any core example(s) you need; replace the line below:
+          if [ -x build/examples/core_example ]; then
+            build/examples/core_example
+          else
+            echo "no core_example to run"
+          fi
 
   log:
     needs: core
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: build
-          path: ${{github.workspace}}/build
+          path: build
+
       - name: Run log example
         run: |
-          chmod +x ${{github.workspace}}/build/examples/log_example
-          export LD_LIBRARY_PATH=${{github.workspace}}/build/examples:$LD_LIBRARY_PATH
-          ${{github.workspace}}/build/examples/log_example
+          chmod +x build/examples/log_example
+          export LD_LIBRARY_PATH=${{ github.workspace }}/build/examples:$LD_LIBRARY_PATH
+          build/examples/log_example
