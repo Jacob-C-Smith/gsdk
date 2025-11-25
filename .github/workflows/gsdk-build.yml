@@ -177,9 +177,27 @@ jobs:
           chmod +x build/examples/pack_example
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/examples/pack_example
+  
+  sync-example:
+    needs: [core-examples, log-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run sync example
+        run: |
+          chmod +x build/examples/sync_example
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/examples/sync_example
 
   data-examples:
-    needs: [core-examples, log-example, hash-example, sha-example, rsa-example,digital-signature-example, pack-example]
+    needs: [core-examples, log-example, hash-example, sha-example, rsa-example, digital-signature-example, pack-example, sync-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -203,7 +221,7 @@ jobs:
           fi
 
   array-example:
-    needs: [data-examples, log-example]
+    needs: [data-examples, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
