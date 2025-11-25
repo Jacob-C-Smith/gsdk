@@ -85,5 +85,5 @@ jobs:
       - name: Run log example
         run: |
           chmod +x build/examples/log_example
-          export LD_LIBRARY_PATH=${{ github.workspace }}/build/examples:$LD_LIBRARY_PATH
-          build/examples/log_example
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/examples/log_example
