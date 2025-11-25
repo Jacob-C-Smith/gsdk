@@ -46,7 +46,7 @@ jobs:
           name: build
           path: build   # upload the build directory (relative to workspace)
 
-  sha-test:
+  🧪-sha:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
@@ -155,7 +155,7 @@ jobs:
           ./build/examples/hash_example
 
   sha-example:
-    needs: [sha-test, log-example]
+    needs: [🧪-sha, log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

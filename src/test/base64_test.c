@@ -237,10 +237,10 @@ void test_encode ( char *name )
 
     // Test encoding base64
     print_test(name, "(empty)", test_encode_base64("\0", "\0", match));
-    print_test(name, "YQ", test_encode_base64("a\0", "YQ\0", match));
-    print_test(name, "YWI", test_encode_base64("ab\0", "YWI\0", match));
+    print_test(name, "YQ==", test_encode_base64("a\0", "YQ==\0", match));
+    print_test(name, "YWI=", test_encode_base64("ab\0", "YWI=\0", match));
     print_test(name, "YWJj", test_encode_base64("abc\0", "YWJj\0", match));
-    print_test(name, "SGVsbG8sIFdvcmxkIQ", test_encode_base64("Hello, World!\0", "SGVsbG8sIFdvcmxkIQ\0", match));
+    print_test(name, "SGVsbG8sIFdvcmxkIQ==", test_encode_base64("Hello, World!\0", "SGVsbG8sIFdvcmxkIQ==\0", match));
 
     // Print the summary of this test
     print_final_summary();
