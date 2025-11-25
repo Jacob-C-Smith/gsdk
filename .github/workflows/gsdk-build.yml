@@ -292,24 +292,6 @@ jobs:
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/examples/dict_example
   
-  double-queue-example:
-    needs: [data-examples, log-example, sync-example, hash-example, pack-example]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build
-          path: build
-
-      - name: Run double queue example
-        run: |
-          chmod +x build/examples/double_queue_example
-          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
-          ./build/examples/double_queue_example
-
   queue-example:
     needs: [data-examples, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
@@ -327,24 +309,6 @@ jobs:
           chmod +x build/examples/queue_example
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/examples/queue_example
-
-  set-example:
-    needs: [data-examples, log-example, sync-example, hash-example, pack-example]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build
-          path: build
-
-      - name: Run set example
-        run: |
-          chmod +x build/examples/set_example
-          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
-          ./build/examples/set_example
 
   stack-example:
     needs: [data-examples, log-example, sync-example, hash-example, pack-example]
@@ -383,7 +347,7 @@ jobs:
           ./build/examples/tuple_example
 
   reflection-examples:
-    needs: [core-examples, log-example, hash-example, pack-example, sync-example, data-examples, array-example, bitmap-example, cache-example, dict-example, double-queue-example, queue-example, set-example, stack-example, tuple-example]
+    needs: [core-examples, log-example, hash-example, pack-example, sync-example, data-examples, array-example, bitmap-example, cache-example, dict-example, queue-example, stack-example, tuple-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
