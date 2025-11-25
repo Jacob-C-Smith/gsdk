@@ -317,7 +317,7 @@ jobs:
           ./build/examples/sync_example
 
   array-example:
-    needs: [log-example, sync-example, hash-example, pack-example]
+    needs: [array-test, hash-test, pack-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
