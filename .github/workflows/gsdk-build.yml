@@ -356,4 +356,4 @@ jobs:
         run: |
           chmod +x build/examples/json_example
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
-          ./build/examples/json_example
+          ./build/examples/json_example ${{github.workspace}}/resources/reflection/json_example_1.json
