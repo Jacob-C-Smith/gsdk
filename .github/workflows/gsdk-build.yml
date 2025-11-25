@@ -63,6 +63,42 @@ jobs:
           chmod +x build/tests/sha_test
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/tests/sha_test
+  
+  pack-test:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run pack test
+        run: |
+          chmod +x build/tests/pack_test
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/tests/pack_test
+  
+  base64-test:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run base64 test
+        run: |
+          chmod +x build/tests/base64_test
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/tests/base64_test
 
   log-example:
     needs: build
@@ -155,7 +191,7 @@ jobs:
           ./build/examples/digital_signature_example
 
   pack-example:
-    needs: [log-example]
+    needs: [pack-test, log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -317,7 +353,7 @@ jobs:
           ./build/examples/tuple_example
 
   base64-example:
-    needs: [log-example]
+    needs: [base64-test, log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
