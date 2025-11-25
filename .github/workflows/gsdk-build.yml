@@ -46,32 +46,8 @@ jobs:
           name: build
           path: build   # upload the build directory (relative to workspace)
 
-  core-examples:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build
-          path: build   # downloads into ./build
-
-      - name: Run examples
-        run: |
-          # example: run binaries from build/examples
-          ls -al build/examples || true
-          chmod +x build/examples/* || true
-          # run any core example(s) you need; replace the line below:
-          if [ -x build/examples/core_example ]; then
-            build/examples/core_example
-          else
-            echo "no core_example to run"
-          fi
-
   log-example:
-    needs: core-examples
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -89,7 +65,7 @@ jobs:
           ./build/examples/log_example
 
   hash-example:
-    needs: [core-examples, log-example]
+    needs: [log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -107,7 +83,7 @@ jobs:
           ./build/examples/hash_example
 
   sha-example:
-    needs: [core-examples, log-example]
+    needs: [log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -125,7 +101,7 @@ jobs:
           ./build/examples/sha_example
 
   rsa-example:
-    needs: [core-examples, log-example]
+    needs: [log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -143,7 +119,7 @@ jobs:
           ./build/examples/rsa_example
   
   digital-signature-example:
-    needs: [core-examples, log-example, sha-example, rsa-example]
+    needs: [log-example, sha-example, rsa-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -161,7 +137,7 @@ jobs:
           ./build/examples/digital_signature_example
 
   pack-example:
-    needs: [core-examples, log-example]
+    needs: [log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -179,7 +155,7 @@ jobs:
           ./build/examples/pack_example
   
   sync-example:
-    needs: [core-examples, log-example]
+    needs: [log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
