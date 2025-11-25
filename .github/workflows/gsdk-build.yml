@@ -383,7 +383,7 @@ jobs:
           ./build/examples/tuple_example
 
   reflection-examples:
-    needs: [core-examples, log-example, hash-example, pack-example, sync-example, data-examples, array-example, bitmap-example, cache-example, dict-example, double-queue-example, queue-example, set-example, stack-example, tuple-exampl]
+    needs: [core-examples, log-example, hash-example, pack-example, sync-example, data-examples, array-example, bitmap-example, cache-example, dict-example, double-queue-example, queue-example, set-example, stack-example, tuple-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
