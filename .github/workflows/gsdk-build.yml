@@ -143,7 +143,7 @@ jobs:
           ./build/examples/rsa_example
   
   digital-signature-example:
-    needs: core-examples
+    needs: [core-examples, log-example, sha-example, rsa-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
