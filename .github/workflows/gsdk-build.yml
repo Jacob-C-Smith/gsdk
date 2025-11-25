@@ -201,9 +201,7 @@ jobs:
           else
             echo "no core_example to run"
           fi
-        uses: actions/download-artifact@v4
-        with:
-          name: build
+
   array-example:
     needs: data-examples
     runs-on: ubuntu-latest
