@@ -118,6 +118,78 @@ jobs:
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/tests/array_test
 
+  dict-test:
+    needs: [pack-test, hash-test, log-example, sync-example, pack-example, sync-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run dict test
+        run: |
+          chmod +x build/tests/dict_test
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/tests/dict_test
+
+  queue-test:
+    needs: [pack-test, hash-test, log-example, sync-example, pack-example, sync-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run queue test
+        run: |
+          chmod +x build/tests/queue_test
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/tests/queue_test
+  
+  stack-test:
+    needs: [pack-test, hash-test, log-example, sync-example, pack-example, sync-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run queue test
+        run: |
+          chmod +x build/tests/queue_test
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/tests/queue_test
+
+  tuple-test:
+    needs: [pack-test, hash-test, log-example, sync-example, pack-example, sync-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run tuple test
+        run: |
+          chmod +x build/tests/tuple_test
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/tests/tuple_test
+
   log-example:
     needs: build
     runs-on: ubuntu-latest
@@ -299,7 +371,7 @@ jobs:
           ./build/examples/cache_example
 
   dict-example:
-    needs: [log-example, sync-example, hash-example, pack-example]
+    needs: [dict-test, hash-test, pack-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -317,7 +389,7 @@ jobs:
           ./build/examples/dict_example
   
   queue-example:
-    needs: [log-example, sync-example, hash-example, pack-example]
+    needs: [queue-test, hash-test, pack-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -335,7 +407,7 @@ jobs:
           ./build/examples/queue_example
 
   stack-example:
-    needs: [log-example, sync-example, hash-example, pack-example]
+    needs: [stack-test, hash-test, pack-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -353,7 +425,7 @@ jobs:
           ./build/examples/stack_example
 
   tuple-example:
-    needs: [log-example, sync-example, hash-example, pack-example]
+    needs: [tuple-test, hash-test, pack-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
