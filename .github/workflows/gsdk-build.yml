@@ -221,7 +221,7 @@ jobs:
           fi
 
   array-example:
-    needs: [data-examples, log-example, sync-example, hash-example, pack-example]
+    needs: [log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -239,7 +239,7 @@ jobs:
           ./build/examples/array_example
 
   bitmap-example:
-    needs: [data-examples, log-example, sync-example, hash-example, pack-example]
+    needs: [log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -257,7 +257,7 @@ jobs:
           ./build/examples/bitmap_example
 
   cache-example:
-    needs: [data-examples, log-example, sync-example, hash-example, pack-example]
+    needs: [log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -275,7 +275,7 @@ jobs:
           ./build/examples/cache_example
 
   dict-example:
-    needs: [data-examples, log-example, sync-example, hash-example, pack-example]
+    needs: [log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -293,7 +293,7 @@ jobs:
           ./build/examples/dict_example
   
   queue-example:
-    needs: [data-examples, log-example, sync-example, hash-example, pack-example]
+    needs: [log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -311,7 +311,7 @@ jobs:
           ./build/examples/queue_example
 
   stack-example:
-    needs: [data-examples, log-example, sync-example, hash-example, pack-example]
+    needs: [log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -329,7 +329,7 @@ jobs:
           ./build/examples/stack_example
 
   tuple-example:
-    needs: [data-examples, log-example, sync-example, hash-example, pack-example]
+    needs: [log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -347,7 +347,7 @@ jobs:
           ./build/examples/tuple_example
 
   reflection-examples:
-    needs: [core-examples, log-example, hash-example, pack-example, sync-example, data-examples, array-example, bitmap-example, cache-example, dict-example, queue-example, stack-example, tuple-example]
+    needs: [core-examples, log-example, hash-example, pack-example, sync-example, array-example, bitmap-example, cache-example, dict-example, queue-example, stack-example, tuple-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
