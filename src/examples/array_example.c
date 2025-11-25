@@ -194,7 +194,7 @@ int main ( int argc, const char* argv[] )
     {
 
         // convert the array elements to upper case
-        array_map(p_array, string_upper_case, 0);
+        array_map(p_array, string_upper_case, NULL);
 
         // checkpoint
         checkpoint(p_array, "after upper case map");
@@ -218,7 +218,7 @@ int main ( int argc, const char* argv[] )
         
         // read a buffer from a file
         p_f = fopen("resources/reflection/array.bin", "rb"),
-        fread(buf, file_len, 1, p_f),
+        fread(buf, sizeof(char), file_len, p_f),
         
         // reflect an array from the buffer
         array_unpack(&p_array, buf, string_unpack),
@@ -227,17 +227,20 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_array, "after parse");
     }
 
-    // #8 - hash
+    // #8 - hash 2
     {
 
-        // initialized data
+        // hash the array
         h2 = array_hash(p_array, (fn_hash64 *)string_hash);
 
         // print the hash
         printf("hash 2 -> 0x%llx\n", h2);
 
         // error check
-        if ( h1 != h2 ) log_error("Error: hash 1 != hash 2\n");
+        if ( h1 != h2 ) 
+
+            // abort
+            log_error("Error: hash 1 != hash 2\n"), exit(EXIT_FAILURE);
 
         // checkpoint
         checkpoint(p_array, "after hash 2");
