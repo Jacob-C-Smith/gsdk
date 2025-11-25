@@ -89,7 +89,7 @@ jobs:
           ./build/examples/log_example
 
   hash-example:
-    needs: core-examples
+    needs: [core-examples, log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -107,7 +107,7 @@ jobs:
           ./build/examples/hash_example
 
   sha-example:
-    needs: core-examples
+    needs: [core-examples, log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -125,7 +125,7 @@ jobs:
           ./build/examples/sha_example
 
   rsa-example:
-    needs: core-examples
+    needs: [core-examples, log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -161,7 +161,7 @@ jobs:
           ./build/examples/digital_signature_example
 
   pack-example:
-    needs: core-examples
+    needs: [core-examples, log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -179,7 +179,7 @@ jobs:
           ./build/examples/pack_example
 
   data-examples:
-    needs: core-examples
+    needs: [core-examples, log-example, hash-example, sha-example, rsa-example,digital-signature-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
