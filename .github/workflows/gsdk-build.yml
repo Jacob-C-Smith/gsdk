@@ -46,6 +46,24 @@ jobs:
           name: build
           path: build   # upload the build directory (relative to workspace)
 
+  sha-test:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run sha test
+        run: |
+          chmod +x build/tests/sha_test
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/tests/sha_test
+
   log-example:
     needs: build
     runs-on: ubuntu-latest
@@ -83,7 +101,7 @@ jobs:
           ./build/examples/hash_example
 
   sha-example:
-    needs: [log-example]
+    needs: [sha-test, log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -333,3 +351,4 @@ jobs:
           chmod +x build/examples/json_example
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/examples/json_example ${{github.workspace}}/resources/reflection/json_example_1.json
+  
