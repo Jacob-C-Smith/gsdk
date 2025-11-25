@@ -101,7 +101,7 @@ jobs:
           ./build/tests/pack_test
   
   array-test:
-    needs: [build]
+    needs: [pack-test, hash-test, log-example, sync-example, pack-example, sync-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
