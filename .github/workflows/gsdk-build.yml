@@ -70,7 +70,7 @@ jobs:
             echo "no core_example to run"
           fi
 
-  log example:
+  log-example:
     needs: examples
     runs-on: ubuntu-latest
     steps:
@@ -88,7 +88,7 @@ jobs:
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/examples/log_example
 
-  hash example:
+  hash-example:
     needs: examples
     runs-on: ubuntu-latest
     steps:
@@ -106,7 +106,7 @@ jobs:
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/examples/hash_example
 
-  sha example:
+  sha-example:
     needs: examples
     runs-on: ubuntu-latest
     steps:
@@ -124,7 +124,7 @@ jobs:
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/examples/sha_example
 
-  rsa example:
+  rsa-example:
     needs: examples
     runs-on: ubuntu-latest
     steps:
@@ -142,7 +142,7 @@ jobs:
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/examples/rsa_example
   
-  digital signature example:
+  digital-signature-example:
     needs: examples
     runs-on: ubuntu-latest
     steps:
@@ -160,7 +160,7 @@ jobs:
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/examples/digital_signature_example
 
-  pack example:
+  pack-example:
     needs: examples
     runs-on: ubuntu-latest
     steps:
