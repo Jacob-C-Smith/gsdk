@@ -7,7 +7,60 @@
  * 
  * This demo packs a tuple containing 3 arrays. Each array contains 3 bitmaps,
  * for a total of 1 tuple, 3 arrays, and 9 bitmaps. This example demonstrates
- * the tremendous flexability of the pack interface
+ * the tremendous flexability of the pack interface.
+ */
+
+/** ! 
+ * (
+ *  [
+ *    f f f f
+ *    f f f f
+ *    f f f f
+ *    f f f f,
+ * 
+ *    5 5 5 5
+ *    5 5 5 5
+ *    5 5 5 5
+ *    5 5 5 5,
+ *    
+ *    4 9 9 2 
+ *    2 4 4 9
+ *    9 2 2 4
+ *    4 9 9 2
+ *  ],
+ *  [
+ *    1 1 1 1
+ *    1 1 1 1
+ *    1 1 1 1
+ *    1 1 1 1,
+ * 
+ *    2 1 8 4
+ *    1 0 4 2 
+ *    0 8 2 1
+ *    8 4 1 0,
+ *  
+ *    4 1 1 0
+ *    0 4 4 1
+ *    1 0 0 4 
+ *    4 1 1 0,
+ *  ],
+ *  [
+ *   8 1 4 0 
+ *   2 0 1 0
+ *   0 8 0 4 
+ *   0 2 8 1,
+ * 
+ *   0 1 0 1
+ *   0 1 0 1
+ *   0 1 0 1
+ *   0 1 0 1,
+ * 
+ *   0 1 0 2
+ *   0 4 0 8
+ *   1 0 2 0 
+ *   4 0 8 0
+ *  ]
+ * )
  */
 
 // standard library
@@ -77,7 +130,7 @@ int main ( int argc, const char *argv[] )
     tuple_from_elements(&p_tuple, (void *const *)_p_a, 3);
     
     // pack the tuple
-    len = tuple_pack(p_tuple, buf, (fn_pack *) pack_array_of_bitmaps);
+    len = tuple_pack(buf, p_tuple, (fn_pack *) pack_array_of_bitmaps);
 
     // write the buffer to a file
     fwrite(buf, len, 1, p_f),
@@ -90,6 +143,7 @@ int main ( int argc, const char *argv[] )
     printf(
         "The data structure has been written to "\
         "\"resources/reflection/tuple_of_arrays_of_bitmaps.bin\""
+        "\n"
     );
 
     // success
