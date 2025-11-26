@@ -85,12 +85,9 @@ int main ( int argc, const char* argv[] )
     (void) argv;
 
     // #0 - start
-    checkpoint(p_a, "A", "start");
+    checkpoint(p_a, "set", "start");
     
-    // #1 - start
-    checkpoint(p_a, "B", "start");
-    
-    // #2 - construct A
+    // #1 - construct A
     {
 
         // construct A
@@ -100,7 +97,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_a, "A", "after construction");
     }
 
-    // #3 - construct B
+    // #2 - construct B
     {
 
         // construct B
@@ -110,7 +107,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_b, "B", "after construction");
     }
 
-    // #4 - add inner planets to set A
+    // #3 - add inner planets to set A
     {
 
         // add some planets
@@ -121,7 +118,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_a, "A", "after adding 3 planets");
     }
 
-    // #5 - add outer planets to set B
+    // #4 - add outer planets to set B
     {
 
         // add some planets
@@ -132,7 +129,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_b, "B", "after adding 4 planets");
     }
 
-    // #6 - add mars to inner planets
+    // #5 - add mars to inner planets
     {
 
         // add Mars
@@ -142,7 +139,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_a, "A", "after adding 'Mars'");
     }
 
-    // #7 - union
+    // #6 - union
     {
 
         // compute the union of sets A and B
@@ -152,7 +149,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_union, "A ∪ B", "after union");
     }
     
-    // #8 - intersection
+    // #7 - intersection
     {
 
         // compute the intersection of sets A and B
@@ -162,7 +159,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_intersection, "A ∩ B", "after intersection");
     }
 
-    // #9 - difference
+    // #8 - difference
     {
 
         // compute the difference of sets A and B
@@ -172,7 +169,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_difference, "A Δ B", "after difference");
     }
 
-    // #10 - to binary
+    // #9 - to binary
     {
 
         // initialized data
@@ -194,7 +191,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_difference, "A Δ B", "after serialize");
     }
 
-    // #11 - hash 1
+    // #10 - hash 1
     {
 
         // initialized data
@@ -207,7 +204,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_difference, "A Δ B", "after hash 1");
     }
 
-    // #12 - destroy
+    // #11 - destroy
     {
 
         // destroy
@@ -217,7 +214,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_difference, "A Δ B", "after destroy");
     }
 
-    // #13 - remove
+    // #12 - remove
     {
 
         // remove Mars from solar system
@@ -227,7 +224,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_union, "A ∪ B", "after removing 'Mars'");
     }
 
-    // #14 - hash 2
+    // #13 - hash 2
     {
 
         // hash the array
@@ -246,7 +243,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_union, "A ∪ B", "after hash 2");
     }
 
-    // #15 - pop
+    // #14 - pop
     {
 
         // initialized data
@@ -262,7 +259,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_b, "B", "after pop");
     }
     
-    // #16 - from binary
+    // #15 - from binary
     {
         
         // initialized data
@@ -279,7 +276,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_difference, "A Δ B", "after parse");
     }
 
-    // #14 - hash 3
+    // #16 - hash 3
     {
 
         // hash the array
@@ -298,7 +295,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_difference, "A Δ B", "after hash 3");
     }
 
-    // #15 - destroy A
+    // #17 - destroy A
     {
 
         // destroy
@@ -308,7 +305,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_a, "A", "after destroy");
     }
 
-    // #16 - destroy B
+    // #18 - destroy B
     {
 
         // destroy
@@ -318,7 +315,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_b, "B", "after destroy");
     }
 
-    // #17 - destroy union
+    // #19 - destroy union
     {
 
         // destroy
@@ -328,7 +325,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_union, "A ∪ B", "after destroy");
     }
 
-    // #19 - destroy intersection
+    // #20 - destroy intersection
     {
 
         // destroy
@@ -338,7 +335,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_intersection, "A ∩ B", "after destroy");
     }
     
-    // #19 - destroy difference
+    // #21 - destroy difference
     {
 
         // destroy
@@ -348,9 +345,9 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_difference, "A Δ B", "after destroy");
     }
 
-    // #20 - end
-    log_info("end\n");
-
+    // #22 - end
+    checkpoint(p_a, "set", "end");
+    
     // success
     return EXIT_SUCCESS;
 }
