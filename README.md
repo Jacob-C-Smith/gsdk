@@ -56,12 +56,12 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
     <summary><a href="documentation/md/data.md">data</a></summary>
     <ul>
         <li>✅ <a href="./documentation/md/data/array.md">array</a></li>
+        <li>✅ <a href="./documentation/md/data/queue.md">queue</a></li>
         <li>✅ <a href="./documentation/md/data/stack.md">stack</a></li>
         <li>✅ <a href="./documentation/md/data/tuple.md">tuple</a></li>
         <li>✔️ <a href="./documentation/md/data/tree.md">binary</a></li>
         <li>✔️ <a href="./documentation/md/data/circular_buffer.md">circular buffer</a></li>
         <li>✔️ <a href="./documentation/md/data/dict.md">dict</a></li>
-        <li>✔️ <a href="./documentation/md/data/queue.md">queue</a></li>
         <li>✔️ <a href="./documentation/md/data/set.md">set</a></li>
         <li>🧪 <a href="./documentation/md/data/bitmap.md">bitmap</a></li>
         <li>🧪 <a href="#">cache</a></li>

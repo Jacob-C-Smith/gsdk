@@ -58,7 +58,8 @@ const char *_p_colors[COLOR_QUANTITY] =
 };
 
 /// file for reflection
-FILE *p_f = NULL;
+FILE   *p_f      = NULL;
+size_t  file_len = 0;
 
 /// hashes
 hash64 h1 = 0,
@@ -66,7 +67,6 @@ hash64 h1 = 0,
 
 /// working array
 array *p_array = NULL;
-size_t file_len = 0;
 
 // entry point
 int main ( int argc, const char* argv[] )

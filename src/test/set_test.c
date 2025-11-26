@@ -889,7 +889,7 @@ bool test_union ( void(*set_constructor)(set **pp_set), void(*set_constructor2)(
     set_constructor2(&p_set2);
 
     // Compute the union of set1 and set2
-    set_union(&p_set, p_set1, p_set2, (set_equal_fn *)strcmp);
+    set_union(&p_set, p_set1, p_set2);
 
     // Get the contents of the set
     set_contents(p_set, contents);
@@ -959,7 +959,7 @@ bool test_intersection ( void(*set_constructor)(set **pp_set), void(*set_constru
     set_constructor2(&p_set2);
 
     // Compute the union of set1 and set2
-    set_intersection(&p_set, p_set1, p_set2, (set_equal_fn *)strcmp);
+    set_intersection(&p_set, p_set1, p_set2);
 
     // Get the contents of the set
     set_contents(p_set, contents);
@@ -1027,7 +1027,7 @@ bool test_difference ( void(*set_constructor)(set **pp_set), void(*set_construct
     set_constructor2(&p_set2);
 
     // Compute the union of set1 and set2
-    set_difference(&p_set, p_set1, p_set2, (set_equal_fn*)strcmp);
+    set_difference(&p_set, p_set1, p_set2);
 
     // Get the contents of the set
     set_contents(p_set, contents);
@@ -1080,7 +1080,7 @@ void construct_empty ( set **pp_set )
 {
 
     // Construct the set
-    set_construct(pp_set, 4, (set_equal_fn*)strcmp);
+    set_construct(pp_set, 4, (fn_equality*)strcmp);
 
     // done
     return;

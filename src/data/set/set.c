@@ -18,16 +18,22 @@ struct set_s
     void         **elements;
     size_t         max;
     size_t         count;
-    set_equal_fn  *pfn_is_equal;
+    fn_equality  *pfn_equality;
     mutex          _lock;
 };
 
-int equals_function ( const void *const a, const void *const b )
-{
-    
-    // return
-    return !( a == b );
-}
+
+// allocaters
+/** !
+ *  Allocate memory for a set
+ *
+ * @param pp_set return
+ *
+ * @sa set_destroy
+ *
+ * @return 1 on success, 0 on error
+ */
+int set_create ( set **const pp_set );
 
 void set_init ( void )
 {
@@ -96,7 +102,7 @@ int set_create ( set **const pp_set )
     }
 }
 
-int set_construct ( set **const pp_set, size_t size, set_equal_fn *pfn_is_equal )
+int set_construct ( set **const pp_set, size_t size, fn_equality *pfn_equality )
 {
 
     // argument check
@@ -124,14 +130,14 @@ int set_construct ( set **const pp_set, size_t size, set_equal_fn *pfn_is_equal 
     mutex_create(&p_set->_lock);
 
     // If the caller supplied a function for testing equivalence ...
-    if ( pfn_is_equal )
+    if ( pfn_equality )
         
         // ... set the function
-        p_set->pfn_is_equal = pfn_is_equal;
+        p_set->pfn_equality = pfn_equality;
     
     // Default to '==' for comparing elements
     else
-        p_set->pfn_is_equal = &equals_function;
+        p_set->pfn_equality = default_equality;
 
     // success
     return 1;
@@ -174,7 +180,7 @@ int set_construct ( set **const pp_set, size_t size, set_equal_fn *pfn_is_equal 
     }
 }
 
-int set_from_elements ( set **const pp_set, const void **const pp_elements, size_t size, set_equal_fn *pfn_is_equal )
+int set_from_elements ( set **const pp_set, const void **const pp_elements, size_t size, fn_equality *pfn_equality )
 {
 
     // argument check
@@ -184,7 +190,7 @@ int set_from_elements ( set **const pp_set, const void **const pp_elements, size
     set *p_set = (void *) 0;
 
     // Construct a set
-    if ( set_construct(pp_set, size, pfn_is_equal) == 0 ) goto failed_to_construct_set;
+    if ( set_construct(pp_set, size, pfn_equality) == 0 ) goto failed_to_construct_set;
 
     // Get a pointer to the allocated set
     p_set = *pp_set;
@@ -304,7 +310,7 @@ int set_add ( set *const p_set, void *const p_element )
     {
 
         // If the element is a duplicate ...
-        if ( p_set->pfn_is_equal(p_set->elements[i], p_element) == 0 )
+        if ( p_set->pfn_equality(p_set->elements[i], p_element) == 0 )
         {
             
             // ... unlock the mutex 
@@ -365,7 +371,7 @@ int set_add ( set *const p_set, void *const p_element )
     }
 }
 
-int set_union ( set **const pp_set, const set *const p_a, const set *const p_b, set_equal_fn *pfn_is_equal )
+int set_union ( set **const pp_set, const set *const p_a, const set *const p_b)
 {
 
     // argument check
@@ -373,12 +379,15 @@ int set_union ( set **const pp_set, const set *const p_a, const set *const p_b, 
     if ( p_a    == (void *) 0 ) goto no_a;
     if ( p_b    == (void *) 0 ) goto no_b;
 
+    // state check
+    if ( p_a->pfn_equality != p_b->pfn_equality ) goto incomparable_sets;
+
     // initialized data
     set    *p_set        = 0;
     size_t  max_set_size = p_a->count + p_b->count;
     
-    // Construct a set
-    if ( set_construct(&p_set, max_set_size, pfn_is_equal) == 0 ) goto failed_to_construct_set;
+    // construct a set
+    if ( set_construct(&p_set, max_set_size, p_a->pfn_equality) == 0 ) goto failed_to_construct_set;
 
     // iterate through set a
     for (size_t i = 0; i < p_a->count; i++)
@@ -429,8 +438,16 @@ int set_union ( set **const pp_set, const set *const p_a, const set *const p_b, 
 
         }
 
-        // Set errors
+        // set errors
         {
+            incomparable_sets:
+                #ifndef NDEBUG
+                    printf("[set] Sets \"p_a\" and \"p_b\" are of different types in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+                
             failed_to_construct_set:
                 #ifndef NDEBUG
                     printf("[set] Call to \"set_construct\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
@@ -442,19 +459,23 @@ int set_union ( set **const pp_set, const set *const p_a, const set *const p_b, 
     }
 }
 
-int set_difference ( set **const pp_set, const set *const p_a, const set *const p_b, set_equal_fn *pfn_is_equal )
+int set_difference ( set **const pp_set, const set *const p_a, const set *const p_b )
 {
-        // argument check
+    
+    // argument check
     if ( pp_set == (void *) 0 ) goto no_set;
     if ( p_a    == (void *) 0 ) goto no_a;
     if ( p_b    == (void *) 0 ) goto no_b;
+
+    // state check
+    if ( p_a->pfn_equality != p_b->pfn_equality ) goto incomparable_sets;
 
     // initialized data
     set    *p_set        = 0;
     size_t  max_set_size = p_a->count + p_b->count;
     
     // Construct a set
-    if ( set_construct(&p_set, max_set_size, pfn_is_equal) == 0 ) goto failed_to_construct_set;
+    if ( set_construct(&p_set, max_set_size, p_a->pfn_equality) == 0 ) goto failed_to_construct_set;
 
     // iterate through set a
     for (size_t i = 0; i < p_a->count; i++)
@@ -479,7 +500,7 @@ int set_difference ( set **const pp_set, const set *const p_a, const set *const 
         for (size_t j = 0; j < p_b->count; j++)
         {
             // If a[i] is in b
-            if ( pfn_is_equal(p_a->elements[i], p_b->elements[j]) == 0 )
+            if ( p_set->pfn_equality(p_a->elements[i], p_b->elements[j]) == 0 )
             {
 
                 // a[i] is in b
@@ -527,6 +548,14 @@ int set_difference ( set **const pp_set, const set *const p_a, const set *const 
 
         // Set errors
         {
+            incomparable_sets:
+                #ifndef NDEBUG
+                    printf("[set] Sets \"p_a\" and \"p_b\" are of different types in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+                
             failed_to_construct_set:
                 #ifndef NDEBUG
                     printf("[set] Call to \"set_construct\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
@@ -538,7 +567,7 @@ int set_difference ( set **const pp_set, const set *const p_a, const set *const 
     }
 }
 
-int set_intersection ( set **const pp_set, const set *const p_a, const set *const p_b, set_equal_fn *pfn_is_equal )
+int set_intersection ( set **const pp_set, const set *const p_a, const set *const p_b )
 {
 
     // argument check
@@ -546,12 +575,15 @@ int set_intersection ( set **const pp_set, const set *const p_a, const set *cons
     if ( p_a    == (void *) 0 ) goto no_a;
     if ( p_b    == (void *) 0 ) goto no_b;
 
+    // state check
+    if ( p_a->pfn_equality != p_b->pfn_equality ) goto incomparable_sets;
+
     // initialized data
     set    *p_set        = 0;
     size_t  max_set_size = p_a->count + p_b->count;
     
     // Construct a set
-    if ( set_construct(&p_set, max_set_size, pfn_is_equal) == 0 ) goto failed_to_construct_set;
+    if ( set_construct(&p_set, max_set_size, p_a->pfn_equality) == 0 ) goto failed_to_construct_set;
 
     // iterate through set a
     for (size_t i = 0; i < p_a->count; i++)
@@ -564,7 +596,7 @@ int set_intersection ( set **const pp_set, const set *const p_a, const set *cons
         for (size_t j = 0; j < p_b->count; j++)
         {
             // If a[i] is in b
-            if ( pfn_is_equal(p_a->elements[i], p_b->elements[j]) == 0 )
+            if ( p_set->pfn_equality(p_a->elements[i], p_b->elements[j]) == 0 )
             {
 
                 // a[i] is in b
@@ -612,6 +644,14 @@ int set_intersection ( set **const pp_set, const set *const p_a, const set *cons
 
         // Set errors
         {
+            incomparable_sets:
+                #ifndef NDEBUG
+                    printf("[set] Sets \"p_a\" and \"p_b\" are of different types in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+                
             failed_to_construct_set:
                 #ifndef NDEBUG
                     printf("[set] Call to \"set_construct\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
@@ -719,7 +759,7 @@ int set_remove ( set *const p_set , void *const p_element )
     {
 
         // If the element is a duplicate ...
-        if ( p_set->pfn_is_equal(p_set->elements[i], p_element) == 0 )
+        if ( p_set->pfn_equality(p_set->elements[i], p_element) == 0 )
         {
             
             p_set->count--;
@@ -814,6 +854,143 @@ int set_foreach_i ( const set *const p_set, void (*const function)(void *const v
         }
     }
 }
+
+int set_pack ( void *p_buffer, set *p_set, fn_pack *pfn_element )
+{
+    
+    // argument check
+    if ( p_set     == (void *) 0 ) goto no_set;
+    if ( pfn_element == (void *) 0 ) return 0;
+
+    // initialized data 
+    char *p = p_buffer;
+
+    // lock
+    mutex_lock(&p_set->_lock);
+
+    // pack the length
+    p += pack_pack(p, "%i64", p_set->count);
+
+    // iterate through the set
+    for (size_t i = 0; i < p_set->count; i++)
+        p += pfn_element(p, p_set->elements[i]);
+
+    // unlock
+    mutex_unlock(&p_set->_lock);
+
+    // success
+    return p - (char *)p_buffer;
+
+    // error handling
+    {
+        
+        // argument errors
+        {
+            no_set:
+                #ifndef NDEBUG
+                    log_error("[set] Null pointer provided for \"p_set\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int set_unpack ( set **pp_set, void *p_buffer, fn_unpack *pfn_element, fn_equality *pfn_equality )
+{
+    
+    // argument check
+    if ( pp_set    == (void *) 0 ) goto no_set;
+    if ( pfn_element == (void *) 0 ) return 0;
+
+    // initialized data
+    set *p_set = NULL;
+    char *p = p_buffer;
+    size_t len = 0;
+
+    // unpack the length
+    p += pack_unpack(p, "%i64", &len);
+
+    // construct a set
+    set_construct(&p_set, len, pfn_equality);
+
+    for (size_t i = 0; i < len; i++)
+    {
+        
+        // initialized data
+        char _result[1024] = { 0 };
+        void *p_element = NULL;
+        size_t len_result = pfn_element(_result, p);
+
+        // advance the buffer
+        p += len_result;
+
+        // allocate memory for the element
+        p_element = default_allocator(0, len_result),
+
+        // copy the memory
+        memcpy(p_element, _result, len_result),
+        
+        // add the element to the set
+        set_add(p_set, p_element);
+    }
+
+    // return the set to the caller
+    *pp_set = p_set;
+
+    // success
+    return 1;
+    
+    // error handling
+    {
+        
+        // argument errors
+        {
+            no_set:
+                #ifndef NDEBUG
+                    log_error("[set] Null pointer provided for \"pp_set\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+hash64 set_hash ( set *p_set, fn_hash64 *pfn_element )
+{
+
+    // argument check
+    if ( p_set == (void *) 0 ) goto no_set;
+
+    // initialized data
+    hash64     result     = 0;
+    fn_hash64 *pfn_hash64 = (pfn_element) ? pfn_element : hash_crc64;
+
+    // iterate through each element in the set
+    for (size_t i = 0; i < p_set->count; i++)
+        result ^= pfn_hash64(p_set->elements[i], 8);
+
+    // success
+    return result;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_set:
+                #ifndef NDEBUG
+                    log_error("[set] Null pointer provided for \"pp_set\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
 
 // TODO: Implement these functions
 /*

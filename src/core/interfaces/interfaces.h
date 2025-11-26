@@ -20,8 +20,8 @@ typedef unsigned long long hash64;
 typedef void *(fn_allocator) ( void *p_pointer, unsigned long size );
 
 /// identity
-typedef int   (fn_comparator)   ( const void        *p_a, const void        *p_b );
-typedef int   (fn_equality)     ( const void *const  p_a, const void *const  p_b );
+typedef int   (fn_comparator)   ( const void *p_a, const void *p_b );
+typedef int   (fn_equality)     ( const void *p_a, const void *p_b );
 typedef void *(fn_key_accessor) ( const void *const  p_value );
 
 /// iterators
