@@ -1,16 +1,13 @@
 /** !
  * set library
  *
- * @file set.c
+ * @file src/data/set/set.c
  *
  * @author Jacob Smith
  */
 
 // headers
 #include <data/set.h>
-
-// Data 
-static bool initialized = false;
 
 // structure definitions
 struct set_s
@@ -35,25 +32,7 @@ struct set_s
  */
 int set_create ( set **const pp_set );
 
-void set_init ( void )
-{
-
-    // state check
-    if ( initialized == true ) return;
-
-    // Initialize log
-    log_init();
-
-    // Initialize log
-    sync_init();
-
-    // Set the initialized flag
-    initialized = true;
-
-    // done
-    return;
-}
-
+// function definitions
 int set_create ( set **const pp_set )
 {
 
@@ -66,7 +45,7 @@ int set_create ( set **const pp_set )
     // error checking
     if ( p_set == (void *) 0 ) goto no_mem;
 
-    // Zero set
+    // initialize data
     memset(p_set, 0, sizeof(set));
 
     // return the allocated memory
@@ -112,12 +91,9 @@ int set_construct ( set **const pp_set, size_t size, fn_equality *pfn_equality )
     set *p_set = (void *) 0;
 
     // allocate the set
-    if ( set_create(pp_set) == 0 ) goto failed_to_allocate_set;
+    if ( set_create(&p_set) == 0 ) goto failed_to_allocate_set;
 
-    // Get a pointer to the allocated set
-    p_set = *pp_set;
-
-    // Set the maximum number of elements in the set
+    // set the maximum number of elements in the set
     p_set->max = size;
 
     // allocate memory for set elements
@@ -126,18 +102,21 @@ int set_construct ( set **const pp_set, size_t size, fn_equality *pfn_equality )
     // error checking
     if ( p_set->elements == (void *) 0 ) goto no_mem;
 
-    // Create a mutex
+    // create a mutex
     mutex_create(&p_set->_lock);
 
-    // If the caller supplied a function for testing equivalence ...
+    // if the caller supplied a function for testing equivalence ...
     if ( pfn_equality )
         
         // ... set the function
         p_set->pfn_equality = pfn_equality;
     
-    // Default to '==' for comparing elements
+    // default to '==' for comparing elements
     else
         p_set->pfn_equality = default_equality;
+
+    // return a pointer to the caller
+    *pp_set = p_set;
 
     // success
     return 1;
@@ -189,19 +168,17 @@ int set_from_elements ( set **const pp_set, const void **const pp_elements, size
     // initialized data
     set *p_set = (void *) 0;
 
-    // Construct a set
-    if ( set_construct(pp_set, size, pfn_equality) == 0 ) goto failed_to_construct_set;
-
-    // Get a pointer to the allocated set
-    p_set = *pp_set;
+    // construct a set
+    if ( set_construct(&p_set, size, pfn_equality) == 0 ) goto failed_to_construct_set;
 
     // iterate over each element
     for (size_t i = 0; i < size; i++)
-    {
         
-        // Add the element to the set
+        // add the element to the set
         set_add(p_set, pp_elements[i]);
-    }
+
+    // return a pointer to the caller
+    *pp_set = p_set;
     
     // success
     return 1;
@@ -248,11 +225,10 @@ int set_contents ( const set *const p_set, void **const pp_contents )
 {
 
     // argument check
-    if ( p_set       == (void *) 0 ) goto no_set;
+    if ( p_set == (void *) 0 ) goto no_set;
 
-    // Count branch
+    // count 
     if ( pp_contents == (void *) 0 ) goto return_count;
-
 
     // lock
     mutex_lock(&p_set->_lock);
@@ -309,7 +285,7 @@ int set_add ( set *const p_set, void *const p_element )
     for (size_t i = 0; i < p_set->count; i++)
     {
 
-        // If the element is a duplicate ...
+        // if the element is a duplicate ...
         if ( p_set->pfn_equality(p_set->elements[i], p_element) == 0 )
         {
             
@@ -401,7 +377,7 @@ int set_union ( set **const pp_set, const set *const p_a, const set *const p_b)
         // Add each element to the new set
         set_add(p_set, p_b->elements[i]);
 
-    // return a pointer to the set to the caller
+    // return a pointer to the caller
     *pp_set = p_set;
 
     // success
@@ -509,7 +485,7 @@ int set_difference ( set **const pp_set, const set *const p_a, const set *const 
         }
     }
 
-    // return a pointer to the set to the caller
+    // return a pointer to the caller
     *pp_set = p_set;
 
     // success
@@ -605,7 +581,7 @@ int set_intersection ( set **const pp_set, const set *const p_a, const set *cons
         }
     }
 
-    // return a pointer to the set to the caller
+    // return a pointer to the caller
     *pp_set = p_set;
 
     // success
@@ -991,24 +967,6 @@ hash64 set_hash ( set *p_set, fn_hash64 *pfn_element )
     }
 }
 
-
-// TODO: Implement these functions
-/*
-UNION WAS HERE 
-DIFFERENCE WAS HERE 
-INTERSECTION WAS HERE 
-ADD WAS HERE
-void set_discard             ( set        *const p_set , void        *      p_element );
-int  set_difference_update   ( set        *const p_a   , const set   *const p_b );
-int  set_intersection_update ( set        *const p_a   , const set   *const p_b );
-int  set_update              ( set        *const p_a   , const set   *const p_b );
-POP WAS HERE
-REMOVE WAS HERE 
-int  set_clear               ( set        *const p_set );
-int  set_free_clear          ( set        *const p_set , void       (*pfn_free_func) );
-int  set_copy                ( const set  *const p_set , set        **const pp_set );
-*/
-
 int set_destroy ( set **const pp_set )
 {
     
@@ -1047,26 +1005,4 @@ int set_destroy ( set **const pp_set )
                 return 0;
         }
     }
-}
-
-void set_exit ( void )
-{
-
-    // state check
-    if ( initialized == false ) return;
-
-    // Clean up sync
-    sync_exit();
-
-    // Clean up log
-    log_exit();
-
-    // TODO: Anything else?
-    //
-
-    // Clear the initialized flag
-    initialized = false;
-
-    // done
-    return;
 }
