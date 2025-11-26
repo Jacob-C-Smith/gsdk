@@ -15,8 +15,12 @@
 #include <stdbool.h>
 #include <string.h>
 
-// sync submodule
+// gsdk
+#include <core/log.h>
 #include <core/sync.h>
+#include <core/hash.h>
+#include <core/pack.h>
+#include <core/interfaces.h>
 
 // forward declarations
 struct set_s;

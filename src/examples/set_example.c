@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 // gsdk
-#include <set/set.h>
+#include <data/set.h>
 
 void print_element ( void *const p_string, size_t index )
 {
@@ -22,10 +22,10 @@ int main ( int argc, const char* argv[] )
     set *p_a_intersection_b = (void *) 0;
     
     // Construct a set with 4 elements
-    if ( set_construct(&p_a, 4, (set_equal_fn *)strcmp) == 0 ) goto failed_to_construct_set;
+    if ( set_construct(&p_a, 4, (fn_equality *)strcmp) == 0 ) goto failed_to_construct_set;
     
     // Construct a set with 4 elements
-    if ( set_construct(&p_b, 4, (set_equal_fn *)strcmp) == 0 ) goto failed_to_construct_set;
+    if ( set_construct(&p_b, 4, (fn_equality *)strcmp) == 0 ) goto failed_to_construct_set;
 
     // Add elements to set a
     set_add(p_a, "6");
@@ -40,13 +40,13 @@ int main ( int argc, const char* argv[] )
     set_add(p_b, "3");
 
     // Compute the union of set a and set b
-    set_union(&p_a_union_b, p_a, p_b, (set_equal_fn *)strcmp);
+    set_union(&p_a_union_b, p_a, p_b, (fn_equality *)strcmp);
     
     // Compute the difference of set a and set b
-    set_difference(&p_a_difference_b, p_a, p_b, (set_equal_fn *)strcmp);
+    set_difference(&p_a_difference_b, p_a, p_b, (fn_equality *)strcmp);
     
     // Compute the intersection of set a and set b
-    set_intersection(&p_a_intersection_b, p_a, p_b, (set_equal_fn *)strcmp);
+    set_intersection(&p_a_intersection_b, p_a, p_b, (fn_equality *)strcmp);
 
     // Print each set
     printf("a:                { ");

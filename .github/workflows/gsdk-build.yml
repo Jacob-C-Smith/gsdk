@@ -166,11 +166,29 @@ jobs:
           name: build
           path: build
 
-      - name: Run queue test
+      - name: Run stack test
         run: |
-          chmod +x build/tests/queue_test
+          chmod +x build/tests/stack_test
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
-          ./build/tests/queue_test
+          ./build/tests/stack_test
+
+  set-test:
+    needs: [pack-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run set test
+        run: |
+          chmod +x build/tests/set_test
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/tests/set_test
 
   tuple-test:
     needs: [pack-test, hash-test, log-example, sync-example, hash-example, pack-example]
@@ -405,6 +423,24 @@ jobs:
           chmod +x build/examples/queue_example
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/examples/queue_example
+  
+  set-example:
+    needs: [set-test, hash-test, pack-test, log-example, sync-example, hash-example, pack-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run set example
+        run: |
+          chmod +x build/examples/set_example
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/examples/set_example
 
   stack-example:
     needs: [stack-test, hash-test, pack-test, log-example, sync-example, hash-example, pack-example]
