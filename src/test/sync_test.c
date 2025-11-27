@@ -83,25 +83,25 @@ _workers[WORKER_QUANTITY] =
     { 
         ._id    = ALICE,
         .name   = "alice",
-        .thread = NULL 
+        .thread = { 0 }
     },
     [BOB] = 
     { 
         ._id    = BOB,
         .name   = "bob",
-        .thread = NULL
+        .thread = { 0 }
     },
     [CAROL] = 
     { 
         ._id    = CAROL,
         .name   = "carol",
-        .thread = NULL
+        .thread = { 0 }
     },
     [DAVID] = 
     { 
         ._id    = DAVID,
         .name   = "david",
-        .thread = NULL
+        .thread = { 0 }
     }
 };
 
