@@ -290,7 +290,8 @@ bool test_encode_base64 ( char *test_text, char *expected_text, result_t expecte
     done:
 
     // success
-    return (result == expected);}
+    return (result == expected);
+}
 
 bool test_decode_base64 ( char *test_text, char *expected_text, result_t expected )
 {

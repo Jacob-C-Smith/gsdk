@@ -46,14 +46,10 @@ int base64_encode ( const void *const p_data, size_t len, char *const p_output )
 
     // argument errors
     if ( p_data   == (void *) 0 ) goto no_data;
-    if ( len      ==          0 ) goto no_len;
     if ( p_output == (void *) 0 ) goto no_output;
 
-    // static constant data
-    static const unsigned char remainders[3] = { 0, 2, 1 };
-
     // initialized data
-    size_t output_length = ( 4 * ( ( len + 2 ) / 3 ) ) - remainders[len % 3];
+    size_t output_length = ( 4 * ( ( len + 2 ) / 3 ) );
 
     // iterate through len bytes of p_data
     for (size_t i = 0, j = 0; i < len; i+=3, j+=4)
@@ -67,17 +63,15 @@ int base64_encode ( const void *const p_data, size_t len, char *const p_output )
         // Write the part to the output
         p_output[j]   = base_64_encoding_characters[(part >> 3 * 6) & 0x3F],
         p_output[j+1] = base_64_encoding_characters[(part >> 2 * 6) & 0x3F],
-        p_output[j+2] = base_64_encoding_characters[(part >> 1 * 6) & 0x3F],
-        p_output[j+3] = base_64_encoding_characters[(part >> 0 * 6) & 0x3F];
+        p_output[j+2] = (i + 1 < len) ? base_64_encoding_characters[(part >> 1 * 6) & 0x3F] : '=',
+        p_output[j+3] = (i + 2 < len) ? base_64_encoding_characters[(part >> 0 * 6) & 0x3F] : '=';
     }
 
     // Insert a null terminator in the correct position
-    p_output[len] = '\0';
-    
-    no_len:
+    p_output[output_length] = '\0';
     
     // success
-    return output_length;
+    return 1;
 
     // error handling
     {

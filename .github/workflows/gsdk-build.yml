@@ -243,6 +243,24 @@ jobs:
           chmod +x build/tests/tuple_test
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/tests/tuple_test
+  
+  base64-test:
+    needs: [pack-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run base64 test
+        run: |
+          chmod +x build/tests/base64_test
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/tests/base64_test
 
   log-example:
     needs: build
@@ -533,7 +551,7 @@ jobs:
           ./build/examples/tuple_example
 
   base64-example:
-    needs: [log-example]
+    needs: [build, base64-test, log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
