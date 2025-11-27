@@ -315,6 +315,17 @@ int semaphore_create ( semaphore *p_semaphore, unsigned int count );
 int semaphore_wait ( semaphore _semaphore );
 
 /** !
+ * Try to wait on a semaphore (non-blocking)
+ * 
+ * @param _semaphore the semaphore
+ * 
+ * @sa semaphore_wait
+ * 
+ * @return 1 on success, 0 on error/busy
+ */
+int semaphore_try_wait ( semaphore _semaphore );
+
+/** !
  * Signal a semaphore
  * 
  * @param _semaphore the semaphore

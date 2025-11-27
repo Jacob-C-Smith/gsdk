@@ -82,6 +82,24 @@ jobs:
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/tests/hash_test
   
+  sync-test:
+    needs: [build, log-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run sync test
+        run: |
+          chmod +x build/tests/sync_test
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/tests/sync_test
+  
   pack-test:
     needs: [build, log-example]
     runs-on: ubuntu-latest
@@ -389,7 +407,7 @@ jobs:
           ./build/examples/pack_example
   
   sync-example:
-    needs: [log-example]
+    needs: [log-example, sync-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

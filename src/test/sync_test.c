@@ -43,9 +43,18 @@ struct counter_s
     mutex  _mutex;
 };
 
+struct room_s
+{
+    size_t lim;
+    size_t occupied;
+    bool _spots[WORKER_QUANTITY];
+    semaphore _semaphore;
+};
+
 // type definitions
 typedef enum result_e result_t;
 typedef struct counter_s counter;
+typedef struct room_s room;
 
 // global variables
 int total_tests      = 0,
@@ -197,11 +206,23 @@ void test_counter ( const char *name );
  */
 void test_mutex ( const char *name );
 
+/** !
+ * Test limits with a semaphore
+ * 
+ * @param name the name of the scenario
+ * 
+ * @return void
+ */
+void test_semaphore ( const char *name );
+
 /// counter
 void increment_counter ( void *env );
 void increment_locked_counter ( void *env );
 void print_counter ( void *env );
 void clear_counter ( void *env );
+
+/// room
+void bathroom ( void *env );
 
 // entry point
 int main ( int argc, const char* argv[] )
@@ -249,7 +270,8 @@ void run_tests ( const char *name )
     // run mutex tests
     test_mutex("mutex");
 
-    
+    // run semaphore tests
+    test_semaphore("semaphore");
 
     // done
     return;
@@ -353,8 +375,8 @@ void test_mutex ( const char *name )
     // construct a mutex
     mutex_create(&_c._mutex);
 
-    // test everyone counting
-    print_test(name, "alice_count", 
+    // test alice counting
+    print_test(name, "alice", 
         test_factory(
             &_c,              // env
             "alice counting", // name
@@ -368,8 +390,23 @@ void test_mutex ( const char *name )
         )
     );
 
+    // test bob, carol, and david counting
+    print_test(name, "bob carol david", 
+        test_factory(
+            &_c,                          // env
+            "bob, carol, david counting", // name
+            clear_counter,                // before
+            print_counter,                // after
+
+            NULL,                         // alice
+            increment_locked_counter,     // bob    
+            increment_locked_counter,     // carol    
+            increment_locked_counter      // dave   
+        )
+    );
+
     // test everyone counting
-    print_test(name, "everyone_count", 
+    print_test(name, "everyone", 
         test_factory(
             &_c,                 // env
             "everyone counting", // name
@@ -391,6 +428,79 @@ void test_mutex ( const char *name )
 
     // done
     return;
+}
+
+void test_semaphore ( const char *name )
+{
+
+    // initialized data
+    room _r = 
+    {
+        .lim = 1,
+        ._spots = { 0 },
+        ._semaphore = { 0 }
+    };
+
+    // log
+    log_scenario("Semaphore\n");
+
+    // construct a semaphore
+    semaphore_create(&_r._semaphore, _r.lim);
+
+    // test everyone 1 bathroom
+    print_test(name, "everyone 1 bathroom", 
+        test_factory(
+            &_r,                   // env
+            "everyone 1 bathroom", // name
+            NULL,                  // before
+            NULL,                  // after
+
+            bathroom, // alice
+            bathroom, // bob
+            bathroom, // carol
+            bathroom  // dave
+        )
+    );
+
+    // make another bathroom
+    _r.lim++,
+    semaphore_destroy(&_r._semaphore),
+    semaphore_create(&_r._semaphore, _r.lim);
+
+    // test everyone 2 bathrooms
+    print_test(name, "everyone 2 bathrooms", 
+        test_factory(
+            &_r,                    // env
+            "everyone 2 bathrooms", // name
+            NULL,                   // before
+            NULL,                   // after
+
+            bathroom, // alice
+            bathroom, // bob    
+            bathroom, // carol    
+            bathroom  // dave   
+        )
+    );
+
+    // make another bathroom
+    _r.lim++,
+    semaphore_destroy(&_r._semaphore),
+    semaphore_create(&_r._semaphore, _r.lim);
+
+    // test everyone 3 bathrooms
+    print_test(name, "everyone 3 bathrooms", 
+        test_factory(
+            &_r,                    // env
+            "everyone 3 bathrooms", // name
+            NULL,                   // before
+            NULL,                   // after
+
+            bathroom, // alice
+            bathroom, // bob    
+            bathroom, // carol    
+            bathroom  // dave   
+        )
+    );
 }
 
 void print_counter ( void *env )
@@ -439,7 +549,6 @@ void increment_locked_counter ( void *env )
     return;
 }
 
-
 void clear_counter ( void *env )
 {
 
@@ -448,6 +557,31 @@ void clear_counter ( void *env )
 
     // clear
     p_counter->c = 0;
+    
+    // done
+    return;
+}
+
+void bathroom ( void *env )
+{
+
+    // initialized data
+    room *p_room = (room *) env;
+
+    // wait
+    sleep(1),
+    semaphore_wait(p_room->_semaphore),
+    p_room->occupied++,
+    printf("\033[34m[bathroom]\033[0m \033[32m++\033[0m %d/%d\r", p_room->occupied, p_room->lim); fflush(stdout);
+
+    // work
+    sleep(3);
+
+    // signal
+    p_room->occupied--,
+    printf("\033[34m[bathroom]\033[0m \033[31m--\033[0m %d/%d\r", p_room->occupied, p_room->lim); fflush(stdout),
+    sleep(1),
+    semaphore_signal(p_room->_semaphore);
     
     // done
     return;
@@ -557,9 +691,6 @@ void double_dispatch
     void (*pfn_task)(void *env) 
 )
 {
-
-    // log
-    log_info("[%s] Starting task...\n", _workers[_id].name);
 
     // call
     pthread_create(

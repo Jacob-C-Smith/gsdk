@@ -612,7 +612,7 @@ int semaphore_wait ( semaphore _semaphore )
         if ( _semaphore == INVALID_HANDLE_VALUE ) goto no_semaphore;
         
         // return
-        return ( WaitForSingbject(_semaphore, INFINITE) == WAIT_FAILED ? 0 : 1 );
+        return ( WaitForSingleObject(_semaphore, INFINITE) == WAIT_FAILED ? 0 : 1 );
     #elif defined(__APPLE__)
         // return (using pointer type for macOS)
         return (sem_wait(_semaphore) == 0);
@@ -625,6 +625,43 @@ int semaphore_wait ( semaphore _semaphore )
     {
 
         // Argument error
+        {
+            #ifdef _WIN64
+                no_semaphore:
+                    #ifndef NDEBUG
+                        log_error("[sync] Invalid parameter provided for \"_semaphore\" in call to function \"%s\"\n", __FUNCTION__);
+                    #endif
+
+                    // error
+                    return 0;
+            #endif
+        }
+    }
+}
+
+int semaphore_try_wait ( semaphore _semaphore )
+{
+
+    // Platform dependent implementation
+    #ifdef _WIN64
+
+        // Platform dependent argument check
+        if ( _semaphore == INVALID_HANDLE_VALUE ) goto no_semaphore;
+
+        // return
+        return ( WaitForSingleObject(_semaphore, 0) == WAIT_OBJECT_0 ? 1 : 0 );
+    #elif defined(__APPLE__)
+        // return (using pointer type for macOS)
+        return ( sem_trywait(_semaphore) == 0 );
+    #else
+        // return
+        return ( sem_trywait(&_semaphore) == 0 );
+    #endif
+
+    // error handling
+    {
+
+        // Argument errors
         {
             #ifdef _WIN64
                 no_semaphore:
