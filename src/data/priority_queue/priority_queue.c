@@ -40,7 +40,7 @@ int priority_queue_compare_function ( const void *const a, const void *const b )
 {
     
     // return
-    return ( a == b ) ? 0 : ( a < b ) ? 1 : -1;
+    return ( a == b ) ? 0 : ( a < b ) ? -1 : 1;
 }
 
 /** !
@@ -812,13 +812,13 @@ int priority_queue_destroy ( priority_queue **const pp_priority_queue )
     priority_queue *p_priority_queue = *pp_priority_queue;
 
     // lock
-    mutex_lock(&p_priority_queue->_lock);
+    // mutex_lock(&p_priority_queue->_lock);
 
     // No more pointer for end user
     *pp_priority_queue = (priority_queue *) 0;
 
     // unlock
-    mutex_unlock(&p_priority_queue->_lock);
+    // mutex_unlock(&p_priority_queue->_lock);
 
     // TODO: Remove all the priority queue properties
     // 

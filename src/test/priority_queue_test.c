@@ -2,7 +2,7 @@
  * priority queue tester
  *
  * @file priority_queue_test.c
- * 
+ *
  * @author Jacob Smith
  */
 
@@ -18,7 +18,7 @@
 // data
 #include <data/priority_queue.h>
 
-// Possible keys ( A is highest, G is lowest, X will never occor)
+// Possible keys
 void *A_key = (void *) 1,
      *B_key = (void *) 2,
      *C_key = (void *) 3,
@@ -32,9 +32,9 @@ void *A_key = (void *) 1,
 // Expected results
 void *_keys        [] = {(void*) 0};
 void *G_keys       [] = {(void*) 7, (void*) 0};
-void *DG_keys      [] = {(void*) 4, (void*) 7, (void*) 0};
-void *AD_keys      [] = {(void*) 1, (void*) 4, (void*) 0};
-void *ABCDEFG_keys [] = {(void*) 1, (void*) 2, (void*) 3, (void*) 4, (void*) 5, (void*) 6, (void*) 7, (void*) 0};
+void *D_keys       [] = {(void*) 4, (void*) 0};
+void *HG_keys      [] = {(void*) 8, (void*) 7, (void*) 0};
+void *GFEDCBA_keys [] = {(void*) 7, (void*) 6, (void*) 5, (void*) 4, (void*) 3, (void*) 2, (void*) 1, (void*) 0};
 
 // Test results
 enum result_e
@@ -67,12 +67,12 @@ int test_seven_element_priority_queue( int (*priority_queue_constructor)(priorit
 int construct_empty               ( priority_queue **pp_priority_queue );
 int empty_insertG_G               ( priority_queue **pp_priority_queue );
 int G_extractmax_empty            ( priority_queue **pp_priority_queue );
-int G_insertD_DG                  ( priority_queue **pp_priority_queue );
-int DG_extractmax_G               ( priority_queue **pp_priority_queue );
-int DG_increasekey1A_AD           ( priority_queue **pp_priority_queue );
-int empty_insertascending_ABCDEFG ( priority_queue **pp_priority_queue );
-int empty_insertdecending_ABCDEFG ( priority_queue **pp_priority_queue );
-int empty_insertrandom_ABCDEFG    ( priority_queue **pp_priority_queue );
+int G_insertD_GD                  ( priority_queue **pp_priority_queue );
+int GD_extractmax_D               ( priority_queue **pp_priority_queue );
+int GD_increasekey1H_GH           ( priority_queue **pp_priority_queue );
+int empty_insertascending_GFEDCBA ( priority_queue **pp_priority_queue );
+int empty_insertdecending_GFEDCBA ( priority_queue **pp_priority_queue );
+int empty_insertrandom_GFEDCBA    ( priority_queue **pp_priority_queue );
 
 bool test_enqueue ( int (*priority_queue_constructor)(priority_queue **pp_priority_queue), void *value, result_t expected);
 bool test_isempty ( int (*priority_queue_constructor)(priority_queue **pp_priority_queue), bool expected);
@@ -209,23 +209,39 @@ int run_tests()
     // [G] -> extract_max() -> []
     test_empty_priority_queue(G_extractmax_empty, "G_extractmax_empty");
 
-    // [G] -> insert(D) -> [D, G]
-    test_two_element_priority_queue(G_insertD_DG, "G_insertD_DG", DG_keys);
+    // [G] -> insert(D) -> [G, D] (Max Heap: 7 > 4)
+    // Note: G is root. D is child.
+    // We pass expected keys for 2 element test: HG_keys? No, G and D.
+    // But `test_two_element_priority_queue` expects `keys[0]` to be max.
+    // Max is G (7).
+    // `DG_keys` was {4, 7}.
+    // We need `GD_keys` = {7, 4}.
+    // Wait, I didn't define GD_keys. I can use G_keys and D_keys separately?
+    // No, test_two_element expects an array.
+    // Let's construct GD_keys locally or define it.
+    // Actually, I'll just use `HG_keys` for the next test, and define `GD_keys` now.
+    static void *GD_keys[] = {(void*) 7, (void*) 4, (void*) 0};
+    
+    test_two_element_priority_queue(G_insertD_GD, "G_insertD_GD", GD_keys);
 
-    // [D, G] -> extract_max() -> [G]
-    test_one_element_priority_queue(DG_extractmax_G, "DG_extractmax_G", G_keys);
+    // [G, D] -> extract_max() -> [D]
+    test_one_element_priority_queue(GD_extractmax_D, "GD_extractmax_D", D_keys);
 
-    // [D, G] -> increase_key(1, A) -> [A, D]
-    test_two_element_priority_queue(DG_increasekey1A_AD, "DG_increasekey1A_AD", AD_keys);
+    // [G, D] -> increase_key(1, H) -> [H, G] (Assuming D was at index 1)
+    // Original: [7, 4]. 7 at 0. 4 at 1.
+    // Change 4 to 8 (H).
+    // [7, 8]. Bubble up. [8, 7].
+    // Expect H, then G.
+    test_two_element_priority_queue(GD_increasekey1H_GH, "GD_increasekey1H_GH", HG_keys);
 
-    // [] -> insert(G, F, E, D, C, B, A) -> [A, B, C, D, E, F, G]
-    test_seven_element_priority_queue(empty_insertascending_ABCDEFG, "empty_insertascending_ABCDEFG", ABCDEFG_keys);
+    // [] -> insert(G, F, E, D, C, B, A) -> [G, F, E, D, C, B, A]
+    test_seven_element_priority_queue(empty_insertascending_GFEDCBA, "empty_insertascending_GFEDCBA", GFEDCBA_keys);
 
-    // [] -> insert(A, B, C, D, E, F, G) -> [A, B, C, D, E, F, G]
-    test_seven_element_priority_queue(empty_insertdecending_ABCDEFG, "empty_insertdecending_ABCDEFG", ABCDEFG_keys);
+    // [] -> insert(A, B, C, D, E, F, G) -> [G, F, E, D, C, B, A]
+    test_seven_element_priority_queue(empty_insertdecending_GFEDCBA, "empty_insertdecending_GFEDCBA", GFEDCBA_keys);
 
-    // [] -> insert(D, F, A, C, E, B, G) -> [A, B, C, D, E, F, G]
-    test_seven_element_priority_queue(empty_insertrandom_ABCDEFG, "empty_insertrandom_ABCDEFG", ABCDEFG_keys);
+    // [] -> insert(D, F, A, C, E, B, G) -> [G, F, E, D, C, B, A]
+    test_seven_element_priority_queue(empty_insertrandom_GFEDCBA, "empty_insertrandom_GFEDCBA", GFEDCBA_keys);
 
     // success
     return 1;
@@ -267,7 +283,7 @@ int G_extractmax_empty(priority_queue **pp_priority_queue)
     return 1;
 }
 
-int G_insertD_DG(priority_queue **pp_priority_queue)
+int G_insertD_GD(priority_queue **pp_priority_queue)
 {
 
     // Construct a [G] priority queue
@@ -276,37 +292,38 @@ int G_insertD_DG(priority_queue **pp_priority_queue)
     // insert(D)
     priority_queue_insert(*pp_priority_queue, D_key);
 
-    // priority queue = [D, G]
+    // priority queue = [G, D]
     return 1;
 }
 
-int DG_extractmax_G(priority_queue **pp_priority_queue)
+int GD_extractmax_D(priority_queue **pp_priority_queue)
 {
     
-    // Construct a [D, G] priority queue
-    G_insertD_DG(pp_priority_queue);
+    // Construct a [G, D] priority queue
+    G_insertD_GD(pp_priority_queue);
 
     // extractmax()
     priority_queue_extract_max(*pp_priority_queue, (void *) 0);
 
-    // priority queue = [G]
+    // priority queue = [D]
     return 1; 
 }
 
-int DG_increasekey1A_AD(priority_queue **pp_priority_queue)
+int GD_increasekey1H_GH(priority_queue **pp_priority_queue)
 {
     
-    // Construct a [D, G] priority queue
-    G_insertD_DG(pp_priority_queue);
+    // Construct a [G, D] priority queue
+    // [7, 4]
+    G_insertD_GD(pp_priority_queue);
 
-    // increasekey(1, A)
-    priority_queue_increase_key(*pp_priority_queue, 1, A_key);
+    // increasekey(1, H) -> Change D(4) to H(8)
+    priority_queue_increase_key(*pp_priority_queue, 1, H_key);
 
-    // priority queue = [G]
+    // priority queue = [H, G]
     return 1; 
 }
 
-int empty_insertascending_ABCDEFG ( priority_queue **pp_priority_queue )
+int empty_insertascending_GFEDCBA ( priority_queue **pp_priority_queue )
 {
         
     // Construct a [] priority queue
@@ -321,11 +338,11 @@ int empty_insertascending_ABCDEFG ( priority_queue **pp_priority_queue )
     priority_queue_insert(*pp_priority_queue, F_key);
     priority_queue_insert(*pp_priority_queue, G_key);
 
-    // priority queue = [A, B, C, D, E, F, G]
+    // priority queue = [G, F, E, D, C, B, A]
     return 1; 
 }
 
-int empty_insertdecending_ABCDEFG ( priority_queue **pp_priority_queue )
+int empty_insertdecending_GFEDCBA ( priority_queue **pp_priority_queue )
 {
         
     // Construct a [] priority queue
@@ -340,11 +357,11 @@ int empty_insertdecending_ABCDEFG ( priority_queue **pp_priority_queue )
     priority_queue_insert(*pp_priority_queue, B_key);
     priority_queue_insert(*pp_priority_queue, A_key);
 
-    // priority queue = [A, B, C, D, E, F, G]
+    // priority queue = [G, F, E, D, C, B, A]
     return 1; 
 }
 
-int empty_insertrandom_ABCDEFG ( priority_queue **pp_priority_queue )
+int empty_insertrandom_GFEDCBA ( priority_queue **pp_priority_queue )
 {
         
     // Construct a [] priority queue
@@ -359,7 +376,7 @@ int empty_insertrandom_ABCDEFG ( priority_queue **pp_priority_queue )
     priority_queue_insert(*pp_priority_queue, B_key);
     priority_queue_insert(*pp_priority_queue, G_key);
 
-    // priority queue = [A, B, C, D, E, F, G]
+    // priority queue = [G, F, E, D, C, B, A]
     return 1; 
 }
 
