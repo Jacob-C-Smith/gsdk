@@ -533,7 +533,7 @@ jobs:
           ./build/examples/dict_example
   
   double-queue-example:
-    needs: [dict-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
+    needs: [double-queue-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
