@@ -154,6 +154,24 @@ jobs:
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/tests/bitmap_test
   
+  cache-test:
+    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run cache test
+        run: |
+          chmod +x build/tests/cache_test
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/tests/cache_test
+
   circular-buffer-test:
     needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
@@ -479,7 +497,7 @@ jobs:
           ./build/examples/bitmap_example
 
   cache-example:
-    needs: [hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
+    needs: [hash-test, pack-test, sync-test, cache-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
