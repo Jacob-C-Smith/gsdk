@@ -119,7 +119,7 @@ jobs:
           ./build/tests/pack_test
   
   array-test:
-    needs: [pack-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -137,7 +137,7 @@ jobs:
           ./build/tests/array_test
   
   bitmap-test:
-    needs: [pack-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -155,7 +155,7 @@ jobs:
           ./build/tests/bitmap_test
   
   circular-buffer-test:
-    needs: [pack-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -173,7 +173,7 @@ jobs:
           ./build/tests/circular_buffer_test
 
   dict-test:
-    needs: [pack-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -191,7 +191,7 @@ jobs:
           ./build/tests/dict_test
 
   queue-test:
-    needs: [pack-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -209,7 +209,7 @@ jobs:
           ./build/tests/queue_test
   
   stack-test:
-    needs: [pack-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -227,7 +227,7 @@ jobs:
           ./build/tests/stack_test
 
   set-test:
-    needs: [pack-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -245,7 +245,7 @@ jobs:
           ./build/tests/set_test
 
   tuple-test:
-    needs: [pack-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -425,7 +425,7 @@ jobs:
           ./build/examples/sync_example
 
   array-example:
-    needs: [array-test, hash-test, pack-test, log-example, sync-example, hash-example, pack-example]
+    needs: [array-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -443,7 +443,7 @@ jobs:
           ./build/examples/array_example
 
   bitmap-example:
-    needs: [bitmap-test, hash-test, pack-test, log-example, sync-example, hash-example, pack-example]
+    needs: [bitmap-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -461,7 +461,7 @@ jobs:
           ./build/examples/bitmap_example
 
   cache-example:
-    needs: [hash-test, pack-test, log-example, sync-example, hash-example, pack-example]
+    needs: [hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -479,7 +479,7 @@ jobs:
           ./build/examples/cache_example
   
   circular-buffer-example:
-    needs: [circular-buffer-test, hash-test, pack-test, log-example, sync-example, hash-example, pack-example]
+    needs: [circular-buffer-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -497,7 +497,7 @@ jobs:
           ./build/examples/circular_buffer_example
 
   dict-example:
-    needs: [dict-test, hash-test, pack-test, log-example, sync-example, hash-example, pack-example]
+    needs: [dict-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -515,7 +515,7 @@ jobs:
           ./build/examples/dict_example
   
   queue-example:
-    needs: [queue-test, hash-test, pack-test, log-example, sync-example, hash-example, pack-example]
+    needs: [queue-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -533,7 +533,7 @@ jobs:
           ./build/examples/queue_example
   
   set-example:
-    needs: [set-test, hash-test, pack-test, log-example, sync-example, hash-example, pack-example]
+    needs: [set-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -551,7 +551,7 @@ jobs:
           ./build/examples/set_example
 
   stack-example:
-    needs: [stack-test, hash-test, pack-test, log-example, sync-example, hash-example, pack-example]
+    needs: [stack-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -569,7 +569,7 @@ jobs:
           ./build/examples/stack_example
 
   tuple-example:
-    needs: [tuple-test, hash-test, pack-test, log-example, sync-example, hash-example, pack-example]
+    needs: [tuple-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
