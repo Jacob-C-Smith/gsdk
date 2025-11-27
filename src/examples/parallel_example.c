@@ -433,7 +433,7 @@ int parallel_schedule_example ( int argc, const char *argv[] )
     (void) parallel_register_task("laugh"               , (fn_parallel_task *)laugh);
 
     // Construct a schedule
-    if ( schedule_load(&p_schedule, "resources/schedule.json") == 0 ) goto failed_to_construct_schedule;
+    if ( schedule_load(&p_schedule, "resources/performance/schedule_1.json") == 0 ) goto failed_to_construct_schedule;
 
     // Start the schedule
     if ( schedule_start(p_schedule, 0) == 0 ) goto failed_to_start_schedule;

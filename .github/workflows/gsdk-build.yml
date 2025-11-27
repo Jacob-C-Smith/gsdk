@@ -621,4 +621,22 @@ jobs:
           chmod +x build/examples/json_example
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/examples/json_example ${{github.workspace}}/resources/reflection/json_example_1.json
+
+  parallel-example:
+    needs: [hash-test, array-test, dict-test, json-test, log-example, hash-example, sync-example, array-example, dict-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run parallel example
+        run: |
+          chmod +x build/examples/parallel_example
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/examples/parallel_example
   
