@@ -190,6 +190,24 @@ jobs:
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/tests/dict_test
 
+  double-queue-test:
+    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run double queue test
+        run: |
+          chmod +x build/tests/double_queue_test
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/tests/double_queue_test
+
   queue-test:
     needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
@@ -513,6 +531,24 @@ jobs:
           chmod +x build/examples/dict_example
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/examples/dict_example
+  
+  double-queue-example:
+    needs: [dict-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run double queue example
+        run: |
+          chmod +x build/examples/double_queue_example
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/examples/double_queue_example
   
   queue-example:
     needs: [queue-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]

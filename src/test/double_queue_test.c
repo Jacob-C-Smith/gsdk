@@ -1,39 +1,22 @@
 /** !
- * double_queue tester
- * 
+ * Double queue tester
+ *
  * @file double_queue_test.c
- * 
+ *
  * @author Jacob Smith
  */
 
 // standard library
-#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 
 // core
-#include <core/sync.h>
 #include <core/log.h>
+#include <core/sync.h>
 
 // data
 #include <data/double_queue.h>
-
-// enumeration definitions
-enum result_e {
-    zero     = 0,
-    one      = 1,
-    match    = 2,
-    not_null = 3
-};
-
-// type definitions
-typedef enum result_e result_t;
-
-// global variables
-int total_tests      = 0,
-    total_passes     = 0,
-    total_fails      = 0,
-    ephemeral_tests  = 0,
-    ephemeral_passes = 0,
-    ephemeral_fails  = 0;
 
 // Possible elements
 void *A_element = (void *)0x1,
@@ -44,85 +27,86 @@ void *A_element = (void *)0x1,
 
 // Expected results
 void  *_contents    [] = { (void *)0x0 };
-
 void  *A_contents   [] = { (void *)0x1, (void *)0x0 };
 void  *B_contents   [] = { (void *)0x2, (void *)0x0 };
-void  *C_contents   [] = { (void *)0x3, (void *)0x0 };
-
 void  *AB_contents  [] = { (void *)0x1, (void *)0x2, (void *)0x0 };
-void  *AC_contents  [] = { (void *)0x1, (void *)0x3, (void *)0x0 };
 void  *BA_contents  [] = { (void *)0x2, (void *)0x1, (void *)0x0 };
-void  *BC_contents  [] = { (void *)0x2, (void *)0x3, (void *)0x0 };
-void  *CA_contents  [] = { (void *)0x3, (void *)0x1, (void *)0x0 };
-void  *CB_contents  [] = { (void *)0x3, (void *)0x2, (void *)0x0 };
-
 void  *ABC_contents [] = { (void *)0x1, (void *)0x2, (void *)0x3,  (void *)0x0 };
-void  *ACB_contents [] = { (void *)0x1, (void *)0x3, (void *)0x2,  (void *)0x0 };
-void  *BAC_contents [] = { (void *)0x2, (void *)0x1, (void *)0x3,  (void *)0x0 };
-void  *BCA_contents [] = { (void *)0x2, (void *)0x3, (void *)0x1,  (void *)0x0 };
-void  *CAB_contents [] = { (void *)0x3, (void *)0x1, (void *)0x2,  (void *)0x0 };
 void  *CBA_contents [] = { (void *)0x3, (void *)0x2, (void *)0x1,  (void *)0x0 };
 
+// Test results
+enum result_e {
+    zero=0,
+    False=0,
+    Underflow=0,
+    Overflow=0,
+    one=1,
+    True=1,
+    match
+};
+
+typedef enum result_e result_t;
+
+int total_tests      = 0,
+    total_passes     = 0,
+    total_fails      = 0,
+    ephemeral_tests  = 0,
+    ephemeral_passes = 0,
+    ephemeral_fails  = 0;
+
 // forward declarations
-/** !
- * Print the time formatted in days, hours, minutes, seconds, miliseconds, microseconds
- * 
- * @param seconds the time in seconds
- * 
- * @return void
- */
-void print_time_pretty ( double seconds );
+int run_tests           ( void );
+int print_final_summary ( void );
+int print_test          ( const char  *scenario_name, const char *test_name, bool passed );
+int print_time_pretty   ( double seconds );
 
-/** !
- * Run all the tests
- * 
- * @param void
- * 
- * @return void
- */
-void run_tests ( void );
+bool test_front        ( int (*double_queue_constructor)(double_queue **), void *expected_value  , result_t expected );
+bool test_rear         ( int (*double_queue_constructor)(double_queue **), void *expected_value  , result_t expected );
+bool test_front_add    ( int (*double_queue_constructor)(double_queue **), void *value           , result_t expected );
+bool test_rear_add     ( int (*double_queue_constructor)(double_queue **), void *value           , result_t expected );
+bool test_front_remove ( int (*double_queue_constructor)(double_queue **), void *expected_value  , size_t   num_removes, result_t expected );
+bool test_rear_remove  ( int (*double_queue_constructor)(double_queue **), void *expected_value  , size_t   num_removes, result_t expected );
+bool test_empty        ( int (*double_queue_constructor)(double_queue **), result_t expected );
 
-/** !
- * Print a summary of the test scenario
- * 
- * @param void
- * 
- * @return void
- */
-void print_final_summary ( void );
+int test_empty_double_queue         ( int (*double_queue_constructor)(double_queue **), char *name );
+int test_one_element_double_queue   ( int (*double_queue_constructor)(double_queue **), char *name, void **elements );
+int test_two_element_double_queue   ( int (*double_queue_constructor)(double_queue **), char *name, void **elements );
+int test_three_element_double_queue ( int (*double_queue_constructor)(double_queue **), char *name, void **elements );
 
-/** !
- * Print the result of a single test
- * 
- * @param scenario_name the name of the scenario
- * @param test_name     the name of the test
- * @param passed        true if test passes, false if test fails
- * 
- * @return void
- */
-void print_test ( const char *scenario_name, const char *test_name, bool passed );
-void double_queue_empty_tests ( const char *name );
-void double_queue_one_element_tests ( const char *name );
-void double_queue_two_element_tests ( const char *name );
-void double_queue_three_element_tests ( const char *name );
+int construct_empty                 ( double_queue **pp_double_queue );
+int construct_empty_front_addA_A    ( double_queue **pp_double_queue );
+int construct_empty_rear_addA_A     ( double_queue **pp_double_queue );
+int construct_empty_rear_addB_B     ( double_queue **pp_double_queue );
+int construct_A_front_remove_empty  ( double_queue **pp_double_queue ); 
+int construct_A_rear_remove_empty   ( double_queue **pp_double_queue ); 
+int construct_A_front_addB_BA       ( double_queue **pp_double_queue ); 
+int construct_A_rear_addB_AB        ( double_queue **pp_double_queue ); 
+int construct_AB_front_remove_B     ( double_queue **pp_double_queue );
+int construct_AB_rear_remove_A      ( double_queue **pp_double_queue );
+int construct_BA_front_remove_A     ( double_queue **pp_double_queue );
+int construct_BA_rear_remove_B      ( double_queue **pp_double_queue );
+int construct_AB_rear_addC_ABC      ( double_queue **pp_double_queue );
+int construct_BA_front_addC_CBA     ( double_queue **pp_double_queue );
 
 // entry point
 int main ( int argc, const char* argv[] )
 {
-    
-    // Suppress compiler warnings
-    (void) argc;
-    (void) argv;
+
+    // unused
+	(void) argc;
+	(void) argv;
 
     // initialized data
     timestamp t0 = 0,
               t1 = 0;
 
     // Formatting
-    log_info("╭─────────────────────╮\n");
-    log_info("│ double queue tester │\n");
-    log_info("╰─────────────────────╯\n\n");
-
+    printf(
+        "╭─────────────────────╮\n"
+        "│ double queue tester │\n"
+        "╰─────────────────────╯\n\n"
+    );
+    
     // Start
     t0 = timer_high_precision();
 
@@ -133,23 +117,23 @@ int main ( int argc, const char* argv[] )
     t1 = timer_high_precision();
 
     // Report the time it took to run the tests
-    log_info("double queue tests lasted ");
-    print_time_pretty ( (double) ( t1 - t0 ) / (double) timer_seconds_divisor() );
-    putchar('\n');
+    log_info("double queue took ");
+    print_time_pretty ( (double)(t1-t0)/(double)timer_seconds_divisor() );
+    log_info(" to test\n");
 
     // exit
     return ( total_passes == total_tests ) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-void print_time_pretty ( double seconds )
+int print_time_pretty ( double seconds )
 {
 
     // initialized data
-    double _seconds = seconds;
-    size_t days = 0,
-           hours = 0,
-           minutes = 0,
-           __seconds = 0,
+    double _seconds     = seconds;
+    size_t days         = 0,
+           hours        = 0,
+           minutes      = 0,
+           __seconds    = 0,
            milliseconds = 0,
            microseconds = 0;
 
@@ -172,239 +156,409 @@ void print_time_pretty ( double seconds )
     while ( _seconds > 0.000001 ) { microseconds++;_seconds-=0.000001; };
 
     // Print days
-    if ( days ) log_info("%zu D, ", days);
+    if ( days ) 
+        log_info("%d D, ", days);
     
     // Print hours
-    if ( hours ) log_info("%zu h, ", hours);
+    if ( hours )
+        log_info("%d h, ", hours);
 
     // Print minutes
-    if ( minutes ) log_info("%zu m, ", minutes);
+    if ( minutes )
+        log_info("%d m, ", minutes);
 
     // Print seconds
-    if ( __seconds ) log_info("%zu s, ", __seconds);
+    if ( __seconds )
+        log_info("%d s, ", __seconds);
     
     // Print milliseconds
-    if ( milliseconds ) log_info("%zu ms, ", milliseconds);
+    if ( milliseconds )
+        log_info("%d ms, ", milliseconds);
     
     // Print microseconds
-    if ( microseconds ) log_info("%zu us", microseconds);
+    if ( microseconds )
+        log_info("%d us", microseconds);
     
-    // done
-    return;
+    // success
+    return 1;
 }
 
-void run_tests ( void )
+int run_tests ( void )
 {
 
-    // Test empty double queue
-    double_queue_empty_tests ("≷ ε ≷");
+    // ... -> []
+    test_empty_double_queue(construct_empty, "empty");
 
-    // Test [ A ] double queue
-    double_queue_one_element_tests ("≷[ A ]≷");
+    // [] -> front_add(A) -> [A]
+    test_one_element_double_queue(construct_empty_front_addA_A, "empty_front_addA_A", (void **) A_contents);
 
-    // Test [ B ] double queue
-    double_queue_one_element_tests ("≷[ B ]≷");
+    // [] -> rear_add(A) -> [A]
+    test_one_element_double_queue(construct_empty_rear_addA_A, "empty_rear_addA_A", (void **) A_contents);
 
-    // Test [ C ] double queue
-    double_queue_one_element_tests ("≷[ C ]≷");
+    // [] -> rear_add(B) -> [B]
+    test_one_element_double_queue(construct_empty_rear_addB_B, "empty_rear_addB_B", (void **) B_contents);
 
-    // Test [ A, B ] double queue
-    double_queue_two_element_tests ("≷[ A, B ]≷");
+    // [A] -> front_remove() -> []
+    test_empty_double_queue(construct_A_front_remove_empty, "A_front_remove_empty");
 
-    // Test [ A, C ] double queue
-    double_queue_two_element_tests ("≷[ A, C ]≷");
+    // [A] -> rear_remove() -> []
+    test_empty_double_queue(construct_A_rear_remove_empty, "A_rear_remove_empty");
 
-    // Test [ B, A ] double queue
-    double_queue_two_element_tests ("≷[ B, A ]≷");
-
-    // Test [ B, C ] double queue
-    double_queue_two_element_tests ("≷[ B, C ]≷");
-
-    // Test [ C, A ] double queue
-    double_queue_two_element_tests ("≷[ C, A ]≷");
-
-    // Test [ C, B ] double queue
-    double_queue_two_element_tests ("≷[ C, B ]≷");
-
-    // Test [ A, B, C ] double queue
-    double_queue_three_element_tests ("≷[ A, B, C ]≷");
-
-    // Test [ A, C, B ] double queue
-    double_queue_three_element_tests ("≷[ A, C, B ]≷");
-
-    // Test [ B, A, C ] double queue
-    double_queue_three_element_tests ("≷[ B, A, C ]≷");
-
-    // Test [ B, C, A ] double queue
-    double_queue_three_element_tests ("≷[ B, C, A ]≷");
-
-    // Test [ C, A, B ] double queue
-    double_queue_three_element_tests ("≷[ C, A, B ]≷");
-
-    // Test [ C, B, A ] double queue
-    double_queue_three_element_tests ("≷[ C, B, A ]≷");
-
-
-    // done
-    return;
-}
-
-void double_queue_empty_tests ( const char *name )
-{
+    // [A] -> front_add(B) -> [B,A]
+    test_two_element_double_queue(construct_A_front_addB_BA, "A_front_addB_BA", (void **) BA_contents);
     
-    // Formatting
-    log_scenario("%s\n", name);
+    // [A] -> rear_add(B) -> [A,B]
+    test_two_element_double_queue(construct_A_rear_addB_AB, "A_rear_addB_AB", (void **) AB_contents);
 
-    // constructors
-    print_test(name, "construct", false);//test_g_init(0, (void *) 0, match));
-    print_test(name, "from contents", false);//test_g_init(0, (void *) 0, match));
+    // [A,B] -> front_remove() -> [B]
+    test_one_element_double_queue(construct_AB_front_remove_B, "AB_front_remove_B", (void **) B_contents);
 
-    // accessors
-    print_test(name, "front", false);//test_g_init("test cases/core/empty.json", (void *) 0, match));
-    print_test(name, "rear", false);//test_g_init("test cases/core/empty.json", (void *) 0, match));
-    print_test(name, "empty", false);//test_g_init("test cases/core/empty.json", (void *) 0, match));
+    // [A,B] -> rear_remove() -> [A]
+    test_one_element_double_queue(construct_AB_rear_remove_A, "AB_rear_remove_A", (void **) A_contents);
 
-    // mutators
-    print_test(name, "front add", false);//test_g_init("test cases/core/empty_number.json", (void *) 0, match));
-    print_test(name, "front remove", false);//test_g_init("test cases/core/empty_number.json", (void *) 0, match));
-    print_test(name, "rear add", false);//test_g_init("test cases/core/empty_number.json", (void *) 0, match));
-    print_test(name, "rear remove", false);//test_g_init("test cases/core/empty_number.json", (void *) 0, match));
+    // [B,A] -> front_remove() -> [A]
+    test_one_element_double_queue(construct_BA_front_remove_A, "BA_front_remove_A", (void **) A_contents);
 
-    // destructors
-    print_test(name, "destroy", false);//test_g_init("test cases/core/empty_object.json", (void *) 0, match));
+    // [B,A] -> rear_remove() -> [B]
+    test_one_element_double_queue(construct_BA_rear_remove_B, "BA_rear_remove_B", (void **) B_contents);
 
-    // Print the summary of this test
-    print_final_summary();
+    // [A,B] -> rear_add(C) -> [A,B,C]
+    test_three_element_double_queue(construct_AB_rear_addC_ABC, "AB_rear_addC_ABC", (void **) ABC_contents);
+    
+    // [B,A] -> front_add(C) -> [C,B,A]
+    test_three_element_double_queue(construct_BA_front_addC_CBA, "BA_front_addC_CBA", (void **) CBA_contents);
 
     // success
-    return;
+    return 1;
 }
-void double_queue_one_element_tests ( const char *name )
+
+int construct_empty ( double_queue **pp_double_queue )
 {
-    
-    // Formatting
+    double_queue_construct(pp_double_queue);
+    return 1;
+}
+
+int construct_empty_front_addA_A ( double_queue **pp_double_queue )
+{
+    construct_empty(pp_double_queue);
+    double_queue_front_add(*pp_double_queue, A_element);
+    return 1;
+}
+
+int construct_empty_rear_addA_A ( double_queue **pp_double_queue )
+{
+    construct_empty(pp_double_queue);
+    double_queue_rear_add(*pp_double_queue, A_element);
+    return 1;
+}
+
+int construct_empty_rear_addB_B ( double_queue **pp_double_queue )
+{
+    construct_empty(pp_double_queue);
+    double_queue_rear_add(*pp_double_queue, B_element);
+    return 1;
+}
+
+int construct_A_front_remove_empty ( double_queue **pp_double_queue )
+{
+    construct_empty_front_addA_A(pp_double_queue);
+    double_queue_front_remove(*pp_double_queue, (void **)0);
+    return 1;
+}
+
+int construct_A_rear_remove_empty ( double_queue **pp_double_queue )
+{
+    construct_empty_front_addA_A(pp_double_queue);
+    double_queue_rear_remove(*pp_double_queue, (void **)0);
+    return 1;
+}
+
+int construct_A_front_addB_BA ( double_queue **pp_double_queue )
+{
+    construct_empty_front_addA_A(pp_double_queue);
+    double_queue_front_add(*pp_double_queue, B_element);
+    return 1;
+}
+
+int construct_A_rear_addB_AB ( double_queue **pp_double_queue )
+{
+    construct_empty_front_addA_A(pp_double_queue);
+    double_queue_rear_add(*pp_double_queue, B_element);
+    return 1;
+}
+
+int construct_AB_front_remove_B ( double_queue **pp_double_queue )
+{
+    construct_A_rear_addB_AB(pp_double_queue);
+    double_queue_front_remove(*pp_double_queue, (void **)0);
+    return 1;
+}
+
+int construct_AB_rear_remove_A ( double_queue **pp_double_queue )
+{
+    construct_A_rear_addB_AB(pp_double_queue);
+    double_queue_rear_remove(*pp_double_queue, (void **)0);
+    return 1;
+}
+
+int construct_BA_front_remove_A ( double_queue **pp_double_queue )
+{
+    construct_A_front_addB_BA(pp_double_queue);
+    double_queue_front_remove(*pp_double_queue, (void **)0);
+    return 1;
+}
+
+int construct_BA_rear_remove_B ( double_queue **pp_double_queue )
+{
+    construct_A_front_addB_BA(pp_double_queue);
+    double_queue_rear_remove(*pp_double_queue, (void **)0);
+    return 1;
+}
+
+int construct_AB_rear_addC_ABC ( double_queue **pp_double_queue )
+{
+    construct_A_rear_addB_AB(pp_double_queue);
+    double_queue_rear_add(*pp_double_queue, C_element);
+    return 1;
+}
+
+int construct_BA_front_addC_CBA ( double_queue **pp_double_queue )
+{
+    construct_A_front_addB_BA(pp_double_queue);
+    double_queue_front_add(*pp_double_queue, C_element);
+    return 1;
+}
+
+int test_empty_double_queue ( int (*double_queue_constructor)(double_queue **pp_double_queue), char *name )
+{
     log_scenario("%s\n", name);
 
-    // constructors
-    print_test(name, "construct", false);//test_g_init(0, (void *) 0, match));
-    print_test(name, "from contents", false);//test_g_init(0, (void *) 0, match));
+    print_test(name, "double_queue_front"       , test_front(double_queue_constructor, (void *)0, zero) );
+    print_test(name, "double_queue_rear"        , test_rear(double_queue_constructor, (void *)0, zero) );
+    print_test(name, "double_queue_front_add"   , test_front_add(double_queue_constructor, A_element, one) );
+    print_test(name, "double_queue_rear_add"    , test_rear_add(double_queue_constructor, A_element, one) );
+    print_test(name, "double_queue_front_remove", test_front_remove(double_queue_constructor, (void *)0, 1, Underflow) );
+    print_test(name, "double_queue_rear_remove" , test_rear_remove(double_queue_constructor, (void *)0, 1, Underflow) );
+    print_test(name, "double_queue_empty"       , test_empty(double_queue_constructor, True) );
 
-    // accessors
-    print_test(name, "front", false);//test_g_init("test cases/core/empty.json", (void *) 0, match));
-    print_test(name, "rear", false);//test_g_init("test cases/core/empty.json", (void *) 0, match));
-    print_test(name, "empty", false);//test_g_init("test cases/core/empty.json", (void *) 0, match));
-
-    // mutators
-    print_test(name, "front add", false);//test_g_init("test cases/core/empty_number.json", (void *) 0, match));
-    print_test(name, "front remove", false);//test_g_init("test cases/core/empty_number.json", (void *) 0, match));
-    print_test(name, "rear add", false);//test_g_init("test cases/core/empty_number.json", (void *) 0, match));
-    print_test(name, "rear remove", false);//test_g_init("test cases/core/empty_number.json", (void *) 0, match));
-
-    // destructors
-    print_test(name, "destroy", false);//test_g_init("test cases/core/empty_object.json", (void *) 0, match));
-
-    // Print the summary of this test
     print_final_summary();
 
-    // success
-    return;
+    return 1;
 }
-void double_queue_two_element_tests ( const char *name )
+
+int test_one_element_double_queue ( int (*double_queue_constructor)(double_queue **), char *name, void **elements )
 {
-    
-    // Formatting
     log_scenario("%s\n", name);
 
-    // constructors
-    print_test(name, "construct", false);
-    print_test(name, "from contents", false);
+    print_test(name, "double_queue_front"       , test_front(double_queue_constructor, elements[0], match) );
+    print_test(name, "double_queue_rear"        , test_rear(double_queue_constructor, elements[0], match) );
+    print_test(name, "double_queue_front_add"   , test_front_add(double_queue_constructor, D_element, one) );
+    print_test(name, "double_queue_rear_add"    , test_rear_add(double_queue_constructor, D_element, one) );
+    print_test(name, "double_queue_front_remove", test_front_remove(double_queue_constructor, elements[0], 1, match) );
+    print_test(name, "double_queue_rear_remove" , test_rear_remove(double_queue_constructor, elements[0], 1, match) );
+    print_test(name, "double_queue_empty"       , test_empty(double_queue_constructor, False) );
 
-    // accessors
-    print_test(name, "front", false);
-    print_test(name, "rear", false);
-    print_test(name, "empty", false);
-
-    // mutators
-    print_test(name, "front add", false);
-    print_test(name, "front remove", false);
-    print_test(name, "rear add", false);
-    print_test(name, "rear remove", false);
-
-    // destructors
-    print_test(name, "destroy", false);
-
-    // Print the summary of this test
     print_final_summary();
 
-    // success
-    return;
+    return 1;
 }
-void double_queue_three_element_tests ( const char *name )
+
+int test_two_element_double_queue ( int (*double_queue_constructor)(double_queue **), char *name, void **elements )
 {
-    
-    // Formatting
     log_scenario("%s\n", name);
 
-    // constructors
-    print_test(name, "construct", false);//test_g_init(0, (void *) 0, match));
-    print_test(name, "from contents", false);//test_g_init(0, (void *) 0, match));
+    print_test(name, "double_queue_front"       , test_front(double_queue_constructor, elements[0], match) );
+    print_test(name, "double_queue_rear"        , test_rear(double_queue_constructor, elements[1], match) );
+    print_test(name, "double_queue_front_add"   , test_front_add(double_queue_constructor, D_element, one) );
+    print_test(name, "double_queue_rear_add"    , test_rear_add(double_queue_constructor, D_element, one) );
+    
+    print_test(name, "double_queue_front_remove", test_front_remove(double_queue_constructor, elements[0], 1, match) );
+    print_test(name, "double_queue_rear_remove" , test_rear_remove(double_queue_constructor, elements[1], 1, match) );
 
-    // accessors
-    print_test(name, "front", false);//test_g_init("test cases/core/empty.json", (void *) 0, match));
-    print_test(name, "rear", false);//test_g_init("test cases/core/empty.json", (void *) 0, match));
-    print_test(name, "empty", false);//test_g_init("test cases/core/empty.json", (void *) 0, match));
+    print_test(name, "double_queue_empty"       , test_empty(double_queue_constructor, False) );
 
-    // mutators
-    print_test(name, "front add", false);//test_g_init("test cases/core/empty_number.json", (void *) 0, match));
-    print_test(name, "front remove", false);//test_g_init("test cases/core/empty_number.json", (void *) 0, match));
-    print_test(name, "rear add", false);//test_g_init("test cases/core/empty_number.json", (void *) 0, match));
-    print_test(name, "rear remove", false);//test_g_init("test cases/core/empty_number.json", (void *) 0, match));
-
-    // destructors
-    print_test(name, "destroy", false);//test_g_init("test cases/core/empty_object.json", (void *) 0, match));
-
-    // Print the summary of this test
     print_final_summary();
 
-    // success
-    return;
+    return 1;
 }
 
-void print_test ( const char *scenario_name, const char *test_name, bool passed )
+int test_three_element_double_queue ( int (*double_queue_constructor)(double_queue **), char *name, void **elements )
 {
+    log_scenario("%s\n", name);
 
-    // initialized data
-    if ( passed )
-        log_pass("%s %s\n",scenario_name, test_name),
+    print_test(name, "double_queue_front"       , test_front(double_queue_constructor, elements[0], match) );
+    print_test(name, "double_queue_rear"        , test_rear(double_queue_constructor, elements[2], match) );
+    print_test(name, "double_queue_front_add"   , test_front_add(double_queue_constructor, D_element, one) );
+    print_test(name, "double_queue_rear_add"    , test_rear_add(double_queue_constructor, D_element, one) );
+    
+    print_test(name, "double_queue_front_remove", test_front_remove(double_queue_constructor, elements[0], 1, match) );
+    print_test(name, "double_queue_rear_remove" , test_rear_remove(double_queue_constructor, elements[2], 1, match) );
+
+    print_test(name, "double_queue_empty"       , test_empty(double_queue_constructor, False) );
+
+    print_final_summary();
+
+    return 1;
+}
+
+int print_test ( const char *scenario_name, const char *test_name, bool passed )
+{
+    if ( passed ) 
+        log_pass("%s %s\n", scenario_name, test_name);
+    else
+        log_fail("%s %s\n", scenario_name, test_name);
+
+    if (passed)
         ephemeral_passes++;
-    else 
-        log_fail("%s %s\n", scenario_name, test_name),
+    else
         ephemeral_fails++;
 
-    // Increment the test counter
     ephemeral_tests++;
 
-    // done
-    return;
+    return 1;
 }
 
-void print_final_summary ( void )
+int print_final_summary ( void )
 {
-
-    // Accumulate
-    total_tests  += ephemeral_tests,
-    total_passes += ephemeral_passes,
+    total_tests  += ephemeral_tests;
+    total_passes += ephemeral_passes;
     total_fails  += ephemeral_fails;
 
-    // Print
     log_info("\nTests: %d, Passed: %d, Failed: %d (%%%.3f)\n",  ephemeral_tests, ephemeral_passes, ephemeral_fails, ((float)ephemeral_passes/(float)ephemeral_tests*100.f));
     log_info("Total: %d, Passed: %d, Failed: %d (%%%.3f)\n\n",  total_tests, total_passes, total_fails, ((float)total_passes/(float)total_tests*100.f));
-    
-    // Clear test counters for this test
-    ephemeral_tests  = 0,
-    ephemeral_passes = 0,
+
+    ephemeral_tests  = 0;
+    ephemeral_passes = 0;
     ephemeral_fails  = 0;
 
-    // done
-    return;
+    return 1;
+}
+
+bool test_front ( int (*double_queue_constructor)(double_queue **), void *expected_value, result_t expected )
+{
+    result_t      result       = 0;
+    double_queue *p_double_queue = 0;
+    void         *result_value = 0;
+
+    double_queue_constructor(&p_double_queue);
+
+    result = (result_t) double_queue_front(p_double_queue, &result_value);
+
+    if (result == zero)
+        goto exit;
+    else if (result_value == expected_value)
+        result = match;
+    else
+        result = one;
+
+    exit:
+    double_queue_destroy(&p_double_queue);
+    return (result == expected);
+}
+
+bool test_rear ( int (*double_queue_constructor)(double_queue **), void *expected_value, result_t expected )
+{
+    result_t      result       = 0;
+    double_queue *p_double_queue = 0;
+    void         *result_value = 0;
+
+    double_queue_constructor(&p_double_queue);
+
+    result = (result_t) double_queue_rear(p_double_queue, &result_value);
+
+    if (result == zero)
+        goto exit;
+    else if (result_value == expected_value)
+        result = match;
+    else
+        result = zero;
+
+    exit:
+    double_queue_destroy(&p_double_queue);
+    return (result == expected);
+}
+
+bool test_front_add ( int (*double_queue_constructor)(double_queue **), void *value, result_t expected )
+{
+    result_t      result = 0;
+    double_queue *p_double_queue = 0;
+
+    double_queue_constructor(&p_double_queue);
+
+    result = (result_t) double_queue_front_add(p_double_queue, value);
+
+    double_queue_destroy(&p_double_queue);
+    return (result == expected);
+}
+
+bool test_rear_add ( int (*double_queue_constructor)(double_queue **), void *value, result_t expected )
+{
+    result_t      result = 0;
+    double_queue *p_double_queue = 0;
+
+    double_queue_constructor(&p_double_queue);
+
+    result = (result_t) double_queue_rear_add(p_double_queue, value);
+
+    double_queue_destroy(&p_double_queue);
+    return (result == expected);
+}
+
+bool test_front_remove ( int (*double_queue_constructor)(double_queue **), void *expected_value, size_t num_removes, result_t expected )
+{
+    result_t      result = 0;
+    double_queue *p_double_queue = 0;
+    void         *result_value = 0;
+
+    double_queue_constructor(&p_double_queue);
+    
+    for (size_t i = 0; i < num_removes; i++)
+        result = (result_t) double_queue_front_remove(p_double_queue, &result_value);
+    
+    if (result == Underflow)
+        goto exit;
+    else if (result_value == expected_value)
+        result = match;
+    else
+        result = zero;
+
+    exit:
+    double_queue_destroy(&p_double_queue);
+    return (result == expected);
+}
+
+bool test_rear_remove ( int (*double_queue_constructor)(double_queue **), void *expected_value, size_t num_removes, result_t expected )
+{
+    result_t      result = 0;
+    double_queue *p_double_queue = 0;
+    void         *result_value = 0;
+
+    double_queue_constructor(&p_double_queue);
+    
+    for (size_t i = 0; i < num_removes; i++)
+        result = (result_t) double_queue_rear_remove(p_double_queue, &result_value);
+    
+    if (result == Underflow)
+        goto exit;
+    else if (result_value == expected_value)
+        result = match;
+    else
+        result = zero;
+
+    exit:
+    double_queue_destroy(&p_double_queue);
+    return (result == expected);
+}
+
+bool test_empty ( int (*double_queue_constructor)(double_queue **), result_t expected )
+{
+    result_t      result = 0;
+    double_queue *p_double_queue = 0;
+
+    double_queue_constructor(&p_double_queue);
+
+    result = double_queue_empty(p_double_queue);
+
+    double_queue_destroy(&p_double_queue);
+    return (result == expected);
 }

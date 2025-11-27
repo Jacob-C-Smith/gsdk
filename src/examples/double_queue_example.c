@@ -9,11 +9,12 @@
 // standard library
 #include <stdio.h>
 
-// log
+// gsdk
+/// core
 #include <core/log.h>
 
-// double queue
-#include <double_queue/double_queue.h>
+/// data
+#include <data/double_queue.h>
 
 // entry point
 int main ( int argc, const char *argv[] )
@@ -73,7 +74,7 @@ int main ( int argc, const char *argv[] )
 	}
 
 	// Destroy the double queue
-	double_queue_destroy(&p_double_queue);
+	// double_queue_destroy(&p_double_queue);
 	
 	// Fill up the queue
 	double_queue_from_contents(&p_double_queue, (void **)pp_contents, 6);
@@ -100,7 +101,7 @@ int main ( int argc, const char *argv[] )
 		log_warning("\nDetected double queue underflow!\n");
 
 	// Destroy the double queue
-	double_queue_destroy(&p_double_queue);
+	// double_queue_destroy(&p_double_queue);
 
 	// success
 	return EXIT_SUCCESS;

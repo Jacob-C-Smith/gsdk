@@ -1,13 +1,13 @@
 /** !
  * Double queue implementation
  * 
- * @file double_queue.c
+ * @file src/data/double_queue/double_queue.c
  * 
  * @author Jacob Smith
  */
 
 // interface
-#include <double_queue/double_queue.h>
+#include <data/double_queue.h>
 
 // structure definitions
 struct double_queue_node_s
@@ -23,27 +23,6 @@ struct double_queue_s
                                *rear;
 	mutex _lock;
 };
-
-// Data
-static bool initialized = false;
-
-void double_queue_init ( void )
-{
-
-	if ( initialized == true ) return;
-
-	// Initialize log
-	log_init();
-
-	// Initialize sync
-	sync_init();
-
-	// Set the initialized flag
-	initialized = true;
-
-	// done
-	return;
-}
 
 int double_queue_create ( double_queue **const pp_double_queue )
 {
@@ -204,7 +183,7 @@ int double_queue_from_contents ( double_queue **const pp_double_queue, void* con
 	}
 }
 
-int double_queue_front ( const double_queue *const p_double_queue, void ** const pp_value )
+int double_queue_front ( const double_queue *const p_double_queue, void **const pp_value )
 {
 
 	// argument check
@@ -214,7 +193,7 @@ int double_queue_front ( const double_queue *const p_double_queue, void ** const
 	mutex_lock(&p_double_queue->_lock);
 
 	// state check
-	if ( double_queue_empty(p_double_queue) ) goto no_double_queue_contents;
+	if ( p_double_queue->front == 0 ) goto no_double_queue_contents;
 
 	// return a pointer to the caller
 	if ( pp_value )
@@ -244,6 +223,9 @@ int double_queue_front ( const double_queue *const p_double_queue, void ** const
 					printf("[double queue] Queue has no contents in call to function \"%s\"\n", __FUNCTION__);
 				#endif
 			
+				// unlock
+				mutex_unlock(&p_double_queue->_lock);
+
 				// error
 				return 0;
 		}
@@ -260,7 +242,7 @@ int double_queue_rear ( const double_queue *const p_double_queue, void **const p
 	mutex_lock(&p_double_queue->_lock);
 
 	// state check
-	if ( double_queue_empty(p_double_queue) ) goto no_double_queue_contents;
+	if ( p_double_queue->front == 0 ) goto no_double_queue_contents;
 
 	// return a pointer to the rear element
 	if ( pp_value )
@@ -305,17 +287,8 @@ bool double_queue_empty ( const double_queue *const p_double_queue )
 	// argument check
 	if ( p_double_queue == (void *)0 ) goto no_double_queue;
 
-	// lock
-	mutex_lock(&p_double_queue->_lock);
-
-	// initialized data
-	bool ret = ( p_double_queue->front == 0 );
-
-	// unlock
-	mutex_unlock(&p_double_queue->_lock);
-	
 	// success
-	return ret;
+	return ( p_double_queue->front == 0 );
 	
 	// error handling
 	{
@@ -628,12 +601,6 @@ int double_queue_destroy ( double_queue **const pp_double_queue )
 
 	// unlock
 	mutex_unlock(&p_double_queue->_lock);
-
-	// Empty the queue
-	while ( double_queue_empty(p_double_queue) == false )
-	{
-		double_queue_front_remove(p_double_queue, 0);
-	}	
 
 	// Free the memory
 	p_double_queue = default_allocator(p_double_queue, 0);
