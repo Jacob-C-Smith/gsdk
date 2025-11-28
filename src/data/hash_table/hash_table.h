@@ -1,7 +1,7 @@
 ﻿/** !
  * Header for hash table library
  * 
- * @file hash_table/hash_table.h 
+ * @file include/data/hash_table.h 
  *
  * @author Jacob Smith
  */
@@ -15,14 +15,28 @@
 #include <stdbool.h>
 #include <string.h>
 
-// core
+// gsdk
+/// core
 #include <core/interfaces.h>
 #include <core/log.h>
 #include <core/sync.h>
 #include <core/hash.h>
 
+// enumeration definitions
+enum collision_resolution_e 
+{
+    LINEAR_PROBE,
+    QUADRATIC_PROBE,
+    DOUBLE_HASH,
+    COLLISION_RESOLUTION_QUANTITY
+};
+
 // forward declarations
 struct hash_table_s;
+
+// type definitions
+typedef struct hash_table_s hash_table;
+typedef size_t (fn_table_hash)(hash_table *p_hash_table, void *key, size_t i);
 
 // structure definitions
 struct hash_table_s
@@ -30,6 +44,7 @@ struct hash_table_s
     fn_equality     *pfn_equality;
     fn_key_accessor *pfn_key_get;
     fn_hash64       *pfn_hash_function;
+    fn_table_hash   *pfn_table_hash;
 
     struct
     {
@@ -38,7 +53,6 @@ struct hash_table_s
     } properties;
 };
 
-typedef struct hash_table_s hash_table;
 
 // constructors
 /** !
@@ -49,7 +63,16 @@ typedef struct hash_table_s hash_table;
  * 
  * @return 1 on success, 0 on error
  */
-int hash_table_construct ( hash_table **const pp_hash_table, size_t size, fn_equality *pfn_equality, fn_key_accessor *pfn_key_get, fn_hash64 *pfn_hash_function );
+int hash_table_construct 
+(
+    hash_table **const pp_hash_table,
+    size_t size, 
+    enum collision_resolution_e _type,
+    
+    fn_equality *pfn_equality, 
+    fn_key_accessor *pfn_key_get, 
+    fn_hash64 *pfn_hash_function
+);
 
 // accessors
 /** !

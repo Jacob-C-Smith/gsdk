@@ -31,60 +31,106 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 ## Modules
 
 <b>key</b><br>
-✅ → Complete<br>
-✔️ → Needs interfaces<br>
-🧪 → Needs testing<br>
-🏗️ → Work in progress<br>
-❓ → Thinking about it
+⭐ → <b>1.0 relese</b><br>
+✔️ → <i>Needs interfaces</i><br>
+🧪 → <i>Needs testing</i><br>
+🏗️ → <i>Work in progress</i><br>
+❓ → <i>Thinking about it</i>
 <details open>
     <summary><a href="documentation/md/core.md">core</a></summary>
     <ul>
-        <li>✅ <a href="./documentation/md/core/hash.md">hash</a></li>
-        <li>✅ <a href="./documentation/md/core/pack.md">pack</a></li>
-        <li>✅ <a href="./documentation/md/core/sha.md">sha</a></li>
-        <li>✔️ <a href="./documentation/md/core/interfaces.md">interfaces</a></li>
-        <li>✔️ <a href="./documentation/md/core/log.md">log</a></li>
-        <li>🧪 <a href="./documentation/md/core/dsa.md">dsa</a></li>
-        <li>🧪 <a href="./documentation/md/core/rsa.md">rsa</a></li>
-        <li>🧪 <a href="./documentation/md/core/sync.md">sync</a></li>
-        <li>🏗️ <a href="./documentation/md/core/aes.md">aes</a></li>
-        <li>🏗️ <a href="./documentation/md/core/socket.md">socket</a></li>
+        <li>⭐ <a href="./documentation/md/core/hash.md"><b>
+            hash
+        </b></a></li>
+        <li>⭐ <a href="./documentation/md/core/pack.md"><b>
+            pack
+        </b></a></li>
+        <li>⭐ <a href="./documentation/md/core/sha.md"><b>
+            sha
+        </b></a></li>
+        <li>⭐ <a href="./documentation/md/core/sync.md"><b>
+            sync
+        </b></a></li>
+        <li>⭐ <a href="./documentation/md/core/log.md"><b>
+            log
+        </b></a></li>
+        <li>⭐ <a href="./documentation/md/core/interfaces.md"><b>
+            interfaces
+        </b></a></li>
+        <li>🧪 <a href="./documentation/md/core/dsa.md">
+            digital signatures
+        </a></li>
+        <li>🧪 <a href="./documentation/md/core/rsa.md">
+            rsa
+        </a></li>
+        <li>🏗️ <a href="./documentation/md/core/aes.md">
+            aes
+        </a></li>
+        <li>🏗️ <a href="./documentation/md/core/socket.md">
+            socket
+        </a></li>
     </ul>
 </details>
 
 <details open>
     <summary><a href="documentation/md/data.md">data</a></summary>
     <ul>
-        <li>✅ <a href="./documentation/md/data/array.md">array</a></li>
-        <li>✅ <a href="./documentation/md/data/queue.md">queue</a></li>
-        <li>✅ <a href="./documentation/md/data/stack.md">stack</a></li>
-        <li>✅ <a href="./documentation/md/data/tuple.md">tuple</a></li>
+        <li>⭐ <a href="./documentation/md/data/array.md">
+            <b>array</b>
+        </a></li>
+        <li>⭐ <a href="./documentation/md/data/bitmap.md">
+            <b>bitmap</b>
+        </a></li>
+        <li>⭐ <a href="#">
+            <b>cache</b>
+        </a></li>
+        <li>⭐ <a href="./documentation/md/data/circular_buffer.md">
+            <b>circular buffer</b>
+        </a></li>
+        <li>⭐ <a href="./documentation/md/data/dict.md">
+            <b>dict</b>
+        </a></li>
+        <li>⭐ <a href="./documentation/md/data/double_queue.md">
+            <b>double ended queue</b>
+        </a></li>
+        <li>⭐ <a href="./documentation/md/data/queue.md">
+            <b>queue</b>
+        </a></li>
+        <li>⭐ <a href="./documentation/md/data/set.md">
+            <b>set</b>
+        </a></li>
+        <li>⭐ <a href="./documentation/md/data/stack.md">
+            <b>stack</b>
+        </a></li>
+        <li>⭐ <a href="./documentation/md/data/tuple.md">
+            <b>tuple</b>
+        </a></li>
+        <li>⭐ <a href="./documentation/md/data/priority_queue.md">
+            <b>priority queue</b>
+        </a></li>
         <li>✔️ <a href="./documentation/md/data/tree.md">binary</a></li>
-        <li>✔️ <a href="./documentation/md/data/circular_buffer.md">circular buffer</a></li>
-        <li>✔️ <a href="./documentation/md/data/dict.md">dict</a></li>
-        <li>✔️ <a href="./documentation/md/data/set.md">set</a></li>
-        <li>🧪 <a href="./documentation/md/data/bitmap.md">bitmap</a></li>
-        <li>🧪 <a href="#">cache</a></li>
-        <li>🧪 <a href="./documentation/md/data/double_queue.md">double ended queue</a></li>
         <li>🧪 <a href="./documentation/md/data/node.md">node</a></li>
-        <li>🧪 <a href="./documentation/md/data/priority_queue.md">priority queue</a></li>
-        <li>🏗️ <a href="#">adjacency list</a></li>
-        <li>🏗️ <a href="#">adjacency matrix</a></li>
         <li>🏗️ <a href="./documentation/md/data/b.md">b</a></li>
-        <li>🏗️ <a href="./documentation/md/data/graph.md">graph</a></li>
-        <li>❓ <a href="#">edge list</a></li>
-        <li>❓ <a href="#">hash table</a></li>
-        <li>❓ <a href="#">avl</a></li>
-        <li>❓ <a href="#">red black</a></li>
+        <li>🏗️ <a href="#">hash table</a></li>
+        <!--<li>❓ <a href="#">adjacency list</a></li>-->
+        <!--<li>❓ <a href="#">adjacency matrix</a></li>-->
+        <!--<li>❓ <a href="./documentation/md/data/graph.md">graph</a></li>-->
+        <!--<li>❓ <a href="#">edge list</a></li>-->
+        <!--<li>❓ <a href="#">avl</a></li>-->
+        <!--<li>❓ <a href="#">red black</a></li>-->
     </ul>
 </details>
 
 <details open>
     <summary><a href="documentation/md/reflection.md">reflection</a></summary>
     <ul>
-        <li>✅ <a href="./documentation/md/reflection/base64.md">base64</a></li>
-        <li>✅ <a href="./documentation/md/reflection/json.md">json</a></li>
-        <li>🏗️ <a href="./documentation/md/reflection/http.md">http</a></li>
+        <li>⭐ <a href="./documentation/md/reflection/base64.md">
+            <b>base64</b>
+        </a></li>
+        <li>⭐ <a href="./documentation/md/reflection/json.md">
+            <b>json</b>
+        </a></li>
+        <!--<li>🏗️ <a href="./documentation/md/reflection/http.md">http</a></li>-->
     </ul>
 </details>
 
