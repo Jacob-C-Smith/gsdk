@@ -63,12 +63,14 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>🧪 <a href="./documentation/md/core/rsa.md">
             rsa
         </a></li>
+        <!--
         <li>🏗️ <a href="./documentation/md/core/aes.md">
             aes
         </a></li>
         <li>🏗️ <a href="./documentation/md/core/socket.md">
             socket
         </a></li>
+        -->
     </ul>
 </details>
 
@@ -109,9 +111,9 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
             <b>priority queue</b>
         </a></li>
         <li>✔️ <a href="./documentation/md/data/tree.md">binary</a></li>
-        <li>🧪 <a href="./documentation/md/data/node.md">node</a></li>
         <li>🏗️ <a href="./documentation/md/data/b.md">b</a></li>
         <li>🏗️ <a href="#">hash table</a></li>
+        <!--<li>🧪 <a href="./documentation/md/data/node.md">node</a></li>-->
         <!--<li>❓ <a href="#">adjacency list</a></li>-->
         <!--<li>❓ <a href="#">adjacency matrix</a></li>-->
         <!--<li>❓ <a href="./documentation/md/data/graph.md">graph</a></li>-->
@@ -138,7 +140,7 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
     <summary><a href="documentation/md/performance.md">performance</a></summary>
     <ul>
         <li>🧪 <a href="./doocumentation/performance/parallel.md">parallel</a></li>
-        <li>🏗️ <a href="./doocumentation/performance/distribute.md">distribute</a></li>
+        <!--<li>🏗️ <a href="./doocumentation/performance/distribute.md">distribute</a></li>-->
     </ul>
 </details>
 
