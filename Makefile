@@ -31,7 +31,7 @@ UTILS_DIR    = $(SRC_DIR)/utilities
 ROOT_DIR     = $(shell pwd)
 
 # Core libraries
-CORE_LIBS = interfaces log sync pack aes rsa sha digital_signature hash socket stream  
+CORE_LIBS = interfaces log sync pack aes rsa sha digital_signature hash socket
 DATA_LIBS = adjacency_list adjacency_matrix array bitmap cache circular_buffer dict double_queue b binary tuple priority_queue queue set stack red_black hash_table
 REFLECTION_LIBS = base64 json
 PERFORMANCE_LIBS = parallel distribute
@@ -87,9 +87,6 @@ $(BUILD_LIB_DIR)/socket.$(SHARED_EXT): $(wildcard $(SRC_DIR)/core/socket/*.c) | 
 
 $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT): $(wildcard $(SRC_DIR)/core/interfaces/*.c) | $(BUILD_LIB_DIR)
 	$(CC) $(CFLAGS) $(SHARED_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^
-
-$(BUILD_LIB_DIR)/stream.$(SHARED_EXT): $(wildcard $(SRC_DIR)/core/stream/*.c) | $(BUILD_LIB_DIR)
-	$(CC) $(CFLAGS) $(SHARED_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(BUILD_LIB_DIR)/rsa.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/socket.$(SHARED_EXT)
 
 # Data structures
 $(BUILD_LIB_DIR)/adjacency_list.$(SHARED_EXT): $(wildcard $(SRC_DIR)/data/adjacency_list/*.c) | $(BUILD_LIB_DIR)
@@ -184,9 +181,6 @@ $(BUILD_EXAMPLE_DIR)/digital_signature_example: $(EXAMPLES_DIR)/digital_signatur
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^
 
 $(BUILD_EXAMPLE_DIR)/sha_example: $(EXAMPLES_DIR)/sha_example.c $(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) | $(BUILD_EXAMPLE_DIR)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^
-
-$(BUILD_EXAMPLE_DIR)/stream_example: $(EXAMPLES_DIR)/stream_example.c $(BUILD_LIB_DIR)/stream.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/rsa.$(SHARED_EXT) $(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/socket.$(SHARED_EXT) | $(BUILD_EXAMPLE_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^
 
 $(BUILD_EXAMPLE_DIR)/interfaces_example: $(EXAMPLES_DIR)/interfaces_example.c $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) | $(BUILD_EXAMPLE_DIR)
@@ -288,7 +282,7 @@ $(BUILD_UTIL_DIR)/secure_socket_server: $(UTILS_DIR)/secure_socket_server.c | $(
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/rsa.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/socket.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
 $(BUILD_UTIL_DIR)/sha256_hash: $(UTILS_DIR)/sha256_hash.c | $(BUILD_UTIL_DIR)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/rsa.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/socket.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/stream.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/rsa.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/socket.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
 $(BUILD_UTIL_DIR)/secure_socket_client: $(UTILS_DIR)/secure_socket_client.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/rsa.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/socket.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
