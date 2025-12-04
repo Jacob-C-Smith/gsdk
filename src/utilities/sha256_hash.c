@@ -16,7 +16,6 @@
 // core
 #include <core/log.h>
 #include <core/sha.h>
-#include <core/stream.h>
 
 // data
 /// file for reflection
