@@ -89,7 +89,7 @@ int pack_array_of_bitmaps ( void *p_buffer, array *p_array )
 // entry point
 int main ( int argc, const char *argv[] )
 {
-
+ 
     // unused
     (void) argc, (void) argv;
 
