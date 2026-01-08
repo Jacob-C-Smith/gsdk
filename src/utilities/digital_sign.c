@@ -1,7 +1,7 @@
 /** ! 
  * Digital Signature Algorithm Example
  * 
- * @file dsa_example.c
+ * @file src/utilities/digital_sign.c
  * 
  * @author Jacob Smith
  */
@@ -118,7 +118,7 @@ int main ( int argc, const char *argv[] )
                 return EXIT_FAILURE;
         }
 
-        // dsa errors
+        // digital signature errors
         {
             failed_to_sign_message:
                 #ifndef NDEBUG

@@ -207,11 +207,8 @@ int digital_signature_verify
             return 0;
 
         failed_to_verify:
-            #ifndef NDEBUG
-                log_error("[digital signature] Signature verification failed in call to function \"%s\"\n", __FUNCTION__);
-            #endif
-            
-            // free temporaries if allocated
+        
+            // free transient allocations
             if ( p_decrypted_hash ) p_decrypted_hash = default_allocator(p_decrypted_hash, 0);
             if ( p_hash_val )       p_hash_val       = default_allocator(p_hash_val, 0);
 

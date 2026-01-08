@@ -177,7 +177,7 @@ int rpc_register
         {
             no_mem:
                 #ifndef NDEBUG
-                    log_error("[digital signature] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[rpc] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

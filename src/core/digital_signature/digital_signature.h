@@ -1,7 +1,7 @@
 /** !
  * Digital Signature 
  *
- * @file dsa.h
+ * @file src/core/digital_signature/digital_signature.h
  *
  * @author Jacob Smith
  */

@@ -57,7 +57,7 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>⭐ <a href="./documentation/md/core/interfaces.md"><b>
             interfaces
         </b></a></li>
-        <li>🧪 <a href="./documentation/md/core/dsa.md">
+        <li>🧪 <a href="./documentation/md/core/digital_signature.md">
             digital signatures
         </a></li>
         <li>🧪 <a href="./documentation/md/core/rsa.md">

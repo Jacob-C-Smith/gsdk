@@ -1,7 +1,7 @@
 /** ! 
  * Digital Signature Algorithm Example
  * 
- * @file dsa_verify.c
+ * @file src/utilities/digital_verify.c
  * 
  * @author Jacob Smith
  */
@@ -126,7 +126,7 @@ int main ( int argc, const char *argv[] )
                 return EXIT_FAILURE;
         }
 
-        // dsa errors
+        // digital signature errors
         {
             failed_to_allocate_signature:
                 #ifndef NDEBUG
