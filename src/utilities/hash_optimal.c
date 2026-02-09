@@ -112,7 +112,7 @@ int main ( int argc, const char *argv[] )
         len = strlen(_buffer);
 
         // allocate memory for the entry
-        p_string = default_allocator(0, sizeof(quasi_hash_table_property) + len * sizeof(char));
+        p_string = default_allocator(0, sizeof(quasi_hash_table_property) + len * sizeof(char) + 1);
 
         // error check
         if ( p_string == (void *) 0 ) goto failed_to_default_allocator;
