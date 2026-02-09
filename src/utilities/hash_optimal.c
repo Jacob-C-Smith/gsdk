@@ -16,8 +16,8 @@
 #include <core/sha.h>
 
 // preprocessor definitions
+// #define HASH_TABLE_OPTIMIZER_DISPLAY_MODE
 #define HASH_TABLE_OPTIMIZER_BUFFER_LENGTH_MAX 4095+1
-#define HASH_TABLE_OPTIMIZER_DISPLAY_MODE
 
 // structure definitions
 struct quasi_hash_table_entry_s
