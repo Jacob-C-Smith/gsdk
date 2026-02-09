@@ -64,6 +64,29 @@ void print_usage ( const char *argv0 );
  */
 void parse_command_line_arguments ( int argc, const char *argv[], fn_hash64 **ppfn_hash_function );
 
+/** !
+ * Compare two hash table properties by hash
+ * 
+ * @param a pointer to the first property
+ * @param b pointer to the second property
+ * 
+ * @return 1 if a > b, -1 if a < b, 0 if a == b
+ */
+int property_compare ( const void *a, const void *b )
+{
+    
+    // cast the arguments
+    const quasi_hash_table_property *p_a = *(const quasi_hash_table_property **)a;
+    const quasi_hash_table_property *p_b = *(const quasi_hash_table_property **)b;
+    
+    // compare the hashes
+    if ( p_a->hash > p_b->hash ) return 1;
+    if ( p_a->hash < p_b->hash ) return -1;
+    
+    // equal
+    return 0;
+}
+
 // entry point
 int main ( int argc, const char *argv[] )
 {
@@ -134,6 +157,25 @@ int main ( int argc, const char *argv[] )
 
         // increment the quantity of elements
         entry_quantity++;
+    }
+
+    // sort the properties by hash
+    qsort(pp_properties, entry_quantity, sizeof(quasi_hash_table_property *), property_compare);
+
+    // check for duplicate hashes
+    for (size_t i = 0; i < entry_quantity - 1; i++)
+    {
+        
+        // if the hashes are equal ...
+        if ( pp_properties[i]->hash == pp_properties[i+1]->hash )
+        {
+            
+            // ... print an error message ...
+            fprintf(stderr, "Error: Duplicate hash detected for inputs \"%s\" and \"%s\".\n", pp_properties[i]->_text, pp_properties[i+1]->_text);
+            
+            // ... and abort
+            exit(EXIT_FAILURE);
+        }
     }
     
     // store the entry quantity
