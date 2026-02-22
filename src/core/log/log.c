@@ -1,7 +1,7 @@
 /** !
  * log library
  *
- * @file log.c
+ * @file src/core/log/log.c
  *
  * @author Jacob Smith
  */
@@ -9,8 +9,8 @@
 // headers
 #include <core/log.h>
 
-// Data
-static FILE *log_file = 0;
+// data
+static FILE *log_file = NULL;
 static bool  log_with_ansi_color = false;
 static bool  initialized = false;
 
@@ -20,58 +20,47 @@ void log_init ( void )
     // state check
     if ( initialized == true ) return;
 
-    // Log to standard out
+    // log to standard out
     log_file = stdout;
     
     // ANSI color flag
     log_with_ansi_color = true;
     
-    // Flush standard out
+    // flush standard out
     fflush(stdout);
 
-    // Set the initialized flag
+    // set the initialized flag
     initialized = true;
 
     // done
     return;
 }
 
-int log_update ( const char *const path, bool ansi_color )
+int log_update ( FILE *p_f, bool ansi_color )
 {
 
     // argument check
-    if ( path == (void *) 0 ) goto log_on_standard_out;
+    if ( NULL == p_f ) goto log_on_standard_out;
 
-    // Open the file 
-    log_file = fopen(path, "w+");
-
-    // error check
-    if ( log_file == (void *) 0 ) goto no_log_file;
+    // update the log file
+    log_file = p_f;
 
     // success
     return 1;
 
     log_on_standard_out:
         
-        // Log to standard out
+        // log to standard out
         log_file = stdout;
         
         // ANSI color flag
         log_with_ansi_color = ansi_color;
         
-        // Flush standard out
+        // flush standard out
         fflush(stdout);
 
         // success
         return 1;
-
-    no_log_file:
-        #ifndef NDEBUG
-            printf("[log] Failed to open file \"%s\" in call to function \"%s\"\n", path, __FUNCTION__);
-        #endif
-
-        // error
-        return 0;
 }
 
 int log_error ( const char *const format, ... )

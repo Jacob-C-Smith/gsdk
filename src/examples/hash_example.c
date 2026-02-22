@@ -1,7 +1,7 @@
 /** !
  * Example hash program
  * 
- * @file hash_example.c
+ * @file src/examples/hash_example.c
  * 
  * @author Jacob Smith
  */

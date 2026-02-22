@@ -2,52 +2,52 @@
 
 ## Log errors, warnings, and information with pretty printing
   
- > 1 [Download](#download)
+ > 1 [Example](#example)
  >
- > 2 [Build](#build)
+ > 2 [Definitions](#definitions)
  >
- > 3 [Example](#example)
- >
- >> 3.1 [Example output](#example-output)
- >
- > 4 [Definitions](#definitions)
- >
- >> 4.1 [Function definitions](#function-definitions)
+ >> 2.1 [Enumeration definitions](#enumeration-definitions)
+ >>
+ >> 2.2 [Function declarations](#function-declarations)
 
- ## Download
- To download log, execute the following command
- ```bash
- $ git clone https://github.com/Jacob-C-Smith/log
- ```
- ## Build
- To build on UNIX like machines, execute the following commands in the same directory
- ```bash
- $ cd log
- $ cmake .
- $ make
- ```
-  This will build the example program, the tester program, and dynamic / shared libraries
-
-  To build log for Windows machines, open the base directory in Visual Studio, and build your desired target(s)
  ## Example
  To run the example program, execute this command
  ```
  $ ./log_example
  ```
- ### Example output
  
- ![](log_output.png)
- 
- [Source](main.c)
  ## Definitions
- ### Function definitions
- ```c 
- // Initializer
- int log_init ( const char *const path );
-
- // Debug logging
- int log_error   ( const char *const format, ... );
- int log_warning ( const char *const format, ... );
- int log_info    ( const char *const format, ... );
+ ### Enumeration definitions
+ ```c
+enum log_color_e
+{
+    black   = 30,
+    red     = 31,
+    green   = 32,
+    yellow  = 33,
+    blue    = 34,
+    magenta = 35,
+    cyan    = 36,
+    gray    = 37,
+};
  ```
+ 
+ ### Function declarations
+ ```c 
+// function declarations
+/// state
+int log_update ( FILE *p_f, bool ansi_color );
 
+/// logging
+int log_error   ( const char *const format, ... );
+int log_warning ( const char *const format, ... );
+int log_info    ( const char *const format, ... );
+
+/// tests
+int log_pass     ( const char *const format, ... );
+int log_fail     ( const char *const format, ... );
+int log_scenario ( const char *const format, ... );
+
+/// general
+int log_colorful ( enum log_color_e color, const char *const format, ... );
+ ```
