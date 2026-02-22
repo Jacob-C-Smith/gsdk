@@ -14,38 +14,83 @@
 #include <core/log.h>
 #include <core/hash.h>
 
+// forward declarations
+/// logs
+int checkpoint ( const char *p_event );
+
+// data
+const char _string[] = "Hi mom!";
+
+// entry point
 int main ( int argc, const char *argv[] )
 {
     
-    // Supress warnings
+    // unused
     (void) argc;
     (void) argv;
 
-    // Formatting
-    log_info("╭──────────────╮\n");
-    log_info("│ hash example │\n");
-    log_info("╰──────────────╯\n\n");
-    printf(
-        "This example hashes a string using many hashing functions. Each hash is\n"\
-        "printed to standard out.\n\n"
-    );
+    // #0 - start
+    checkpoint("start");
 
-    // initialized data
-    const char _string[] = "Hi mom!";
-    hash64 crc64 = hash_crc64(_string, sizeof(_string));
-    hash64 mmh64 = hash_mmh64(_string, sizeof(_string));
-    hash64 fvn64 = hash_fnv64(_string, sizeof(_string));
-    hash64 xxh64 = hash_xxh64(_string, sizeof(_string));
+    // #1 - Cyclic Redundancy Check
+    {
+        
+        // initialized data
+        hash64 crc64 = hash_crc64(_string, sizeof(_string));
 
-    // Print each hash
-    printf("crc64(\"%s\") = 0x%016llX\n", _string, crc64);
-    printf("fvn64(\"%s\") = 0x%016llX\n", _string, fvn64);
-    printf("mmh64(\"%s\") = 0x%016llX\n", _string, mmh64);
-    printf("xxh64(\"%s\") = 0x%016llX\n", _string, xxh64);
+        // checkpoint
+        checkpoint("Cyclic Redundancy Check");
 
-    // Formatting
-    putchar('\n');
+        // print the hash
+        printf("crc64(\"%s\") = 0x%016llX\n", _string, crc64);
+    }
+
+    // #2 - MurMur
+    {
+        
+        // initialized data
+        hash64 mmh64 = hash_mmh64(_string, sizeof(_string));
+
+        // checkpoint
+        checkpoint("MurMur");
+
+        // print the hash
+        printf("mmh64(\"%s\") = 0x%016llX\n", _string, mmh64);
+    }
+
+    // #3 - Fowler–Noll–Vo
+    {
+        
+        // initialized data
+        hash64 fvn64 = hash_fnv64(_string, sizeof(_string));
+
+        // checkpoint
+        checkpoint("Fowler-Noll-Vo");
+
+        // print the hash
+        printf("fvn64(\"%s\") = 0x%016llX\n", _string, fvn64);
+    }
+
+    // #4 - done
+    checkpoint("done");
 
     // success
     return EXIT_SUCCESS;
 }
+
+int checkpoint ( const char *p_event )
+{
+    
+    // static data
+    static int step = 0;
+    
+    // print the event
+    log_info("#%d - %s\n", step, p_event),
+    
+    // increment counter
+    step++;
+    
+    // success
+    return 1;
+}
+  
