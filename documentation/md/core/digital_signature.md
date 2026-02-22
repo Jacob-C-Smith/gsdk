@@ -1,6 +1,6 @@
 # [gsdk](../../../README.md) > [core](../core.md) > digital signature
 
-## Digital Signature
+## Sign and Verify data
 
  > 1 [Example](#example)
  >
@@ -8,17 +8,18 @@
  >
  >> 2.1 [Type definitions](#type-definitions)
  >>
- >> 2.2 [Function definitions](#function-definitions)
+ >> 2.2 [Function declarations](#function-declarations)
 
  ## Example
  To run the example program, execute this command
  ```
- ./build/examples/digital_signature_example
+ $ ./build/examples/digital_signature_example
  ```
 
  ## Definitions
- ### Function definitions
+ ### Function declarations
  ```c
+// function declarations
 /// sign
 int digital_signature_sign 
 (
