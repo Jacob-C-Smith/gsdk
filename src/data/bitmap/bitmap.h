@@ -29,7 +29,7 @@ struct bitmap_s;
 typedef struct bitmap_s bitmap;
 
 // function declarations
-// constructors
+/// constructors
 /** !
  * Allocate a bitmap
  * 
@@ -40,7 +40,7 @@ typedef struct bitmap_s bitmap;
  */
 int bitmap_construct ( bitmap **pp_bitmap, size_t bits );
 
-// accessors
+/// accessors
 /** !
  * Get the i'th bit of a bitmap
  * 
@@ -51,7 +51,7 @@ int bitmap_construct ( bitmap **pp_bitmap, size_t bits );
  */
 int bitmap_test ( bitmap *p_bitmap, size_t i );
 
-// mutators
+/// mutators
 /** !
  * Set the i'th bit of a bitmap
  * 
@@ -72,7 +72,7 @@ int bitmap_set ( bitmap *p_bitmap, size_t i );
  */
 int bitmap_clear ( bitmap *p_bitmap, size_t i );
 
-// print
+/// print
 /** !
  * Print a bitmap
  * 
@@ -82,7 +82,7 @@ int bitmap_clear ( bitmap *p_bitmap, size_t i );
  */
 int bitmap_print ( bitmap *p_bitmap );
 
-// reflection
+/// reflection
 /** !
  * Pack a bitmap into a buffer
  * 
@@ -116,7 +116,7 @@ int bitmap_unpack ( bitmap **pp_bitmap, void *p_buffer );
  */
 hash64 bitmap_hash ( bitmap *p_bitmap, fn_hash64 *pfn_hash64 );
 
-// destructors
+/// destructors
 /** !
  * Release a bitmap
  * 
