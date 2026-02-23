@@ -28,7 +28,7 @@
  >
  >> 2.1 [Type definitions](#type-definitions)
  >>
- >> 2.2 [Function definitions](#function-definitions)
+ >> 2.2 [Function declarations](#function-declarations)
 
  ## Explanation
 
@@ -160,7 +160,7 @@ typedef int    (fn_unpack) ( void              *p_value , void               *p_
 typedef hash64 (fn_hash64) ( const void *const  k       , unsigned long long  l );
 ```
 
-### Function definitions
+### Function declarations
  ```c
 // function declarations
 /// allocators

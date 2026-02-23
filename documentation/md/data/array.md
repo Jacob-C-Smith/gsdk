@@ -8,7 +8,7 @@
  >
  >> 2.1 [Type definitions](#type-definitions)
  >>
- >> 2.2 [Function definitions](#function-definitions)
+ >> 2.2 [Function declarations](#function-declarations)
 
  ## Example
  To run the example program, execute this command
@@ -21,10 +21,11 @@
 
  ### Type definitions
  ```c
- typedef struct array_s array;
+// type definitions
+typedef struct array_s array;
  ```
 
- ### Function definitions
+ ### Function declarations
 
  ```c 
 // function declarations
@@ -52,7 +53,7 @@ int array_sort ( array *p_array, fn_comparator *pfn_comparator );
 int array_map ( array *const p_array, fn_map *pfn_map, fn_allocator *pfn_allocator );
 
 /// iterators
-int array_fori ( array *p_tuple, fn_fori *pfn_fori );
+int array_fori ( array *p_array, fn_fori *pfn_fori );
 
 /// reflection
 int array_pack   ( void   *p_buffer, array *p_array , fn_pack *pfn_element );

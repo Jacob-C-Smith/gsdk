@@ -1,7 +1,7 @@
 /** ! 
  * Digital Signature 
  *
- * @file digital_signature.c
+ * @file src/core/digital_signature/digital_signature.c
  *
  * @author Jacob Smith
  */

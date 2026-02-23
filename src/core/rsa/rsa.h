@@ -1,7 +1,7 @@
 /** ! 
  * RSA (en/de)cryption with C23 BitInt
  * 
- * @file rsa.h
+ * @file src/core/rsa/rsa.h
  * 
  * @author Jacob Smith
  */

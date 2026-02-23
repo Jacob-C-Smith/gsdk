@@ -1,7 +1,7 @@
 /** ! 
  * RSA (en/de)cryption with C23 BitInt
  * 
- * @file RSA.c
+ * @file src/core/rsa/rsa.c
  * 
  * @author Jacob Smith
  */
@@ -26,9 +26,7 @@
 
 size_t file_load ( const char *path, void *buffer, bool binary_mode );
 
-// Data
-// TODO: make this an array of u16's and cast them in the code. 
-//       this is a 25KB array, and it should be a 200 byte array
+// data
 unsigned short primes[] =
 {
     2WB  , 3WB  , 5WB  , 7WB  , 11WB , 13WB , 17WB , 19WB , 23WB , 29WB , 31WB ,

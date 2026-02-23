@@ -1,7 +1,7 @@
 /** ! 
  * Cryptographic primitives
  * 
- * @file crypto_example.c
+ * @file src/examples/rsa_example.c
  * 
  * @author Jacob Smith
  */

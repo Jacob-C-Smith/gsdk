@@ -1,7 +1,7 @@
 /** !
- * Cross platform synchronization primitives 
+ * Cross platform synchronization primitives implementation
  * 
- * @file sync.c 
+ * @file src/core/sync/sync.c 
  * 
  * @author Jacob Smith
  */

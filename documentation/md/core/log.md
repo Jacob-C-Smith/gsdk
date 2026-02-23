@@ -13,7 +13,7 @@
  ## Example
  To run the example program, execute this command
  ```
- $ ./log_example
+ $ ./build/examples/log_example
  ```
  
  ## Definitions

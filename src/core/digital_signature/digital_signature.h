@@ -18,6 +18,7 @@
 #include <core/sha.h>
 
 // function declarations
+/// sign
 /** !
  * Sign a block of data with a private key
  *
@@ -37,6 +38,7 @@ int digital_signature_sign
     void        **pp_signature
 );
 
+/// verify
 /** !
  * Verify a signature with a public key
  *

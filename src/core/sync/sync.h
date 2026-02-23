@@ -1,7 +1,7 @@
 /** !
- * Header for cross platform synchronization primitives 
+ * Cross platform synchronization primitives interface
  * 
- * @file sync/sync.h 
+ * @file src/core/sync/sync.h 
  * 
  * @author Jacob Smith 
  */
@@ -71,10 +71,11 @@
 
 #endif
 
-// Typedefs
+// type definitions
 typedef signed long long timestamp;
 
-// initializer
+// function declarations
+/// initializer
 /** !
  * This gets called at runtime before main. 
  * 
@@ -84,7 +85,7 @@ typedef signed long long timestamp;
  */
 void sync_init ( void ) __attribute__((constructor));
 
-// Timer
+/// timer
 /** !
  * Get a high precision time stamp. Compute differences,
  * and use the SYNC_TIMER_DIVISOR constant to convert 
@@ -113,6 +114,7 @@ timestamp timer_high_precision ( void );
  */
 signed timer_seconds_divisor ( void );
 
+/// mutex
 /** !
  * Create a mutex
  * 
@@ -291,6 +293,7 @@ int mutex_destroy ( mutex *p_mutex );
 //  */
 // int rwlock_destroy ( rwlock *p_rwlock );
 
+/// semaphore
 /** !
  * Create a semaphore
  * 
@@ -347,6 +350,7 @@ int semaphore_signal ( semaphore _semaphore );
  */
 int semaphore_destroy ( semaphore *p_semaphore );
 
+/// condition variable
 /** !
  * Create a condition variable
  * 
@@ -416,6 +420,7 @@ int condition_variable_broadcast ( condition_variable *const p_condition_variabl
  */
 int condition_variable_destroy ( condition_variable *p_condition_variable );
 
+/// monitor
 /** !
  * Create a monitor
  * 
@@ -506,7 +511,7 @@ int monitor_destroy ( monitor *p_monitor );
 //  */
 // int barrier_destroy ( barrier *p_barrier );
 
-// cleanup
+/// cleanup
 /** !
  * This gets called at runtime after main
  * 
