@@ -17,7 +17,8 @@
 #include <core/log.h>
 #include <core/sync.h>
 
-// Encode
+// function declarations
+/// encode
 /** !
  * Encode len bytes of data in base 64, and store in p_output
  * 
@@ -31,7 +32,7 @@
  */
 int base64_encode ( const void *const p_data, size_t len, char *const p_output );
 
-// Decode
+/// decode
 /** !
  * Decode len bytes of base 64 data, and store in p_output
  * 
