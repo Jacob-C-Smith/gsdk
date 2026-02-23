@@ -15,7 +15,7 @@
  >
  >> 4.1 [Type definitions](#type-definitions)
  >>
- >> 4.2 [Function definitions](#function-definitions)
+ >> 4.2 [Function declarations](#function-declarations)
 
  ## Download
  To download base64, execute the following command
@@ -47,7 +47,7 @@
  TODO
  ```
 
- ### Function definitions
+ ### Function declarations
  ```c 
 TODO
  ```

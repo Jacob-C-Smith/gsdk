@@ -16,7 +16,7 @@
  >
  >> 5.1 [Type definitions](#type-definitions)
  >>
- >> 5.2 [Function definitions](#f
+ >> 5.2 [Function declarations](#function-declarations)
  
  ## Download
  To download set, execute the following command
@@ -46,7 +46,7 @@
  ```c
  typedef struct set_s set;
  ```
- ### Function definitions
+ ### Function declarations
  ```c
 // allocaters
 int set_create ( set **const pp_set );

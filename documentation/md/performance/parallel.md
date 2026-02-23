@@ -12,25 +12,7 @@
  >>
  >> 2.2 [Function definitions](#function-definitions)
 
- ## Download
- To download parallel, execute the following command
- ```bash
- $ git clone https://github.com/Jacob-C-Smith/parallel
- ```
- ## Build
- To build on UNIX like machines, execute the following commands in the same directory
- ```bash
- $ cd parallel
- $ git submodule update --init
- $ cmake .
- $ make
- ```
-  This will build the example program, the tester program, and dynamic / shared libraries
-
-  To build parallel for Windows machines, open the base directory in Visual Studio, and build your desired target(s)
  ## Example
- **NOTE: You may have to copy the ```schedule.json``` file to the ```build``` directory.**
- 
  To run the example program, execute the following commands
  ```bash
  $ ./parallel_example

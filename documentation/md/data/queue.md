@@ -8,7 +8,7 @@
  >
  >> 2.1 [Type definitions](#type-definitions)
  >>
- >> 2.2 [Function definitions](#function-definitions)
+ >> 2.2 [Function declarations](#function-declarations)
 
  ## Example
 
@@ -25,7 +25,7 @@
  typedef struct queue_s queue;
  ```
 
- ### Function definitions
+ ### Function declarations
 
  ```c 
 // function declarations

@@ -9,7 +9,7 @@
  >
  >> 2.1 [Type definitions](#type-definitions)
  >>
- >> 2.2 [Function definitions](#function-definitions)
+ >> 2.2 [Function declarations](#function-declarations)
 
  ## Example
  To run the example program, execute this command
@@ -29,7 +29,7 @@
  typedef int (priority_queue_equal_fn)(const void *const p_a, const void *const p_b);
  ```
 
- ### Function definitions
+ ### Function declarations
  ```c 
 // allocaters
 int priority_queue_create ( priority_queue **const pp_priority_queue );

@@ -8,7 +8,7 @@
  >
  >> 2.1 [Type definitions](#type-definitions)
  >>
- >> 2.2 [Function definitions](#function-definitions)
+ >> 2.2 [Function declarations](#function-declarations)
 
  ## Example
  To run the example program, execute this command
@@ -24,7 +24,7 @@
  typedef struct cache_s cache;
  ```
 
- ### Function definitions
+ ### Function declarations
 
  ```c 
 // function declarations 

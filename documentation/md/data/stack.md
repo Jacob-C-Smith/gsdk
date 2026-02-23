@@ -8,7 +8,7 @@
  >
  >> 2.1 [Type definitions](#type-definitions)
  >>
- >> 2.2 [Function definitions](#function-definitions)
+ >> 2.2 [Function declarations](#function-declarations)
 
  ## Example
 
@@ -24,7 +24,7 @@
  typedef struct stack_s stack;
  ```
 
- ### Function definitions
+ ### Function declarations
 
  ```c 
 // constructors 

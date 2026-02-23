@@ -16,7 +16,7 @@
  >
  >> 5.1 [Type definitions](#type-definitions)
  >>
- >> 5.2 [Function definitions](#function-definitions)
+ >> 5.2 [Function declarations](#function-declarations)
 
  ## Download
  To download double-queue, execute the following command
@@ -55,7 +55,7 @@ TODO:
  ```c
  typedef struct double_queue_s double_queue;
  ```
- ### Function definitions
+ ### Function declarations
  ```c 
 // allocaters
 int double_queue_create ( double_queue **const pp_double_queue );

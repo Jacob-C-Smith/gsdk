@@ -12,7 +12,7 @@
  >
  >> 3.1 [Type definitions](#type-definitions)
  >>
- >> 3.2 [Function definitions](#function-definitions)
+ >> 3.2 [Function definitions](#function-declarations)
 
  ## Commentary
  - I implemented the dictionary using a hash table.
@@ -56,7 +56,7 @@ Fish
  ```c
  typedef struct dict_s dict;
  ```
- ### Function definitions
+ ### Function declarations
  ```c 
  // allocaters
  int dict_create ( dict **pp_dict );

@@ -7,7 +7,7 @@
  >
  >> 2.1 [Type definitions](#type-definitions)
  >>
- >> 2.2 [Function definitions](#function-definitions)
+ >> 2.2 [Function declarations](#function-declarations)
 
  ## Example
  To run the example program, execute this command
@@ -19,8 +19,9 @@
  ```c
  typedef struct tuple_s tuple;
  ```
- ### Function definitions
+ ### Function declarations
  ```c 
+// function declarations
 /// constructors
 int tuple_from_elements  ( tuple **const pp_tuple, void *const *const elements     , size_t size );
 int tuple_from_arguments ( tuple **const pp_tuple, size_t             element_count, ... );

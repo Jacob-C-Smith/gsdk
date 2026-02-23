@@ -2,44 +2,21 @@
 
  ## A JSON parser / serializer written in C. 
  
- > 1 [Download](#download)
+ > 1 [Example](#example)
  >
- > 2 [Build](#build)
- >
- > 3 [Example](#example)
- >
- >> 3.1 [Example input](#example-input)
+ >> 1.1 [Example input](#example-input)
  >>
- >> 3.2 [Example output](#example-output)
+ >> 1.2 [Example output](#example-output)
  >
- > 4 [Tester](#tester)
+ > 2 [Tester](#tester)
  >
- > 5 [Definitions](#definitions)
+ > 3 [Definitions](#definitions)
  >
- >> 5.1 [Type definitions](#type-definitions)
+ >> 3.1 [Type definitions](#type-definitions)
  >>
- >> 5.2 [Function definitions](#function-definitions)
- >>
- >> 5.3 [Macro definitions](#macro-definitinos)
+ >> 3.2 [Function declarations](#function-declarations)
 
- ## Download
- To download json, execute the following command
- ```bash
- $ git clone https://github.com/Jacob-C-Smith/json --recurse-submodules
- ```
-
- ## Build
- To build on UNIX like machines, execute the following commands in the same directory
- ```bash
- $ cd json
- $ cmake .
- $ make
- ```
-  This will build the example program, and dynamic / shared libraries
-
-  To build json for Windows machines, open the base directory in Visual Studio, and build your desired target(s)
  ## Example
- **NOTE: If you are running the tester program on Windows, you may have to copy example files to the ```Debug``` or ```Release``` directories.**
  The example program parses the input file, and writes the parsed tokens to stdout. To run the example program, execute this command.
  ```
  ./json_example file1.json [file2.json ... fileN.json]
@@ -75,8 +52,6 @@
  [Source](main.c)
  
  ## Tester
- **NOTE: If you are running the tester program on Windows, you may have to copy the ```serial test cases``` and ```parse test cases``` directories to the ```Debug``` or ```Release``` directories.**
-
  To run the tester program, execute this command after building
  ```
  $ ./json_test
@@ -90,7 +65,7 @@
  ```c
  typedef struct json_value_s json_value;
  ```
- ### Function definitions
+ ### Function declarations
 
  ```c
 // Parser
