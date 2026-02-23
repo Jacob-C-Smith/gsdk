@@ -1,7 +1,7 @@
 /** !
  * Implementation of pack interface
  * 
- * @file pack.c
+ * @file src/core/pack/pack.c
  * 
  * @author Jacob Smith
  */
@@ -21,7 +21,7 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
     va_list list;
     size_t read = 0, written = 0, format_specifier_length = 1;
 
-    // Construct the variadic list
+    // construct the variadic list
     va_start(list, format);
     
     parse_format_specifier:
@@ -30,32 +30,32 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
     while ( format[read] )
     {
 
-        // Parse format characters
+        // parse format characters
         if ( format[read] == '%' )
         {
 
-            // Increment the index
+            // increment the index
             read++;
 
             continue_parsing_format_specifier:
 
-            // Strategy
+            // strategy
             switch ( format[read] )
             {
 
-                // Length
+                // length
                 case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
 
-                    // Parse the quantity of values
+                    // parse the quantity of values
                     goto parse_len;
 
-                    // Continue reading format specifiers
+                    // continue reading format specifiers
                     done_reading_format_specifier_length: goto continue_parsing_format_specifier;
                 
-                // Float
+                // float
                 case 'f':
 
-                    // Increment the read index
+                    // increment the read index
                     read++;
 
                     // 32-bit value
@@ -64,16 +64,16 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
                     // 64-bit value
                     else if ( format[read] == '6' && format[read + 1] == '4') goto write_f64;
                     
-                    // Default
+                    // default
                     else return 0;
 
                     // done
                     break;
 
-                // Integer
+                // integer
                 case 'i':
 
-                    // Increment the read index
+                    // increment the read index
                     read++;
 
                     // 8-bit value
@@ -88,21 +88,22 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
                     // 64-bit value
                     else if ( format[read] == '6' && format[read + 1] == '4' )  goto write_64;
 
-                    // Default
+                    // default
                     else
                         return 0;
 
                     // done
                     break;
 
-                // String (maximum 65535)
+                // string (maximum 65535)
                 case 's': 
 
-                    // Increment the read index
+                    // increment the read index
                     read++;
 
                     // Write the string
                     goto write_str;
+
                 default:
 
                     // done
@@ -110,7 +111,7 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
             }
         }
         
-        // Increment the index
+        // increment the index
         read++;
 	}
 
@@ -127,7 +128,7 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
         // store the length of the format specifier
         format_specifier_length = atoi(&format[read]);
 
-        // Update the read index
+        // update the read index
         while (isdigit(format[++read]));
 
         // done
@@ -148,17 +149,17 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
             // store the value
             *((char *)p_buffer) = c;
             
-            // Update the buffer and written byte counter
+            // update the buffer and written byte counter
             p_buffer += sizeof(char), written += sizeof(char);
         }
 
-        // Reset the format specifier length
+        // reset the format specifier length
         format_specifier_length = 1;
         
-        // Update the read index
+        // update the read index
         read++;
 
-        // Continue
+        // continue
         goto parse_format_specifier;
     }
 
@@ -176,17 +177,17 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
             // store the value
             *((short *)p_buffer) = s;
             
-            // Update the buffer and written byte counter
+            // update the buffer and written byte counter
             p_buffer += sizeof(short), written += sizeof(short);
         }
 
-        // Reset the format specifier length
+        // reset the format specifier length
         format_specifier_length = 1;
 
-        // Update the read index
+        // update the read index
         read += 2;
 
-        // Continue
+        // continue
         goto parse_format_specifier;
     }
     
@@ -204,17 +205,17 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
             // store the value
             *((int *)p_buffer) = l;
             
-            // Update the buffer and written byte counter
+            // update the buffer and written byte counter
             p_buffer += sizeof(int), written += sizeof(int);
         }
 
-        // Reset the format specifier length
+        // reset the format specifier length
         format_specifier_length = 1;
 
-        // Update the read index
+        // update the read index
         read += 2;
 
-        // Continue
+        // continue
         goto parse_format_specifier;
     }
 
@@ -232,17 +233,17 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
             // store the value
             *((long *)p_buffer) = l;
             
-            // Update the buffer and written byte counter
+            // update the buffer and written byte counter
             p_buffer += sizeof(long), written += sizeof(long);
         }
 
-        // Reset the format specifier length
+        // reset the format specifier length
         format_specifier_length = 1;
 
-        // Update the read index
+        // update the read index
         read += 2;
 
-        // Continue
+        // continue
         goto parse_format_specifier;
     }
 
@@ -260,17 +261,17 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
             // store the value
             *((float *)p_buffer) = f;
             
-            // Update the buffer and written byte counter
+            // update the buffer and written byte counter
             p_buffer += sizeof(float), written += sizeof(float);
         }
 
-        // Reset the format specifier length
+        // reset the format specifier length
         format_specifier_length = 1;
 
-        // Update the read index
+        // update the read index
         read += 2;
 
-        // Continue
+        // continue
         goto parse_format_specifier;
     }
     
@@ -288,17 +289,17 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
             // store the value
             *((double *)p_buffer) = d;
             
-            // Update the buffer and written byte counter
+            // update the buffer and written byte counter
             p_buffer += sizeof(double), written += sizeof(double);
         }
 
-        // Reset the format specifier length
+        // reset the format specifier length
         format_specifier_length = 1;
         
-        // Update the read index
+        // update the read index
         read += 2;
 
-        // Continue
+        // continue
         goto parse_format_specifier;
     }
 
@@ -320,20 +321,20 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
             // store the length
             *((unsigned short *)p_buffer) = (unsigned short) len;
 
-            // Update the buffer and written byte counter
+            // update the buffer and written byte counter
             p_buffer += sizeof(unsigned short), written += sizeof(unsigned short);
             
             // store the value
             memcpy(p_buffer, s, len);
 
-            // Update the buffer and written byte counter
+            // update the buffer and written byte counter
             p_buffer += len, written += len;
         }
 
-        // Reset the format specifier length
+        // reset the format specifier length
         format_specifier_length = 1;
 
-        // Continue
+        // continue
         goto parse_format_specifier;
     }
     
@@ -372,7 +373,7 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
     va_list list;
     size_t read = 0, written = 0, format_specifier_length = 1;
 
-    // Construct the variadic list
+    // construct the variadic list
     va_start(list, format);
     
     parse_format_specifier:
@@ -381,11 +382,11 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
     while ( format[read] )
     {
 
-        // Parse format characters
+        // parse format characters
         if ( format[read] == '%' )
         {
 
-            // Increment the index
+            // increment the index
             read++;
 
             continue_parsing_format_specifier:
@@ -397,16 +398,16 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
                 // Length
                 case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
 
-                    // Parse the quantity of values
+                    // parse the quantity of values
                     goto parse_len;
 
-                    // Continue reading format specifiers
+                    // continue reading format specifiers
                     done_reading_format_specifier_length: goto continue_parsing_format_specifier;
                 
                 // Float
                 case 'f':
 
-                    // Increment the read index
+                    // increment the read index
                     read++;
 
                     // 32-bit value
@@ -415,7 +416,7 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
                     // 64-bit value
                     else if ( format[read] == '6' && format[read + 1] == '4') goto read_f64;
                     
-                    // Default
+                    // default
                     else return 0;
 
                     // done
@@ -424,7 +425,7 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
                 // Integer
                 case 'i':
 
-                    // Increment the read index
+                    // increment the read index
                     read++;
 
                     // 8-bit value
@@ -439,19 +440,19 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
                     // 64-bit value
                     else if ( format[read] == '6' && format[read + 1] == '4' ) goto read_64;
 
-                    // Default
+                    // default
                     else return 0;
 
                     // done
                     break;
 
-                // String (maximum 65535)
+                // string (maximum 65535)
                 case 's': 
 
-                    // Increment the read index
+                    // increment the read index
                     read++;
 
-                    // Write the string
+                    // write the string
                     goto read_str;
                 default:
 
@@ -460,7 +461,7 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
             }
         }
         
-        // Increment the index
+        // increment the index
         read++;
 	}
 
@@ -477,7 +478,7 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
         // store the length of the format specifier
         format_specifier_length = atoi(&format[read]);
 
-        // Update the read index
+        // update the read index
         while (isdigit(format[++read]));
 
         // done
@@ -498,21 +499,21 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
             // store the value
             *c = *(char *)p_buffer;
             
-            // Update the buffer and written byte counter
+            // update the buffer and written byte counter
             p_buffer += sizeof(char), written += sizeof(char);
         }
 
-        // Reset the format specifier length
+        // reset the format specifier length
         format_specifier_length = 1;
         
-        // Update the read index
+        // update the read index
         read++;
 
-        // Continue
+        // continue
         goto parse_format_specifier;
     }
 
-    // This branch writes shorts 
+    // This branch reads shorts 
     read_16:
     {
 
@@ -526,21 +527,21 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
             // store the value
             *s = *(short *)p_buffer;
             
-            // Update the buffer and written byte counter
+            // update the buffer and written byte counter
             p_buffer += sizeof(short), written += sizeof(short);
         }
 
-        // Reset the format specifier length
+        // reset the format specifier length
         format_specifier_length = 1;
 
-        // Update the read index
+        // update the read index
         read += 2;
 
-        // Continue
+        // continue
         goto parse_format_specifier;
     }
     
-    // This branch writes ints 
+    // This branch reads ints 
     read_32:
     {
 
@@ -554,21 +555,21 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
             // store the value
             *l = *(int *)p_buffer;
             
-            // Update the buffer and written byte counter
+            // update the buffer and written byte counter
             p_buffer += sizeof(int), written += sizeof(int);
         }
 
-        // Reset the format specifier length
+        // reset the format specifier length
         format_specifier_length = 1;
 
-        // Update the read index
+        // update the read index
         read += 2;
 
-        // Continue
+        // continue
         goto parse_format_specifier;
     }
 
-    // This branch writes longs 
+    // This branch reads longs 
     read_64:
     {
 
@@ -582,17 +583,17 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
             // store the value
             *l = *(long *)p_buffer;
             
-            // Update the buffer and written byte counter
+            // update the buffer and written byte counter
             p_buffer += sizeof(long), written += sizeof(long);
         }
 
-        // Reset the format specifier length
+        // reset the format specifier length
         format_specifier_length = 1;
 
-        // Update the read index
+        // update the read index
         read += 2;
 
-        // Continue
+        // continue
         goto parse_format_specifier;
     }
 
@@ -610,21 +611,21 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
             // store the value
             *f = *(float *)p_buffer;
             
-            // Update the buffer and written byte counter
+            // update the buffer and written byte counter
             p_buffer += sizeof(float), written += sizeof(float);
         }
 
-        // Reset the format specifier length
+        // reset the format specifier length
         format_specifier_length = 1;
 
-        // Update the read index
+        // update the read index
         read += 1;
 
-        // Continue
+        // continue
         goto parse_format_specifier;
     }
     
-    // This branch writes f64s
+    // This branch reads f64s
     read_f64:
     {
 
@@ -638,21 +639,21 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
             // store the value
             *d = *(double *)p_buffer;
             
-            // Update the buffer and written byte counter
+            // update the buffer and written byte counter
             p_buffer += sizeof(double), written += sizeof(double);
         }
 
-        // Reset the format specifier length
+        // reset the format specifier length
         format_specifier_length = 1;
         
-        // Update the read index
+        // update the read index
         read += 2;
 
-        // Continue
+        // continue
         goto parse_format_specifier;
     }
 
-    // This branch writes strings 
+    // This branch reads strings 
     read_str:
     {
 
@@ -667,15 +668,15 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
             // store the value
             memcpy(s, p_buffer + 2, len);
 
-            // Update the buffer and written byte counter
+            // update the buffer and written byte counter
             p_buffer += ( len + 2 ),
             written  += ( len + 2 );
         }
 
-        // Reset the format specifier length
+        // reset the format specifier length
         format_specifier_length = 1;
 
-        // Continue
+        // continue
         goto parse_format_specifier;
     }
     

@@ -12,26 +12,61 @@
 #include <string.h>
 #include <stdbool.h>
 
-// core
+// gsdk
+/// core
 #include <core/log.h>
-
-// reflection
 #include <core/pack.h>
 
-// Preprocessor macros
-#define HEX_DUMP_COLUMNS 4
-#define RESET() (i = 0, p_f = NULL, memset(_buf, 0, sizeof(_buf)))
+// preprocessor macros
+#define HEX_DUMP_COLUMNS 16
+#define HEX_DUMP_SPACING 8
+
+// type definitions
+typedef int (fn_unpack_log)(void *p_value);
+typedef struct
+{
+    char _name[15+1];
+    unsigned char age;
+    unsigned short height_mm;
+    char __interests[3][32];
+} person;
 
 // forward declarations
-/** !
- * Print raw data
- * 
- * @param p_buf the data
- * @param len   the quantity of bytes to print
- * 
- * @return 1 on success, 0 on error
- */
-int print_raw ( void *p_buf, size_t len );
+/// logs
+int checkpoint        ( const char *p_event );
+int pack_checkpoint   ( char (*p_buffer)[64], size_t written, const char *p_event );
+int unpack_checkpoint ( size_t read, const char *p_event );
+
+/// person
+int person_pack   ( void *p_buffer, person *p_person );
+int person_unpack ( person *p_person, void *p_buffer );
+int person_print  ( person *p_person );
+
+// static data
+static int step = 0;
+
+// data
+/// buffers
+char _buf[64] = { 0 };
+char _person_buffer[1024] = { 0 };
+
+/// counters
+size_t i = 0;
+
+/// person
+person _person = 
+{
+    ._name = "Jacob",
+    .age = 23,
+    .height_mm = 1829,
+    .__interests = 
+    {
+        [0] = "programming",
+        [1] = "organic chemistry",
+        [2] = "sociology"
+    }
+};
+
 
 // entry point
 int main ( int argc, const char *argv[] )
@@ -41,258 +76,462 @@ int main ( int argc, const char *argv[] )
     (void) argc;
     (void) argv;
 
-    // Formatting
-    log_info("╭──────────────╮\n");
-    log_info("│ pack example │\n");
-    log_info("╰──────────────╯\n");
-    printf("The pack library provides abstractions for packing data into a binary format\n");
-    printf("Pack provides 2 abstractions. Pack, and unpack.\n");
-    printf("Pack is used to serialize data into a binary format.\n");
-    printf("Unpack is used to parse binary data into usable data.\n\n");
+    // #0 - start
+    checkpoint("start");
+    
+    // #1 - pack bytes
+    {
+        
+        // pack
+        i = pack_pack(&_buf[i], "%3i8", 'a', 'b', 'c');
+        
+        // checkpoint
+        pack_checkpoint(_buf, i, "pack > bytes");
+    }
+    
+    // #2 - pack shorts
+    {
+        
+        // pack
+        i = pack_pack(&_buf[i], "%2i16", 31415, 27182);
+        
+        // checkpoint
+        pack_checkpoint(_buf, i, "pack > shorts");
+    }
+    
+    // #3 - pack integers
+    {
+        
+        // pack
+        i = pack_pack(&_buf[i], "%3i32", 3141592, 2718281, 0x5555AAAA);
+        
+        // checkpoint
+        pack_checkpoint(_buf, i, "pack > integers");
+    }
+    
+    // #4 - pack longs
+    {
+        
+        // pack
+        i = pack_pack(&_buf[i], "%2i64", 1618033988749, 0x0123456789ABCDEF);
+        
+        // checkpoint
+        pack_checkpoint(_buf, i, "pack > longs");
+    }
 
-    // initialized data
-    char _buf[512] = { 0 };
-    FILE *p_f = NULL;
-    size_t i = 0;
+    // #5 - pack floats
+    {
+        
+        // pack
+        i = pack_pack(&_buf[i], "%3f32", 0.125f, 0.25f, 0.5f);
+        
+        // checkpoint
+        pack_checkpoint(_buf, i, "pack > floats");
+    }
+    
+    // #6 - pack double
+    {
+        
+        // pack
+        i = pack_pack(&_buf[i], "%f64", 0.000000000066743);
+        
+        // checkpoint
+        pack_checkpoint(_buf, i, "pack > double");
+    }
+    
+    // #7 - pack strings
+    {
 
-    // Formatting
-    log_info("╭─────────────────╮\n");
-    log_info("│ general example │\n");
-    log_info("╰─────────────────╯\n");
+        // pack
+        i = pack_pack(&_buf[i], "%3s", "Hello, World!", "Hi Mom!", "Hi Dad");
 
-    // General use
+        // checkpoint
+        pack_checkpoint(_buf, i, "pack > strings");
+    }
+
+    // #8 - unpack bytes
     {
 
         // initialized data
-        char      __strings[3][16] = { 0 };
-        char      _chars[3] = { 0 };
-        short     s = 0;
-        int       z = 0;
-        long long l = 0;
-        float     _f32x2[2] = { 0 };
-        double    _f64x2[2] = { 0 };
+        char _bytes[] = { 'c', 'b', 'a' };
+        char a = 0, b = 0, c = 0;
 
-        // Pack some data
-        i += pack_pack(&_buf[i], "%3s"           , "Hello, World!", "Hi Mom!", "Hi Dad");
-        i += pack_pack(&_buf[i], "%3i8"          , 'a', 'b', 'c');
-        i += pack_pack(&_buf[i], "%i16 %i32 %i64", 31415, 2718281, 1618033988749);
-        i += pack_pack(&_buf[i], "%2f32"         , 3.1415927f, 6.2831855f);
-        i += pack_pack(&_buf[i], "%2f64"         , 3.141592653589793, 6.283185307179586);
-        
-        // Unpack the data
-        pack_unpack(_buf, "%3s %3i8 %i16 %i32 %i64 %2f32 %2f64",
-            &__strings[0], &__strings[1], &__strings[2],
-            &_chars[0]   , &_chars[1]   , &_chars[2],
-            &s, &z, &l,
-            &_f32x2[0], &_f32x2[1], 
-            &_f64x2[0], &_f64x2[1]
+        // unpack
+        i = pack_unpack(_bytes, "%3i8", 
+            &c, &b, &a
         );
 
-        // Print the data
-        printf("strings: \"%s\", \"%s\", \"%s\"\n", __strings[0], __strings[1], __strings[2]);
-        printf("chars  : '%c', '%c', '%c'\n", _chars[0]   , _chars[1]   , _chars[2]);
-        printf("ints   : %hi, %i, %lli\n", s, z, l);
-        printf("f32x2  : %.5f, %.5f\n", _f32x2[0], _f32x2[1]);
-        printf("f64x2  : %.10lf, %.10lf\n\n", _f64x2[0], _f64x2[1]);
+        // checkpoint
+        unpack_checkpoint(i, "unpack > bytes");
 
+        // print the reflected data
+        printf("%c, %c, %c\n", a, b, c);
+
+        // formatting
+        putchar('\n');
     }
 
-    // Reset
-    RESET();
+    // #9 - unpack shorts
+    {
 
-    // // Formatting
-    // log_info("╭─────────────────╮\n");
-    // log_info("│ packing example │\n");
-    // log_info("╰─────────────────╯\n");
+        // initialized data
+        short _shorts[] = { 31415, 27182 };
+        short s = 0, t = 0;
 
-    // // Pack a struct 
-    // {
+        // unpack
+        i = pack_unpack(_shorts, "%2i16", 
+            &s, &t
+        );
+
+        // checkpoint
+        unpack_checkpoint(i, "unpack > shorts");
+
+        // print the reflected data
+        printf("%hi, %hi\n", s, t);
+
+        // formatting
+        putchar('\n');
+    }
+
+    // #10 - unpack ints
+    {
+
+        // initialized data
+        int _ints[] = { 3141592, 2718281, 0x5555AAAA };
+        int n = 0, o = 0, p = 0;
+
+        // unpack
+        i = pack_unpack(_ints, "%3i32", 
+            &n, &o, &p
+        );
+
+        // checkpoint
+        unpack_checkpoint(i, "unpack > ints");
+
+        // print the reflected data
+        printf("%i, %i, %i\n", n, o, p);
+
+        // formatting
+        putchar('\n');
+    }
+
+    // #10 - unpack longs
+    {
+
+        // initialized data
+        long _longs[] = { 1618033988749, 0x0123456789ABCDEF };
+        int l = 0, m = 0;
+
+        // unpack
+        i = pack_unpack(_longs, "%2i64", 
+            &l, &m
+        );
+
+        // checkpoint
+        unpack_checkpoint(i, "unpack > longs");
+
+        // print the reflected data
+        printf("%lli, %lli\n", l, m);
+
+        // formatting
+        putchar('\n');
+    }
+    
+    // #11 - unpack floats
+    {
+
+        // initialized data
+        float _floats[] = { 0.125f, 0.25f, 0.5f };
+        float f = 0, g = 0, h = 0;
+
+        // unpack
+        i = pack_unpack(_floats, "%3i32", 
+            &f, &g, &h
+        );
+
+        // checkpoint
+        unpack_checkpoint(i, "unpack > floats");
+
+        // print the reflected data
+        printf("%g, %g, %g\n", f, g, h);
+
+        // formatting
+        putchar('\n');
+    }
+
+    // #12 - unpack double
+    {
+
+        // initialized data
+        double d = 0.000000000066743;
+        double e = 0;
+
+        // unpack
+        i = pack_unpack(&d, "%i64", &e);
+
+        // checkpoint
+        unpack_checkpoint(i, "unpack > double");
+
+        // print the reflected data
+        printf("%lg\n", e);
+
+        // formatting
+        putchar('\n');
+    }
+
+    // #13 - unpack strings
+    {
+
+        // initialized data
+        char _b[] = { 5, 0, 'E', 'd', 'd', 'y', 0, 5, 0, 'N', 'a', 'm', 'i', 0 };
+        char _eddy[5] = { 0 };
+        char _nami[5] = { 0 };
+
+        // unpack
+        i = pack_unpack(_b, "%2s", _eddy, _nami);
+
+        // checkpoint
+        unpack_checkpoint(i, "unpack > strings");
+
+        // print the reflected data
+        printf("%s %s\n", _eddy, _nami);
+
+        // formatting
+        putchar('\n');
+    }
+
+    // #14 - pack struct
+    {
+
+        // pack
+        i = person_pack(_person_buffer, &_person);
+
+        // checkpoint
+        pack_checkpoint(_person_buffer, i, "pack > person");
+    }
+
+    // #15 - unpack struct
+    {
         
-    //     // initialized data
-    //     vec3 _vec3 = { .x = 4.f, .y = 3.f, .z = 5.f };
- 
-    //     // Formatting
-    //     printf("pack( vec3(");
-    //     vec3_print(_vec3);
-    //     printf(") )");
+        // clear the person
+        _person = (person){ 0 };
 
-    //     // Open a file
-    //     p_f = fopen("../vec3.bin", "w+");
+        // unpack
+        i = person_unpack(&_person, &_person_buffer);
 
-    //     // Pack
-    //     i = pack("vec3", &_buf, &_vec3);
+        // checkpoint
+        unpack_checkpoint(i, "unpack > person");
 
-    //     // Write the binary data to the output file
-    //     fwrite(&_buf, 1, i, p_f);
+        // print the person
+        person_print(&_person);
+    }
 
-    //     // Close the file
-    //     fclose(p_f);
-
-    //     // Formatting
-    //     printf(" ->\n");
-    //     print_raw(_buf, i);
-    // }
-
-    // // Reset
-    // RESET();
-
-    // // Pack a nested struct
-    // {
-
-    //     // initialized data
-    //     transform _transform = 
-    //     {
-    //         .loc = { .x = 4.f , .y =   3.f, .z = 5.f },
-    //         .rot = { .x = 90.f, .y = -30.f, .z = -45.f },
-    //         .sca = { .x = 1.f , .y =   1.f, .z = 1.f }
-    //     };
-        
-    //     // Formatting
-    //     printf("pack( transform(");
-    //     transform_print(_transform);
-    //     printf(") )");
-
-    //     // Open a file
-    //     p_f = fopen("../transform.bin", "w+");
-
-    //     // Pack
-    //     i = pack("transform", &_buf, &_transform);
-
-    //     // Write the binary data to the output file
-    //     fwrite(&_buf, 1, i, p_f);
-
-    //     // Close the file
-    //     fclose(p_f);
-
-    //     // Formatting
-    //     printf(" ->\n");
-    //     print_raw(_buf, i);
-    // }
-
-    // // Reset
-    // RESET();
-
-    // // Formatting
-    // log_info("╭───────────────────╮\n");
-    // log_info("│ unpacking example │\n");
-    // log_info("╰───────────────────╯\n");
-
-    // // Unpack a struct 
-    // {
-        
-    //     // initialized data
-    //     vec3 _vec3 = { 0 };
-
-    //     // Open a file
-    //     p_f = fopen("../vec3.bin", "rw");
-
-    //     // Read the binary data into a buffer
-    //     fread(&_buf, 1, sizeof(_buf), p_f);
-        
-    //     // Unpack
-    //     (void) unpack("vec3", &_vec3, &_buf);
-
-    //     // Format
-    //     printf ("unpack( \"vec3.bin\" ) ->\n");
-    //     vec3_print(_vec3);
-    //     putchar('\n');
-    //     putchar('\n');
-
-    //     // Close the file
-    //     fclose(p_f);
-    // }
-
-    // // Reset
-    // RESET();
-
-    // // Unpack a nested struct 
-    // {
-
-    //     // initialized data
-    //     transform _transform = { 0 };
-        
-    //     // Open a file
-    //     p_f = fopen("../transform.bin", "rw");
-
-    //     // Read the binary data into a buffer
-    //     fread(&_buf, 1, sizeof(_buf), p_f);
-
-    //     // Unpack
-    //     int r = unpack("transform", &_transform, &_buf);
-
-    //     // Format
-    //     printf ("unpack( \"transform.bin\" ) ->\n");
-    //     transform_print(_transform);
-    //     putchar('\n');
-
-    //     // Close the file
-    //     fclose(p_f);
-    // }
-
+    // #X - done
+    checkpoint("done");
+    
     // success
     return EXIT_SUCCESS;
-
 }
 
-int print_raw ( void *p_buf, size_t len )
+int checkpoint ( const char *p_event )
+{
+    
+    // print the event
+    log_info("#%d - %s\n", step, p_event);
+
+    // increment counter
+    step++;
+    
+    // success
+    return 1;
+}
+
+int pack_checkpoint ( char (*p_buffer)[64], size_t written, const char *p_event )
+{
+    
+    // initialized data
+    size_t rows = sizeof(*p_buffer) / HEX_DUMP_COLUMNS;
+    
+    // print the event
+    log_info("#%d - %s (%d bytes)\n", step, p_event, written);
+
+    // print the buffer
+    for (size_t i = 0; i < rows; i++)
+    {
+        
+        // print the offset
+        printf("%08x: ", i * HEX_DUMP_COLUMNS);
+
+        // print the buffer as hexadecimal
+        for (size_t j = 0; j < HEX_DUMP_COLUMNS; j++)
+        {
+            
+            // initialized data
+            char c = (*p_buffer)[i*HEX_DUMP_COLUMNS+j];
+            
+            // color output
+            if ( isalnum(c) || ispunct(c) ) printf("\033[32m%hhx", c);
+            else printf("%02hhx", c);
+
+            // reset
+            printf("\033[0m");
+
+        }
+
+        // formatting
+        putchar(' ');
+
+        // print the buffer textually
+        for (size_t j = 0; j < HEX_DUMP_COLUMNS; j++)
+        {
+
+            // initialized data
+            char c = (*p_buffer)[i*HEX_DUMP_COLUMNS+j];
+
+            // color output
+            if ( isalnum(c) || ispunct(c) ) printf("\033[32m"), putchar(c);
+            else if ( isprint(c) ) putchar(c);
+            else putchar('.');
+
+            // reset
+            printf("\033[0m");
+        }        
+
+        // formatting
+        putchar('\n');
+    }
+    
+    // formatting
+    putchar('\n');
+
+    // reset
+    i = 0, memset(_buf, 0, sizeof(*_buf));
+
+    // increment counter
+    step++;
+    
+    // success
+    return 1;
+}
+
+int unpack_checkpoint ( size_t read, const char *p_event )
+{
+        
+    // print the event
+    log_info("#%d - %s (%d bytes)\n", step, p_event, read);
+
+    // increment counter
+    step++;
+    
+    // success
+    return 1;
+}
+
+int person_pack ( void *p_buffer, person *p_person )
 {
 
     // argument check
-    if ( p_buf == (void *) 0 ) goto no_buffer;
+    if ( NULL == p_person ) goto no_person;
 
     // initialized data
-    unsigned char *p_data = p_buf;
+    char *p = (char *)p_buffer;
 
-    // Print the data
-    for (size_t i = 0; i < (len << 1); i++)
-    {
+    // pack the person
+    /// pack the name
+    p += pack_pack(p, "%s", p_person->_name);
 
-        // initialized data
-        bool          lo_hi = ( i % 2 );
-        unsigned char _data = (*p_data) >> (lo_hi * 4);
-
-        // Column spacing
-        if ( i % (HEX_DUMP_COLUMNS << 1) == 0 && i != 0 ) 
-            putchar('\n');
-
-        // Print the character
-        switch ( _data & 0xF )
-        {
-            case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9:
-                putchar('0' + ( _data & 0xF ));
-                break;
-
-            case 0xA: case 0xB: case 0xC: case 0xD: case 0xE: case 0xF:
-                putchar('A' - 10 + ( _data & 0xF )); 
-                break;
-        }
-
-        // Next byte
-        if ( lo_hi )
-
-            // Increment
-            p_data++, putchar(' ');
-    }
+    /// pack the age and the height
+    p += pack_pack(p, "%i8%i16", p_person->age, p_person->height_mm);
     
-    // Formatting
-    putchar('\n');
+    // pack the interests
+    for (size_t i = 0; i < sizeof(p_person->__interests) / sizeof(*p_person->__interests); i++)
+        p += pack_pack(p, "%s", p_person->__interests[i]);
+
+    // success
+    return p - (char *)p_buffer;
+
+    // error handling
+    no_person:
+
+        // log the error
+        log_error("Error: Null pointer provided for \"p_person\" in call to function \"%s\"\n", __FUNCTION__);
+
+        // error
+        return 0;
+}
+
+int person_unpack ( person *p_person, void *p_buffer )
+{
+
+    // argument check
+    if ( NULL == p_person ) goto no_person;
+    if ( NULL == p_buffer ) goto no_buffer;
+
+    // initialized data
+    char *p = (char *)p_buffer;
+
+    // pack the person
+    /// pack the name
+    p += pack_unpack(p, "%s", &p_person->_name);
+
+    /// pack the age and the height
+    p += pack_unpack(p, "%i8%i16", &p_person->age, &p_person->height_mm);
+    
+    // pack the interests
+    for (size_t i = 0; i < sizeof(p_person->__interests) / sizeof(*p_person->__interests); i++)
+        p += pack_unpack(p, "%s", &p_person->__interests[i]);
+
+    // success
+    return p - (char *)p_buffer;
+
+    // error handling
+    no_person:
+
+        // log the error
+        log_error("Error: Null pointer provided for \"p_person\" in call to function \"%s\"\n", __FUNCTION__);
+
+        // error
+        return 0;
+        
+    no_buffer:
+        
+        // log the error
+        log_error("Error: Null pointer provided for \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+
+        // error
+        return 0;
+        
+}
+
+int person_print ( person *p_person )
+{
+    
+    // argument check
+    if ( NULL == p_person ) goto no_person;
+
+    // print the person
+    /// print the name
+    printf("Name: %s\n", p_person->_name);
+
+    /// print the age and height
+    printf("Age: %hhi\nHeight: %himm\n", p_person->age, p_person->height_mm);
+
+    /// print the interests
+    for (size_t i = 0; i < sizeof(p_person->__interests)/sizeof(*p_person->__interests); i++)
+        printf("Interest #%i: %s\n", i, p_person->__interests[i]);
+
+    // formatting
     putchar('\n');
 
     // success
     return 1;
 
     // error handling
-    {
+    no_person:
 
-        // argument errors
-        {
-            no_buffer:
-                #ifndef NDEBUG
-                    log_error("Null pointer provided for parameter \"p_buf\" in call to function \"%s\"\n", __FUNCTION__);
-                #endif
+        // log the error
+        log_error("Error: Null pointer provided for \"p_person\" in call to function \"%s\"\n", __FUNCTION__);
 
-                // error
-                return 0;
-        }
-    }
+        // error
+        return 0;
 }

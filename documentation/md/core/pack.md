@@ -6,15 +6,13 @@
  >
  > 1 [Example](#example)
  >
- >> 1.1 [Example output](#example-output)
- >
  > 2 [Tester](#tester)
  >
  > 3 [Definitions](#definitions)
  >
  >> 3.1 [Type definitions](#type-definitions)
  >>
- >> 3.2 [Function definitions](#function-definitions)
+ >> 3.2 [Function declarations](#function-declarations)
 
 ## Motivation
  I wanted a mechanism to reflect binary data, and format strings fit the bill. 
@@ -58,15 +56,14 @@ The length defines a quantity of specifiers that are to be read sequentially
 ## Example
  To run the example program, execute this command
  ```
- $ ./pack_example
+ $ ./build/examples/pack_example
  ```
-### Example output
 
- ![](pack_output.png)
-
- [Source](main.c)
 ## Tester
- TODO
+ To run the tester program, execute this command
+ ```
+ $ ./build/tests/pack_test
+```
 
 ## Definitions
 ### Type definitions
@@ -76,9 +73,12 @@ typedef int (fn_pack)   ( void *p_buffer, const void *const p_value );
 typedef int (fn_unpack) ( void *p_value, void *p_buffer );
 ```
 
-### Function definitions
+### Function declarations
 ```c 
-// reflection
-size_t pack   ( void *p_buffer, const char *restrict format, ... );
-size_t unpack ( void *p_buffer, const char *restrict format, ... );
+// function declarations
+/// pack
+size_t pack_pack ( void *p_buffer, const char *restrict format, ... );
+
+/// unpack
+size_t pack_unpack ( void *p_buffer, const char *restrict format, ... );
 ```
