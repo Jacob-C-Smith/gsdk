@@ -4,17 +4,24 @@
 
  > 1 [Example](#example)
  >
- > 2 [Definitions](#definitions)
+ > 2 [Tester](#tester)
  >
- >> 2.1 [Type definitions](#type-definitions)
+ > 3 [Definitions](#definitions)
+ >
+ >> 3.1 [Type definitions](#type-definitions)
  >>
- >> 2.2 [Function declarations](#function-declarations)
+ >> 3.2 [Function declarations](#function-declarations)
 
  ## Example
-
  To run the example program, execute this command
  ```
  $ ./build/examples/stack_example
+ ```
+
+ ## Tester
+ To run the tester program, execute this command
+ ```
+ $ ./build/tests/stack_test 
  ```
 
  ## Definitions

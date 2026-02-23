@@ -4,38 +4,23 @@
 
  > 1 [Example](#example)
  >
- >> 1.1 [Example output](#example-output)
+ > 3 [Definitions](#definitions)
  >
- > 2 [Definitions](#definitions)
- >
- >> 2.1 [Type definitions](#type-definitions)
+ >> 3.1 [Type definitions](#type-definitions)
  >>
- >> 2.2 [Function declarations](#function-declarations)
+ >> 3.2 [Function declarations](#function-declarations)
 
  ## Example
  To run the example program, execute this command
  ```
- $ ./circular_buffer_example
+ $ ./build/examples/circular_buffer_example
  ```
- ### Example output
+
+ ## Tester
+ To run the tester program, execute this command
  ```
-Creating a circular buffer of size 4
-
-Adding "First!"
-Adding "Second!"
-Adding "Third!"
-Adding "Fourth!"
-Adding "Fifth!"
-Adding "Sixth!"
-
-Dumping contents of circular buffer
-
-"Third!"
-"Fourth!"
-"Fifth!"
-"Sixth!"
+ $ ./build/tests/circular_buffer_test
  ```
- [Source](main.c)
 
  ## Definitions
  ### Type definitions

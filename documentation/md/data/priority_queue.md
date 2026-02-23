@@ -16,10 +16,6 @@
  ```
  $ ./priority_queue_example
  ```
-  ### Example output
-  TODO: 
-
-   [Source](main.c)
 
  ## Definitions
  ### Type definitions

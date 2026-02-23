@@ -8,8 +8,6 @@
  >
  > 3 [Example](#example)
  >
- >> 3.1 [Example output](#example-output)
- >
  > 4 [Tester](#tester)
  >
  > 5 [Definitions](#definitions)
@@ -18,28 +16,17 @@
  >>
  >> 5.2 [Function declarations](#function-declarations)
  
- ## Download
- To download set, execute the following command
- ```bash
- $ git clone https://github.com/Jacob-C-Smith/set
- ```
- ## Build
- To build on UNIX like machines, execute the following commands in the same directory
- ```bash
- $ cd set
- $ cmake .
- $ make
- ```
-  This will build the example program, the tester program, and dynamic / shared libraries
-
-  To build set for Windows machines, open the base directory in Visual Studio, and build your desired target(s)
  ## Example
  To run the example program, execute this command
  ```
- $ ./set_example
+ $ ./build/examples/set_example
  ```
- ### TODO: Example output
- ## TODO: Tester
+
+ ## Tester
+ To run the tester program, execute this command
+ ```
+ $ ./build/tests/set_test
+ ```
 
  ## Definitions
  ### Type definitions
