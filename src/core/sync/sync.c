@@ -1191,22 +1191,3 @@ signed timer_seconds_divisor ( void )
     // done
     return SYNC_TIMER_DIVISOR;
 }
-
-void sync_exit ( void ) 
-{
-
-    // state check
-    if ( initialized == false ) return;
-
-    // Clean up log
-    log_exit();
-
-    // TODO: Anything else?
-    // 
-
-    // Clear the initialized flag
-    initialized = false;
-
-    // done
-    return;
-}

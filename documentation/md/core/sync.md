@@ -82,7 +82,4 @@ int monitor_destroy    ( monitor *p_monitor );
 int barrier_create  ( barrier *p_barrier, int count );
 int barrier_wait    ( barrier *p_barrier );
 int barrier_destroy ( barrier *p_barrier );
-
-/// cleanup
-void sync_exit ( void ) __attribute__((destructor));
  ```

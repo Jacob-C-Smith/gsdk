@@ -510,13 +510,3 @@ int monitor_destroy ( monitor *p_monitor );
 //  * @return 1 on success, 0 on error
 //  */
 // int barrier_destroy ( barrier *p_barrier );
-
-/// cleanup
-/** !
- * This gets called at runtime after main
- * 
- * @param void
- * 
- * @return void
- */
-void sync_exit ( void ) __attribute__((destructor));

@@ -13,25 +13,6 @@
 const size_t DICT_SIZE = 16;
 static bool initialized = false;
 
-void json_init ( void )
-{
-
-    // state check
-    if ( initialized == true ) return;
-
-    // Initialize the log library
-    log_init();
-
-    // Initialize the sync library
-    sync_init();
-
-    // Set the initialized flag
-    initialized = true;
-
-    // done
-    return;
-}
-
 int double_precision ( double value )
 {
 
@@ -1410,23 +1391,4 @@ void *json_value_free ( json_value *p_value, unsigned long long unused )
 
     // done
     return default_allocator(p_value, 0);
-}
-
-void json_exit ( void )
-{
-    
-    // state check
-    if ( initialized == false ) return;
-
-    // Clean up the log library
-    log_exit();
-
-    // Clean up the sync library
-    sync_exit();
-
-    // Clear the initialized flag
-    initialized = false;
-
-    // done
-    return;
 }
