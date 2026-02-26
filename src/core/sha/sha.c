@@ -688,7 +688,7 @@ int sha256_print ( sha256_hash _hash )
 {
 
     // print the hash ...
-    for (int i = 0; i < sizeof(sha256_hash); i++) 
+    for (size_t i = 0; i < sizeof(sha256_hash); i++) 
 
         // ... one byte at a time
         printf("%02x", _hash[i]);
@@ -701,7 +701,7 @@ int sha512_print ( sha512_hash _hash )
 {
 
     // print the hash ...
-    for (int i = 0; i < sizeof(sha512_hash); i++) 
+    for (size_t i = 0; i < sizeof(sha512_hash); i++) 
 
         // ... one byte at a time
         printf("%02x", _hash[i]);

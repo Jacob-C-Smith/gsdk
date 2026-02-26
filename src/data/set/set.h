@@ -54,7 +54,7 @@ int set_construct ( set **const pp_set, size_t size, fn_equality *pfn_equality )
  *
  * @return 1 on success, 0 on error
  */
-int set_from_elements ( set **const pp_set, const void **const pp_elements, size_t size, fn_equality *pfn_equality );
+int set_from_elements ( set **const pp_set, void **const pp_elements, size_t size, fn_equality *pfn_equality );
 
 /** !
  *  Construct a set from the union of set A and set B
@@ -108,7 +108,7 @@ size_t set_count ( const set *const p_set );
  * 
  * @return 1 on success, 0 on error
  */
-int set_contents ( const set *const p_set, void **const pp_contents );
+int set_contents ( set *const p_set, void **const pp_contents );
 
 // mutators
 /** !
@@ -136,7 +136,7 @@ int set_remove ( set *const p_set, void *const p_element );
  * 
  * @return 1 on success, 0 on error
  */
-int set_foreach_i ( const set *const p_set, void (*function)(void *const value, size_t index) );
+int set_foreach_i ( set *const p_set, void (*function)(void *const value, size_t index) );
 
 /// reflection
 /** !

@@ -86,7 +86,7 @@ int main ( int argc, const char *argv[] )
         i = pack_pack(&_buf[i], "%3i8", 'a', 'b', 'c');
         
         // checkpoint
-        pack_checkpoint(_buf, i, "pack > bytes");
+        pack_checkpoint(&_buf, i, "pack > bytes");
     }
     
     // #2 - pack shorts
@@ -96,7 +96,7 @@ int main ( int argc, const char *argv[] )
         i = pack_pack(&_buf[i], "%2i16", 31415, 27182);
         
         // checkpoint
-        pack_checkpoint(_buf, i, "pack > shorts");
+        pack_checkpoint(&_buf, i, "pack > shorts");
     }
     
     // #3 - pack integers
@@ -106,7 +106,7 @@ int main ( int argc, const char *argv[] )
         i = pack_pack(&_buf[i], "%3i32", 3141592, 2718281, 0x5555AAAA);
         
         // checkpoint
-        pack_checkpoint(_buf, i, "pack > integers");
+        pack_checkpoint(&_buf, i, "pack > integers");
     }
     
     // #4 - pack longs
@@ -116,7 +116,7 @@ int main ( int argc, const char *argv[] )
         i = pack_pack(&_buf[i], "%2i64", 1618033988749, 0x0123456789ABCDEF);
         
         // checkpoint
-        pack_checkpoint(_buf, i, "pack > longs");
+        pack_checkpoint(&_buf, i, "pack > longs");
     }
 
     // #5 - pack floats
@@ -126,7 +126,7 @@ int main ( int argc, const char *argv[] )
         i = pack_pack(&_buf[i], "%3f32", 0.125f, 0.25f, 0.5f);
         
         // checkpoint
-        pack_checkpoint(_buf, i, "pack > floats");
+        pack_checkpoint(&_buf, i, "pack > floats");
     }
     
     // #6 - pack double
@@ -136,7 +136,7 @@ int main ( int argc, const char *argv[] )
         i = pack_pack(&_buf[i], "%f64", 0.000000000066743);
         
         // checkpoint
-        pack_checkpoint(_buf, i, "pack > double");
+        pack_checkpoint(&_buf, i, "pack > double");
     }
     
     // #7 - pack strings
@@ -146,7 +146,7 @@ int main ( int argc, const char *argv[] )
         i = pack_pack(&_buf[i], "%3s", "Hello, World!", "Hi Mom!", "Hi Dad");
 
         // checkpoint
-        pack_checkpoint(_buf, i, "pack > strings");
+        pack_checkpoint(&_buf, i, "pack > strings");
     }
 
     // #8 - unpack bytes

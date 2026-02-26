@@ -185,7 +185,7 @@ int hash_table_search ( hash_table *const p_hash_table, void *p_key, void **pp_v
 
                 // ... return a pointer to the caller 
                 *pp_value = p_hash_table->properties.pp_data[z];
-                printf("p=%i ; found \"%s\"\n", i, p_key);
+                // printf("p=%i ; found \"%s\"\n", i, p_key);
 
                 // success
                 return 1;
@@ -205,7 +205,7 @@ int hash_table_search ( hash_table *const p_hash_table, void *p_key, void **pp_v
 
     // not found
     *pp_value = NULL;
-    printf("p=%i failed to find \"%s\"\n", i, p_key);
+    // printf("p=%i failed to find \"%s\"\n", i, p_key);
 
     // error
     return 0;

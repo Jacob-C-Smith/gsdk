@@ -11,7 +11,6 @@
 
 // Data
 const size_t DICT_SIZE = 16;
-static bool initialized = false;
 
 int double_precision ( double value )
 {

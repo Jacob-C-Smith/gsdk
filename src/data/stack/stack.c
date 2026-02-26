@@ -12,10 +12,10 @@
 // structure declarations
 struct stack_s
 {
-	size_t      size;      // the quantity of elements that could fit on the stack
-	size_t      offset;    // the quantity of elements that are on the stack
-	mutex       _lock;     // locked when reading/writing values
-	const void *_p_data[]; // the stack elements
+	size_t  size;      // the quantity of elements that could fit on the stack
+	size_t  offset;    // the quantity of elements that are on the stack
+	mutex   _lock;     // locked when reading/writing values
+	void   *_p_data[]; // the stack elements
 };
 
 // function definitions
@@ -93,7 +93,7 @@ int stack_construct ( stack **const pp_stack, size_t size )
 	}
 }
 
-int stack_push ( stack *const p_stack, const void *const p_value )
+int stack_push ( stack *const p_stack, void *const p_value )
 {
 
 	// argument check
@@ -151,7 +151,7 @@ int stack_push ( stack *const p_stack, const void *const p_value )
 	}
 }
 
-int stack_pop ( stack *const p_stack, const void **const ret )
+int stack_pop ( stack *const p_stack, void **const ret )
 {
 
 	// argument check

@@ -71,7 +71,7 @@ int double_queue_from_contents ( double_queue **const pp_double_queue, void * co
  *
  * @return element value on success, null pointer on error
  */
-int double_queue_front ( const double_queue *const p_double_queue, void **const pp_value );
+int double_queue_front ( double_queue *const p_double_queue, void **const pp_value );
 
 /** !
  *  Get the element at the rear of the double queue
@@ -80,7 +80,7 @@ int double_queue_front ( const double_queue *const p_double_queue, void **const 
  *
  * @return element on success, null pointer on error
  */
-int double_queue_rear ( const double_queue *const p_double_queue, void **const pp_value );
+int double_queue_rear ( double_queue *const p_double_queue, void **const pp_value );
 
 /** !
  *  Check if a double queue is empty

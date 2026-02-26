@@ -183,7 +183,7 @@ int double_queue_from_contents ( double_queue **const pp_double_queue, void* con
 	}
 }
 
-int double_queue_front ( const double_queue *const p_double_queue, void **const pp_value )
+int double_queue_front ( double_queue *const p_double_queue, void **const pp_value )
 {
 
 	// argument check
@@ -232,7 +232,7 @@ int double_queue_front ( const double_queue *const p_double_queue, void **const 
 	}
 }
  
-int double_queue_rear ( const double_queue *const p_double_queue, void **const pp_value )
+int double_queue_rear ( double_queue *const p_double_queue, void **const pp_value )
 {
 
 	// argument check
