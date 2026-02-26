@@ -1,4 +1,4 @@
-# GSDK
+# gsdk
 
 *A modular C SDK with tons of generic data structures, abstractions for high-performance computing, and highly flexible reflection.*
 
@@ -11,13 +11,13 @@
 </p>
 
 > **Jump to:**  
-> [Features](#features) • [Getting Started](#getting-started) • [Highlights](#highlights) • [Modules](#modules) • [Interfaces](#interfaces) • [Structure](#structure) • [Build](#build) • [Testing](#testing) • [License](#license)
+> [Features](#features) • [Getting Started](#getting-started) • [Modules](#modules) • [Structure](#structure) • [Build](#build) • [Examples](#examples) • [Tests](#tests) • [License](#license)
 
 ---
 
 ## Features
 - **Core**: Interfaces, logging, synchronization, binary packing, cryptography, sockets, and hashing
-- **Data**: Arrays, maps, stacks, queues, sets, trees, graphs, and more
+- **Data**: Arrays, maps, stacks, queues, sets, trees, and more
 - **Reflection**: JSON and base64 
 - **Examples**: Example programs for each module
 - **Tests**: Test suites for many modules
@@ -111,7 +111,6 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
             <b>priority queue</b>
         </a></li>
         <li>✔️ <a href="./documentation/md/data/tree.md">binary</a></li>
-        <li>🏗️ <a href="./documentation/md/data/b.md">b</a></li>
         <li>🏗️ <a href="#">hash table</a></li>
         <!--<li>🧪 <a href="./documentation/md/data/node.md">node</a></li>-->
         <!--<li>❓ <a href="#">adjacency list</a></li>-->
@@ -144,89 +143,6 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
     </ul>
 </details>
 
-## Interfaces
-
-<b>key</b><br>
-✅ → Yes<br>
-🏗️ → TODO<br>
-
-<details>
-    <summary>identity</summary>
-    
-|                   | `array` | `avl` | `b`   | `binary` | `cache` | `dict` | `graph` | `hash table` | `node` | `priority queue` | `red black` | `set` | `tree` |
-|-------------------|---------|-------|-------|----------|---------|--------|---------|--------------|--------|------------------|-------------|-------|--------|
-| `equality`        | ✅      | ✅    | ✅    | ✅       | ✅      |        |         | ✅           |        | ✅               | ✅         | ✅    | ✅     |
-| `comparator`      | ✅      | ✅    | ✅    | ✅       |         | ✅     |         |              |        | ✅               | ✅         | ✅    | ✅     |
-| `key_accessor`    |         | ✅    | ✅    | ✅       | ✅      | ✅     | ✅      | ✅           | ✅     | ✅               | ✅         | 🏗️    | ✅     |
-</details>
-
-<details>
-    <summary>iterator</summary>
-
-|                   | `array` | `bitmap` | `cache` | `circular buffer` | `dict` | `double queue` | `hash table` | `priority queue` | `queue` | `set` | `stack` | `tuple` |
-|-------------------|---------|----------|---------|-------------------|--------|----------------|--------------|------------------|---------|-------|---------|---------|
-| `fori`            | ✅      | 🏗️       | ✅      | 🏗️                | ✅     | ✅             |             | ✅               | ✅      |       | ✅      | ✅      |
-| `foreach`         | ✅      |          | ✅      | 🏗️                | ✅     | ✅             | ✅          | ✅               | ✅      | ✅    | ✅      | ✅      |
-| `map`             | ✅      |          | ✅      | 🏗️                | 🏗️     | 🏗️             | 🏗️          | 🏗️               | 🏗️      | 🏗️    | 🏗️      |         |
-
-</details>
-
-<details>
-    <summary>reflection</summary>
-
-|                   | `array` | `bitmap` | `cache` | `circular buffer` | `dict` | `double queue` | `graph` | `hash table` | `node` | `priority queue` | `queue` | `set` | `stack` | `tree` | `tuple` |
-|-------------------|---------|----------|---------|-------------------|--------|----------------|---------|--------------|--------|------------------|---------|-------|---------|--------|---------|
-| `pack`            | ✅      | ✅       | ✅      | 🏗️                | ✅     | 🏗️             | 🏗️      | 🏗️          | 🏗️     | 🏗️               | 🏗️      | 🏗️    | ✅      | 🏗️     | ✅      |
-| `unpack`          | ✅      | ✅       | ✅      | 🏗️                | ✅     | 🏗️             | 🏗️      | 🏗️          | 🏗️     | 🏗️               | 🏗️      | 🏗️    | ✅      | 🏗️     | ✅      | 
-| `hash64`          | ✅      | 🏗️       | 🏗️      | 🏗️                | 🏗️     | 🏗️             | 🏗️      | 🏗️           | 🏗️     | 🏗️               | 🏗️      | 🏗️   | ✅      | 🏗️     | ✅      |
-</details>
-
-<details>
-    <summary>tree</summary>
-
-|                   | `avl` | `b` | `binary` | `red black` |
-|-------------------|-------|-----|----------|-------------|
-| `search`          | 🏗️    | 🏗️  | ✅       | 🏗️          |
-| `insert`          | 🏗️    | 🏗️  | ✅       | 🏗️          |
-| `remove`          | 🏗️    | 🏗️  | ✅       | 🏗️          |
-| `pre-order`       | 🏗️    | 🏗️  | ✅       | 🏗️          |
-| `in-order`        | 🏗️    | 🏗️  | ✅       | 🏗️          |
-| `post-order`      | 🏗️    | 🏗️  | ✅       | 🏗️          |
-
-</details>
-
-<details open>
-    <summary>graph</summary>
-<details>
-    <summary> storage</summary>
-
-|                   | `adjacency list` | `adjacency matrix` | `edge list` |
-|-------------------|------------------|--------------------|-------------|
-| `add vertex`      | ✅               | ✅                  | 🏗️          |
-| `remove vertex`   | ✅               | ✅                  | 🏗️          |
-| `add vertex`      | ✅               | ✅                  | 🏗️          |
-| `remove vertex`   | ✅               | ✅                  | 🏗️          |
-| `adjacent`        | ✅               | ✅                  | 🏗️          |
-
-</details>
-<details>
-    <summary> algorithms</summary>
-
-|                               | `unweighted undirected` | `weighted undirected` | `unweighted directed` | `weighted directed` |
-|-------------------------------|-------------------------|-----------------------|-----------------------|---------------------|
-| `flow`                        |                         |                       |                       | 🏗️                  |
-| `graph coloring`              |                         |                       | 🏗️                    | 🏗️                  |
-| `sort`                        |                         |                       | 🏗️                    | 🏗️                  |
-| `minimum spanning tree`       | 🏗️                      | 🏗️                    |                       |                     |
-| `transitive closure`          | 🏗️                      | 🏗️                    |                       |                     |
-| `all pairs shortest paths`    | 🏗️                      | 🏗️                    | 🏗️                    | 🏗️                  |
-| `search`                      | 🏗️                      | 🏗️                    | 🏗️                    | 🏗️                  |
-| `single source shortest path` | 🏗️                      | 🏗️                    | 🏗️                    | 🏗️                  |
-| `cycle detection`             | 🏗️                      | 🏗️                    | 🏗️                    | 🏗️                  |
-
-</details>
-</details>
-
 ## Structure
 
 | Folder                      | Description                        |
@@ -239,18 +155,24 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 | [resources](./resources/)   | Sample data for examples           |
 
 ## Build
-To build the GSDK, run
+To build gsdk, run
 ```bash
 $ make
 ```
 
-## Testing
+## Examples
+To build the examples, run
+```bash
+$ make examples
+```
+
+## Tests
 To build the tests, run
 ```bash
 $ make tests
 ```
-## License
 
+## License
 See [LICENSE](./LICENSE) for details.
 
 ### Made with ❤️ for 👥 across 🌎🌍🌏

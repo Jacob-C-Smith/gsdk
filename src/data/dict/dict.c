@@ -1208,16 +1208,5 @@ int dict_destroy ( dict **const pp_dict, fn_allocator *pfn_allocator )
                 // error
                 return 0;
         }
-
-        // dict errors
-        {
-            failed_to_clear:
-                #ifndef NDEBUG
-                    log_warning("[dict] Call to \"dict_clear\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-        }
     }
 }

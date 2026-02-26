@@ -159,7 +159,7 @@ int set_construct ( set **const pp_set, size_t size, fn_equality *pfn_equality )
     }
 }
 
-int set_from_elements ( set **const pp_set, const void **const pp_elements, size_t size, fn_equality *pfn_equality )
+int set_from_elements ( set **const pp_set, void **const pp_elements, size_t size, fn_equality *pfn_equality )
 {
 
     // argument check
@@ -207,21 +207,10 @@ int set_from_elements ( set **const pp_set, const void **const pp_elements, size
                 // error
                 return 0;
         }
-
-        // standard library errors
-        {
-            no_mem:
-                #ifndef NDEBUG
-                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-        }
     }
 }
 
-int set_contents ( const set *const p_set, void **const pp_contents )
+int set_contents ( set *const p_set, void **const pp_contents )
 {
 
     // argument check
@@ -256,14 +245,6 @@ int set_contents ( const set *const p_set, void **const pp_contents )
             no_set:
                 #ifndef NDEBUG
                     printf("[set] Null pointer provided for parameter \"pp_set\" in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-
-            no_return:
-                #ifndef NDEBUG
-                    printf("[set] Null pointer provided for parameter \"pp_contents\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -317,28 +298,6 @@ int set_add ( set *const p_set, void *const p_element )
             no_set:
                 #ifndef NDEBUG
                     printf("[set] Null pointer provided for parameter \"pp_set\" in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-        }
-
-        // Set errors
-        {
-            failed_to_construct_set:
-                #ifndef NDEBUG
-                    printf("[set] Call to \"set_from_elements\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-        }
-
-        // standard library errors
-        {
-            no_mem:
-                #ifndef NDEBUG
-                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -469,9 +428,6 @@ int set_difference ( set **const pp_set, const set *const p_a, const set *const 
     for (size_t i = 0; i < p_a->count; i++)
     {
 
-        // initialized data
-        bool is_a_i_in_b = false;
-
         // iterate through set b
         for (size_t j = 0; j < p_b->count; j++)
         {
@@ -564,9 +520,6 @@ int set_intersection ( set **const pp_set, const set *const p_a, const set *cons
     // iterate through set a
     for (size_t i = 0; i < p_a->count; i++)
     {
-
-        // initialized data
-        bool is_a_i_in_b = false;
 
         // iterate through set b
         for (size_t j = 0; j < p_b->count; j++)
@@ -707,17 +660,6 @@ int set_pop ( set *const p_set, void **const pp_value )
                 // error
                 return 0;
         }
-
-        // standard library errors
-        {
-            no_mem:
-                #ifndef NDEBUG
-                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-        }
     }
 }
 
@@ -777,21 +719,10 @@ int set_remove ( set *const p_set , void *const p_element )
                 // error
                 return 0;
         }
-
-        // standard library errors
-        {
-            no_mem:
-                #ifndef NDEBUG
-                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-        }
     }
 }
 
-int set_foreach_i ( const set *const p_set, void (*const function)(void *const value, size_t index) )
+int set_foreach_i ( set *const p_set, void (*const function)(void *const value, size_t index) )
 {
 
     // argument check

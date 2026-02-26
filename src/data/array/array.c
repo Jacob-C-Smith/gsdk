@@ -896,7 +896,6 @@ int array_foreach ( array *p_array, fn_foreach *pfn_foreach )
     }
 }
 
-
 int array_pack ( void *p_buffer, array *p_array, fn_pack *pfn_element )
 {
     

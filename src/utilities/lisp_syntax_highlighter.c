@@ -11,10 +11,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-// core
+// gsdk
+/// core
 #include <core/log.h>
 
-// data
+/// data
 #include <data/stack.h>
 
 // entry point
@@ -47,22 +48,22 @@ int main ( int argc, const char *argv[] )
                 break;
             case '(':
 
-                // Preserve the current state - allocate integer for stack
+                // preserve the current state - allocate integer for stack
                 {
                     int *p_state = malloc(sizeof(int));
                     *p_state = state;
                     stack_push(p_stack, p_state);
                 }
 
-                // Update the state
+                // update the state
                 state = 1;
                 printf("\033[0m(\033[31m");
                 continue;
             case ')':
 
-                // Restore the previous state
+                // restore the previous state
                 {
-                    const void *p_temp;
+                    void *p_temp;
                     stack_pop(p_stack, &p_temp);
                     if (p_temp) {
                         int *p_state = (int *)p_temp;

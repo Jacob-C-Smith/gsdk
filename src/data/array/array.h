@@ -201,7 +201,7 @@ int array_map ( array *const p_array, fn_map *pfn_map, fn_allocator *pfn_allocat
  * 
  * @return 1 on success, 0 on error
  */
-int array_fori ( array *p_tuple, fn_fori *pfn_fori );
+int array_fori ( array *p_array, fn_fori *pfn_fori );
 
 /** !
  * Call function on every element in an array
@@ -211,7 +211,7 @@ int array_fori ( array *p_tuple, fn_fori *pfn_fori );
  * 
  * @return 1 on success, 0 on error
  */
-int array_foreach ( array *p_tuple, fn_foreach *pfn_foreach );
+int array_foreach ( array *p_array, fn_foreach *pfn_foreach );
 
 /// reflection
 /** !

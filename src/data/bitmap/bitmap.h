@@ -82,6 +82,27 @@ int bitmap_clear ( bitmap *p_bitmap, size_t i );
  */
 int bitmap_print ( bitmap *p_bitmap );
 
+/// iterators
+/** !
+ * Call function on every element in a bitmap
+ *
+ * @param p_bitmap the bitmap
+ * @param pfn_fori pointer to fori function
+ * 
+ * @return 1 on success, 0 on error
+ */
+int bitmap_fori ( bitmap *p_bitmap, fn_fori *pfn_fori );
+
+/** !
+ * Call function on every element in a bitmap
+ *
+ * @param p_bitmap    the bitmap
+ * @param pfn_foreach pointer to foreach function
+ * 
+ * @return 1 on success, 0 on error
+ */
+int bitmap_foreach ( bitmap *p_bitmap, fn_foreach *pfn_foreach );
+
 /// reflection
 /** !
  * Pack a bitmap into a buffer

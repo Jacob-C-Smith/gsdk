@@ -51,7 +51,7 @@ int stack_construct ( stack **const pp_stack, size_t size );
  * 
  * @return 1 on success, 0 on error
 */
-int stack_push ( stack *const p_stack, const void *const p_value );
+int stack_push ( stack *const p_stack, void *const p_value );
 
 /** !
  * Pop a value off a stack
@@ -63,7 +63,7 @@ int stack_push ( stack *const p_stack, const void *const p_value );
  * 
  * @return 1 on success, 0 on error
 */
-int stack_pop ( stack *const p_stack, const void **const ret );
+int stack_pop ( stack *const p_stack, void **const ret );
 
 /// accessors
 /** !

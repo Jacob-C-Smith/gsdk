@@ -45,10 +45,13 @@ int main ( int argc, const char* argv[] )
     (void) argc;
     (void) argv;
 
+    // seed the random number generator
+    srand((unsigned) time(NULL));
+
     // #0 - start
     checkpoint(p_bitmap, "start");
 
-    // #1 - initial
+    // #1 - construct 
     {
 
         // construct the bitmap
@@ -62,11 +65,11 @@ int main ( int argc, const char* argv[] )
     {
 
         // set some bits
-        for (size_t i = 0; i < 64; i = i + 4)
+        for (size_t i = 0; i < 64; i = i + 3)
             bitmap_set(p_bitmap, i);
             
         // clear some bits
-        for (size_t i = 0; i < 64; i = i + 8)
+        for (size_t i = 0; i < 64; i = i + 4)
             bitmap_clear(p_bitmap, i);
 
         // checkpoint
@@ -99,7 +102,7 @@ int main ( int argc, const char* argv[] )
         // Open a file for writing
         p_f = fopen("resources/reflection/bitmap.bin", "wb");
 
-        // reflect the array to a buffer
+        // reflect the bitmap to a buffer
         file_len = bitmap_pack(buf, p_bitmap),
         
         // write the buffer to a file
@@ -130,57 +133,70 @@ int main ( int argc, const char* argv[] )
 
         // invert all bits
         for (size_t i = 0; i < 64; i++)
-            if ( bitmap_test(p_bitmap, i) )
-                bitmap_clear(p_bitmap, i);
-            else
-                bitmap_set(p_bitmap, i);
+            ( (bitmap_test(p_bitmap, i) ) ? bitmap_clear : bitmap_set)(p_bitmap, i);
 
         // checkpoint
         checkpoint(p_bitmap, "after flip");
     }
 
-    /*
-    // initialized data
-    bitmap *p_bitmap = (void *) 0;
-    char  *buf[1024] = { 0 };
-    FILE  *p_f = fopen("resources/reflection/bitmap.bin", "wb");
-    size_t len = 0;
-
-    // construct an bitmap
-    
-
-
-    // test some bits
-    printf("[%02d] --> %c\n", 4 , bitmap_test(p_bitmap, 4)  ? '1' : '0'),
-    printf("[%02d] --> %c\n", 63, bitmap_test(p_bitmap, 63) ? '1' : '0');
-    
-    // reflection
+    // #7 - destroy
     {
+        
+        // destroy the bitmap
+        bitmap_destroy(&p_bitmap);
 
-        // reflect the bitmap to a buffer
-        len = bitmap_pack(buf, p_bitmap);
+        // checkpoint
+        checkpoint(p_bitmap, "after destroy");
+    }
+
+    // #8 - from binary
+    {
         
-        // write the buffer to a file
-        fwrite(buf, len, 1, p_f),
-        
-        // close the file
-        fclose(p_f),
+        // initialized data
+        char buf[1024] = { 0 };
         
         // read a buffer from a file
         p_f = fopen("resources/reflection/bitmap.bin", "rb"),
-        memset(buf, 0, sizeof(buf)),
-        fread(buf, len, 1, p_f),
+        fread(buf, sizeof(char), file_len, p_f),
         
-        // reflect an bitmap from the buffer
-        bitmap_unpack(&p_bitmap, buf);
+        // reflect a bitmap from the buffer
+        bitmap_unpack(&p_bitmap, buf),
+
+        // checkpoint
+        checkpoint(p_bitmap, "after parse");
     }
 
-    // print the bitmaps' elements
-    bitmap_print(p_bitmap);
+    // #9 - hash 2
+    {
 
-    // destroy the bitmap
-    bitmap_destroy(&p_bitmap);
-    */
+        // initialized data
+        h2 = bitmap_hash(p_bitmap, NULL);
+
+        // print the hash
+        printf("hash 2 -> 0x%llx\n", h2);
+
+        // error check
+        if ( h1 != h2 )
+
+            // abort
+            log_error("Error: hash 1 != hash 2\n"), exit(EXIT_FAILURE);
+
+        // checkpoint
+        checkpoint(p_bitmap, "after hash 2");
+    }
+
+    // #10 - destroy
+    {
+
+        // destroy the bitmap
+        bitmap_destroy(&p_bitmap);
+
+        // checkpoint
+        checkpoint(p_bitmap, "after destroy");
+    }
+
+    // #11 - end
+    checkpoint(p_bitmap, "end");
 
     // success
     return EXIT_SUCCESS;
@@ -198,7 +214,9 @@ int checkpoint ( bitmap *p_bitmap, const char *p_event )
         printf("NULL\n");
     else
         log_info("#%d - Bitmap %s:\n", step, p_event),
-        //bitmap_fori(p_bitmap, bit_print),
+        putchar('<'),
+        bitmap_fori(p_bitmap, bit_print),
+        putchar('>'),
         putchar('\n');
 
     // increment counter
@@ -210,6 +228,9 @@ int checkpoint ( bitmap *p_bitmap, const char *p_event )
 
 void bit_print ( void *p_value, int i )
 {
+
+    // unused
+    (void) i;
 
     // print the element
     printf("%d", p_value ? 1 : 0);
