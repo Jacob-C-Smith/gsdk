@@ -1,5 +1,5 @@
 /** ! 
- * Secure Hash Algorithm Example
+ * ExampleSecure Hash Algorithm program
  * 
  * @file sha_example.c
  * 
@@ -16,6 +16,10 @@
 // core
 #include <core/log.h>
 #include <core/sha.h>
+
+// forward declarations
+/// logs
+int checkpoint ( const char *p_event );
 
 // data
 // working data
@@ -38,7 +42,10 @@ int main ( int argc, const char *argv[] )
     (void) argc;
     (void) argv;
     
-    // sha256 example
+    // #0 - start
+    checkpoint("start");
+
+    // #1 - sha256 example
     {
 
         // construct a sha256 hasher
@@ -50,6 +57,9 @@ int main ( int argc, const char *argv[] )
         // digest it
         sha256_final(&_sha256_state, hash_256);
 
+        // checkpoint
+        checkpoint("SHA-256");
+
         // print the hash
         log_info("SHA256(\"%s\")", _data),
         printf(" = 0x"),
@@ -59,7 +69,7 @@ int main ( int argc, const char *argv[] )
         printf("\n");
     }
 
-    // sha512 example
+    // #2 - sha512 example
     {
 
         // construct a sha512 hasher
@@ -71,6 +81,9 @@ int main ( int argc, const char *argv[] )
         // digest it
         sha512_final(&_sha512_state, hash_512);
 
+        // checkpoint
+        checkpoint("SHA-512");
+
         // print the hash
         log_info("SHA512(\"%s\")", _data),
         printf(" = 0x"),
@@ -80,6 +93,26 @@ int main ( int argc, const char *argv[] )
         printf("\n");
     }
 
+    // #3 - done
+    checkpoint("done");
+
     // success
     return EXIT_SUCCESS;
 }
+
+int checkpoint ( const char *p_event )
+{
+    
+    // static data
+    static int step = 0;
+    
+    // print the event
+    log_info("#%d - %s\n", step, p_event),
+    
+    // increment counter
+    step++;
+    
+    // success
+    return 1;
+}
+  
