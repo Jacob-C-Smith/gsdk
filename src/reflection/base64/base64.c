@@ -101,9 +101,8 @@ int base64_decode ( void *const p_output, const char *const p_data, size_t len )
 {
 
     // argument errors
-    if ( p_data   == (void *) 0 ) goto no_data;
-    if ( len      ==          0 ) goto no_len;
-    if ( p_output == (void *) 0 ) goto no_output;
+    if ( NULL == p_output ) goto no_output;
+    if ( NULL ==   p_data ) goto no_data;
 
     // iterate through len bytes of p_data
     for ( size_t i = 0, j = 0; i < len; i+=4, j+=3 )
@@ -120,9 +119,7 @@ int base64_decode ( void *const p_output, const char *const p_data, size_t len )
         if ( i + 2 < len && p_data[i+2] != '=' ) ((unsigned char *const)p_output)[j+1] = (part >> 1 * 8) & 0xFF;
         if ( i + 3 < len && p_data[i+3] != '=' ) ((unsigned char *const)p_output)[j+2] = (part >> 0 * 8) & 0xFF;
     }
-
-    no_len:
-
+    
     // success
     return 1;
 
