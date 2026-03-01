@@ -101,10 +101,10 @@ int main ( int argc, const char *argv[] )
             if ( 0 == dict_construct(&_value.object, 4, 0) ) goto failed_to_construct_dictionary;
 
             // encode the public key
-            if ( 0 == base64_encode(_public_key_buffer, public_key_length, _public_key_base64) ) goto failed_to_encode_base64;
+            if ( 0 == base64_encode(_public_key_base64, _public_key_buffer, public_key_length) ) goto failed_to_encode_base64;
             
             // encode the private key
-            if ( 0 == base64_encode(_private_key_buffer, private_key_length, _private_key_base64) ) goto failed_to_encode_base64;
+            if ( 0 == base64_encode(_private_key_base64, _private_key_buffer, private_key_length) ) goto failed_to_encode_base64;
 
             // add the keys to the dictionary
             dict_add(_value.object, "public", &_public_key),
