@@ -6,7 +6,7 @@ ifeq ($(UNAME_S),Darwin)
 	SHARED_EXT = dylib
 	SHARED_FLAGS = -dynamiclib -install_name @rpath/$(@F)
 	RPATH_FLAGS = -Wl,-rpath,@executable_path/../lib
-	LDFLAGS += -lpthread -lm -O0
+	LDFLAGS += -lpthread -lm -O2
 else
 	SHARED_EXT = so
 	SHARED_FLAGS = -shared -Wl,-soname,$(@F)
