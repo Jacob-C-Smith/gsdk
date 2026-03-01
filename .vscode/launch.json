@@ -3,85 +3,10 @@
     "configurations":
     [
         {
-            "name": "example > adjacency list",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/examples/adjacency_list_example",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "setupCommands":
-            [
-                {
-                    "description": "Enable pretty-printing for lldb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "Set Disassembly Flavor to Intel",
-                    "text": "-lldb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
-            "name": "example > adjacency matrix",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/examples/adjacency_matrix_example",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "setupCommands":
-            [
-                {
-                    "description": "Enable pretty-printing for lldb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "Set Disassembly Flavor to Intel",
-                    "text": "-lldb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
             "name": "example > array",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/examples/array_example",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "setupCommands":
-            [
-                {
-                    "description": "Enable pretty-printing for lldb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "Set Disassembly Flavor to Intel",
-                    "text": "-lldb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
-            "name": "example > b",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/examples/b_example",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/",
@@ -278,31 +203,6 @@
             ]
         },
         {
-            "name": "example > graph",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/examples/graph_example",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "setupCommands":
-            [
-                {
-                    "description": "Enable pretty-printing for lldb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "Set Disassembly Flavor to Intel",
-                    "text": "-lldb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
             "name": "example > hash",
             "type": "cppdbg",
             "request": "launch",
@@ -428,31 +328,6 @@
             ]
         },
         {
-            "name": "example > node",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/examples/node_example",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "setupCommands":
-            [
-                {
-                    "description": "Enable pretty-printing for lldb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "Set Disassembly Flavor to Intel",
-                    "text": "-lldb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
             "name": "example > pack",
             "type": "cppdbg",
             "request": "launch",
@@ -532,31 +407,6 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/examples/queue_example",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "setupCommands":
-            [
-                {
-                    "description": "Enable pretty-printing for lldb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "Set Disassembly Flavor to Intel",
-                    "text": "-lldb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
-            "name": "example > red black",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/examples/red_black_example",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/",
@@ -678,31 +528,6 @@
             ]
         },
         {
-            "name": "example > stream",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/examples/stream_example",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "setupCommands":
-            [
-                {
-                    "description": "Enable pretty-printing for lldb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "Set Disassembly Flavor to Intel",
-                    "text": "-lldb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
             "name": "example > sync",
             "type": "cppdbg",
             "request": "launch",
@@ -752,61 +577,6 @@
                 }
             ]
         },
-        {
-            "name": "example > distribute server",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/examples/distribute_example",
-            "args": [
-                "server"
-            ],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "setupCommands":
-            [
-                {
-                    "description": "Enable pretty-printing for lldb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "Set Disassembly Flavor to Intel",
-                    "text": "-lldb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
-            "name": "example > distribute client",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/examples/distribute_example",
-            "args": [
-                "client"
-            ],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "setupCommands":
-            [
-                {
-                    "description": "Enable pretty-printing for lldb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "Set Disassembly Flavor to Intel",
-                    "text": "-lldb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-
         {
             "name": "test > array",
             "type": "cppdbg",
