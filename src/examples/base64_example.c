@@ -1,7 +1,7 @@
-/** !
- * Base64 example program 
+/** ! 
+ * Example base64 program
  * 
- * @file main.c
+ * @file src/examples/base64_example.c
  * 
  * @author Jacob Smith
  */
@@ -10,59 +10,91 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+#include <time.h>
 
-// base64 module
+// gsdk
+/// core
+#include <core/log.h>
+
+/// reflection
 #include <reflection/base64.h>
+
+// forward declarations
+/// logs
+int checkpoint ( const char *p_event );
+
+// data
+// working data
+const char _data[] = "Hello, World!";
+
+/// encode buffer
+char _encoded[32] = { 0 };
+
+/// decode buffer
+char _decoded[32] = { 0 };
 
 // entry point
 int main ( int argc, const char *argv[] )
 {
 
-    // unused
+    // unused 
     (void) argc;
     (void) argv;
+    
+    // #0 - start
+    checkpoint("start");
 
-    // initialized data
-    const char hello_world            [13+1] = "Hello, World!";
-    char       hello_world_base64_out [512]  = { 0 };
-    char       hello_world_out        [512]  = { 0 };
+    // #1 - base64 encoding 
+    {
 
-    // Formatting
-    log_info("╭─────────────────╮\n");
-    log_info("│ base 64 example │\n");
-    log_info("╰─────────────────╯\n\n");
+        // encode the data
+        base64_encode(_encoded, _data, sizeof(_data)-1);
 
-    // Encode the string in base64
-    if ( base64_encode(hello_world, strlen(hello_world), hello_world_base64_out) == 0 ) goto failed_to_encode;
+        // checkpoint
+        checkpoint("encoding");
 
-    // Print the encoded string
-    (void)printf("\"%s\" encoded in base64 is \"%s\"\n\n", hello_world, hello_world_base64_out);
+        // print the base64
+        log_error("base64_encode(\"%s\") ", _data),
+        putchar('='),
+        log_info(" %s\n", _encoded);
+    }
 
-    // Decode the base64 to a string
-    if ( base64_decode(hello_world_base64_out, strlen(hello_world_base64_out), hello_world_out) == 0 ) goto failed_to_decode;
+    // #2 - base64 decoding
+    {
 
-    // Print the decoded string
-    (void)printf("\"%s\" decoded from base64 is \"%s\"\n\n", hello_world_base64_out, hello_world_out);
+        // decode the data
+        base64_decode(_decoded, _encoded, strlen(_encoded));
+
+        // checkpoint
+        checkpoint("decoding");
+
+        // print the base64
+        log_info("base64_decode(\"%s\") ", _encoded),
+        putchar('='),
+        log_error(" %s\n", _decoded);
+    }
+
+    // #3 - done
+    checkpoint("done");
 
     // success
     return EXIT_SUCCESS;
-
-    // error handling
-    {
-        failed_to_encode:
-
-            // Print an error message to standard out
-            printf("Failed to encode data!\n");
-
-            // error
-            return EXIT_FAILURE;
-
-        failed_to_decode:
-        
-            // Print an error message to standard out
-            printf("Failed to decode data!\n");
-
-            // error
-            return EXIT_FAILURE;
-    }
 }
+
+int checkpoint ( const char *p_event )
+{
+    
+    // static data
+    static int step = 0;
+    
+    // print the event
+    log_info("#%d - %s\n", step, p_event),
+    
+    // increment counter
+    step++;
+    
+    // success
+    return 1;
+}
+  

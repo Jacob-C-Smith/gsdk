@@ -279,7 +279,7 @@ bool test_encode_base64 ( char *test_text, char *expected_text, result_t expecte
     memset(_encoded_text, 0, 65535);
 
     // Decode the text
-    result = (result_t) base64_encode(test_text, input_length, _encoded_text);
+    result = (result_t) base64_encode(_encoded_text, test_text, input_length);
 
     // Fast exit
     if ( result == zero ) goto done;
@@ -303,7 +303,7 @@ bool test_decode_base64 ( char *test_text, char *expected_text, result_t expecte
     memset(_decoded_text, 0, 65535);
 
     // Decode the text
-    result = (result_t) base64_decode(test_text, input_length, _decoded_text);
+    result = (result_t) base64_decode(_decoded_text,test_text, input_length);
 
     // Fast exit
     if ( result == zero ) goto done;

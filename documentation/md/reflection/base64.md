@@ -26,8 +26,8 @@
  ```c 
 // function declarations
 /// encode
-int base64_encode ( const void *const p_data, size_t len, char *const p_output );
+int base64_encode ( char *const p_output, const void *const p_data, size_t len );
 
 /// decode
-int base64_decode ( const char *const p_data, size_t len, void *const p_output );
+int base64_decode ( void *const p_output, const char *const p_data, size_t len );
  ```
