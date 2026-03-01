@@ -568,12 +568,12 @@ int print_test ( const char *scenario_name, const char *test_name, bool passed )
 int print_final_summary ( void )
 {
 
-    // Accumulate
+    // accumulate
     total_tests  += ephemeral_tests,
     total_passes += ephemeral_passes,
     total_fails  += ephemeral_fails;
 
-    // Print
+    // print
     log_info("\nTests: %d, Passed: %d, Failed: %d (%%%.3f)\n",  ephemeral_tests, ephemeral_passes, ephemeral_fails, ((float)ephemeral_passes/(float)ephemeral_tests*100.f));
     log_info("Total: %d, Passed: %d, Failed: %d (%%%.3f)\n\n",  total_tests, total_passes, total_fails, ((float)total_passes/(float)total_tests*100.f));
     
@@ -591,16 +591,16 @@ bool test_empty ( int (*circular_buffer_constructor)(circular_buffer **), result
 
     // initialized data
     result_t         result = 0;
-    circular_buffer *p_queue = 0;
+    circular_buffer *p_circular_buffer = 0;
 
-    // Build the queue
-    circular_buffer_constructor(&p_queue);
+    // build the circular buffer
+    circular_buffer_constructor(&p_circular_buffer);
 
     // store the result
-    result = circular_buffer_empty(p_queue);
+    result = circular_buffer_empty(p_circular_buffer);
 
-    // Free the queue
-    circular_buffer_destroy(&p_queue);
+    // free the circular buffer
+    circular_buffer_destroy(&p_circular_buffer, NULL);
 
     // return result
     return (result == expected);
@@ -611,16 +611,16 @@ bool test_full ( int (*circular_buffer_constructor)(circular_buffer **), result_
 
     // initialized data
     result_t         result = 0;
-    circular_buffer *p_queue = 0;
+    circular_buffer *p_circular_buffer = 0;
 
-    // Build the queue
-    circular_buffer_constructor(&p_queue);
+    // build the circular buffer
+    circular_buffer_constructor(&p_circular_buffer);
 
     // store the result
-    result = circular_buffer_full(p_queue);
+    result = circular_buffer_full(p_circular_buffer);
 
-    // Free the queue
-    circular_buffer_destroy(&p_queue);
+    // free the circular buffer
+    circular_buffer_destroy(&p_circular_buffer, NULL);
 
     // return result
     return (result == expected);
@@ -648,7 +648,7 @@ bool test_peek ( int (*circular_buffer_constructor)(circular_buffer **), void *e
     }
 
     // Free the circular buffer
-    circular_buffer_destroy(&p_circular_buffer);
+    circular_buffer_destroy(&p_circular_buffer, NULL);
 
     // return result
     return (result == expected);
