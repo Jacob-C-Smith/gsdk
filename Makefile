@@ -11,7 +11,7 @@ else
 	SHARED_EXT = so
 	SHARED_FLAGS = -shared -Wl,-soname,$(@F)
 	RPATH_FLAGS = -Wl,-rpath,'$$ORIGIN/../lib'
-	LDFLAGS += -lpthread -pthread -O0
+	LDFLAGS += -lpthread -pthread -O3
 endif
 
 # Compiler
