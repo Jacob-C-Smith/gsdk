@@ -10,59 +10,6 @@
  * the tremendous flexability of the pack interface.
  */
 
-/** ! 
- * (
- *  [
- *    f f f f
- *    f f f f
- *    f f f f
- *    f f f f,
- * 
- *    5 5 5 5
- *    5 5 5 5
- *    5 5 5 5
- *    5 5 5 5,
- *    
- *    4 9 9 2 
- *    2 4 4 9
- *    9 2 2 4
- *    4 9 9 2
- *  ],
- *  [
- *    1 1 1 1
- *    1 1 1 1
- *    1 1 1 1
- *    1 1 1 1,
- * 
- *    2 1 8 4
- *    1 0 4 2 
- *    0 8 2 1
- *    8 4 1 0,
- *  
- *    4 1 1 0
- *    0 4 4 1
- *    1 0 0 4 
- *    4 1 1 0,
- *  ],
- *  [
- *   8 1 4 0 
- *   2 0 1 0
- *   0 8 0 4 
- *   0 2 8 1,
- * 
- *   0 1 0 1
- *   0 1 0 1
- *   0 1 0 1
- *   0 1 0 1,
- * 
- *   0 1 0 2
- *   0 4 0 8
- *   1 0 2 0 
- *   4 0 8 0
- *  ]
- * )
- */
-
 // standard library
 #include <stdio.h>
 #include <stdlib.h>
@@ -70,19 +17,27 @@
 #include <stdbool.h>
 
 // gsdk
-#include <gsdk.h>
-
-// core
+/// core
 #include <core/log.h>
 #include <core/pack.h>
 
-// data
+/// data
 #include <data/array.h>
 #include <data/bitmap.h>
 #include <data/tuple.h>
 
+/** !
+ * Pack an array of bitmaps.
+ * 
+ * @param p_buffer result
+ * @param p_array  the array to pack
+ * 
+ * @return bytes written on success, 0 on error
+ */
 int pack_array_of_bitmaps ( void *p_buffer, array *p_array )
 {
+
+    // done
     return array_pack(p_buffer, p_array, (fn_pack *) bitmap_pack);
 }
 
@@ -133,8 +88,7 @@ int main ( int argc, const char *argv[] )
     len = tuple_pack(buf, p_tuple, (fn_pack *) pack_array_of_bitmaps);
 
     // write the buffer to a file
-    fwrite(buf, len, 1, p_f),
-    memset(buf, 0, sizeof(buf)),
+    fwrite(buf, len, 1, p_f);
 
     // close the file
     fclose(p_f);
