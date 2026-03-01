@@ -729,4 +729,3 @@ jobs:
           chmod +x build/examples/parallel_example
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/examples/parallel_example
-  
