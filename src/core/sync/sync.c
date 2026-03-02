@@ -25,7 +25,7 @@ void sync_init ( void )
     // Initialize the log library
     log_init();
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
         QueryPerformanceFrequency((LARGE_INTEGER *)&SYNC_TIMER_DIVISOR);
     #else
@@ -47,24 +47,24 @@ int mutex_create ( mutex *p_mutex )
     // Argument check
     if ( p_mutex == (void *) 0 ) goto no_mutex;
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
 
         // Create a mutex
         *p_mutex = CreateMutex(0, FALSE, 0);
 
-        // return
+        // done
         return ( *p_mutex != 0 );
     #else
 
-        // return
+        // done
         return ( pthread_mutex_init(p_mutex, NULL) == 0 );
     #endif
 
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_mutex:
                 #ifndef NDEBUG
@@ -80,13 +80,13 @@ int mutex_create ( mutex *p_mutex )
 int mutex_lock ( mutex *p_mutex )
 {
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
 
         // Platform dependent argument check
         if ( _mutex == INVALID_HANDLE_VALUE ) goto no_mutex;
 
-        // return
+        // done
         return ( WaitForSingbject(_mutex, INFINITE) == WAIT_FAILED ? 0 : 1 );
     #else
 
@@ -95,7 +95,7 @@ int mutex_lock ( mutex *p_mutex )
             log_info("[sync] [mutex] Locking mutex @ 0x%x\n", (size_t)p_mutex & 0xffff);
         #endif
         
-        // return
+        // done
         return ( pthread_mutex_lock(p_mutex) == 0 );
     #endif
 
@@ -120,11 +120,11 @@ int mutex_lock ( mutex *p_mutex )
 int mutex_unlock ( mutex *p_mutex )
 {
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
         // Platform dependent argument check
         if ( p_mutex == INVALID_HANDLE_VALUE ) goto no_mutex;
-        // return
+        // done
         return ReleaseMutex(_mutex);
     #else
 
@@ -133,7 +133,7 @@ int mutex_unlock ( mutex *p_mutex )
             log_info("[sync] [mutex] Unlocking mutex @ 0x%x\n", (size_t)p_mutex & 0xffff);
         #endif
         
-        // return
+        // done
         return ( pthread_mutex_unlock(p_mutex) == 0 );
     #endif
 
@@ -162,21 +162,21 @@ int mutex_destroy ( mutex *p_mutex )
     // Argument check
     if ( p_mutex == (void *) 0 ) goto no_mutex;
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
 
-        // return
+        // done
         return ( CloseHandle(*p_mutex) );
     #else
 
-        // return
+        // done
         return ( pthread_mutex_destroy(p_mutex) == 0 );
     #endif
 
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_mutex:
                 #ifndef NDEBUG
@@ -196,20 +196,20 @@ int spinlock_create ( spinlock *p_spinlock )
     // Argument check
     if ( p_spinlock == (void *) 0 ) goto no_spinlock;
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
     #elif defined __APPLE__
         return 0;
     #else
 
-        // return
+        // done
         return ( pthread_spin_init(p_spinlock, 0) == 0 );
     #endif
 
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_spinlock:
                 #ifndef NDEBUG
@@ -225,7 +225,7 @@ int spinlock_create ( spinlock *p_spinlock )
 int spinlock_lock ( spinlock *p_spinlock )
 {
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
         (void) p_spinlock;
         return 0;
@@ -233,7 +233,7 @@ int spinlock_lock ( spinlock *p_spinlock )
         (void) p_spinlock;
         return 0;
     #else
-        // return
+        // done
         return ( pthread_spin_lock(p_spinlock) == 0 );
     #endif
 
@@ -258,7 +258,7 @@ int spinlock_lock ( spinlock *p_spinlock )
 int spinlock_unlock ( spinlock *p_spinlock )
 {
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
         (void) p_spinlock;
         return 0;
@@ -266,7 +266,7 @@ int spinlock_unlock ( spinlock *p_spinlock )
         (void) p_spinlock;
         return 0;
     #else
-        // return
+        // done
         return ( pthread_spin_unlock(p_spinlock) == 0 );
     #endif
 
@@ -295,20 +295,20 @@ int spinlock_destroy ( spinlock *p_spinlock )
     // Argument check
     if ( p_spinlock == (void *) 0 ) goto no_spinlock;
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
 
     #elif defined __APPLE__
         return 0;
     #else
-        // return
+        // done
         return ( pthread_spin_destroy(p_spinlock) == 0 );
     #endif
 
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_spinlock:
                 #ifndef NDEBUG
@@ -328,18 +328,18 @@ int rwlock_create ( rwlock *p_rwlock )
     // Argument check
     if ( p_rwlock == (void *) 0 ) goto no_rwlock;
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
     #else
 
-        // return
+        // done
         return ( pthread_rwlock_init(p_rwlock, NULL) == 0 );
     #endif
 
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_rwlock:
                 #ifndef NDEBUG
@@ -357,18 +357,18 @@ int rwlock_lock_rd ( rwlock *p_rwlock )
     // Argument check
     if ( p_rwlock == (void *) 0 ) goto no_rwlock;
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
     #else
 
-        // return
+        // done
         return ( pthread_rwlock_rdlock(p_rwlock) == 0 );
     #endif
 
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_rwlock:
                 #ifndef NDEBUG
@@ -386,18 +386,18 @@ int rwlock_lock_wr ( rwlock *p_rwlock )
     // Argument check
     if ( p_rwlock == (void *) 0 ) goto no_rwlock;
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
     #else
 
-        // return
+        // done
         return ( pthread_rwlock_wrlock(p_rwlock) == 0 );
     #endif
 
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_rwlock:
                 #ifndef NDEBUG
@@ -425,7 +425,7 @@ int rwlock_lock_timeout_rd ( rwlock *p_rwlock, timestamp _time )
         };
     #endif
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
         (void) p_spinlock;
         return 0;
@@ -434,14 +434,14 @@ int rwlock_lock_timeout_rd ( rwlock *p_rwlock, timestamp _time )
         (void) _time;
         return 0;
     #else
-        // return
+        // done
         return ( pthread_rwlock_timedrdlock(p_rwlock, &abstime) == 0 );
     #endif
 
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_rwlock:
                 #ifndef NDEBUG
@@ -469,21 +469,21 @@ int rwlock_lock_timeout_wr ( rwlock *p_rwlock, timestamp _time )
         };
     #endif
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
 
     #elif defined __APPLE__
         (void) _time;
         return 0;
     #else
-        // return
+        // done
         return ( pthread_rwlock_timedwrlock(p_rwlock, &abstime) == 0 );
     #endif
 
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_rwlock:
                 #ifndef NDEBUG
@@ -501,18 +501,18 @@ int rwlock_unlock ( rwlock *p_rwlock )
     // Argument check
     if ( p_rwlock == (void *) 0 ) goto no_rwlock;
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
     #else
 
-        // return
+        // done
         return ( pthread_rwlock_unlock(p_rwlock) == 0 );
     #endif
 
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_rwlock:
                 #ifndef NDEBUG
@@ -531,18 +531,18 @@ int rwlock_destroy ( rwlock *p_rwlock )
     // Argument check
     if ( p_rwlock == (void *) 0 ) goto no_rwlock;
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
     #else
 
-        // return
+        // done
         return ( pthread_rwlock_destroy(p_rwlock) == 0 );
     #endif
 
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_rwlock:
                 #ifndef NDEBUG
@@ -562,13 +562,13 @@ int semaphore_create ( semaphore *p_semaphore, unsigned int count )
     // Argument check
     if ( p_semaphore == (void *) 0 ) goto no_semaphore;
     
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
 
         // Create a semaphore with the specified count
         *p_semaphore = CreateSemaphore(NULL, count, count, NULL);
 
-        // return
+        // done
         return ( p_semaphore != 0 );
     #else
 
@@ -581,7 +581,7 @@ int semaphore_create ( semaphore *p_semaphore, unsigned int count )
             sem_unlink(sem_name); // Remove the name but keep the semaphore
             return (*p_semaphore != SEM_FAILED);
         #else
-            // return
+            // done
             return ( sem_init(p_semaphore, 0, count) == 0 );
         #endif
     #endif
@@ -589,7 +589,7 @@ int semaphore_create ( semaphore *p_semaphore, unsigned int count )
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_semaphore:
                 #ifndef NDEBUG
@@ -605,19 +605,19 @@ int semaphore_create ( semaphore *p_semaphore, unsigned int count )
 int semaphore_wait ( semaphore _semaphore )
 {
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
         
         // Platform dependent argument check
         if ( _semaphore == INVALID_HANDLE_VALUE ) goto no_semaphore;
         
-        // return
+        // done
         return ( WaitForSingleObject(_semaphore, INFINITE) == WAIT_FAILED ? 0 : 1 );
     #elif defined(__APPLE__)
         // return (using pointer type for macOS)
         return (sem_wait(_semaphore) == 0);
     #else
-        // return
+        // done
         return (sem_wait(&_semaphore) == 0);
     #endif
 
@@ -642,26 +642,26 @@ int semaphore_wait ( semaphore _semaphore )
 int semaphore_try_wait ( semaphore _semaphore )
 {
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
 
         // Platform dependent argument check
         if ( _semaphore == INVALID_HANDLE_VALUE ) goto no_semaphore;
 
-        // return
+        // done
         return ( WaitForSingleObject(_semaphore, 0) == WAIT_OBJECT_0 ? 1 : 0 );
     #elif defined(__APPLE__)
         // return (using pointer type for macOS)
         return ( sem_trywait(_semaphore) == 0 );
     #else
-        // return
+        // done
         return ( sem_trywait(&_semaphore) == 0 );
     #endif
 
     // error handling
     {
 
-        // Argument errors
+        // argument errors
         {
             #ifdef _WIN64
                 no_semaphore:
@@ -679,19 +679,19 @@ int semaphore_try_wait ( semaphore _semaphore )
 int semaphore_signal ( semaphore _semaphore )
 {
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
 
         // Platform dependent argument check
         if ( _semaphore == INVALID_HANDLE_VALUE ) goto no_semaphore;
 
-        // return
+        // done
         return ( ReleaseSemaphore(_semaphore, 1, 0) );
     #elif defined(__APPLE__)
         // return (using pointer type for macOS)
         return ( sem_post(_semaphore) == 0 );
     #else
-        // return
+        // done
         return ( sem_post(&_semaphore) == 0 );
     #endif
 
@@ -700,7 +700,7 @@ int semaphore_signal ( semaphore _semaphore )
     // error handling
     {
 
-        // Argument errors
+        // argument errors
         {
             #ifdef _WIN64
                 no_semaphore:
@@ -721,14 +721,14 @@ int semaphore_destroy ( semaphore *p_semaphore )
     // Argument check
     if ( p_semaphore == (void *) 0 ) goto no_semaphore;
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
 
-        // return
+        // done
         return ( CloseHandle(*p_semaphore) );
     #else
 
-        // return
+        // done
         #ifdef __APPLE__
             return (sem_close(*p_semaphore) == 0);
         #else
@@ -739,7 +739,7 @@ int semaphore_destroy ( semaphore *p_semaphore )
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_semaphore:
                 #ifndef NDEBUG
@@ -758,18 +758,18 @@ int condition_variable_create ( condition_variable *p_condition_variable )
     // Argument check
     if ( p_condition_variable == (void *) 0 ) goto no_condition_variable;
     
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
     #else
 
-        // return
+        // done
         return ( pthread_cond_init(p_condition_variable, NULL) == 0 );
     #endif
 
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_condition_variable:
                 #ifndef NDEBUG
@@ -789,18 +789,18 @@ int condition_variable_wait ( condition_variable *p_condition_variable, mutex *p
     if ( p_condition_variable == (void *) 0 ) goto no_condition_variable;
     if ( p_mutex              == (void *) 0 ) goto no_mutex;
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
     #else
 
-        // return
+        // done
         return ( pthread_cond_wait(p_condition_variable, p_mutex) == 0 );
     #endif
 
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_condition_variable:
                 #ifndef NDEBUG
@@ -837,20 +837,20 @@ int condition_variable_wait_timeout ( condition_variable *p_condition_variable, 
         };
     #endif
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
 
         // TODO
     #else
 
-        // return
+        // done
         return ( pthread_cond_timedwait(p_condition_variable, p_mutex, &abstime) == 0 );
     #endif
 
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_condition_variable:
                 #ifndef NDEBUG
@@ -874,11 +874,11 @@ int condition_variable_wait_timeout ( condition_variable *p_condition_variable, 
 int condition_variable_signal ( condition_variable *p_condition_variable )
 {
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
     #else
 
-        // return
+        // done
         return pthread_cond_signal(p_condition_variable);
     #endif
 }
@@ -886,11 +886,11 @@ int condition_variable_signal ( condition_variable *p_condition_variable )
 int condition_variable_broadcast ( condition_variable *p_condition_variable )
 {
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
     #else
 
-        // return
+        // done
         return pthread_cond_broadcast(p_condition_variable);
     #endif
 }
@@ -901,18 +901,18 @@ int condition_variable_destroy ( condition_variable *p_condition_variable )
     // Argument check
     if ( p_condition_variable == (void *) 0 ) goto no_condition_variable;
     
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
     #else
 
-        // return
+        // done
         return ( pthread_cond_destroy(p_condition_variable) == 0 );
     #endif
 
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_condition_variable:
                 #ifndef NDEBUG
@@ -927,27 +927,34 @@ int condition_variable_destroy ( condition_variable *p_condition_variable )
 
 int monitor_create ( monitor *p_monitor )
 {
-    // Argument check
+    // argument check
     if ( p_monitor == (void *) 0 ) goto no_monitor;
     
-    // Platform dependent implementation
+    // platform dependent initialized data
+    #ifdef _WIN64
+
+    #else
+
+    #endif
+
+    // platform dependent implementation
     #ifdef _WIN64
         // TODO
         //
 
     #else
 
-        int ret = ( pthread_cond_init(&p_monitor->_cond, NULL) == 0 );
-        ret &= ( pthread_mutex_init(&p_monitor->_mutex, NULL) == 0 );
-
-        // return
-        return  ret;
+        // done
+        return (
+            ( pthread_cond_init(&p_monitor->_cond, NULL)   == 0 ) &&
+            ( pthread_mutex_init(&p_monitor->_mutex, NULL) == 0 )
+        );
     #endif
 
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_monitor:
                 #ifndef NDEBUG
@@ -963,13 +970,13 @@ int monitor_create ( monitor *p_monitor )
 int monitor_wait ( monitor *p_monitor )
 {
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
         
         // TODO
     #else
 
-        // Initialized data
+        // initialized data
         int ret = 0;
 
         // lock
@@ -981,7 +988,7 @@ int monitor_wait ( monitor *p_monitor )
         // unlock
         mutex_unlock(&p_monitor->_mutex);
 
-        // return
+        // done
         return ret;
     #endif
 }
@@ -989,13 +996,13 @@ int monitor_wait ( monitor *p_monitor )
 int monitor_notify ( monitor *p_monitor )
 {
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
         
         // TODO
     #else
 
-        // return
+        // done
         return pthread_cond_signal(&p_monitor->_cond);
     #endif
 }
@@ -1003,13 +1010,13 @@ int monitor_notify ( monitor *p_monitor )
 int monitor_notify_all ( monitor *p_monitor )
 {
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
         
         // TODO
     #else
 
-        // return
+        // done
         return pthread_cond_broadcast(&p_monitor->_cond);
     #endif
 }
@@ -1020,21 +1027,21 @@ int monitor_destroy ( monitor *p_monitor )
     // Argument check
     if ( p_monitor == (void *) 0 ) goto no_monitor;
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
         // TODO
         //
 
     #else
 
-        // return
+        // done
         return ( pthread_cond_destroy(&p_monitor->_cond) == 0 ) && ( pthread_mutex_destroy(&p_monitor->_mutex) == 0 );
     #endif
 
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_monitor:
                 #ifndef NDEBUG
@@ -1069,7 +1076,7 @@ int barrier_create ( barrier *p_barrier, unsigned int count )
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_barrier:
                 #ifndef NDEBUG
@@ -1110,7 +1117,7 @@ int barrier_wait ( barrier *p_barrier )
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_barrier:
                 #ifndef NDEBUG
@@ -1144,7 +1151,7 @@ int barrier_destroy ( barrier *p_barrier )
     // error handling
     {
         
-        // Argument errors
+        // argument errors
         {
             no_barrier:
                 #ifndef NDEBUG
@@ -1161,17 +1168,17 @@ int barrier_destroy ( barrier *p_barrier )
 timestamp timer_high_precision ( void )
 {
     
-    // Initialized data
+    // initialized data
     timestamp ret = 0;
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
 
         // Query the performance counter
         QueryPerformanceCounter((LARGE_INTEGER *)&ret);
     #else
 
-        // Initialized data
+        // initialized data
         struct timespec ts;
 
         // Populate the time struct using the monotonic timer
