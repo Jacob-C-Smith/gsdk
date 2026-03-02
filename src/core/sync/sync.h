@@ -13,10 +13,11 @@
 #include <stdio.h>
 #include <time.h>
 
-// log module
+// gsdk
+/// core
 #include <core/log.h>
 
-// Platform dependent includes
+// platform dependent includes
 #ifdef _WIN64
     #include <windows.h>
     #include <process.h>
@@ -26,16 +27,16 @@
     #include <semaphore.h>
 #endif
 
-// Platform dependent typedefs
+// platform dependent typedefs
 #ifdef _WIN64
     typedef HANDLE mutex;
     typedef HANDLE semaphore;
     typedef HANDLE thread;
 #elif defined __APPLE__
     typedef pthread_mutex_t    mutex;
-    // typedef pthread_rwlock_t   rwlock;
-    typedef sem_t*            semaphore;  // Use pointer type for named semaphores
+    typedef sem_t*             semaphore;  // Use pointer type for named semaphores
     typedef pthread_cond_t     condition_variable;
+    // typedef pthread_rwlock_t  rwlock;
     // typedef int               spinlock;    // Fallback for unsupported spinlock
     // typedef int               barrier;     // Fallback for unsupported barrier
     typedef struct
@@ -120,8 +121,6 @@ signed timer_seconds_divisor ( void );
  * 
  * @param p_mutex result
  * 
- * @sa mutex_destroy
- * 
  * @return 1 on success, 0 on error
 */
 int mutex_create ( mutex *p_mutex );
@@ -131,8 +130,6 @@ int mutex_create ( mutex *p_mutex );
  * 
  * @param p_mutex the mutex
  * 
- * @sa mutex_unlock
- * 
  * @return 1 on success, 0 on error
  */
 int mutex_lock ( mutex *p_mutex );
@@ -141,8 +138,6 @@ int mutex_lock ( mutex *p_mutex );
  * Unlock a mutex
  * 
  * @param p_mutex the mutex
- * 
- * @sa mutex_lock
  * 
  * @return 1 on success, 0 on error
  */
@@ -300,8 +295,6 @@ int mutex_destroy ( mutex *p_mutex );
  * @param p_semaphore result
  * @param count       the initial count
  * 
- * @sa semaphore_destroy
- * 
  * @return 1 on success, 0 on error
  */
 int semaphore_create ( semaphore *p_semaphore, unsigned int count );
@@ -309,42 +302,34 @@ int semaphore_create ( semaphore *p_semaphore, unsigned int count );
 /** !
  * Wait on a semaphore
  * 
- * @param _semaphore the semaphore
- * 
- * @sa semaphore_signal
+ * @param p_semaphore the semaphore
  * 
  * @return 1 on success, 0 on error
  */
-int semaphore_wait ( semaphore _semaphore );
+int semaphore_wait ( semaphore *p_semaphore );
 
 /** !
  * Try to wait on a semaphore (non-blocking)
  * 
- * @param _semaphore the semaphore
- * 
- * @sa semaphore_wait
+ * @param p_semaphore the semaphore
  * 
  * @return 1 on success, 0 on error/busy
  */
-int semaphore_try_wait ( semaphore _semaphore );
+int semaphore_try_wait ( semaphore *p_semaphore );
 
 /** !
  * Signal a semaphore
  * 
  * @param _semaphore the semaphore
  * 
- * @sa semaphore_wait
- * 
  * @return 1 on success, 0 on error
  */
-int semaphore_signal ( semaphore _semaphore );
+int semaphore_signal ( semaphore *p_semaphore );
 
 /** !
- * Free a semaphore
+ * Release a semaphore
  * 
  * @param p_semaphore the semaphore
- * 
- * @sa semaphore_create
  * 
  * @return 1 on success, 0 on error
  */
@@ -356,8 +341,6 @@ int semaphore_destroy ( semaphore *p_semaphore );
  * 
  * @param p_condition_variable result
  * 
- * @sa condition_variable_destroy
- * 
  * @return 1 on success, 0 on error
  */
 int condition_variable_create ( condition_variable *p_condition_variable );
@@ -367,8 +350,6 @@ int condition_variable_create ( condition_variable *p_condition_variable );
  * 
  * @param p_condition_variable the condition variable
  * @param p_mutex              the mutex
- * 
- * @sa condition_variable_wait_timeout
  * 
  * @return 1 on success, 0 on error
  */
@@ -381,8 +362,6 @@ int condition_variable_wait ( condition_variable *p_condition_variable, mutex *p
  * @param p_mutex              the mutex
  * @param _time                the quantity of time to wait, in nanoseconds
  * 
- * @sa condition_variable_wait
- * 
  * @return 1 on success, 0 on error
  */
 int condition_variable_wait_timeout ( condition_variable *p_condition_variable, mutex *p_mutex, timestamp _time );
@@ -391,8 +370,6 @@ int condition_variable_wait_timeout ( condition_variable *p_condition_variable, 
  * Signal once thread
  * 
  * @param p_condition_variable the condition variable
- * 
- * @sa condition_variable_broadcast
  * 
  * @return 1 on success, 0 on error
  */
@@ -403,8 +380,6 @@ int condition_variable_signal ( condition_variable *const p_condition_variable )
  * 
  * @param p_condition_variable the condition variable
  * 
- * @sa condition_variable_signal
- * 
  * @return 1 on success, 0 on error
  */
 int condition_variable_broadcast ( condition_variable *const p_condition_variable );
@@ -413,8 +388,6 @@ int condition_variable_broadcast ( condition_variable *const p_condition_variabl
  * Destroy a condition variable
  * 
  * @param p_condition_variable the condition variable
- * 
- * @sa condition_variable_create
  * 
  * @return 1 on success, 0 on error
  */
@@ -426,8 +399,6 @@ int condition_variable_destroy ( condition_variable *p_condition_variable );
  * 
  * @param p_monitor result
  * 
- * @sa monitor_destroy
- * 
  * @return 1 on success, 0 on error
  */
 int monitor_create ( monitor *p_monitor );
@@ -436,9 +407,6 @@ int monitor_create ( monitor *p_monitor );
  * Wait on a monitor
  * 
  * @param p_monitor the monitor
- * 
- * @sa monitor_notify
- * @sa monitor_notify_all
  * 
  * @return 1 on success, 0 on error
  */
@@ -449,9 +417,6 @@ int monitor_wait ( monitor *p_monitor );
  * 
  * @param p_monitor the monitor
  * 
- * @sa monitor_wait
- * @sa monitor_notify_all
- * 
  * @return 1 on success, 0 on error
  */
 int monitor_notify ( monitor *p_monitor );
@@ -461,9 +426,6 @@ int monitor_notify ( monitor *p_monitor );
  * 
  * @param p_monitor the monitor
  * 
- * @sa monitor_wait
- * @sa monitor_notify
- * 
  * @return 1 on success, 0 on error
  */
 int monitor_notify_all ( monitor *p_monitor );
@@ -472,8 +434,6 @@ int monitor_notify_all ( monitor *p_monitor );
  * Free a monitor
  * 
  * @param p_monitor the monitor
- * 
- * @sa monitor_create
  * 
  * @return 1 on success, 0 on error
  */

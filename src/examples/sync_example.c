@@ -189,7 +189,7 @@ int main ( int argc, const char *argv[] )
         // destroy
     }
 
-    // #X - end
+    // #5 - end
     checkpoint("end");
 
     // success

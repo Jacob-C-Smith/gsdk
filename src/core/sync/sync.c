@@ -602,7 +602,7 @@ int semaphore_create ( semaphore *p_semaphore, unsigned int count )
     }
 }
 
-int semaphore_wait ( semaphore _semaphore )
+int semaphore_wait ( semaphore *p_semaphore )
 {
 
     // platform dependent implementation
@@ -615,10 +615,10 @@ int semaphore_wait ( semaphore _semaphore )
         return ( WaitForSingleObject(_semaphore, INFINITE) == WAIT_FAILED ? 0 : 1 );
     #elif defined(__APPLE__)
         // return (using pointer type for macOS)
-        return (sem_wait(_semaphore) == 0);
+        return (sem_wait(p_semaphore) == 0);
     #else
         // done
-        return (sem_wait(&_semaphore) == 0);
+        return (sem_wait(p_semaphore) == 0);
     #endif
 
     // error handling
@@ -639,7 +639,7 @@ int semaphore_wait ( semaphore _semaphore )
     }
 }
 
-int semaphore_try_wait ( semaphore _semaphore )
+int semaphore_try_wait ( semaphore *p_semaphore )
 {
 
     // platform dependent implementation
@@ -652,10 +652,10 @@ int semaphore_try_wait ( semaphore _semaphore )
         return ( WaitForSingleObject(_semaphore, 0) == WAIT_OBJECT_0 ? 1 : 0 );
     #elif defined(__APPLE__)
         // return (using pointer type for macOS)
-        return ( sem_trywait(_semaphore) == 0 );
+        return ( sem_trywait(p_semaphore) == 0 );
     #else
         // done
-        return ( sem_trywait(&_semaphore) == 0 );
+        return ( sem_trywait(p_semaphore) == 0 );
     #endif
 
     // error handling
@@ -676,7 +676,7 @@ int semaphore_try_wait ( semaphore _semaphore )
     }
 }
 
-int semaphore_signal ( semaphore _semaphore )
+int semaphore_signal ( semaphore *p_semaphore )
 {
 
     // platform dependent implementation
@@ -689,13 +689,11 @@ int semaphore_signal ( semaphore _semaphore )
         return ( ReleaseSemaphore(_semaphore, 1, 0) );
     #elif defined(__APPLE__)
         // return (using pointer type for macOS)
-        return ( sem_post(_semaphore) == 0 );
+        return ( sem_post(p_semaphore) == 0 );
     #else
         // done
-        return ( sem_post(&_semaphore) == 0 );
+        return ( sem_post(p_semaphore) == 0 );
     #endif
-
-
 
     // error handling
     {
