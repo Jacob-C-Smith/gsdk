@@ -570,7 +570,7 @@ void bathroom ( void *env )
 
     // wait
     sleep(1),
-    semaphore_wait(p_room->_semaphore),
+    semaphore_wait(&p_room->_semaphore),
     p_room->occupied++,
     printf("\033[34m[bathroom]\033[0m \033[32m++\033[0m %d/%d\r", p_room->occupied, p_room->lim); fflush(stdout);
 
@@ -581,7 +581,7 @@ void bathroom ( void *env )
     p_room->occupied--,
     printf("\033[34m[bathroom]\033[0m \033[31m--\033[0m %d/%d\r", p_room->occupied, p_room->lim); fflush(stdout),
     sleep(1),
-    semaphore_signal(p_room->_semaphore);
+    semaphore_signal(&p_room->_semaphore);
     
     // done
     return;
