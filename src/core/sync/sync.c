@@ -728,7 +728,7 @@ int semaphore_destroy ( semaphore *p_semaphore )
 
         // done
         #ifdef __APPLE__
-            return (sem_close(*p_semaphore) == 0);
+            return (sem_close(p_semaphore) == 0);
         #else
             return (sem_destroy(p_semaphore) == 0);
         #endif
