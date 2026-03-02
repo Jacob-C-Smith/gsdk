@@ -178,12 +178,13 @@ int main ( int argc, const char *argv[] )
         for (size_t i = 0; i < 8; i++)
             pthread_create(&_threads[i], NULL, child, (void *)i);
 
+        // get products of boxes
         for (size_t i = 0; i < 8; i++)
             box_get(&_box, &v);
 
         // join threads
         for (size_t i = 0; i < 8; i++)
-            pthread_join(&_threads[i], NULL);
+            pthread_join(_threads[i], NULL);
 
         // destroy
     }
@@ -204,7 +205,6 @@ void *child ( void *p_parameter )
     // done
     return NULL;
 }
-
 
 int box_put ( box *p_box, int  value )
 {
