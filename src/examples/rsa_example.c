@@ -1,5 +1,5 @@
 /** ! 
- * Cryptographic primitives
+ * RSA example
  * 
  * @file src/examples/rsa_example.c
  * 
@@ -13,7 +13,8 @@
 #include <limits.h>
 #include <time.h>
 
-// core
+// gsdk
+/// core
 #include <core/log.h>
 #include <core/rsa.h>
 
@@ -21,6 +22,27 @@
 #define RED "\033[91m"
 #define BLUE "\033[94m"
 #define RESET "\033[0m"
+
+// forward declarations
+/// logs
+int checkpoint ( const char *p_event );
+
+// data
+/// working keys
+public_key  *p_public_key  = NULL;
+private_key *p_private_key = NULL;
+
+/// plain, encrypted, decrypted
+char x[256] = { 's', 'e', 'c', 'r', 'e', 't', '\0' },
+     y[256] = { 0 },
+     z[256] = { 0 };
+
+/// large file
+char _hegel_logic_x[922886] = { 0 };
+char _hegel_logic_y[922886] = { 0 };
+char _hegel_logic_z[922886] = { 0 };
+hash64 h1 = 0,
+       h2 = 0;
 
 // entry point
 int main ( int argc, const char *argv[] )
@@ -30,51 +52,98 @@ int main ( int argc, const char *argv[] )
     (void) argc;
     (void) argv;
     
-    // initialized data
-    public_key  *p_public_key  = NULL;
-    private_key *p_private_key = NULL;
-    char x[256] = { 0 },
-         y[256] = { 0 },
-         z[256] = { 0 };
+    // #1 - start
+    checkpoint("start");
 
-    memcpy(x, "secret\0\0", 8);
-    
-    // construct a key pair
-    key_pair_from_files
-    (
-        &p_public_key,               // result
-        &p_private_key,              // result
-        "resources/core/public.key", // path to public key
-        "resources/core/private.key" // path to private key
-    );
+    // #2 - generate a keypair
+    {
 
-    // print the public and private keys
-    printf(RESET "key info:"),
-    print_public_key(p_public_key),
-    print_private_key(p_private_key);
+        // construct the keypair
+        key_pair_construct(&p_public_key, &p_private_key);
 
-    // print the results
-    printf(RESET "encryption test:\n"),
+        // checkpoint
+        checkpoint("generating a key pair");
 
-    // input
-    printf(" inp = " RED);
-    print_n_bit_int(*(i2048*)x);
+        // print the public and private keys
+        print_public_key(p_public_key), print_private_key(p_private_key),
+        putchar('\n');
+        
+    }
 
-    // encrypt test value x into ciphertext y
-    rsa_encrypt(&x, &y, p_public_key);
+    // #3 - load a keypair
+    {
 
-    // encrypted text
-    printf(RESET "\n enc = " BLUE);
-    print_n_bit_int(*(i2048*)y);
+        // construct a key pair
+        key_pair_from_files
+        (
+            &p_public_key,               // result
+            &p_private_key,              // result
+            "resources/core/public.key", // path to public key
+            "resources/core/private.key" // path to private key
+        );
 
-    // decrypt ciphertext y into plaintext z
-    rsa_decrypt(&y, &z, p_public_key, p_private_key);
-    
-    // decrypted text
-    printf(RESET "\n dec = " RED);
-    print_n_bit_int(*(i2048*)z);
-    printf(RESET "\n");
+        // checkpoint
+        checkpoint("loading a key pair");
+
+        // print the public and private keys
+        print_public_key(p_public_key), print_private_key(p_private_key);
+        putchar('\n');
+
+    }
+
+    // #4 - block encrypt
+    {
+
+        // encrypt test value x into ciphertext y
+        rsa_encrypt(&x, &y, p_public_key);
+
+        // checkpoint
+        checkpoint("block encryption");
+
+        // input
+        printf(" inp = " RED), print_n_bit_int(*(i2048*)x);
+
+        // encrypted text
+        putchar('\n'), 
+        printf(RESET " enc = " BLUE), print_n_bit_int(*(i2048*)y),
+        putchar('\n'), putchar('\n');
+    }
+
+    // #5 - block decrypt
+    {
+
+        // decrypt ciphertext y into plaintext z
+        rsa_decrypt(&y, &z, p_public_key, p_private_key);
+        
+        // checkpoint
+        checkpoint("block decryption");
+
+        // decrypted text
+        printf(RESET " enc = " BLUE), print_n_bit_int(*(i2048*)y),
+        putchar('\n'), 
+        printf(RESET " dec = " RED), print_n_bit_int(*(i2048*)z),
+        putchar('\n'), putchar('\n');
+    }
+
+    // #6 - done
+    checkpoint("done");
 
     // success
     return EXIT_SUCCESS;
+}
+
+int checkpoint ( const char *p_event )
+{
+    
+    // static data
+    static int step = 0;
+    
+    // print the event
+    log_info("#%d - %s\n", step, p_event),
+    
+    // increment counter
+    step++;
+    
+    // success
+    return 1;
 }

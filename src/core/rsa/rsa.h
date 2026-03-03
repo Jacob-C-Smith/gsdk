@@ -1,5 +1,5 @@
 /** ! 
- * RSA (en/de)cryption with C23 BitInt
+ * RSA module interface
  * 
  * @file src/core/rsa/rsa.h
  * 
@@ -16,7 +16,8 @@
 #include <limits.h>
 #include <time.h>
 
-// core
+// gsdk
+/// core
 #include <core/log.h>
 #include <core/hash.h>
 #include <core/sha.h>
@@ -172,45 +173,3 @@ int rsa_encrypt ( void *p_x, void *p_y, public_key *p_public_key );
  */
 int rsa_decrypt ( void *p_y, void *p_z, public_key *p_public_key, private_key *p_private_key );
 
-/** !
- * RSAES-OAEP-ENCRYPT using SHA-256 and MGF1
- *
- * @param p_public_key the public key
- * @param p_msg        plaintext buffer
- * @param msg_len      plaintext length in bytes
- * @param p_label      optional label (can be NULL)
- * @param label_len    label length in bytes (0 if p_label is NULL)
- * @param p_out        output buffer for ciphertext (k bytes)
- * @param p_out_len    in: size of p_out; out: bytes written (k)
- *
- * @return 1 on success, 0 on error
- */
-int rsa_oaep_encrypt
-(
-    public_key *p_public_key,
-    const unsigned char *p_msg  , size_t msg_len,
-    const unsigned char *p_label, size_t label_len,
-    unsigned char       *p_out  , size_t *p_out_len
-);
-
-/** !
- * RSAES-OAEP-DECRYPT using SHA-256 and MGF1
- *
- * @param p_public_key  the public key (for n)
- * @param p_private_key the private key
- * @param p_ct          ciphertext buffer (k bytes)
- * @param ct_len        ciphertext length in bytes (must equal k)
- * @param p_label       optional label (must match encryption)
- * @param label_len     label length
- * @param p_out         output buffer for plaintext
- * @param p_out_len     in: capacity of p_out; out: bytes written
- *
- * @return 1 on success, 0 on error
- */
-int rsa_oaep_decrypt 
-(
-    public_key          *p_public_key , private_key *p_private_key,
-    const unsigned char *p_cipher_text, size_t       cipher_text_len,
-    const unsigned char *p_label      , size_t       label_len,
-    unsigned char       *p_out        , size_t      *p_out_len
-);

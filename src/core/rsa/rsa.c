@@ -1,5 +1,5 @@
 /** ! 
- * RSA (en/de)cryption with C23 BitInt
+ * RSA module implementation
  * 
  * @file src/core/rsa/rsa.c
  * 
@@ -578,7 +578,7 @@ int print_public_key ( public_key *p_public_key )
 {
 
     // Print the public key
-    printf("\n" BLUE "PUBLIC KEY" RESET ":\n"),
+    printf(BLUE "PUBLIC KEY" RESET ":\n"),
     
     printf(" n = " BLUE),
     print_n_bit_int(p_public_key->n),
