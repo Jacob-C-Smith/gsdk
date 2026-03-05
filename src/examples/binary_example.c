@@ -21,7 +21,7 @@
 // structure definitions
 struct number_and_string_s
 {
-    char _string[12];
+    char _string[16];
     int  number;
 };
 
@@ -38,6 +38,8 @@ fn_comparator   number_and_string_number_comparator;
 fn_key_accessor number_and_string_number_key_accessor;
 fn_pack         number_and_string_pack;
 fn_unpack       number_and_string_unpack;
+fn_hash64       number_and_string_hash;
+fn_allocator    number_and_string_destroy;
 
 int number_and_string_number_print ( void *p_value );
 int number_and_string_string_print ( void *p_value );
@@ -48,7 +50,7 @@ binary_tree *p_binary_tree = 0;
 
 /// file for reflection
 FILE *p_f = NULL;
-size_t len = 0;
+size_t file_len = 0;
 
 /// hashes
 hash64 h1 = 0,
@@ -159,36 +161,122 @@ int main ( int argc, const char *argv[] )
         binary_tree_traverse_postorder(p_binary_tree, number_and_string_string_print), putchar('\n'),
         putchar('\n');
     }
-
-    // #6 - remove
+    
+    // #6 - to binary
     {
 
-        // iterate through integer multiples of 4
-        for (size_t i = 0; i < sizeof(_values)/sizeof(*_values); i += 4)
+        // initialized data
+        char buf[1024] = { 0 };
+        
+        // Open a file for writing
+        p_f = fopen("resources/reflection/binary_tree.bin", "wb");
 
-            // remove them
+        // reflect the binary tree to a buffer
+        file_len = binary_tree_pack(buf, p_binary_tree, number_and_string_pack),
+        
+        // write the buffer to a file
+        fwrite(buf, file_len, 1, p_f),
+
+        // close the file
+        fclose(p_f);
+
+        // checkpoint
+        checkpoint(p_binary_tree, "after serialize"),
+        putchar('\n');
+    }
+ 
+    // #7 - hash 1
+    {
+        
+        // hash the binary tree
+        h1 = binary_tree_hash(p_binary_tree, number_and_string_hash);
+
+        // print the hash
+        printf("hash 1 -> 0x%llx\n", h1);
+
+        // checkpoint
+        checkpoint(p_binary_tree, "after hash 1"),
+        putchar('\n');
+    }
+
+    // #8 - remove
+    {
+
+        // remove multiples of 4
+        for (size_t i = 0; i < sizeof(_values)/sizeof(*_values); i += 4)
             binary_tree_remove(p_binary_tree, (void *)i, NULL);
 
         // checkpoint
         checkpoint(p_binary_tree, "after remove"),
         putchar('\n');
-        
     }
 
-    // // #7 - hash 1
-    // {
+    // #9 - destroy
+    {
+
+        // destroy the binary tree
+        binary_tree_destroy(&p_binary_tree, NULL);
+
+        // checkpoint
+        checkpoint(p_binary_tree, "after destroy"),
+        putchar('\n');
+    }
+
+    // #10 - from binary
+    {
         
-    //     // initialized data
-    //     h1 = binary_tree_hash(p_binary_tree, NULL);
+        // initialized data
+        char buf[1024] = { 0 };
+        
+        // read a buffer from a file
+        p_f = fopen("resources/reflection/binary_tree.bin", "rb"),
+        fread(buf, sizeof(char), file_len, p_f),
+        fclose(p_f);
+        
+        // reflect a binary tree from the buffer
+        binary_tree_unpack(
+            &p_binary_tree, 
+            buf, 
+            
+            number_and_string_unpack,
+            number_and_string_number_comparator,
+            number_and_string_number_key_accessor
+        );
 
-    //     // print the hash
-    //     printf("hash 1 -> 0x%llx\n", h1);
+        // checkpoint
+        checkpoint(p_binary_tree, "after unpack"),
+        putchar('\n');
+    }
 
-    //     // checkpoint
-    //     checkpoint(p_binary_tree, "after hash 1"),
-    //     putchar('\n');
-    // }
+    // #11 - hash 2
+    {
+        
+        // hash the binary tree
+        h2 = binary_tree_hash(p_binary_tree, number_and_string_hash);
 
+        // print the hash
+        printf("hash 2 -> 0x%llx\n", h2);
+
+        // error check
+        if ( h1 != h2 ) 
+
+            // abort
+            log_error("Error: hash 1 != hash 2\n"), exit(EXIT_FAILURE);
+
+        // checkpoint
+        checkpoint(p_binary_tree, "after hash 2");
+    }
+
+    // #12 - destroy
+    {
+
+        // destroy the binary tree
+        binary_tree_destroy(&p_binary_tree, default_allocator);
+
+        // checkpoint
+        checkpoint(p_binary_tree, "after destroy"),
+        putchar('\n');
+    }
     // success
     return EXIT_SUCCESS;
 }
@@ -201,7 +289,7 @@ int checkpoint ( binary_tree *p_binary_tree, const char *p_event )
 
     // print the array
     if ( NULL == p_binary_tree )
-        log_info("#%d - Binary tree %s: \n", step, p_event);
+        log_info("#%d - Binary tree %s: NULL\n", step, p_event);
     else
         log_info("#%d - Binary tree %s:\n", step, p_event),
         
@@ -284,31 +372,57 @@ int number_and_string_string_print ( void *p_value )
     return 1;
 }
 
-int binary_tree_example_serializer ( FILE *p_file, binary_tree_node *p_binary_tree_node )
+hash64 number_and_string_hash ( const void *const k, unsigned long long l )
 {
 
-    // Write the key to the output
-    fwrite(p_binary_tree_node->p_value, sizeof(number_and_string), 1, p_file);
-    
-    // success
-    return 1;
+    // unused
+    (void) l;
+
+    // done
+    return default_hash(k, sizeof(number_and_string));
 }
 
-int binary_tree_example_parser ( FILE *p_file, binary_tree_node *p_binary_tree_node )
+int number_and_string_pack ( void *p_buffer, const void *const p_value )
+{
+
+    // initialized data 
+    number_and_string *p_number_and_string = (number_and_string *)p_value;
+    char *p = p_buffer;
+
+    // pack the metadata
+    p += pack_pack(p_buffer, "%i32%s", 
+        p_number_and_string->number,
+        p_number_and_string->_string
+    );
+
+    // success
+    return sizeof(number_and_string);
+}
+
+int number_and_string_unpack ( void *const p_value, void *p_buffer )
 {
 
     // initialized data
-    number_and_string *p_number_and_string = malloc(sizeof(number_and_string));
+    number_and_string **pp_value            = (number_and_string **) p_value;
+    number_and_string  *p_number_and_string = NULL;
 
-    // Read a string from the input
-    fread(&p_number_and_string->_string, 12, 1, p_file);
+    int        result        = 0;
+    size_t     number        = 0;
+    const char _string[1024] = { 0 };
 
-    // Read a double from the input
-    fread(&p_number_and_string->number, 4, 1, p_file);
+    // unpack the buffer
+    pack_unpack(p_buffer, "%i32%s", &number, &_string);
 
-    // store the value
-    p_binary_tree_node->p_value = p_number_and_string;
-    
-    // success
-    return 1;
+    // allocate memory for the result
+    p_number_and_string = default_allocator(0, sizeof(number_and_string));
+
+    // store the values
+    p_number_and_string->number = number,
+    strncpy(p_number_and_string->_string, _string, sizeof(p_number_and_string->_string));
+
+    // return a pointer to the caller
+    *pp_value = p_number_and_string;
+
+    // done
+    return sizeof(number_and_string);
 }

@@ -18,6 +18,8 @@
 // gsdk
 /// core
 #include <core/log.h>
+#include <core/hash.h>
+#include <core/pack.h>
 #include <core/sync.h>
 #include <core/interfaces.h>
 
@@ -163,35 +165,36 @@ int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_binary
 
 /// reflection
 /** !
- * Construct a binary tree from a file
+ * Pack a binary tree into a buffer
  * 
- * @param pp_binary_tree return
- * @param p_file         path to the file
- * @param pfn_comparator   function for testing equality of elements in set IF parameter is not null ELSE default
- * @param pfn_parse_node a function for parsing nodes from the file
+ * @param p_buffer      the buffer
+ * @param p_binary_tree the binary tree
+ * @param pfn_element   pointer to pack function IF not null ELSE default
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_parse 
-(
-    binary_tree **const  pp_binary_tree, 
-    const char          *p_file, 
-    
-    fn_comparator   *pfn_comparator, 
-    fn_key_accessor *pfn_key_accessor, 
-    fn_unpack       *pfn_unpack
-);
+int binary_tree_pack ( void *p_buffer, binary_tree *p_binary_tree, fn_pack *pfn_element );
 
 /** !
- * Write a binary tree to a file
+ * Unpack a binary tree into a buffer
  * 
- * @param p_binary_tree the binary tree 
- * @param p_path        path to the file
- * @param pfn_pack      pack function
+ * @param pp_binary_tree   result
+ * @param p_buffer         the buffer
+ * @param pfn_element      pointer to unpack function IF not null ELSE default
+ * @param pfn_comparator   function for testing equality of elements in set IF parameter is not null ELSE default
+ * @param pfn_key_accessor function for accessing the key of a value IF parameter is not null ELSE default
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path, fn_pack *pfn_pack );
+int binary_tree_unpack
+( 
+    binary_tree **pp_binary_tree, 
+    void *p_buffer, 
+    
+    fn_unpack       *pfn_element, 
+    fn_comparator   *pfn_comparator, 
+    fn_key_accessor *pfn_key_accessor
+);
 
 /** !
  * Compute the hash of a binary tree
@@ -205,10 +208,11 @@ hash64 binary_tree_hash ( binary_tree *const p_binary_tree, fn_hash64 *pfn_hash6
 
 /// destructors
 /** !
- * Deallocate a binary tree
+ * Destroy and deallocate a binary tree
  * 
  * @param pp_binary_tree pointer to binary tree pointer
+ * @param pfn_allocator  pointer to allocator function for deallocating elements
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_destroy ( binary_tree **const pp_binary_tree );
+int binary_tree_destroy ( binary_tree **const pp_binary_tree, fn_allocator *pfn_allocator );

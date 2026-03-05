@@ -257,7 +257,7 @@ void print_test ( const char *scenario_name, const char *test_name, bool passed 
 // Constructor implementations
 void construct_empty ( binary_tree **pp_binary_tree )
 {
-    binary_tree_construct(pp_binary_tree, (fn_comparator *)string_comparator, (fn_key_accessor *)string_key_accessor, sizeof(char*));
+    binary_tree_construct(pp_binary_tree, sizeof(char*), (fn_comparator *)string_comparator, (fn_key_accessor *)string_key_accessor);
 }
 
 void construct_A ( binary_tree **pp_binary_tree )
@@ -485,7 +485,7 @@ bool test_insert ( void (*constructor)(binary_tree **), void *value, result_t ex
     
     result_t result = (result_t)binary_tree_insert(p_binary_tree, value);
     
-    binary_tree_destroy(&p_binary_tree);
+    binary_tree_destroy(&p_binary_tree, NULL);
     return result == expected;
 }
 
@@ -523,7 +523,7 @@ bool test_search ( void (*constructor)(binary_tree **), void *key, void *expecte
         result = zero;
     }
     
-    binary_tree_destroy(&p_binary_tree);
+    binary_tree_destroy(&p_binary_tree, NULL);
     return result == expected;
 }
 
@@ -561,7 +561,7 @@ bool test_remove ( void (*constructor)(binary_tree **), void *key, void *expecte
         result = zero;
     }
     
-    binary_tree_destroy(&p_binary_tree);
+    binary_tree_destroy(&p_binary_tree, NULL);
     return result == expected;
 }
 
@@ -573,7 +573,7 @@ bool test_is_empty ( void (*constructor)(binary_tree **), result_t expected )
     // Tree is empty if root is NULL
     result_t result = (p_binary_tree->p_root == NULL) ? zero : one;
     
-    binary_tree_destroy(&p_binary_tree);
+    binary_tree_destroy(&p_binary_tree, NULL);
     return result == expected;
 }
 
@@ -582,9 +582,9 @@ bool test_node_count ( void (*constructor)(binary_tree **), size_t expected_coun
     binary_tree *p_binary_tree = NULL;
     constructor(&p_binary_tree);
     
-    result_t result = (p_binary_tree->metadata.node_quantity == expected_count) ? match : zero;
+    result_t result = (p_binary_tree->metadata.quantity == expected_count) ? match : zero;
     
-    binary_tree_destroy(&p_binary_tree);
+    binary_tree_destroy(&p_binary_tree, NULL);
     return result == expected;
 }
 
@@ -681,7 +681,7 @@ void test_search_scenario ( void )
     bool search_X_failure = (binary_tree_search(p_binary_tree, X_element, &found_value) == 0);
     print_test("search", "miss X", search_X_failure);
     
-    binary_tree_destroy(&p_binary_tree);
+    binary_tree_destroy(&p_binary_tree, NULL);
     print_final_summary();
 }
 
@@ -809,10 +809,10 @@ void test_stress_scenario ( void )
     print_test("stress", "find item_50", stress_search_success);
     
     // Count should be 100
-    bool stress_count_correct = (p_stress_tree->metadata.node_quantity == 100);
+    bool stress_count_correct = (p_stress_tree->metadata.quantity == 100);
     print_test("stress", "count 100", stress_count_correct);
     
-    binary_tree_destroy(&p_stress_tree);
+    binary_tree_destroy(&p_stress_tree, NULL);
     print_final_summary();
 }
 
@@ -848,6 +848,6 @@ void test_traversal_scenario ( void )
     bool postorder_success = (binary_tree_traverse_postorder(p_traversal_tree, test_traverse_callback) == 1);
     print_test("traversal", "post-order", postorder_success);
     
-    binary_tree_destroy(&p_traversal_tree);
+    binary_tree_destroy(&p_traversal_tree, NULL);
     print_final_summary();
 }
