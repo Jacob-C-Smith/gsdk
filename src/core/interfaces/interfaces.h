@@ -17,7 +17,7 @@
 typedef unsigned long long hash64;
 
 /// allocator
-typedef void *(fn_allocator) ( void *p_pointer, unsigned long size );
+typedef void *(fn_allocator) ( void *p_pointer, unsigned long long size );
 
 /// identity
 typedef int   (fn_comparator)   ( const void *p_a, const void *p_b );

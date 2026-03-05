@@ -1,7 +1,7 @@
 ﻿/** !
- * Include header for binary search tree
+ * Binary search tree interface
  *
- * @file tree/binary.h 
+ * @file src/data/binary/binary.h 
  * 
  * @author Jacob Smith
  */
@@ -15,8 +15,11 @@
 #include <stdbool.h>
 #include <string.h>
 
-// core
+// gsdk
+/// core
 #include <core/log.h>
+#include <core/hash.h>
+#include <core/pack.h>
 #include <core/sync.h>
 #include <core/interfaces.h>
 
@@ -25,88 +28,55 @@ struct binary_tree_s;
 struct binary_tree_node_s;
 
 // type definitions
-/** !
- *  @brief The type definition for a binary tree
- */
 typedef struct binary_tree_s binary_tree;
-
-/** !
- *  @brief The type definition for a binary tree node
- */
 typedef struct binary_tree_node_s binary_tree_node;
-
-/** !
- *  @brief The type definition for a function that serializes a node to a file
- * 
- *  @param p_file             the file
- *  @param p_binary_tree_node the binary tree node
- * 
- *  @return 1 on success, 0 on error
- */
-typedef int (fn_binary_tree_serialize)(FILE *p_file, binary_tree_node *p_binary_tree_node);
-
-/** !
- *  @brief The type definition for a function that parses a node from a file
- * 
- *  @param p_file              the file
- *  @param p_binary_tree       the binary tree node
- *  @param pp_binary_tree_node return
- * 
- *  @return 1 on success, 0 on error
- */
-typedef int (fn_binary_tree_parse)(FILE *p_file, binary_tree_node *p_binary_tree_node );
-
-/** !
- *  @brief The type definition for a function that is called on each node while traversing a tree
- * 
- *  @param p_value the value
- * 
- *  @return 1 on success, 0 on error
- */
 typedef int (fn_binary_tree_traverse)(void *p_value);
 
-// Struct definitions
+// structure definitions
 struct binary_tree_node_s
 { 
     void *p_value;
-    binary_tree_node *p_left,
-                     *p_right;
+    binary_tree_node *p_left, *p_right;
     unsigned long long  node_pointer;
 };
 
 struct binary_tree_s
 {
-    mutex _lock;
+    mutex             _lock;
     binary_tree_node *p_root;
     FILE             *p_random_access;
     
     struct 
     {
-        fn_comparator              *pfn_comparator;
-        fn_key_accessor          *pfn_key_accessor;
-        fn_binary_tree_serialize *pfn_serialize_node;
-        fn_binary_tree_parse     *pfn_parse_node;
-    } functions;
-
-    struct 
-    {
-        unsigned long long node_quantity;
-        unsigned long long node_size;
+        unsigned long long quantity;
+        unsigned long long size;
     } metadata;
+
+    fn_comparator   *pfn_comparator;
+    fn_key_accessor *pfn_key_accessor;
+    fn_pack         *pfn_pack;
+    fn_unpack       *pfn_unpack;
 };
 
-// constructors
+// function declarations
+/// constructors
 /** !
  * Construct an empty binary tree
  * 
  * @param pp_binary_tree   return
- * @param pfn_comparator     function for testing equality of elements in set IF parameter is not null ELSE default
+ * @param node_size        the size of a serialized value in bytes
+ * @param pfn_comparator   function for testing equality of elements in set IF parameter is not null ELSE default
  * @param pfn_key_accessor function for accessing the key of a value IF parameter is not null ELSE default
- * @param node_size        the size of a serialized node in bytes
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor, unsigned long long node_size );
+int binary_tree_construct 
+(
+    binary_tree **const  pp_binary_tree,
+    unsigned long long   node_size,
+    fn_comparator       *pfn_comparator, 
+    fn_key_accessor     *pfn_key_accessor 
+);
 
 /** !
  * Construct a balanced binary tree from a sorted list of keys and values. 
@@ -118,9 +88,17 @@ int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_comparator *p
  * @param node_size         the size of a serialized node in bytes
  * 
 */
-int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **pp_values, size_t property_quantity, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor, unsigned long long node_size );
+int binary_tree_construct_balanced
+(
+    binary_tree **const pp_binary_tree, 
+    void **pp_values, 
+    size_t property_quantity, 
+    fn_comparator *pfn_comparator, 
+    fn_key_accessor *pfn_key_accessor, 
+    unsigned long long node_size
+);
 
-// accessors
+/// accessors
 /** !
  * Search a binary tree for an element
  * 
@@ -132,7 +110,7 @@ int binary_tree_construct_balanced ( binary_tree **const pp_binary_tree, void **
  */
 int binary_tree_search ( binary_tree *const p_binary_tree, const void *const p_key, void **pp_value );
 
-// mutators
+/// mutators
 /** !
  * Insert a property into a binary tree
  * 
@@ -154,7 +132,7 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_v
  */
 int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_key, const void **const p_value );
 
-// Traversal
+/// traversal
 /** !
  * Traverse a binary tree using the pre order technique
  * 
@@ -185,37 +163,56 @@ int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, fn_binary_t
 */
 int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse );
 
-// Parser
+/// reflection
 /** !
- * Construct a binary tree from a file
+ * Pack a binary tree into a buffer
  * 
- * @param pp_binary_tree return
- * @param p_file         path to the file
+ * @param p_buffer      the buffer
+ * @param p_binary_tree the binary tree
+ * @param pfn_element   pointer to pack function IF not null ELSE default
+ * 
+ * @return 1 on success, 0 on error
+ */
+int binary_tree_pack ( void *p_buffer, binary_tree *p_binary_tree, fn_pack *pfn_element );
+
+/** !
+ * Unpack a binary tree into a buffer
+ * 
+ * @param pp_binary_tree   result
+ * @param p_buffer         the buffer
+ * @param pfn_element      pointer to unpack function IF not null ELSE default
  * @param pfn_comparator   function for testing equality of elements in set IF parameter is not null ELSE default
- * @param pfn_parse_node a function for parsing nodes from the file
+ * @param pfn_key_accessor function for accessing the key of a value IF parameter is not null ELSE default
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor, fn_binary_tree_parse *pfn_parse_node );
+int binary_tree_unpack
+( 
+    binary_tree **pp_binary_tree, 
+    void *p_buffer, 
+    
+    fn_unpack       *pfn_element, 
+    fn_comparator   *pfn_comparator, 
+    fn_key_accessor *pfn_key_accessor
+);
 
-// Serializer
 /** !
- * Write a binary tree to a file
+ * Compute the hash of a binary tree
  * 
- * @param p_binary_tree      the binary tree 
- * @param p_path             path to the file
- * @param pfn_serialize_node a function for serializing nodes to the file
+ * @param p_binary_tree the binary tree
+ * @param pfn_hash64    pointer to hashing function
  * 
- * @return 1 on success, 0 on error
+ * @return the hash of a binary tree
  */
-int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path, fn_binary_tree_serialize *pfn_serialize_node );
+hash64 binary_tree_hash ( binary_tree *const p_binary_tree, fn_hash64 *pfn_hash64 );
 
-// destructors
+/// destructors
 /** !
- * Deallocate a binary tree
+ * Destroy and deallocate a binary tree
  * 
  * @param pp_binary_tree pointer to binary tree pointer
+ * @param pfn_allocator  pointer to allocator function for deallocating elements
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_destroy ( binary_tree **const pp_binary_tree );
+int binary_tree_destroy ( binary_tree **const pp_binary_tree, fn_allocator *pfn_allocator );
