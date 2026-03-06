@@ -32,7 +32,7 @@
 
  ## Explanation
 
-The `interfaces` module provides a set of standard function pointer definitions and default implementations for common operations. These interfaces allow gsdk data structures and algorithms to be generic and customizable.
+The interfaces module provides a set of standard function pointer definitions and default implementations for common operations. These interfaces allow gsdk data structures and algorithms to be generic and customizable.
 
  ### allocator
  An **allocator** function is responsible for memory management. It handles allocation, reallocation, and deallocation.
@@ -54,9 +54,9 @@ The `interfaces` module provides a set of standard function pointer definitions 
  - `p_a` pointer to **B**
 
  **Returns**
- - `< 0` if **A > B**
- - `0`  if **A == B**
- - `> 0`  if **A < B**
+ - `< 0` **if A > B**
+ - `0`  **if A == B**
+ - `> 0`  **if A < B**
  
  ### equality
  An **equality** function tests if two elements are equal.
@@ -66,12 +66,20 @@ The `interfaces` module provides a set of standard function pointer definitions 
  - `p_a` pointer to **B**
 
  **Returns**
- - `1` (true) if **a == b**
- - `0` (false) otherwise
+ - `1` (true) **IF a == b**
+ - `0` (false) **IF a != b**
 
  ### key_accessor
  A **key_accessor** function extracts or returns a **key** from a **value**.
+ 
+ **Parameters**
+ - `p_value` - pointer to **value**
 
+ **Returns**
+ - pointer to **key**
+
+ ### hash64
+ A **hash64** function computes a 64-bit hash of a key.
  **Parameters**
  - `k` - pointer to **key**
  - `l` - quantity of bytes to hash, starting from **k**
@@ -79,14 +87,6 @@ The `interfaces` module provides a set of standard function pointer definitions 
  **Returns**
  - A 64-bit hash of the **key**
 
- ### hash64
- A **hash64** function computes a 64-bit hash of a key.
-
- **Parameters**
- - `p_value` - pointer to **value**
-
- **Returns**
- - pointer to **key**
 
  ### fori
  A **fori** function is an iterator that provides the **element** and its **index**.
