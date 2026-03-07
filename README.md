@@ -80,6 +80,9 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>⭐ <a href="./documentation/md/data/array.md">
             <b>array</b>
         </a></li>
+        <li>⭐ <a href="./documentation/md/data/binary.md">
+            <b>binary</b>
+        </a></li>
         <li>⭐ <a href="./documentation/md/data/bitmap.md">
             <b>bitmap</b>
         </a></li>
@@ -110,7 +113,6 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>⭐ <a href="./documentation/md/data/priority_queue.md">
             <b>priority queue</b>
         </a></li>
-        <li>✔️ <a href="./documentation/md/data/tree.md">binary</a></li>
         <li>🏗️ <a href="#">hash table</a></li>
         <!--<li>🧪 <a href="./documentation/md/data/node.md">node</a></li>-->
         <!--<li>❓ <a href="#">adjacency list</a></li>-->
