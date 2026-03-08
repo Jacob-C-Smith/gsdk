@@ -25,6 +25,7 @@ BUILD_LIB_DIR     = $(BUILD_DIR)/lib
 BUILD_EXAMPLE_DIR = $(BUILD_DIR)/examples
 BUILD_TEST_DIR    = $(BUILD_DIR)/tests
 BUILD_UTIL_DIR    = $(BUILD_DIR)/utilities
+VALGRIND_LOGS_DIR = output/valgrind
 EXAMPLES_DIR = $(SRC_DIR)/examples
 TESTS_DIR    = $(SRC_DIR)/test
 UTILS_DIR    = $(SRC_DIR)/utilities
@@ -42,7 +43,7 @@ TESTS = $(DATA_LIBS) $(REFLECTION_LIBS)
 UTILS = rsa_key_generator rsa_key_info hash_optimal lisp_syntax_highlighter aes_assert sha256_hash digital_sign digital_verify echo_server
 
 # Phony targets
-.PHONY: all clean libs examples utils tests
+.PHONY: all clean libs examples utils tests valgrind
 
 #############
 # Libraries #
@@ -319,8 +320,15 @@ $(BUILD_TEST_DIR)/base64_test: $(TESTS_DIR)/base64_test.c | $(BUILD_TEST_DIR)
 $(BUILD_TEST_DIR)/json_test: $(TESTS_DIR)/json_test.c | $(BUILD_TEST_DIR)
 	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ -lm $(ROOT_DIR)/$(BUILD_LIB_DIR)/json.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/array.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/dict.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
+############
+# Valgrind #
+############
+valgrind: libs examples
+	@mkdir -p output/valgrind output/valgrind/core output/valgrind/data output/valgrind/reflection output/valgrind/performance
+	@./scripts/packages.sh _example output/valgrind
+
 #########
 # Clean #
 #########
 clean:
-	rm -rf $(BUILD_LIB_DIR) $(BUILD_EXAMPLE_DIR) $(BUILD_TEST_DIR) $(BUILD_UTIL_DIR)
+	rm -rf $(BUILD_LIB_DIR) $(BUILD_EXAMPLE_DIR) $(BUILD_TEST_DIR) $(BUILD_UTIL_DIR) $(VALGRIND_LOGS_DIR)
