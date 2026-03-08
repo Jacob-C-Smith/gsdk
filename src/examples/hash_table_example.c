@@ -15,6 +15,8 @@
 #include <core/log.h>
 #include <core/sync.h>
 #include <core/hash.h>
+#include <core/pack.h>
+#include <core/interfaces.h>
 
 // data
 #include <data/hash_table.h>
@@ -35,27 +37,28 @@ enum color_e
 // structure definitions
 struct color_s
 {
-    char   _string[32];
-    int    hex_code;
-    size_t counter;
+    char _string[16];
+    int  hex_code;
+    int  counter;
 };
 
 // type definitions
 typedef struct color_s color;
-typedef void *(fn_get_sample)(void);
 
 // forward declarations
 /// logs
 int checkpoint ( hash_table *p_hash_table, const char *p_event );
 
 /// color
-fn_equality     color_equality;
-fn_key_accessor color_key_accessor;
-fn_hash64       color_hash;
-fn_get_sample   color_get_sample;
 fn_foreach      color_print;
 fn_foreach      accumulate_probes;
 fn_fori         color_slot_print;
+fn_equality     color_equality;
+fn_hash64       color_hash_key;
+fn_hash64       color_hash;
+fn_key_accessor color_key_accessor;
+fn_pack         color_pack;
+fn_unpack       color_unpack;
 
 // data
 /// working hash table
@@ -65,6 +68,10 @@ hash_table *p_hash_table = NULL;
 FILE *p_f = NULL;
 size_t file_len = 0;
 
+/// hashes
+hash64 h1 = 0,
+       h2 = 0;
+       
 /// total probes
 size_t total_probes = 0;
 
@@ -97,12 +104,12 @@ int main ( int argc, const char* argv[] )
         // construct the hash table
         hash_table_construct(
             &p_hash_table, 
-            7,
+            13,
             LINEAR_PROBE,
             
             color_equality, 
             color_key_accessor, 
-            color_hash
+            color_hash_key
         );
 
         // checkpoint
@@ -137,11 +144,103 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_hash_table, "after search");
     }
 
-    // #5 - destroy
+    // #4 - to binary
+    {
+
+        // initialized data
+        char buf[1024] = { 0 };
+        
+        // Open a file for writing
+        p_f = fopen("resources/reflection/hash_table.bin", "wb");
+
+        // reflect the hash table to a buffer
+        file_len = hash_table_pack(buf, p_hash_table, color_pack),
+        
+        // write the buffer to a file
+        fwrite(buf, file_len, 1, p_f),
+
+        // close the file
+        fclose(p_f);
+
+        // checkpoint
+        checkpoint(p_hash_table, "after serialize");
+    }
+
+    // #5 - hash 1
+    {
+
+        // hash the hash table
+        h1 = hash_table_hash(p_hash_table, color_hash_key);
+
+        // print the hash
+        printf("hash 1 -> 0x%llx\n", h1);
+
+        // checkpoint
+        checkpoint(p_hash_table, "after hash 1");
+    }
+
+    // #6 - destroy
     {
         
         // destroy the hash table
         hash_table_destroy(&p_hash_table, NULL);
+
+        // checkpoint
+        checkpoint(p_hash_table, "after destroy");
+    }
+
+    // #7 - from binary
+    {
+        
+        // initialized data
+        char buf[1024] = { 0 };
+        
+        // read a buffer from a file
+        p_f = fopen("resources/reflection/hash_table.bin", "rb"),
+        fread(buf, sizeof(char), file_len, p_f),
+        
+        // reflect a hash table from the buffer
+        hash_table_unpack(
+            &p_hash_table,
+            buf,
+            color_unpack,
+
+            color_equality,
+            color_key_accessor,
+            color_hash_key
+        ),
+
+        // close the file
+        fclose(p_f);
+
+        // checkpoint
+        checkpoint(p_hash_table, "after parse");
+    }
+
+    // #8 - hash 2
+    {
+
+        // hash the hash table
+        h2 = hash_table_hash(p_hash_table, color_hash_key);
+
+        // print the hash
+        printf("hash 2 -> 0x%llx\n", h2);
+
+        // error check
+        if ( h1 != h2 ) 
+
+            // abort
+            log_error("Error: hash 1 != hash 2\n"), exit(EXIT_FAILURE);
+
+        // checkpoint
+        checkpoint(p_hash_table, "after hash 2");
+    }
+
+    // #9 - destroy
+    {
+        
+        // destroy the hash table
+        hash_table_destroy(&p_hash_table, default_allocator);
 
         // checkpoint
         checkpoint(p_hash_table, "after destroy");
@@ -223,7 +322,17 @@ void accumulate_probes ( void *p_element )
     return;
 }
 
-hash64 color_hash ( const void *const k, unsigned long long unused )
+hash64 color_hash ( const void *const k, unsigned long long l )
+{
+    
+    // initialized data
+    color *p_color = k;
+
+    // done
+    return hash_crc64(p_color, sizeof(*p_color));
+}
+
+hash64 color_hash_key ( const void *const k, unsigned long long unused )
 {
 
     // initialized data
@@ -264,4 +373,55 @@ void *color_key_accessor ( const void *const p_property )
 
     // done
     return p_color->_string;
+}
+
+int color_pack ( void *p_buffer, const void *const p_value )
+{
+
+    // initialized data
+    color *p_color = p_value;
+    char  *p       = p_buffer;
+    
+    // pack the color
+    p += pack_pack(p, "%s%2i32",
+        p_color->_string,
+        p_color->hex_code,
+        p_color->counter
+    );
+
+    // done
+    return sizeof(color);
+}
+
+int color_unpack ( void *p_value, void *p_buffer )
+{
+
+    // initialized data
+    color **pp_value = (color **) p_value;
+    color  *p_color  = NULL;
+
+    const char _string[1024] = { 0 };
+    int        hex_code      = 0;
+    int        counter       = 0;
+
+    // unpack the buffer
+    pack_unpack(p_buffer, "%s%2i32",
+        &_string,
+        &hex_code,
+        &counter
+    );
+
+    // allocate memory for the result
+    p_color = default_allocator(0, sizeof(color));
+
+    // populate the fields
+    p_color->hex_code = hex_code,
+    p_color->counter = counter,
+    strncpy(p_color->_string, _string, sizeof(p_color->_string));
+
+    // return a pointer to the caller
+    *pp_value = p_color;
+
+    // done
+    return sizeof(color);
 }

@@ -385,6 +385,205 @@ int hash_table_fori ( hash_table *p_hash_table, fn_fori *pfn_fori )
     }
 }
 
+int hash_table_pack ( void *p_buffer, hash_table *p_hash_table, fn_pack *pfn_element )
+{
+    // argument check
+    if ( NULL == p_hash_table ) goto no_hash_table;
+    if ( NULL ==  pfn_element ) return 0;
+
+    // initialized data 
+    char *p = p_buffer;
+
+    // pack the size and count
+    p += pack_pack(p, "%2i64", p_hash_table->properties.max, p_hash_table->properties.count);
+
+    // pack the elements
+    for (size_t i = 0; i < p_hash_table->properties.max; i++)
+    {
+
+        // skip
+        if ( NULL == p_hash_table->properties.pp_data[i] ) continue;
+
+        // pack the index
+        p += pack_pack(p, "%i64", i);
+
+        // pack the element
+        p += pfn_element(p, p_hash_table->properties.pp_data[i]);
+    }
+
+    // success
+    return p - (char *)p_buffer;
+
+    // error handling
+    {
+        
+        // argument errors
+        {
+            no_hash_table:
+                #ifndef NDEBUG
+                    log_error("[array] Null pointer provided for \"p_hash_table\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int hash_table_unpack
+( 
+    hash_table **pp_hash_table,
+    void *p_buffer,
+    fn_unpack *pfn_element,
+
+    fn_equality     *pfn_equality,
+    fn_key_accessor *pfn_key_get,
+    fn_hash64       *pfn_hash_function
+)
+{
+	
+	// argument check
+    if ( NULL == pp_hash_table ) goto no_hash_table;
+	if ( NULL ==      p_buffer ) goto no_buffer;
+    if ( NULL ==   pfn_element ) goto no_unpack;
+
+    // initialized data 
+	hash_table *p_hash_table = NULL;
+    char       *p            = p_buffer;
+	size_t      max          = 0;
+	size_t      count        = 0;
+    int         result       = 0;
+
+	// unpack the size of the hash table
+	p += pack_unpack(p, "%i64", &max);
+
+	// unpack the quantity of elements in the hash table
+	p += pack_unpack(p, "%i64", &count);
+
+	// construct a hash table
+    result = hash_table_construct(
+        &p_hash_table,
+        max,
+        LINEAR_PROBE,
+        pfn_equality,
+        pfn_key_get,
+        pfn_hash_function
+    );
+
+    // error check
+	if ( 0 == result ) goto failed_to_construct_hash_table;
+
+    // unpack the elements
+    for (size_t i = 0; i < count; i++)
+    {
+
+        // initialized data
+		void *p_element = NULL;
+        size_t index = 0;
+
+        // unpack the index
+        p += pack_unpack(p, "%i64", &index);
+
+		// call the unpack function
+		p += pfn_element(&p_element, p);
+
+		// add the element to the hash table
+		p_hash_table->properties.pp_data[index] = p_element;
+    }
+
+    // store the quantity of elements
+    p_hash_table->properties.count = count;
+
+	// return a pointer to the caller
+	*pp_hash_table = p_hash_table;
+
+    // success
+	return p - (char *)p_buffer;
+
+    // error handling
+    {
+        
+        // argument errors
+        {
+            no_hash_table:
+                #ifndef NDEBUG
+                    log_error("[hash table] Null pointer provided for \"p_hash_table\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_buffer:
+                #ifndef NDEBUG
+                    log_error("[hash table] Null pointer provided for \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_unpack:
+                #ifndef NDEBUG
+                    log_error("[hash table] Null pointer provided for \"pfn_element\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+		// hash table errors
+		{
+			failed_to_construct_hash_table:
+				#ifndef NDEBUG
+					log_error("[hash table] Failed to construct hash table in call to function \"%s\"\n", __FUNCTION__);
+				#endif
+
+				// error
+				return 0;
+		}
+    }
+}
+
+hash64 hash_table_hash ( hash_table *p_hash_table, fn_hash64 *pfn_element )
+{
+
+    // argument check
+    if ( NULL == p_hash_table ) goto no_hash_table;
+
+    // initialized data
+    hash64     result     = 0;
+    fn_hash64 *pfn_hash64 = (pfn_element) ? pfn_element : hash_crc64;
+
+    // hash the elements
+    for (size_t i = 0; i < p_hash_table->properties.max; i++)
+    {
+
+        // skip
+        if ( NULL == p_hash_table->properties.pp_data[i] ) continue;
+
+        // hash the element 
+        result ^= pfn_hash64(p_hash_table->properties.pp_data[i], 8);
+    }
+
+    // success
+    return result;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_hash_table:
+                #ifndef NDEBUG
+                    log_error("[hash table] Null pointer provided for \"p_hash_table\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+
 int hash_table_destroy ( hash_table **const pp_hash_table, fn_allocator *pfn_allocator )
 {
 
@@ -397,8 +596,17 @@ int hash_table_destroy ( hash_table **const pp_hash_table, fn_allocator *pfn_all
     // no more pointer for caller
     *pp_hash_table = NULL;
 
-    // TODO: iterate through each slot in the hash table
-    for (size_t i = 0; i < p_hash_table->properties.max; i++);
+    // iterate through each slot in the hash table
+    for (size_t i = 0; i < p_hash_table->properties.max; i++)
+    {
+
+        // skip
+        if ( NULL == p_hash_table->properties.pp_data[i] ) continue;
+
+        // release the element
+        if ( NULL != pfn_allocator )
+            pfn_allocator(p_hash_table->properties.pp_data[i], 0);
+    }
 
     // release the hash table array
     p_hash_table->properties.pp_data = default_allocator(p_hash_table->properties.pp_data, 0);

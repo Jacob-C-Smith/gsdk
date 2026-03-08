@@ -21,6 +21,7 @@
 #include <core/log.h>
 #include <core/sync.h>
 #include <core/hash.h>
+#include <core/pack.h>
 
 // enumeration definitions
 enum collision_resolution_e 
@@ -58,8 +59,12 @@ struct hash_table_s
 /** !
  * Construct a hash table
  * 
- * @param pp_hash_table result
- * @param size          the quantity of elements that the hash table can contain
+ * @param pp_hash_table    result
+ * @param size             the quantity of elements that the hash table can contain
+ * 
+ * @param pfn_equality     pointer to equality function IF not null ELSE default
+ * @param pfn_key_accessor pointer to key accessor function IF not null ELSE default
+ * @param pfn_hash         pointer to hash function IF not null ELSE default
  * 
  * @return 1 on success, 0 on error
  */
@@ -69,9 +74,9 @@ int hash_table_construct
     size_t size, 
     enum collision_resolution_e _type,
     
-    fn_equality *pfn_equality, 
-    fn_key_accessor *pfn_key_get, 
-    fn_hash64 *pfn_hash_function
+    fn_equality     *pfn_equality, 
+    fn_key_accessor *pfn_key_accessor, 
+    fn_hash64       *pfn_hash
 );
 
 /// accessors
@@ -126,6 +131,53 @@ int hash_table_foreach ( hash_table *p_hash_table, fn_foreach *pfn_foreach );
  * @return 1 on success, 0 on error
  */
 int hash_table_fori ( hash_table *p_hash_table, fn_fori *pfn_fori );
+
+/// reflection
+/** !
+ * Pack a hash table into a buffer
+ * 
+ * @param p_buffer     the buffer
+ * @param p_hash_table the hash table
+ * @param pfn_elemenet pointer to pack function IF not null ELSE default
+ * 
+ * @return bytes written on success, 0 on error
+ */
+int hash_table_pack ( void *p_buffer, hash_table *p_hash_table, fn_pack *pfn_element );
+
+/** !
+ * Unpack a buffer into a hash table
+ * 
+ * @param pp_hash_table result
+ * @param p_buffer      the buffer
+ * @param pfn_elemenet  pointer to unpack function IF not null ELSE default
+ * 
+ * @param pfn_equality     pointer to equality function IF not null ELSE default
+ * @param pfn_key_accessor pointer to key accessor function IF not null ELSE default
+ * @param pfn_hash         pointer to hash function IF not null ELSE default
+ * 
+ * @return bytes read on success, 0 on error
+ */
+int hash_table_unpack
+( 
+    hash_table **pp_hash_table,
+    void *p_buffer,
+    fn_unpack *pfn_element,
+
+    fn_equality     *pfn_equality,
+    fn_key_accessor *pfn_key_get,
+    fn_hash64       *pfn_hash_function
+);
+
+/// hash
+/** !
+ * Compute a 64-bit hash of a hash table
+ * 
+ * @param p_hash_table the hash table
+ * @param pfn_element  hashing function applied to each element
+ * 
+ * @return hash on success, NULL on error
+ */
+hash64 hash_table_hash ( hash_table *p_hash_table, fn_hash64 *pfn_element );
 
 /// destructors
 /** !
