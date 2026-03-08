@@ -28,8 +28,8 @@ int array_construct ( array **pp_array, size_t size )
 {
 
     // argument check
-    if ( pp_array == (void *) 0 ) goto no_array;
-    if ( size     == 0          ) goto zero_size;
+    if ( NULL == pp_array ) goto no_array;
+    if ( NULL ==     size ) goto zero_size;
 
     // initialized data
     array *p_array = default_allocator(0, sizeof(array));
@@ -43,12 +43,10 @@ int array_construct ( array **pp_array, size_t size )
 
     // allocate memory for the array contents
     p_array->p_p_elements = default_allocator(0, p_array->max * sizeof(void *));
-
-    // error checking
-    if ( p_array->p_p_elements == (void *) 0 ) goto no_mem;
+    if ( NULL == p_array->p_p_elements ) goto no_mem;
 
     // create a mutex
-    if ( mutex_create(&p_array->_lock) == 0 ) goto failed_to_create_mutex;
+    if ( 0 == mutex_create(&p_array->_lock) ) goto failed_to_create_mutex;
 
     // return a pointer to the caller
     *pp_array = p_array;
@@ -106,15 +104,15 @@ int array_from_elements ( array **pp_array, void *_p_elements[], size_t size )
 {
 
     // argument check
-    if ( NULL == pp_array    ) goto no_array;
+    if ( NULL ==    pp_array ) goto no_array;
     if ( NULL == _p_elements ) goto no_elements;
-    if ( 0    == size        ) goto zero_size;
+    if ( 0    ==        size ) goto zero_size;
 
     // initialized data
     array *p_array = NULL;
 
     // allocate an array
-    if ( array_construct(&p_array, size) == 0 ) goto failed_to_allocate_array;        
+    if ( 0 == array_construct(&p_array, size) ) goto failed_to_allocate_array;        
 
     // copy each element
     for (size_t i = 0; _p_elements[i]; i++)
@@ -133,7 +131,7 @@ int array_from_elements ( array **pp_array, void *_p_elements[], size_t size )
         {
             no_array:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"pp_array\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"pp_array\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error 
@@ -141,7 +139,7 @@ int array_from_elements ( array **pp_array, void *_p_elements[], size_t size )
 
             no_elements:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"_p_elements\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"_p_elements\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error 
@@ -173,8 +171,8 @@ int array_from_arguments ( array **pp_array, size_t size, size_t count, ... )
 {
 
     // argument check
-    if ( pp_array == (void *) 0 ) goto no_array;
-    if ( 0        >= count      ) goto negative_count;
+    if ( NULL == pp_array ) goto no_array;
+    if ( count <=       0 ) goto negative_count;
 
     // uninitialized data
     va_list list;
@@ -186,7 +184,7 @@ int array_from_arguments ( array **pp_array, size_t size, size_t count, ... )
     va_start(list, count);
 
     // allocate an array
-    if ( array_construct(&p_array, size) == 0 ) goto failed_to_allocate_array;        
+    if ( 0 == array_construct(&p_array, size) ) goto failed_to_allocate_array;        
 
     // iterate over each key
     for (size_t i = 0; i < count; i++)
@@ -213,7 +211,7 @@ int array_from_arguments ( array **pp_array, size_t size, size_t count, ... )
         {
             no_array:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"pp_array\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"pp_array\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error 
@@ -246,9 +244,9 @@ int array_index ( array *p_array, signed index, void **const pp_value )
 {
 
     // argument errors
-    if ( p_array        == (void *) 0 ) goto no_array;
-    if ( p_array->count ==          0 ) goto no_elements;
-    if ( pp_value       == (void *) 0 ) goto no_value;
+    if ( NULL ==        p_array ) goto no_array;
+    if ( 0    == p_array->count ) goto no_elements;
+    if ( NULL ==       pp_value ) goto no_value;
 
     // lock
     mutex_lock(&p_array->_lock);
@@ -260,7 +258,7 @@ int array_index ( array *p_array, signed index, void **const pp_value )
     if ( index >= 0 )
         *pp_value = p_array->p_p_elements[index];
 
-    // negative numbers
+    // negative index
     else 
         *pp_value = p_array->p_p_elements[p_array->count - (size_t) abs(index)];
 
@@ -313,7 +311,7 @@ int array_get ( array *p_array, void **const pp_elements, size_t *const p_count 
 {
 
     // argument check
-    if ( p_array == (void *) 0 ) goto no_array;
+    if ( NULL == p_array ) goto no_array;
 
     // lock
     mutex_lock(&p_array->_lock);
@@ -339,7 +337,7 @@ int array_get ( array *p_array, void **const pp_elements, size_t *const p_count 
         {
             no_array:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error 
@@ -352,10 +350,10 @@ int array_slice ( array *p_array, void *pp_elements[], signed lower_bound, signe
 {
 
     // argument check
-    if ( p_array        ==           (void *) 0 ) goto no_array;
-    if ( lower_bound    <                     0 ) goto erroneous_lower_bound;
-    if ( p_array->count <  (size_t) upper_bound ) goto erroneous_upper_bound;
-
+    if ( NULL                 ==        p_array ) goto no_array;
+    if ( 0                     >    lower_bound ) goto erroneous_lower_bound;
+    if ( (size_t) upper_bound  > p_array->count ) goto erroneous_upper_bound;
+ 
     // lock
     mutex_lock(&p_array->_lock);
 
@@ -376,7 +374,7 @@ int array_slice ( array *p_array, void *pp_elements[], signed lower_bound, signe
         {
             no_array:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error 
@@ -405,7 +403,7 @@ bool array_is_empty ( array *p_array )
 {
 
     // argument check
-    if ( p_array == (void *) 0 ) goto no_array;
+    if ( NULL == p_array ) goto no_array;
 
     // initialized data
     bool ret = false;
@@ -442,10 +440,22 @@ size_t array_size ( array *p_array )
 {
 
     // argument check
-    if ( p_array == (void *) 0 ) goto no_array;
+    if ( NULL == p_array ) goto no_array;
+
+    // initialized data
+    size_t count = 0;
+
+    // lock
+    mutex_lock(&p_array->_lock);
+
+    // store the result
+    count = p_array->count;
+
+    // unlock
+    mutex_unlock(&p_array->_lock);
 
     // success
-    return p_array->count;
+    return count;
 
     // error handling
     {
@@ -467,7 +477,7 @@ int array_add ( array *p_array, void *p_element )
 {
 
     // argument check
-    if ( p_array == (void *) 0 ) goto no_array;
+    if ( NULL == p_array ) goto no_array;
 
     // lock
     mutex_lock(&p_array->_lock);
@@ -505,7 +515,7 @@ int array_add ( array *p_array, void *p_element )
         {
             no_array:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -532,17 +542,17 @@ int array_set ( array *p_array, signed index, void *p_value )
 {
     
     // argument check   
-    if ( p_array == (void *) 0 ) goto no_array;
+    if ( NULL == p_array ) goto no_array;
 
-    // state check
-    if ( p_array->count == 0 ) goto no_elements;
-    
     // initialized data
     size_t _index = 0;
 
     // lock
     mutex_lock(&p_array->_lock);
 
+    // state check
+    if ( 0 == p_array->count ) goto no_elements;
+    
     // error check
     if ( p_array->count == (size_t) abs(index) ) goto bounds_error;
 
@@ -565,7 +575,7 @@ int array_set ( array *p_array, signed index, void *p_value )
         {
             no_array:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -590,6 +600,9 @@ int array_set ( array *p_array, signed index, void *p_value )
                     log_error("[array] Can not index an empty array in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
+                // unlock
+                mutex_unlock(&p_array->_lock);
+
                 // error 
                 return 0;
         
@@ -601,16 +614,16 @@ int array_remove ( array *p_array, signed index, void **const pp_value )
 {
 
     // argument check
-    if ( p_array == (void *) 0 ) goto no_array;
+    if ( NULL == p_array ) goto no_array;
 
-    // state check
-    if ( p_array->count == 0 ) goto no_elements;
-    
     // initialized data
     size_t _index = 0;
-
+    
     // lock
     mutex_lock(&p_array->_lock);
+    
+    // state check
+    if ( 0 == p_array->count ) goto no_elements;
 
     // error check
     if ( p_array->count == (size_t) abs(index) ) goto bounds_error;
@@ -619,7 +632,8 @@ int array_remove ( array *p_array, signed index, void **const pp_value )
     _index = ( index >= 0 ) ? (size_t) index : (size_t) p_array->count - (size_t) abs(index);
     
     // store the element
-    if ( pp_value != (void *) 0 ) *pp_value = p_array->p_p_elements[_index];
+    if ( pp_value ) 
+        *pp_value = p_array->p_p_elements[_index];
 
     // edge case
     if ( (size_t) index == p_array->count-1 ) goto done;
@@ -648,7 +662,7 @@ int array_remove ( array *p_array, signed index, void **const pp_value )
         {
             no_array:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -673,9 +687,11 @@ int array_remove ( array *p_array, signed index, void **const pp_value )
                     log_error("[array] Can not index an empty array in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
+                // unlock
+                mutex_unlock(&p_array->_lock);
+
                 // error 
                 return 0;
-        
         }
     }
 }
@@ -711,7 +727,7 @@ int array_sort ( array *p_array, fn_comparator *pfn_comparator )
         {
             no_array:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -719,7 +735,7 @@ int array_sort ( array *p_array, fn_comparator *pfn_comparator )
             
             no_fn_comparator:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"pfn_comparator\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"pfn_comparator\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -744,7 +760,7 @@ int array_map ( array *const p_array, fn_map *pfn_map, fn_allocator *pfn_allocat
     // iterate through each element in the array
     for (size_t i = 0; i < p_array->count; i++)
 
-        // update
+        // call the map function
         p_array->p_p_elements[i] = pfn_map(p_array->p_p_elements[i]);
 
     done:
@@ -787,7 +803,7 @@ int array_map ( array *const p_array, fn_map *pfn_map, fn_allocator *pfn_allocat
         {
             no_array:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -795,7 +811,7 @@ int array_map ( array *const p_array, fn_map *pfn_map, fn_allocator *pfn_allocat
             
             no_fn_map:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"pfn_map\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"pfn_map\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -808,7 +824,7 @@ int array_fori ( array *p_array, fn_fori *pfn_fori )
 {
 
     // argument check
-    if ( NULL == p_array  ) goto no_array;
+    if ( NULL ==  p_array ) goto no_array;
     if ( NULL == pfn_fori ) goto no_fn_fori;
 
     // lock
@@ -817,7 +833,7 @@ int array_fori ( array *p_array, fn_fori *pfn_fori )
     // iterate over each element in the array
     for (size_t i = 0; i < p_array->count; i++)
         
-        // call the function
+        // call the fori function
         pfn_fori(p_array->p_p_elements[i], i);
 
     // unlock
@@ -833,7 +849,7 @@ int array_fori ( array *p_array, fn_fori *pfn_fori )
         {
             no_array:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -841,7 +857,7 @@ int array_fori ( array *p_array, fn_fori *pfn_fori )
             
             no_fn_fori:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"pfn_fori\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"pfn_fori\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -879,7 +895,7 @@ int array_foreach ( array *p_array, fn_foreach *pfn_foreach )
         {
             no_array:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -887,7 +903,7 @@ int array_foreach ( array *p_array, fn_foreach *pfn_foreach )
             
             no_fn_foreach:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"pfn_foreach\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"pfn_foreach\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -900,8 +916,9 @@ int array_pack ( void *p_buffer, array *p_array, fn_pack *pfn_element )
 {
     
     // argument check
-    if ( p_array     == (void *) 0 ) goto no_array;
-    if ( pfn_element == (void *) 0 ) return 0;
+    if ( NULL ==     p_buffer ) goto no_buffer;
+    if ( NULL ==      p_array ) goto no_array;
+    if ( NULL == pfn_element  ) goto no_pack;
 
     // initialized data 
     char *p = p_buffer;
@@ -927,9 +944,25 @@ int array_pack ( void *p_buffer, array *p_array, fn_pack *pfn_element )
         
         // argument errors
         {
+            no_buffer:
+                #ifndef NDEBUG
+                    log_error("[array] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
             no_array:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_pack:
+                #ifndef NDEBUG
+                    log_error("[array] Null pointer provided for parameter \"pfn_element\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -942,13 +975,14 @@ int array_unpack ( array **pp_array, void *p_buffer, fn_unpack *pfn_element )
 {
     
     // argument check
-    if ( pp_array    == (void *) 0 ) goto no_array;
-    if ( pfn_element == (void *) 0 ) return 0;
+    if ( NULL ==    pp_array ) goto no_array;
+    if ( NULL ==    p_buffer ) goto no_buffer;
+    if ( NULL == pfn_element ) goto no_unpack;
 
     // initialized data
-    array *p_array = NULL;
-    char *p = p_buffer;
-    size_t len = 0;
+    array  *p_array = NULL;
+    char   *p       = p_buffer;
+    size_t  len     = 0;
 
     // unpack the length
     p += pack_unpack(p, "%i64", &len);
@@ -956,22 +990,15 @@ int array_unpack ( array **pp_array, void *p_buffer, fn_unpack *pfn_element )
     // construct an array
     array_construct(&p_array, len);
 
+    // iterate through each element in the buffer
     for (size_t i = 0; i < len; i++)
     {
         
-        // initialized data
-        char _result[1024] = { 0 };
-        void *p_element = NULL;
-        size_t len_result = pfn_element(_result, p);
+		// initialized data
+		void *p_element = NULL;
 
-        // advance the buffer
-        p += len_result;
-
-        // allocate memory for the element
-        p_element = default_allocator(0, len_result),
-
-        // copy the memory
-        memcpy(p_element, _result, len_result),
+		// call the unpack function
+		p += pfn_element(&p_element, p);
         
         // add the element to the array
         array_add(p_array, p_element);
@@ -990,7 +1017,23 @@ int array_unpack ( array **pp_array, void *p_buffer, fn_unpack *pfn_element )
         {
             no_array:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"pp_array\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"pp_array\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+            
+            no_buffer:
+                #ifndef NDEBUG
+                    log_error("[array] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+            
+            no_unpack:
+                #ifndef NDEBUG
+                    log_error("[array] Null pointer provided for parameter \"pfn_element\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -1003,7 +1046,7 @@ hash64 array_hash ( array *p_array, fn_hash64 *pfn_element )
 {
 
     // argument check
-    if ( p_array == (void *) 0 ) goto no_array;
+    if ( NULL == p_array ) goto no_array;
 
     // initialized data
     hash64     result     = 0;
@@ -1023,7 +1066,7 @@ hash64 array_hash ( array *p_array, fn_hash64 *pfn_element )
         {
             no_array:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"pp_array\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"p_array\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -1036,13 +1079,19 @@ int array_destroy ( array **pp_array, fn_allocator *pfn_allocator )
 {
 
     // argument check
-    if ( pp_array == (void *) 0 ) goto no_array;
+    if ( NULL == pp_array ) goto no_array;
 
     // initialized data
     array *p_array = *pp_array;
 
+    // lock
+    mutex_lock(&p_array->_lock);
+
     // no more pointer for end user
     *pp_array = (array *) 0;
+
+    // unlock
+    mutex_unlock(&p_array->_lock);
 
     // release the elements
     if ( pfn_allocator ) 
@@ -1068,7 +1117,7 @@ int array_destroy ( array **pp_array, fn_allocator *pfn_allocator )
         {
             no_array:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for \"pp_array\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"pp_array\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
