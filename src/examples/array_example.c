@@ -11,13 +11,14 @@
 #include <string.h>
 #include <stdlib.h>
 
-// core
+// gsdk
+/// core
 #include <core/log.h>
 #include <core/sync.h>
 #include <core/hash.h>
 #include <core/pack.h>
 
-// data
+/// data
 #include <data/array.h>
 
 // enumeration definitions
@@ -37,13 +38,13 @@ enum color_e
 int checkpoint ( array *p_array, const char *p_event );
 
 /// string
-void    string_print ( void *p_value, int i );
-int     string_compare ( const void *const p_a, const void *const p_b );
-void   *string_upper_case ( void *p_value );
-void   *string_lower_case ( void *p_value );
-hash64  string_hash ( const void *const string, unsigned long long unused );
-int     string_pack ( void *p_buffer, const void *const p_value );
-int     string_unpack ( void *const p_value, void *p_buffer );
+fn_comparator string_compare;
+fn_fori string_print;
+fn_hash64 string_hash;
+fn_map string_upper_case;
+fn_map string_lower_case;
+fn_pack string_pack;
+fn_unpack string_unpack;
  
 // data
 /// immutable color strings
@@ -100,17 +101,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_array,"after adding < Red, Orange, Yellow >");
     }
 
-    // #3 - map lower case
-    {
-
-        // convert the array elements to lower case
-        array_map(p_array, string_lower_case, 0);
-
-        // checkpoint
-        checkpoint(p_array, "after lower case map");
-    }
-
-    // #4 - add more
+    // #3 - add more
     {
         
         // add some colors
@@ -121,7 +112,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_array,"after adding < Green, Blue, Purple >");
     }
 
-    // #5 - remove some
+    // #4 - remove some
     {
         
         // remove some colors
@@ -132,7 +123,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_array,"after removing < orange, Purple >");
     }
 
-    // #6 - slice 
+    // #5 - slice 
     {
 
         // initialized data
@@ -155,7 +146,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_array, "after slice");
     }
 
-    // #7 - to binary
+    // #6 - to binary
     {
 
         // initialized data
@@ -177,7 +168,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_array, "after serialize");
     }
 
-    // #8 - hash 1
+    // #7 - hash 1
     {
 
         // initialized data
@@ -190,7 +181,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_array, "after hash 1");
     }
 
-    // #9 - map upper case
+    // #8 - map upper case
     {
 
         // convert the array elements to upper case
@@ -200,17 +191,17 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_array, "after upper case map");
     }
 
-    // #10 - destroy
+    // #9 - destroy
     {
 
         // destroy the array
-        array_destroy(&p_array, NULL);
+        array_destroy(&p_array, default_allocator);
 
         // checkpoint
         checkpoint(p_array, "after destroy");
     }
 
-    // #11 - from binary
+    // #10 - from binary
     {
         
         // initialized data
@@ -223,11 +214,14 @@ int main ( int argc, const char* argv[] )
         // reflect an array from the buffer
         array_unpack(&p_array, buf, string_unpack),
 
+        // close the file
+        fclose(p_f);
+
         // checkpoint
         checkpoint(p_array, "after parse");
     }
 
-    // #8 - hash 2
+    // #11 - hash 2
     {
 
         // hash the array
@@ -260,7 +254,7 @@ int main ( int argc, const char* argv[] )
     {
 
         // destroy the array
-        array_destroy(&p_array, NULL);
+        array_destroy(&p_array, default_allocator);
 
         // checkpoint
         checkpoint(p_array, "after destroy");
@@ -386,6 +380,21 @@ int string_pack ( void *p_buffer, const void *const p_value )
 int string_unpack ( void *const p_value, void *p_buffer )
 {
 
+    // initialized data
+    char       **pp_value        = (const char **) p_value;
+    int          result          = 0;
+    char        *p_string        = NULL;
+    const char   _string  [1024] = { 0 };
+
+    // unpack the buffer
+    result = pack_unpack(p_buffer, "%s", &_string);
+
+    // duplicate the string
+    p_string = strdup(_string);
+
+    // return a pointer to the caller
+    *pp_value = p_string;
+
     // done
-    return pack_unpack(p_buffer, "%s", p_value);
+    return result;
 }
