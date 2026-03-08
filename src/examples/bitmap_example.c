@@ -10,13 +10,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// core
+// gsdk
+/// core
 #include <core/log.h>
 #include <core/sync.h>
 #include <core/hash.h>
 #include <core/pack.h>
+#include <core/interfaces.h>
 
-// data
+/// data
 #include <data/bitmap.h>
 
 // forward declarations
@@ -24,7 +26,7 @@
 int checkpoint ( bitmap *p_bitmap, const char *p_event );
 
 /// bit
-void bit_print ( void *p_value, int i );
+fn_fori bit_print;
 
 /// file for reflection
 FILE *p_f = NULL;
@@ -162,6 +164,9 @@ int main ( int argc, const char* argv[] )
         // reflect a bitmap from the buffer
         bitmap_unpack(&p_bitmap, buf),
 
+        // close the file
+        fclose(p_f);
+        
         // checkpoint
         checkpoint(p_bitmap, "after parse");
     }
