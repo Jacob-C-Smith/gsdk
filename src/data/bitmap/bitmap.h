@@ -1,7 +1,7 @@
 /** !
- * Include header for bitmap library
+ * Bitmap interface
  * 
- * @file data/bitmap.h 
+ * @file src/data/bitmap/bitmap.h 
  * 
  * @author Jacob Smith
  */
@@ -16,11 +16,13 @@
 #include <stdbool.h>
 #include <string.h>
 
-// core
+// gsdk
+/// core
 #include <core/hash.h>
+#include <core/interfaces.h>
 #include <core/log.h>
-#include <core/sync.h>
 #include <core/pack.h>
+#include <core/sync.h>
 
 // forward declarations
 struct bitmap_s;
@@ -36,7 +38,7 @@ typedef struct bitmap_s bitmap;
  * @param pp_bitmap result
  * @param bits      the quantity of bits in the bitmap
  * 
- * @return pointer to bitmap if successful else null pointer
+ * @return 1 on success, 0 on error
  */
 int bitmap_construct ( bitmap **pp_bitmap, size_t bits );
 
@@ -45,9 +47,9 @@ int bitmap_construct ( bitmap **pp_bitmap, size_t bits );
  * Get the i'th bit of a bitmap
  * 
  * @param p_bitmap the bitmap
- * @param index    the index of the bit to set
+ * @param i        the index of the bit to set
  * 
- * @return 1 if set else 0
+ * @return 1 IF set ELSE 0
  */
 int bitmap_test ( bitmap *p_bitmap, size_t i );
 
@@ -56,7 +58,7 @@ int bitmap_test ( bitmap *p_bitmap, size_t i );
  * Set the i'th bit of a bitmap
  * 
  * @param p_bitmap the bitmap
- * @param index    the index of the bit to set
+ * @param i        the index of the bit to set
  * 
  * @return 1 on success, 0 on error
  */
@@ -66,7 +68,7 @@ int bitmap_set ( bitmap *p_bitmap, size_t i );
  * Clear the i'th bit of a bitmap
  * 
  * @param p_bitmap the bitmap
- * @param index    the index of the bit to clear
+ * @param i        the index of the bit to clear
  * 
  * @return 1 on success, 0 on error
  */
@@ -74,17 +76,17 @@ int bitmap_clear ( bitmap *p_bitmap, size_t i );
 
 /// print
 /** !
- * Print a bitmap
+ * Print a bitmap to standard out
  * 
  * @param p_bitmap the bitmap
  * 
- * return 1 on success, 0 on error
+ * @return 1 on success, 0 on error
  */
 int bitmap_print ( bitmap *p_bitmap );
 
 /// iterators
 /** !
- * Call function on every element in a bitmap
+ * Call a function on every bit in a bitmap
  *
  * @param p_bitmap the bitmap
  * @param pfn_fori pointer to fori function
@@ -94,7 +96,7 @@ int bitmap_print ( bitmap *p_bitmap );
 int bitmap_fori ( bitmap *p_bitmap, fn_fori *pfn_fori );
 
 /** !
- * Call function on every element in a bitmap
+ * Call a function on every bit in a bitmap
  *
  * @param p_bitmap    the bitmap
  * @param pfn_foreach pointer to foreach function
@@ -107,9 +109,8 @@ int bitmap_foreach ( bitmap *p_bitmap, fn_foreach *pfn_foreach );
 /** !
  * Pack a bitmap into a buffer
  * 
- * @param p_buffer     the buffer
- * @param p_bitmap     the bitmap
- * @param pfn_elemenet pointer to pack function IF not null ELSE default
+ * @param p_buffer the buffer
+ * @param p_bitmap the bitmap
  * 
  * @return 1 on success, 0 on error
  */
@@ -118,9 +119,8 @@ int bitmap_pack ( void *p_buffer, bitmap *p_bitmap );
 /** !
  * Unpack a buffer into a bitmap
  * 
- * @param pp_bitmap      result
- * @param p_buffer     the buffer
- * @param pfn_elemenet pointer to unpack function IF not null ELSE default
+ * @param pp_bitmap result
+ * @param p_buffer  the buffer
  * 
  * @return 1 on success, 0 on error
  */
@@ -131,9 +131,9 @@ int bitmap_unpack ( bitmap **pp_bitmap, void *p_buffer );
  * Compute a 64-bit hash of a bitmap
  * 
  * @param p_bitmap    the bitmap
- * @param pfn_element hashing function applied to the bits
+ * @param pfn_element pointer to hashing function
  * 
- * @return hash on success, NULL on error
+ * @return hash on success, 0 on error
  */
 hash64 bitmap_hash ( bitmap *p_bitmap, fn_hash64 *pfn_hash64 );
 
@@ -143,6 +143,6 @@ hash64 bitmap_hash ( bitmap *p_bitmap, fn_hash64 *pfn_hash64 );
  * 
  * @param pp_bitmap pointer to bitmap pointer
  * 
- * @return void
+ * @return 1 on success, 0 on error
  */
 int bitmap_destroy ( bitmap **pp_bitmap );

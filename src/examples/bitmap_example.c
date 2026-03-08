@@ -120,7 +120,7 @@ int main ( int argc, const char* argv[] )
     // #5 - hash 1
     {
 
-        // initialized data
+        // compute the hash
         h1 = bitmap_hash(p_bitmap, NULL);
 
         // print the hash
@@ -166,7 +166,7 @@ int main ( int argc, const char* argv[] )
 
         // close the file
         fclose(p_f);
-        
+
         // checkpoint
         checkpoint(p_bitmap, "after parse");
     }
@@ -174,7 +174,7 @@ int main ( int argc, const char* argv[] )
     // #9 - hash 2
     {
 
-        // initialized data
+        // compute the hash
         h2 = bitmap_hash(p_bitmap, NULL);
 
         // print the hash

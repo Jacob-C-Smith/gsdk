@@ -1,7 +1,7 @@
 /** !
- * bitmap library
+ * Bitmap implementation
  * 
- * @file src/data/bitmap.c 
+ * @file src/data/bitmap/bitmap.c 
  * 
  * @author Jacob Smith
  */
@@ -9,18 +9,12 @@
 // header
 #include <data/bitmap.h>
 
-// core
-#include <core/log.h>
-#include <core/sync.h>
-#include <core/interfaces.h>
-#include <core/pack.h>
-
 // structure definitions
 struct bitmap_s
 {
-    size_t   max;      // Quantity of bits in the bitmap 
-    mutex    _lock;    // locked when writing values
-    void    *p_bitmap; // Bitmap contents
+    size_t   max;      // quantity of bits in the bitmap 
+    mutex    _lock;    // lock
+    void    *p_bitmap; // bitmap contents
 };
 
 /// constructors
@@ -32,16 +26,17 @@ int bitmap_construct ( bitmap **pp_bitmap, size_t bits )
     if ( 0    == bits      ) goto no_bits;
 
     // initialized data
-    bitmap *p_bitmap = default_allocator(0, sizeof(bitmap));
+    bitmap *p_bitmap = NULL;
     size_t  bytes_required = (bits % 8 == 0) ? (bits / 8) : (bits / 8) + 1;
     
-    // error check
+    // allocate memory for a bitmap
+    p_bitmap = default_allocator(0, sizeof(bitmap));
     if ( NULL == p_bitmap ) goto no_mem;
 
     // store the quantity of bits
     p_bitmap->max = bits;
 
-    // allocate a lock
+    // construct a lock
     mutex_create(&p_bitmap->_lock);
 
     // allocate memory for the bitmap
@@ -104,12 +99,15 @@ int bitmap_set ( bitmap *p_bitmap, size_t index )
     if ( index > p_bitmap->max ) goto out_of_bounds;
 
     // initialized data
-    unsigned char *p      = p_bitmap->p_bitmap;
+    unsigned char *p      = NULL;
     size_t         offset = index / 8,
                    select = index % 8;
 
     // lock
     mutex_lock(&p_bitmap->_lock);
+
+    // store a pointer to the bitmap
+    p = p_bitmap->p_bitmap;
 
     // set the bit
     p[offset] |= ( 1 << select );
@@ -148,12 +146,15 @@ int bitmap_clear ( bitmap *p_bitmap, size_t index )
     if ( index > p_bitmap->max ) goto out_of_bounds;
 
     // initialized data
-    unsigned char *p      = p_bitmap->p_bitmap;
+    unsigned char *p      = NULL;
     size_t         offset = index / 8,
                    select = index % 8;
 
     // lock
     mutex_lock(&p_bitmap->_lock);
+
+    // store a pointer to the bitmap
+    p = p_bitmap->p_bitmap;
 
     // clear
     p[offset] &= ~( 1 << select );
@@ -194,12 +195,15 @@ int bitmap_test ( bitmap *p_bitmap, size_t index )
 
     // initialized data
     int            result = 0;
-    unsigned char *p      = p_bitmap->p_bitmap;
+    unsigned char *p      = NULL;
     size_t         offset = index / 8,
                    select = index % 8;
 
     // lock
     mutex_lock(&p_bitmap->_lock);
+
+    // store a pointer to the bitmap
+    p = p_bitmap->p_bitmap;
 
     // test
     result = (p[offset] & ( 1 << select )) ? 1 : 0;
@@ -239,15 +243,19 @@ int bitmap_print ( bitmap *p_bitmap )
 
     // initialized data
     unsigned char *p = p_bitmap->p_bitmap;
-    size_t bits_left = p_bitmap->max,
+    size_t bits_left = 0,
            i         = 0;
 
     // lock
     mutex_lock(&p_bitmap->_lock);
 
+    // store the quantity of bits
+    bits_left = p_bitmap->max;
+
     // walk the bitmap
-    while(bits_left != i)
+    while ( bits_left != i )
     {
+
         // initialized data
         size_t offset = i / 8,
                select = i % 8;
@@ -286,24 +294,28 @@ int bitmap_fori ( bitmap *p_bitmap, fn_fori *pfn_fori )
 
     // argument check
     if ( NULL == p_bitmap  ) goto no_bitmap;
-    if ( NULL == pfn_fori ) goto no_fn_fori;
+    if ( NULL ==  pfn_fori ) goto no_fn_fori;
 
     // initialized data
     unsigned char *p = p_bitmap->p_bitmap;
-    size_t bits_left = p_bitmap->max,
+    size_t bits_left = 0,
            i         = 0;
 
     // lock
     mutex_lock(&p_bitmap->_lock);
 
+    // store the quantity of bits
+    bits_left = p_bitmap->max;
+
     // walk the bitmap
     while ( bits_left != i )
     {
+
         // initialized data
         size_t offset = i / 8,
                select = i % 8;
 
-        // print the bit
+        // call the fori function
         pfn_fori((void*)(size_t)(p[offset] & ( 1 << select )), i),
         
         // iterate
@@ -323,7 +335,7 @@ int bitmap_fori ( bitmap *p_bitmap, fn_fori *pfn_fori )
         {
             no_bitmap:
                 #ifndef NDEBUG
-                    log_error("[bitmap] Null pointer provided for \"p_bitmap\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[bitmap] Null pointer provided for parameter \"p_bitmap\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -331,7 +343,7 @@ int bitmap_fori ( bitmap *p_bitmap, fn_fori *pfn_fori )
             
             no_fn_fori:
                 #ifndef NDEBUG
-                    log_error("[bitmap] Null pointer provided for \"pfn_fori\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[bitmap] Null pointer provided for parameter \"pfn_fori\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -344,25 +356,29 @@ int bitmap_foreach ( bitmap *p_bitmap, fn_foreach *pfn_foreach )
 {
 
     // argument check
-    if ( NULL ==     p_bitmap ) goto no_bitmap;
+    if ( NULL ==    p_bitmap ) goto no_bitmap;
     if ( NULL == pfn_foreach ) goto no_fn_foreach;
 
     // initialized data
-    unsigned char *p = p_bitmap->p_bitmap;
-    size_t bits_left = p_bitmap->max,
-           i         = 0;
+    unsigned char *p         = p_bitmap->p_bitmap;
+    size_t         bits_left = 0,
+                   i         = 0;
 
     // lock
     mutex_lock(&p_bitmap->_lock);
 
+    // store the quantity of bits
+    bits_left = p_bitmap->max;
+
     // walk the bitmap
     while ( bits_left != i )
     {
+
         // initialized data
         size_t offset = i / 8,
                select = i % 8;
 
-        // print the bit
+        // call the foreach function
         pfn_foreach((void*)(size_t)(p[offset] & ( 1 << select ))),
         
         // iterate
@@ -382,7 +398,7 @@ int bitmap_foreach ( bitmap *p_bitmap, fn_foreach *pfn_foreach )
         {
             no_bitmap:
                 #ifndef NDEBUG
-                    log_error("[bitmap] Null pointer provided for \"p_bitmap\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[bitmap] Null pointer provided for parameter \"p_bitmap\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -390,7 +406,7 @@ int bitmap_foreach ( bitmap *p_bitmap, fn_foreach *pfn_foreach )
             
             no_fn_foreach:
                 #ifndef NDEBUG
-                    log_error("[bitmap] Null pointer provided for \"pfn_foreach\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[bitmap] Null pointer provided for parameter \"pfn_foreach\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -410,14 +426,17 @@ int bitmap_pack ( void *p_buffer, bitmap *p_bitmap )
     // initialized data 
     char   *p              = p_buffer,
            *p_bytes        = p_bitmap->p_bitmap;
-    size_t  bytes_required = (p_bitmap->max % 8 == 0) ? 
-                             (p_bitmap->max / 8) :
-                             (p_bitmap->max / 8) + 1;
+    size_t  bytes_required = 0;
 
     // lock
     mutex_lock(&p_bitmap->_lock);
 
-    // Pack the quantity of properties
+    // compute the quantity of bytes required
+    bytes_required = (p_bitmap->max % 8 == 0) ? 
+                     (p_bitmap->max / 8)      :
+                     (p_bitmap->max / 8) + 1;
+
+    // pack the quantity of properties
     p += pack_pack(p, "%i64", p_bitmap->max);
 
     // iterate through the bitmap
@@ -437,7 +456,7 @@ int bitmap_pack ( void *p_buffer, bitmap *p_bitmap )
         {
             no_bitmap:
                 #ifndef NDEBUG
-                    log_error("[bitmap] Null pointer provided for \"p_bitmap\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[bitmap] Null pointer provided for parameter \"p_bitmap\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -445,7 +464,7 @@ int bitmap_pack ( void *p_buffer, bitmap *p_bitmap )
             
             no_buffer:
                 #ifndef NDEBUG
-                    log_error("[bitmap] Null pointer provided for \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[bitmap] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -466,7 +485,7 @@ int bitmap_unpack ( bitmap **pp_bitmap, void *p_buffer )
     char   *p              = p_buffer;
     size_t  len            = 0,
             bytes_required = 0;
-
+            
     // unpack the length
     p += pack_unpack(p, "%i64", &len);
 
@@ -497,7 +516,7 @@ int bitmap_unpack ( bitmap **pp_bitmap, void *p_buffer )
         {
             no_bitmap:
                 #ifndef NDEBUG
-                    log_error("[bitmap] Null pointer provided for \"p_bitmap\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[bitmap] Null pointer provided for parameter \"pp_bitmap\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -505,7 +524,7 @@ int bitmap_unpack ( bitmap **pp_bitmap, void *p_buffer )
 
             no_buffer:
                 #ifndef NDEBUG
-                    log_error("[bitmap] Null pointer provided for \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[bitmap] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -519,16 +538,25 @@ hash64 bitmap_hash ( bitmap *p_bitmap, fn_hash64 *pfn_hash64 )
 {
 
     // argument check
-    if ( p_bitmap == (void *) 0 ) goto no_bitmap;
+    if ( NULL == p_bitmap ) goto no_bitmap;
 
     // initialized data
     hash64 result = 0;
-    size_t bytes_required = (p_bitmap->max % 8 == 0) ? 
-                            (p_bitmap->max / 8) :
-                            (p_bitmap->max / 8) + 1;
+    size_t bytes_required = 0;
+
+    // lock
+    mutex_lock(&p_bitmap->_lock);
+
+    // compute the quantity of bytes to hash
+    bytes_required = (p_bitmap->max % 8 == 0) ? 
+                     (p_bitmap->max / 8) :
+                     (p_bitmap->max / 8) + 1;
 
     // compute the hash of the bitmap
     result = (pfn_hash64) ? pfn_hash64(p_bitmap->p_bitmap, bytes_required) : default_hash(p_bitmap->p_bitmap, bytes_required);
+
+    // unlock
+    mutex_unlock(&p_bitmap->_lock);
 
     // success
     return result;
@@ -540,7 +568,7 @@ hash64 bitmap_hash ( bitmap *p_bitmap, fn_hash64 *pfn_hash64 )
         {
             no_bitmap:
                 #ifndef NDEBUG
-                    log_error("[bitmap] Null pointer provided for \"pp_bitmap\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[bitmap] Null pointer provided for parameter \"p_bitmap\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -553,11 +581,20 @@ hash64 bitmap_hash ( bitmap *p_bitmap, fn_hash64 *pfn_hash64 )
 int bitmap_destroy ( bitmap **pp_bitmap )
 {
 
+    // argument check
+    if ( NULL == pp_bitmap ) goto no_bitmap;
+
     // initialized data
     bitmap *p_bitmap = *pp_bitmap;
 
+    // lock
+    mutex_lock(&p_bitmap->_lock);
+
     // no more pointer for caller
     *pp_bitmap = NULL;
+
+    // unlock
+    mutex_unlock(&p_bitmap->_lock);
 
     // release the bits
     p_bitmap->p_bitmap = default_allocator(p_bitmap->p_bitmap, 0),
@@ -567,4 +604,19 @@ int bitmap_destroy ( bitmap **pp_bitmap )
     
     // success
     return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_bitmap:
+                #ifndef NDEBUG
+                    log_error("[bitmap] Null pointer provided for parameter \"pp_bitmap\" in call to function \"%s\"\n");
+                #endif
+
+                // error
+                return 0;
+        }
+    }
 }
