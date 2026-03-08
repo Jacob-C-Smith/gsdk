@@ -23,11 +23,14 @@
 #include <core/hash.h>
 #include <core/pack.h>
 
+// preprocessor definitions
+#define TOMBSTONE 0xffffffffffffffff
+
 // enumeration definitions
 enum collision_resolution_e 
 {
-    LINEAR_PROBE,
-    COLLISION_RESOLUTION_DEFAULT = LINEAR_PROBE,
+    COLLISION_RESOLUTION_DEFAULT,
+    LINEAR_PROBE = COLLISION_RESOLUTION_DEFAULT,
     QUADRATIC_PROBE,
     DOUBLE_HASH,
     COLLISION_RESOLUTION_QUANTITY
@@ -38,7 +41,6 @@ struct hash_table_s;
 
 // type definitions
 typedef struct hash_table_s hash_table;
-typedef size_t (fn_table_hash)(hash_table *p_hash_table, void *key, size_t i);
 
 /// constructors
 /** !
@@ -95,6 +97,17 @@ double hash_table_load_factor ( hash_table *p_hash_table );
  * @return 1 on success, 0 on error 
  */
 int hash_table_insert ( hash_table *const p_hash_table, void *p_property );
+
+/** !
+ * Remove a value from a hash table
+ * 
+ * @param p_hash_table the hash table
+ * @param p_key        the key
+ * @param pp_value     result IF NOT NULL ELSE unused
+ * 
+ * @return 1 on success, 0 on error
+ */
+int hash_table_remove ( hash_table *const p_hash_table, void *p_key, void **pp_value );
 
 /// iterators
 /** !

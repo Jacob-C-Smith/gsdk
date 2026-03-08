@@ -51,7 +51,7 @@ int checkpoint ( hash_table *p_hash_table, const char *p_event );
 
 /// color
 fn_foreach      color_print;
-fn_foreach      accumulate_probes;
+fn_foreach      accumulate_accesses;
 fn_fori         color_slot_print;
 fn_equality     color_equality;
 fn_hash64       color_hash_key;
@@ -72,8 +72,8 @@ size_t file_len = 0;
 hash64 h1 = 0,
        h2 = 0;
        
-/// total probes
-size_t total_probes = 0;
+/// total accesses
+size_t total_accesses = 0;
 
 /// example data
 color _values[] =
@@ -84,7 +84,7 @@ color _values[] =
     [GREEN]  = { ._string = "Green" , .hex_code = 0x00FF00 },
     [BLUE]   = { ._string = "Blue"  , .hex_code = 0x0000FF },
     [INDIGO] = { ._string = "Indigo", .hex_code = 0x4B0082 },
-    [VIOLET] = { ._string = "Purple", .hex_code = 0x7F00FF }
+    [VIOLET] = { ._string = "Violet", .hex_code = 0x7F00FF }
 };
 
 // entry point
@@ -116,7 +116,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_hash_table, "after construction");
     }
 
-    // #2 - add
+    // #2 - insert
     {
         
         // add some colors
@@ -144,6 +144,22 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_hash_table, "after search");
     }
 
+    // #4 - remove
+    {
+
+        // initialized data
+        void *p_value = NULL; 
+
+        // remove an element
+        hash_table_remove(p_hash_table, "Orange", &p_value);
+
+        // print the removed element
+        color_print(p_value);
+
+        // checkpoint
+        checkpoint(p_hash_table, "after remove");
+    }
+    
     // #4 - to binary
     {
 
@@ -179,7 +195,23 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_hash_table, "after hash 1");
     }
 
-    // #6 - destroy
+    // #8 - search
+    {
+
+        // initialized data
+        color *p_color = NULL;
+
+        // search for a value
+        hash_table_search(p_hash_table, "Yellow", &p_color);
+
+        // print results
+        printf("Searching for \"Yellow\" yields #%06x\n", p_color->hex_code);
+
+        // checkpoint
+        checkpoint(p_hash_table, "after search");
+    }
+
+    // #8 - destroy
     {
         
         // destroy the hash table
@@ -189,7 +221,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_hash_table, "after destroy");
     }
 
-    // #7 - from binary
+    // #9 - from binary
     {
         
         // initialized data
@@ -217,7 +249,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_hash_table, "after parse");
     }
 
-    // #8 - hash 2
+    // #10 - hash 2
     {
 
         // hash the hash table
@@ -236,7 +268,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_hash_table, "after hash 2");
     }
 
-    // #9 - destroy
+    // #11 - destroy
     {
         
         // destroy the hash table
@@ -265,13 +297,13 @@ int checkpoint ( hash_table *p_hash_table, const char *p_event )
     else
         log_info("#%d - Hash table %s:\n", step, p_event),
 
-        // summate probes
-        total_probes = 0, hash_table_foreach(p_hash_table, accumulate_probes),
+        // summate accesses
+        total_accesses = 0, hash_table_foreach(p_hash_table, accumulate_accesses),
 
-        // print load factor and average probes
-        printf("α: %%%lf, avg. probes: %lf\n", 
+        // print load factor and average accesses
+        printf("α: %%%lf, avg. accesses: %lf\n", 
             100.00 * hash_table_load_factor(p_hash_table),
-            (double)total_probes / (double)COLOR_QUANTITY
+            (double)total_accesses / (double)COLOR_QUANTITY
         ),
 
         // print the contents of the hash table
@@ -309,14 +341,14 @@ void color_print ( void *p_element )
     return;
 }
 
-void accumulate_probes ( void *p_element )
+void accumulate_accesses ( void *p_element )
 {
 
     // initialized data
     color *p_color = p_element;
 
     // accumulate
-    total_probes += p_color->counter;
+    total_accesses += p_color->counter;
 
     // done
     return;
@@ -351,12 +383,26 @@ void color_slot_print ( void *p_element, int i )
     // fast fail
     if ( NULL == p_color ) 
     {
+
+        // print the empty slot
         printf("[%d] -> NULL\n", i);
+
+        // done
         return;
     }
 
+    if ( TOMBSTONE == p_color )
+    {
+
+        // print the tombstone
+        printf("[%d] -> 👻🪦 👻\n", i);
+
+        // done
+        return;   
+    }
+
     // print the element
-    printf("[%d] : ( %s -> #%06lx ), %d probes\n", i, p_color->_string, p_color->hex_code, p_color->counter);
+    printf("[%d] : ( %s -> #%06lx )\n", i, p_color->_string, p_color->hex_code, p_color->counter);
 
     // done
     return;
@@ -368,7 +414,7 @@ void *color_key_accessor ( const void *const p_property )
     // initialized data
     color *p_color = p_property;
 
-    // increment the probe counter
+    // increment the access counter
     p_color->counter++;
 
     // done

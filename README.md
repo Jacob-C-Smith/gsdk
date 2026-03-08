@@ -113,7 +113,7 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>⭐ <a href="./documentation/md/data/priority_queue.md">
             <b>priority queue</b>
         </a></li>
-        <li>🏗️ <a href="#">hash table</a></li>
+        <li>🧪 <a href="./documentation/md/data/hash_table.md">hash table</a></li>
         <!--<li>🧪 <a href="./documentation/md/data/node.md">node</a></li>-->
         <!--<li>❓ <a href="#">adjacency list</a></li>-->
         <!--<li>❓ <a href="#">adjacency matrix</a></li>-->
