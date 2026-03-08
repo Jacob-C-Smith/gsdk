@@ -104,8 +104,8 @@ int main ( int argc, const char* argv[] )
         // construct the hash table
         hash_table_construct(
             &p_hash_table, 
-            13,
-            LINEAR_PROBE,
+            7,
+            COLLISION_RESOLUTION_DEFAULT,
             
             color_equality, 
             color_key_accessor, 

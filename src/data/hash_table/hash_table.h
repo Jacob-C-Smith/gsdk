@@ -40,21 +40,6 @@ struct hash_table_s;
 typedef struct hash_table_s hash_table;
 typedef size_t (fn_table_hash)(hash_table *p_hash_table, void *key, size_t i);
 
-// structure definitions
-struct hash_table_s
-{
-    struct
-    {
-        void   **pp_data;
-        size_t   count, max;
-    } properties;
-
-    fn_equality     *pfn_equality;
-    fn_key_accessor *pfn_key_get;
-    fn_hash64       *pfn_hash_function;
-    fn_table_hash   *pfn_table_hash;
-};
-
 /// constructors
 /** !
  * Construct a hash table
