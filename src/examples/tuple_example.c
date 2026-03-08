@@ -1,7 +1,7 @@
 /** !
  * Example program for tuple module
  * 
- * @file main.c
+ * @file src/examples/tuple_example.c
  * 
  * @author Jacob Smith
  */
@@ -37,11 +37,10 @@ enum color_e
 int checkpoint ( tuple *p_tuple, const char *p_event );
 
 /// string
-void    string_print ( void *p_value, int i );
-int     string_compare ( const void *const p_a, const void *const p_b );
-hash64  string_hash ( const void *const string, unsigned long long unused );
-int     string_pack ( void *p_buffer, const void *const p_value );
-int     string_unpack ( void *const p_value, void *p_buffer );
+fn_fori   string_print;
+fn_hash64 string_hash;
+fn_pack   string_pack;
+fn_unpack string_unpack;
  
 // data
 /// immutable color strings
@@ -143,7 +142,7 @@ int main ( int argc, const char* argv[] )
     {
 
         // initialized data
-        h1 = tuple_hash(p_tuple, (fn_hash64 *)string_hash);
+        h1 = tuple_hash(p_tuple, string_hash);
 
         // print the hash
         printf("hash 1 -> 0x%llx\n", h1);
@@ -174,6 +173,9 @@ int main ( int argc, const char* argv[] )
         
         // reflect an tuple from the buffer
         tuple_unpack(&p_tuple, buf, string_unpack),
+        
+        // close the file
+        fclose(p_f);
 
         // checkpoint
         checkpoint(p_tuple, "after parse");
@@ -183,7 +185,7 @@ int main ( int argc, const char* argv[] )
     {
 
         // initialized data
-        h2 = tuple_hash(p_tuple, (fn_hash64 *)string_hash);
+        h2 = tuple_hash(p_tuple, string_hash);
 
         // print the hash
         printf("hash 2 -> 0x%llx\n", h2);
@@ -199,7 +201,7 @@ int main ( int argc, const char* argv[] )
     {
 
         // destroy the tuple
-        tuple_destroy(&p_tuple, NULL);
+        tuple_destroy(&p_tuple, default_allocator);
 
         // checkpoint
         checkpoint(p_tuple, "after destroy");
@@ -213,7 +215,6 @@ int main ( int argc, const char* argv[] )
 }
 
 int checkpoint ( tuple *p_tuple, const char *p_event )
-
 {
 
     // static data
@@ -242,15 +243,7 @@ void string_print ( void *p_value, int i )
     printf("[%d] - %s\n", i, (char *)p_value);
     
     // done
-    return ;
-}
-
-int string_compare ( const void *const p_a, const void *const p_b )
-{
-    char *a = *(char **)p_a,
-         *b = *(char **)p_b;
-
-    return strcmp(a, b);
+    return;
 }
 
 hash64 string_hash ( const void *const string, unsigned long long unused )
@@ -273,6 +266,21 @@ int string_pack ( void *p_buffer, const void *const p_value )
 int string_unpack ( void *const p_value, void *p_buffer )
 {
 
+    // initialized data
+    char       **pp_value        = (const char **) p_value;
+    int          result          = 0;
+    char        *p_string        = NULL;
+    const char   _string  [1024] = { 0 };
+
+    // unpack the buffer
+    result = pack_unpack(p_buffer, "%s", &_string);
+
+    // duplicate the string
+    p_string = strdup(_string);
+
+    // return a pointer to the caller
+    *pp_value = p_string;
+
     // done
-    return pack_unpack(p_buffer, "%s", p_value);
+    return result;
 }

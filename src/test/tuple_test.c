@@ -1,22 +1,22 @@
 /** !
  * Tuple tester
  * 
- * @file tuple_test.c
+ * @file src/data/tuple_test.c
  * 
  * @author Jacob Smith
  */
-// TODO: Improve documentation
 
 // standard library
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
-// core
+// gsdk
+/// core
 #include <core/log.h>
 #include <core/sync.h>
 
-// data
+/// data
 #include <data/tuple.h>
 
 // Possible elements
@@ -256,7 +256,7 @@ int construct_empty ( tuple **pp_tuple )
 {
 
     // tuple = []
-    tuple_construct(pp_tuple, 0);
+    tuple_from_arguments(pp_tuple, 0);
 
     // success
     return 1;

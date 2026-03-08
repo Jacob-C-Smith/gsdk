@@ -1,7 +1,7 @@
 ﻿/** !
- * Include header for tuple library
+ * Tuple interface
  * 
- * @file tuple/tuple.h 
+ * @file src/data/tuple/tuple.h 
  * 
  * @author Jacob Smith
  */
@@ -16,42 +16,24 @@
 #include <string.h>
 #include <stdarg.h>
 
-// core
+// gsdk
+/// core
 #include <core/interfaces.h>
 #include <core/pack.h>
 #include <core/hash.h>
 #include <core/log.h>
 #include <core/sync.h>
 
-// Debug mode
-#undef NDEBUG
-
 // forward declarations
 struct tuple_s;
 
 // type definitions
-/** !
- *  @brief The type definition of a tuple struct
- */
 typedef struct tuple_s tuple;
 
 // function declarations
 /// constructors
 /** !
- *  Construct a tuple with a specific size
- *
- * @param pp_tuple result
- * @param size     number of elements in a tuple
- *
- * @sa tuple_create
- * @sa tuple_destroy
- *
- * @return 1 on success, 0 on error
- */
-int tuple_construct ( tuple **const pp_tuple, size_t size );
-
-/** !
- *  Construct a tuple from a list of elements
+ * Construct a tuple from a list of elements
  *
  * @param pp_tuple result
  * @param elements pointer to null terminated tuple of element pointers
@@ -66,7 +48,7 @@ int tuple_construct ( tuple **const pp_tuple, size_t size );
 int tuple_from_elements ( tuple **const pp_tuple, void *const *const elements, size_t size );
 
 /** !
- *  Construct a tuple from parameters
+ * Construct a tuple from parameters
  *
  * @param pp_tuple      result
  * @param element_count the quantity of variadic arguments 
@@ -112,7 +94,7 @@ int tuple_index ( const tuple *const p_tuple, signed long long index, void **con
 int tuple_slice ( const tuple *const p_tuple, const void **const pp_elements, signed long long lower_bound, signed long long upper_bound );
 
 /** !
- *  Is a tuple empty?
+ * Is a tuple empty?
  * 
  * @param p_tuple the tuple
  * 
@@ -121,7 +103,7 @@ int tuple_slice ( const tuple *const p_tuple, const void **const pp_elements, si
 bool tuple_is_empty ( const tuple *const p_tuple );
 
 /** !
- *  Get the size of a tuple
+ * Get the size of a tuple
  * 
  * @param p_tuple the tuple
  * 
@@ -176,7 +158,7 @@ hash64 tuple_hash ( tuple *p_tuple, fn_hash64 *pfn_element );
 
 /// destructors
 /** !
- *  Destroy and deallocate a tuple
+ * Destroy and deallocate a tuple
  *
  * @param pp_tuple the tuple
  * @param pfn_allocator pointer to element deallocator IF NOT NULL ELSE, elements are not deallocated.
