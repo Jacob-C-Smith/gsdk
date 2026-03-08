@@ -2,79 +2,69 @@
 
 ## Specialized FIFO; Enqueue and dequeue from both ends
 
- > 1 [Download](#download)
+ > 1 [Example](#example)
  >
- > 2 [Build](#build)
+ > 2 [Tester](#tester)
  >
- > 3 [Example](#example)
+ > 3 [Definitions](#definitions)
  >
- >> 3.1 [Example output](#example-output)
- >
- > 4 [Tester](#tester)
- >
- > 5 [Definitions](#definitions)
- >
- >> 5.1 [Type definitions](#type-definitions)
+ >> 3.1 [Type definitions](#type-definitions)
  >>
- >> 5.2 [Function declarations](#function-declarations)
+ >> 3.2 [Function declarations](#function-declarations)
 
- ## Download
- To download double-queue, execute the following command
- ```bash
- $ git clone https://github.com/Jacob-C-Smith/double-queue
- ```
- ## Build
- To build on UNIX like machines, execute the following commands in the same directory
- ```bash
- $ cd double-queue
- $ cmake .
- $ make
- ```
-  This will build the example program, the tester program, and dynamic / shared libraries
-
-  To build double-queue for Windows machines, open the base directory in Visual Studio, and build your desired target(s)
  ## Example
  To run the example program, execute this command
  ```
- $ ./double_queue_example
+ $ ./build/examples/double_queue_example
  ```
- ### Example output
-TODO: 
-
- [Source](main.c)
-## Tester
- To run the tester program, execute this command after building
- ```
- $ ./double_queue_test
- ```
- [Source](double_queue_test.c)
  
- TODO: [Tester output](test_output.txt)
+## Tester
+ To run the tester program, execute this command 
+ ```
+ $ ./build/tests/double_queue_test
+ ```
+
  ## Definitions
  ### Type definitions
  ```c
- typedef struct double_queue_s double_queue;
+// type definitions
+typedef struct double_queue_s double_queue;
  ```
+
  ### Function declarations
  ```c 
-// allocaters
-int double_queue_create ( double_queue **const pp_double_queue );
-
-// constructors
+// function declarations
+/// constructors
 int double_queue_construct     ( double_queue **const pp_double_queue );
-int double_queue_from_contents ( double_queue **const pp_double_queue, void * const* const pp_contents, size_t size );
+int double_queue_from_contents ( double_queue **const pp_double_queue, void *const* const pp_contents, size_t size );
 
-// accessors
-int  double_queue_front ( const double_queue *const p_double_queue, const void **const pp_value );
-int  double_queue_rear  ( const double_queue *const p_double_queue, const void **const pp_value );
-bool double_queue_empty ( const double_queue *const p_double_queue );
+/// accessors
+int double_queue_front ( double_queue *const p_double_queue, void **const pp_value );
+int double_queue_rear  ( double_queue *const p_double_queue, void **const pp_value );
 
-// mutators
-int double_queue_front_add ( double_queue *const p_double_queue,       void  *const data );
-int double_queue_front_remove ( double_queue *const p_double_queue, const void **const pp_value );
-int double_queue_rear_add  ( double_queue *const p_double_queue,       void  *const data );
-int double_queue_rear_remove  ( double_queue *const p_double_queue, const void **const pp_value );
+size_t double_queue_size  ( double_queue *const p_double_queue );
+bool   double_queue_empty ( double_queue *const p_double_queue );
 
-// destructors
-int double_queue_destroy ( double_queue **const pp_double_queue );
+/// mutators
+int double_queue_front_add    ( double_queue *const p_double_queue, void  *const p_value );
+int double_queue_front_remove ( double_queue *const p_double_queue, void **const pp_value );
+int double_queue_rear_add     ( double_queue *const p_double_queue, void  *const p_value );
+int double_queue_rear_remove  ( double_queue *const p_double_queue, void **const pp_value );
+
+/// map
+int double_queue_map ( double_queue *const p_double_queue, fn_map *pfn_map, fn_allocator *pfn_allocator );
+
+/// iterators
+int double_queue_foreach ( double_queue *const p_double_queue, fn_foreach *pfn_foreach );
+int double_queue_fori    ( double_queue *const p_double_queue, fn_fori    *pfn_fori );
+
+/// reflection
+int double_queue_pack   ( void          *p_buffer       , double_queue *p_double_queue, fn_pack   *pfn_element );
+int double_queue_unpack ( double_queue **pp_double_queue, void         *p_buffer      , fn_unpack *pfn_element );
+
+/// hash
+hash64 double_queue_hash ( double_queue *p_double_queue, fn_hash64 *pfn_element );
+
+/// destructors
+int double_queue_destroy ( double_queue **const pp_double_queue, fn_allocator *pfn_allocator );
 ```

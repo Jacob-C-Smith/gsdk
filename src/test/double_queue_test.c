@@ -452,7 +452,7 @@ bool test_front ( int (*double_queue_constructor)(double_queue **), void *expect
         result = one;
 
     exit:
-    double_queue_destroy(&p_double_queue);
+    double_queue_destroy(&p_double_queue, NULL);
     return (result == expected);
 }
 
@@ -474,7 +474,7 @@ bool test_rear ( int (*double_queue_constructor)(double_queue **), void *expecte
         result = zero;
 
     exit:
-    double_queue_destroy(&p_double_queue);
+    double_queue_destroy(&p_double_queue, NULL);
     return (result == expected);
 }
 
@@ -487,7 +487,7 @@ bool test_front_add ( int (*double_queue_constructor)(double_queue **), void *va
 
     result = (result_t) double_queue_front_add(p_double_queue, value);
 
-    double_queue_destroy(&p_double_queue);
+    double_queue_destroy(&p_double_queue, NULL);
     return (result == expected);
 }
 
@@ -500,7 +500,7 @@ bool test_rear_add ( int (*double_queue_constructor)(double_queue **), void *val
 
     result = (result_t) double_queue_rear_add(p_double_queue, value);
 
-    double_queue_destroy(&p_double_queue);
+    double_queue_destroy(&p_double_queue, NULL);
     return (result == expected);
 }
 
@@ -523,7 +523,7 @@ bool test_front_remove ( int (*double_queue_constructor)(double_queue **), void 
         result = zero;
 
     exit:
-    double_queue_destroy(&p_double_queue);
+    double_queue_destroy(&p_double_queue, NULL);
     return (result == expected);
 }
 
@@ -546,7 +546,7 @@ bool test_rear_remove ( int (*double_queue_constructor)(double_queue **), void *
         result = zero;
 
     exit:
-    double_queue_destroy(&p_double_queue);
+    double_queue_destroy(&p_double_queue, NULL);
     return (result == expected);
 }
 
@@ -559,6 +559,6 @@ bool test_empty ( int (*double_queue_constructor)(double_queue **), result_t exp
 
     result = double_queue_empty(p_double_queue);
 
-    double_queue_destroy(&p_double_queue);
+    double_queue_destroy(&p_double_queue, NULL);
     return (result == expected);
 }
