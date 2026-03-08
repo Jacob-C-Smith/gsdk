@@ -1,6 +1,7 @@
 // header
 #include <data/hash_table.h>
 
+// forward declarations
 // function declarations
 /** !
  * Is an integer a prime number?
@@ -31,59 +32,48 @@ size_t hash_table_generate_twin_prime ( size_t start, size_t end );
  */
 signed hash_table_positive_mod ( signed dividend, signed divisor );
 
+/** !
+ * Collision resolution with linear probing
+ * 
+ * @param p_hash_table the hash table
+ * @param key          the key
+ * @param i            the probe number
+ * 
+ * @return the index in the hash table
+ */
 size_t hash_table_linear_probe ( hash_table *p_hash_table, void *key, size_t i );
 
+/** !
+ * Collision resolution with quadratic probing
+ * 
+ * @param p_hash_table the hash table
+ * @param key          the key
+ * @param i            the probe number
+ * 
+ * @return the index in the hash table
+ */
+size_t hash_table_quadratic_probe ( hash_table *p_hash_table, void *key, size_t i );
+
+/** !
+ * Collision resolution with double hashing
+ * 
+ * @param p_hash_table the hash table
+ * @param key          the key
+ * @param i            the probe number
+ * 
+ * @return the index in the hash table
+ */
 size_t hash_table_double_hash ( hash_table *p_hash_table, void *key, size_t i );
 
-// function definitions
-int hash_table_create ( hash_table **const pp_hash_table )
+// data
+fn_table_hash *_pfn_table_hash[] = 
 {
+    [LINEAR_PROBE]    = hash_table_linear_probe,
+    [QUADRATIC_PROBE] = hash_table_quadratic_probe,
+    [DOUBLE_HASH]     = hash_table_double_hash,
+};
 
-    // argument check
-    if ( pp_hash_table == (void *) 0 ) goto no_hash_table;
-
-    // initialized data
-    hash_table *p_hash_table = default_allocator(0, sizeof(hash_table));
-
-    // error check
-    if (p_hash_table == (void *) 0 ) goto no_mem;
-
-    // Initialize 
-    memset(p_hash_table, 0, sizeof(hash_table));
-
-    // return a pointer to the caller
-    *pp_hash_table = p_hash_table;
-
-    // success
-    return 1;
-
-    // error handling
-    {
-
-        // argument errors
-        {
-            no_hash_table:
-                #ifndef NDEBUG
-                    log_error("[hash table] Null pointer provided for parameter \"pp_hash_table\" in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-        }
-
-        // standard library errors
-        {
-            no_mem:
-                #ifndef NDEBUG
-                    log_error("[hash cache] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-        }
-    }
-}
-
+// function definitions
 int hash_table_construct 
 (
     hash_table **const pp_hash_table,
@@ -97,29 +87,26 @@ int hash_table_construct
 {
 
     // argument check
-    if ( pp_hash_table == (void *) 0 ) goto no_hash_table;
+    if ( NULL == pp_hash_table ) goto no_hash_table;
 
     // initialized data
-    hash_table *p_hash_table = (void *) 0;
+    hash_table *p_hash_table = NULL;
 
-    // Unused
-    (void)size;
+    // allocate a hash table
+    p_hash_table = default_allocator(NULL, sizeof(hash_table));
+    if ( NULL == p_hash_table ) goto no_mem;
 
-    // allocate memory for a hash table
-    if ( hash_table_create(&p_hash_table) == 0 ) goto failed_to_allocate_hash_table;
-
-    // Populate the hash table interfaces
+    // populate the hash table fields
     *p_hash_table = (hash_table)
     {
         .pfn_equality      = pfn_equality      ? pfn_equality      : default_equality,
         .pfn_hash_function = pfn_hash_function ? pfn_hash_function : default_hash,
         .pfn_key_get       = pfn_key_get       ? pfn_key_get       : default_key_accessor,
-        .pfn_table_hash    = hash_table_double_hash
+        .pfn_table_hash    = _pfn_table_hash[_type],
     };
 
-    // Populate hash table data
+    // populate hash table data
     p_hash_table->properties.count = 0,
-    p_hash_table->properties.length = 0,
     p_hash_table->properties.max = size,
     p_hash_table->properties.pp_data = default_allocator(0, size * sizeof(void *));
 
@@ -146,11 +133,11 @@ int hash_table_construct
                 return 0;
         }
 
-        // Hash table errors
+        // standard library
         {
-            failed_to_allocate_hash_table:
+            no_mem:
                 #ifndef NDEBUG
-                    log_error("[hash table] Failed to allocate memory for hash table in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[standard library] Call to function \"default_allocator\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -211,6 +198,31 @@ int hash_table_search ( hash_table *const p_hash_table, void *p_key, void **pp_v
     return 0;
 }
 
+double hash_table_load_factor ( hash_table *p_hash_table )
+{
+
+    // argument check
+    if ( NULL == p_hash_table ) goto no_hash_table;
+
+    // done
+    return (double) p_hash_table->properties.count / (double) p_hash_table->properties.max;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_hash_table:
+                #ifndef NDEBUG
+                    log_error("[hash table] Null pointer provided for parameter \"p_hash_table\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
 int hash_table_insert ( hash_table *const p_hash_table, void *p_property )
 {
 
@@ -219,8 +231,9 @@ int hash_table_insert ( hash_table *const p_hash_table, void *p_property )
     
     // initialized data
     size_t i = 0;
+    void *p_property_key = p_hash_table->pfn_key_get(p_property);
 
-    // Repeat this block
+    // repeat 
     do
     {
         
@@ -229,7 +242,11 @@ int hash_table_insert ( hash_table *const p_hash_table, void *p_property )
         size_t z = 0;
 
         // compute the hash
-        q = (hash64) p_hash_table->pfn_table_hash(p_hash_table, p_property, i);
+        q = (hash64) p_hash_table->pfn_table_hash(
+            p_hash_table,
+            p_property_key,
+            i
+        );
 
         // compute the index
         z = q % p_hash_table->properties.max;
@@ -252,8 +269,8 @@ int hash_table_insert ( hash_table *const p_hash_table, void *p_property )
         else if 
         (
             p_hash_table->pfn_equality(
-                p_hash_table->properties.pp_data[z],
-                p_hash_table->pfn_key_get(p_property)
+                p_hash_table->pfn_key_get(p_hash_table->properties.pp_data[z]),
+                p_property_key
             ) == 0
         )
             // success
@@ -285,13 +302,111 @@ int hash_table_insert ( hash_table *const p_hash_table, void *p_property )
     }
 }
 
-int hash_table_destroy ( hash_table **const pp_hash_table )
+int hash_table_foreach ( hash_table *p_hash_table, fn_foreach *pfn_foreach )
+{
+
+    // argument check
+    if ( NULL == p_hash_table ) goto no_hash_table;
+    if ( NULL ==  pfn_foreach ) goto no_foreach;
+
+    // iterate through the hash table
+    for (size_t i = 0; i < p_hash_table->properties.max; i++)
+    {
+
+        // skip
+        if ( NULL == p_hash_table->properties.pp_data[i] ) continue;
+
+        // call the foreach function
+        pfn_foreach(p_hash_table->properties.pp_data[i]);
+    }
+
+    // success
+    return 1;
+
+    // erorr handling
+    {
+
+        // argument errors
+        {
+            no_hash_table:
+                #ifndef NDEBUG
+                    log_error("[hash table] Null pointer provided for parameter \"p_hash_table\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_foreach:
+                #ifndef NDEBUG
+                    log_error("[hash table] Null pointer provided for parameter \"pfn_foreach\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+    
+                // error
+                return 0;
+        }
+    }
+}
+
+int hash_table_fori ( hash_table *p_hash_table, fn_fori *pfn_fori )
+{
+    
+    // argument check
+    if ( NULL == p_hash_table ) goto no_hash_table;
+    if ( NULL ==     pfn_fori ) goto no_fori;
+
+    // iterate through the hash table
+    for (size_t i = 0; i < p_hash_table->properties.max; i++)
+        pfn_fori(p_hash_table->properties.pp_data[i], i);
+
+    // success
+    return 1;
+
+    // erorr handling
+    {
+
+        // argument errors
+        {
+            no_hash_table:
+                #ifndef NDEBUG
+                    log_error("[hash table] Null pointer provided for parameter \"p_hash_table\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_fori:
+                #ifndef NDEBUG
+                    log_error("[hash table] Null pointer provided for parameter \"pfn_fori\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+    
+                // error
+                return 0;
+        }
+    }
+}
+
+int hash_table_destroy ( hash_table **const pp_hash_table, fn_allocator *pfn_allocator )
 {
 
     // argument check
     if ( pp_hash_table == (void *) 0 ) goto no_hash_table;
 
-    // Stub
+    // initialized data
+    hash_table *p_hash_table = *pp_hash_table;
+
+    // no more pointer for caller
+    *pp_hash_table = NULL;
+
+    // TODO: iterate through each slot in the hash table
+    for (size_t i = 0; i < p_hash_table->properties.max; i++);
+
+    // release the hash table array
+    p_hash_table->properties.pp_data = default_allocator(p_hash_table->properties.pp_data, 0);
+
+    // release the hash table
+    p_hash_table = default_allocator(p_hash_table, 0);
+
+    // success
     return 1;
 
     // error handling
@@ -324,7 +439,7 @@ size_t hash_table_linear_probe ( hash_table *p_hash_table, void *key, size_t i )
     return ( h + i ) % p_hash_table->properties.max;
 }
 
-size_t hash_table_double_hash ( hash_table *p_hash_table, void *key, size_t i )
+size_t hash_table_quadratic_probe ( hash_table *p_hash_table, void *key, size_t i )
 {
     
     // initialized data
@@ -335,7 +450,20 @@ size_t hash_table_double_hash ( hash_table *p_hash_table, void *key, size_t i )
     );
 
     // done
-    return  (h % p_hash_table->properties.max) + i * (1 + (h % (p_hash_table->properties.max - 2))) % p_hash_table->properties.max;
+    return ( h + i * i ) % p_hash_table->properties.max;
+}
+
+size_t hash_table_double_hash ( hash_table *p_hash_table, void *key, size_t i )
+{
+    
+    // initialized data
+    hash64 h = p_hash_table->pfn_hash_function(key, 0);
+    size_t m = p_hash_table->properties.max;
+    size_t h1 = hash_table_positive_mod(h, m);
+    size_t h2 = 1 + hash_table_positive_mod(h, m > 1 ? m - 1 : 1);
+
+    // done
+    return ( h1 + i * h2 ) % m;
 }
 
 bool hash_table_is_prime ( size_t n )
@@ -344,13 +472,13 @@ bool hash_table_is_prime ( size_t n )
     // iterate from 2 to the upper bound
     for (size_t i = 2; i < n; i++)
 
-        // Check for a remainder
+        // check for a remainder
         if ( n % i == 0 )
 
-            // Not a prime
+            // not a prime
             return false;
     
-    // A prime
+    // a prime
     return true;
 }
 
@@ -359,9 +487,8 @@ size_t hash_table_generate_twin_prime ( size_t start, size_t end )
 
     // iterate through the range
     for (size_t i = start; i < end; i++)
-    
         
-        // Check the twin prime
+        // check the twin prime
         if ( hash_table_is_prime(i) && hash_table_is_prime(i+2) )
 
             // success

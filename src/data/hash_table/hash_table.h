@@ -1,7 +1,7 @@
 ﻿/** !
- * Header for hash table library
+ * hash table interface
  * 
- * @file include/data/hash_table.h 
+ * @file src/data/hash_table/hash_table.h 
  *
  * @author Jacob Smith
  */
@@ -26,6 +26,7 @@
 enum collision_resolution_e 
 {
     LINEAR_PROBE,
+    COLLISION_RESOLUTION_DEFAULT = LINEAR_PROBE,
     QUADRATIC_PROBE,
     DOUBLE_HASH,
     COLLISION_RESOLUTION_QUANTITY
@@ -41,25 +42,24 @@ typedef size_t (fn_table_hash)(hash_table *p_hash_table, void *key, size_t i);
 // structure definitions
 struct hash_table_s
 {
+    struct
+    {
+        void   **pp_data;
+        size_t   count, max;
+    } properties;
+
     fn_equality     *pfn_equality;
     fn_key_accessor *pfn_key_get;
     fn_hash64       *pfn_hash_function;
     fn_table_hash   *pfn_table_hash;
-
-    struct
-    {
-        void   **pp_data;
-        size_t   count, max, length;
-    } properties;
 };
 
-
-// constructors
+/// constructors
 /** !
  * Construct a hash table
  * 
  * @param pp_hash_table result
- * @param size          the quantity of elements that the has table can contain
+ * @param size          the quantity of elements that the hash table can contain
  * 
  * @return 1 on success, 0 on error
  */
@@ -74,7 +74,7 @@ int hash_table_construct
     fn_hash64 *pfn_hash_function
 );
 
-// accessors
+/// accessors
 /** !
  * Search a hash table for a key
  * 
@@ -86,7 +86,16 @@ int hash_table_construct
  */
 int hash_table_search ( hash_table *const p_hash_table, void *p_key, void **pp_value );
 
-// TODO: Mutators
+/** !
+ * Get the load factor of a hash table
+ * 
+ * @param p_hash_table the hash table
+ * 
+ * @return the load factor of the hash table
+ */
+double hash_table_load_factor ( hash_table *p_hash_table );
+
+/// mutators
 /** !
  * Search a hash table for a key
  * 
@@ -97,12 +106,34 @@ int hash_table_search ( hash_table *const p_hash_table, void *p_key, void **pp_v
  */
 int hash_table_insert ( hash_table *const p_hash_table, void *p_property );
 
-// destructors
+/// iterators
+/** !
+ * Call a function on every element in a hash table
+ *
+ * @param p_hash_table the hash table
+ * @param pfn_foreach  pointer to foreach function
+ * 
+ * @return 1 on success, 0 on error
+ */
+int hash_table_foreach ( hash_table *p_hash_table, fn_foreach *pfn_foreach );
+
+/**! 
+ * Call a function on every slot in a hash table
+ * 
+ * @param p_hash_table the hash table
+ * @param pfn_fori     pointer to fori function
+ * 
+ * @return 1 on success, 0 on error
+ */
+int hash_table_fori ( hash_table *p_hash_table, fn_fori *pfn_fori );
+
+/// destructors
 /** !
  * Destroy a hash table 
  * 
  * @param pp_hash_table pointer to hash table pointer
+ * @param pfn_allocator pointer to allocator function for deallocating elements
  * 
  * @return 1 on success, 0 on error
  */
-int hash_table_destroy ( hash_table **const pp_hash_table );
+int hash_table_destroy ( hash_table **const pp_hash_table, fn_allocator *pfn_allocator );
