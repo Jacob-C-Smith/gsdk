@@ -174,8 +174,11 @@
         "hash table" : 
         {
             "name": "hash table",
-            "description": "Specialized dictionary; Open addressing collision resolution",
+            "description": "Mutable, key indexed collection; Open addressing collision resolution",
             "path": "src/data/hash_table",
+            "markdown": "md/data/hash_table.md",
+            "tester": "src/test/hash_table_test.c",
+            "example": "src/examples/hash_table_example.c",
             "icon": "resource/icon/hash_cache.png"
         },
         "priority queue" : 
