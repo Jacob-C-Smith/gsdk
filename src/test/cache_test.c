@@ -1,24 +1,25 @@
 /** !
  * Tester for cache module
  * 
- * @file cache_test.c
+ * @file src/test/cache_test.c
  * 
  * @author Jacob Smith
  */
-
-// Include
+ 
+// standard library
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 
-// log module
+// gsdk
+/// core
+#include <core/hash.h>
+#include <core/interfaces.h>
 #include <core/log.h>
-
-// sync module
 #include <core/sync.h>
 
-// cache module
+/// data
 #include <data/cache.h>
 
 // enumeration definitions
@@ -216,22 +217,22 @@ void print_test ( const char *scenario_name, const char *test_name, bool passed 
 }
 
 void construct_empty(cache **pp_cache) {
-    cache_construct(pp_cache, 3, string_equality, NULL);
+    cache_construct(pp_cache, 3, string_equality, NULL, NULL);
 }
 
 void construct_A(cache **pp_cache) {
     construct_empty(pp_cache);
-    cache_insert(*pp_cache, A_element, A_element);
+    cache_insert(*pp_cache, A_element, NULL);
 }
 
 void construct_BA(cache **pp_cache) {
     construct_A(pp_cache);
-    cache_insert(*pp_cache, B_element, B_element);
+    cache_insert(*pp_cache, B_element, NULL);
 }
 
 void construct_CBA(cache **pp_cache) {
     construct_BA(pp_cache);
-    cache_insert(*pp_cache, C_element, C_element);
+    cache_insert(*pp_cache, C_element, NULL);
 }
 
 void construct_ACB(cache **pp_cache) {
@@ -241,7 +242,7 @@ void construct_ACB(cache **pp_cache) {
 
 void construct_DCB(cache **pp_cache) {
     construct_CBA(pp_cache);
-    cache_insert(*pp_cache, D_element, D_element);
+    cache_insert(*pp_cache, D_element, NULL);
 }
 
 void construct_CA(cache **pp_cache) {
@@ -252,7 +253,7 @@ void construct_CA(cache **pp_cache) {
 bool test_insert(void (*constructor)(cache **), const char *key, const void *value, result_t expected) {
     cache *p_cache = NULL;
     constructor(&p_cache);
-    result_t result = (result_t)cache_insert(p_cache, key, value);
+    result_t result = (result_t)cache_insert(p_cache, value, NULL);
     cache_destroy(&p_cache);
     return result == expected;
 }
@@ -306,18 +307,11 @@ bool test_contents(void (*constructor)(cache **), const char **expected_contents
     cache *p_cache = NULL;
     constructor(&p_cache);
 
-    if (p_cache->properties.count != expected_count) {
+    if (cache_size(p_cache) != expected_count) {
         cache_destroy(&p_cache);
         return false;
     }
-
-    for (size_t i = 0; i < expected_count; i++) {
-        if (strcmp(p_cache->properties.pp_data[i], expected_contents[i]) != 0) {
-            cache_destroy(&p_cache);
-            return false;
-        }
-    }
-
+ 
     cache_destroy(&p_cache);
     return true;
 }

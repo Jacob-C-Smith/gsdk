@@ -1,7 +1,7 @@
 /** !
- * Example program for array module
+ * Example program for cache module
  * 
- * @file main.c
+ * @file src/examples/cache_example.c
  * 
  * @author Jacob Smith
  */
@@ -11,12 +11,15 @@
 #include <string.h>
 #include <stdlib.h>
 
-// core
+// gsdk
+/// core
+#include <core/hash.h>
+#include <core/interfaces.h>
 #include <core/log.h>
-#include <core/sync.h>
 #include <core/pack.h>
+#include <core/sync.h>
 
-// data
+/// data
 #include <data/cache.h>
 
 // enumeration definitions
@@ -37,12 +40,13 @@ enum color_e
 int checkpoint ( cache *p_cache, const char *p_event );
 
 // string
-void  string_print ( void *p_value, int i );
-int   string_compare ( const void *const p_a, const void *const p_b );
-void *string_upper_case ( void *p_value );
-void *string_lower_case ( void *p_value );
-int   string_pack ( void *p_buffer, const void *const p_value );
-int   string_unpack ( void *const p_value, void *p_buffer );
+fn_equality string_equality;
+fn_fori     string_print;
+fn_hash64   string_hash;
+fn_map      string_upper_case;
+fn_map      string_lower_case;
+fn_pack     string_pack;
+fn_unpack   string_unpack;
 
 // data
 /// immutable color strings
@@ -59,6 +63,10 @@ const char *_p_colors[COLOR_QUANTITY] =
 
 /// file for reflection
 FILE *p_f = NULL;
+
+/// hashes
+hash64 h1 = 0,
+       h2 = 0;
 
 /// working cache
 cache *p_cache = NULL;
@@ -79,7 +87,14 @@ int main ( int argc, const char* argv[] )
     {
         
         // construct the cache
-        cache_construct(&p_cache, 6, NULL, NULL);
+        cache_construct(
+            &p_cache,
+            5,
+
+            string_equality,
+            NULL,
+            NULL
+        );
         
         // checkpoint
         checkpoint(p_cache, "after construction");
@@ -89,11 +104,11 @@ int main ( int argc, const char* argv[] )
     {
         
         // add some colors
-        for (enum color_e _color = GREEN; _color < COLOR_QUANTITY; _color++)
-            cache_insert(p_cache, _p_colors[_color], _p_colors[_color]);
+        for (enum color_e _color = RED; _color < COLOR_QUANTITY; _color++)
+            cache_insert(p_cache, _p_colors[_color], NULL);
         
         // checkpoint
-        checkpoint(p_cache,"after adding < Green, Blue, Indigo, Violet >");
+        checkpoint(p_cache, "after adding < Red, Orange, Yellow, Green, Blue, Indigo, Violet >");
     }
         
     // #3 - find
@@ -106,7 +121,7 @@ int main ( int argc, const char* argv[] )
         cache_find(p_cache, "Blue", &p_value);
 
         // checkpoint
-        checkpoint(p_cache,"after find \"Blue\"");
+        checkpoint(p_cache, "after find \"Blue\"");
     }
 
     // #4 - more inserts
@@ -114,10 +129,10 @@ int main ( int argc, const char* argv[] )
         
         // add some colors
         for (enum color_e _color = RED; _color < GREEN; _color++)
-            cache_insert(p_cache, _p_colors[_color], _p_colors[_color]);
+            cache_insert(p_cache, _p_colors[_color], NULL);
         
         // checkpoint
-        checkpoint(p_cache,"after adding < Red, Orange, Yellow >");
+        checkpoint(p_cache, "after adding < Red, Orange, Yellow >");
     }
 
     // #5 - find (miss)
@@ -127,15 +142,31 @@ int main ( int argc, const char* argv[] )
         void *p_value = NULL;
         
         // find some colors
-        for (enum color_e _color = VIOLET; RED < _color; --_color)
+        for (enum color_e _color = BLUE; RED < _color; --_color)
             if ( 0 == cache_find(p_cache, _p_colors[_color], &p_value) )
                 log_error("\"%s\" not found\n", _p_colors[_color]);
 
         // checkpoint
-        checkpoint(p_cache, "after find < Violet -> Indigo -> Blue -> ... >");
+        checkpoint(p_cache, "after find < Blue -> Green -> Yellow -> ... >");
     }
 
-    // #6 - remove some
+    // #6 - peek
+    {
+
+        // initialized data
+        void *p_value = NULL;
+        
+        // peek violet
+        cache_peek(p_cache, "Violet", &p_value);
+
+        // log the value
+        printf("peek(\"Violet\") -> %s\n", (char *)p_value);
+
+        // checkpoint
+        checkpoint(p_cache, "after peek \"Violet\"");
+    }
+
+    // #7 - remove some
     {
         
         // remove some colors
@@ -143,10 +174,10 @@ int main ( int argc, const char* argv[] )
             cache_remove(p_cache, _p_colors[i], NULL);
 
         // checkpoint
-        checkpoint(p_cache,"after removing < Orange, Blue >");
+        checkpoint(p_cache, "after removing < Orange, Blue >");
     }
 
-    // #7 - to binary
+    // #8 - to binary
     {
 
         // initialized data
@@ -168,17 +199,20 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_cache, "after serialize");
     }
 
-    // #8 - map upper case
+    // #9 - hash 1
     {
 
-        // convert the cache elements to upper case
-        cache_map(p_cache, string_upper_case, 0);
+        // compute the hash
+        h1 = cache_hash(p_cache, string_hash);
+
+        // print the hash
+        printf("hash 1 -> 0x%llx\n", h1);
 
         // checkpoint
-        checkpoint(p_cache, "after upper case map");
+        checkpoint(p_cache, "after hash 1");
     }
 
-    // #9 - destroy
+    // #10 - destroy
     {
 
         // destroy the cache
@@ -188,7 +222,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_cache, "after destroy");
     }
 
-    // #10 - from binary
+    // #11 - from binary
     {
         
         // initialized data
@@ -199,13 +233,43 @@ int main ( int argc, const char* argv[] )
         fread(buf, file_len, 1, p_f),
         
         // reflect a cache from the buffer
-        cache_unpack(&p_cache, buf, string_unpack),
+        cache_unpack(
+            &p_cache,
+            buf,
+            string_unpack,
+            
+            string_equality,
+            NULL,
+            default_allocator
+        ),
+
+        // close the file
+        fclose(p_f);
 
         // checkpoint
         checkpoint(p_cache, "after parse");
     }
     
-    // #11 - find
+    // #12 - hash 2
+    {
+
+        // compute the hash
+        h2 = cache_hash(p_cache, string_hash);
+
+        // print the hash
+        printf("hash 2 -> 0x%llx\n", h2);
+
+        // error check
+        if ( h1 != h2 ) 
+
+            // abort
+            log_error("Error: hash 1 != hash 2\n"), exit(EXIT_FAILURE);
+
+        // checkpoint
+        checkpoint(p_cache, "after hash 2");
+    }
+
+    // #13 - find
     {
         
         // initialized data
@@ -215,10 +279,31 @@ int main ( int argc, const char* argv[] )
         cache_find(p_cache, "Blue", &p_value);
 
         // checkpoint
-        checkpoint(p_cache,"after find \"Blue\"");
+        checkpoint(p_cache, "after find \"Blue\"");
     }
 
-    // #12 - destroy
+    // #14 - map upper case
+    {
+
+        // convert the cache elements to upper case
+        cache_map(p_cache, string_upper_case, default_allocator);
+
+        // checkpoint
+        checkpoint(p_cache, "after upper case map");
+    }
+
+    // #15 - insert 
+    {
+        
+        // add some colors
+        for (enum color_e _color = RED; _color < COLOR_QUANTITY; _color++)
+            cache_insert(p_cache, strdup(_p_colors[_color]), default_allocator);
+        
+        // checkpoint
+        checkpoint(p_cache, "after adding < Red, Orange, Yellow, ... >");
+    }
+
+    // #16 - destroy
     {
 
         // destroy the cache
@@ -228,7 +313,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_cache, "after destroy");
     }
 
-    // #12 - end
+    // #17 - end
     checkpoint(p_cache, "end");
    
     // success
@@ -243,12 +328,12 @@ int checkpoint ( cache *p_cache, const char *p_event )
     
     // print the cache
     if ( NULL == p_cache )
-    log_info("#%d - Cache %s: ", step, p_event),
-    printf("NULL\n");
+        log_info("#%d - Cache %s: ", step, p_event),
+        printf("NULL\n");
     else
-    log_info("#%d - Cache %s:\n", step, p_event),
-    cache_fori(p_cache, string_print),
-    putchar('\n');
+        log_info("#%d - Cache %s:\n", step, p_event),
+        cache_fori(p_cache, string_print),
+        putchar('\n');
     
     // increment counter
     step++;
@@ -317,12 +402,25 @@ void string_print ( void *p_value, int i )
     return ;
 }
 
-int string_compare ( const void *const p_a, const void *const p_b )
+int string_equality ( const void *const p_a, const void *const p_b )
 {
-    char *a = *(char **)p_a,
-         *b = *(char **)p_b;
 
-    return strcmp(a, b);
+    // initialized data
+    char *a = (char *)p_a,
+         *b = (char *)p_b;
+
+    // done
+    return ( 0 == strcmp(a, b) );
+}
+
+hash64 string_hash ( const void *const string, unsigned long long unused )
+{
+
+    // unused
+    (void)unused;
+
+    // done
+    return hash_crc64(string, strlen(string));
 }
 
 int string_pack ( void *p_buffer, const void *const p_value )
@@ -335,6 +433,21 @@ int string_pack ( void *p_buffer, const void *const p_value )
 int string_unpack ( void *const p_value, void *p_buffer )
 {
 
+    // initialized data
+    char       **pp_value        = (const char **) p_value;
+    int          result          = 0;
+    char        *p_string        = NULL;
+    const char   _string  [1024] = { 0 };
+
+    // unpack the buffer
+    result = pack_unpack(p_buffer, "%s", &_string);
+
+    // duplicate the string
+    p_string = strdup(_string);
+
+    // return a pointer to the caller
+    *pp_value = p_string;
+
     // done
-    return pack_unpack(p_buffer, "%s", p_value);
+    return result;
 }
