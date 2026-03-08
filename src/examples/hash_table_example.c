@@ -1,5 +1,5 @@
 /** !
-* Example program for hash_table module
+ * Example program for hash table module
  * 
  * @file src/examples/hash_table_example.c
  * 
@@ -15,6 +15,8 @@
 #include <core/log.h>
 #include <core/sync.h>
 #include <core/hash.h>
+#include <core/pack.h>
+#include <core/interfaces.h>
 
 // data
 #include <data/hash_table.h>
@@ -28,88 +30,62 @@ enum color_e
     GREEN          = 3,
     BLUE           = 4,
     INDIGO         = 5,
-    PURPLE         = 6,
+    VIOLET         = 6,
     COLOR_QUANTITY = 7
 };
 
-enum random_source_e
-{
-    NUMBERS         = 0,
-    DATES           = 1,
-    WORDS           = 2,
-    RANDOM_QUANTITY = 3
-};
-
 // structure definitions
-struct string_counter_s
+struct color_s
 {
-    char   _string[32];
-    size_t counter;
+    char _string[16];
+    int  hex_code;
+    int  counter;
 };
 
 // type definitions
-typedef struct string_counter_s string_counter;
-typedef void *(fn_get_sample)(void);
+typedef struct color_s color;
 
 // forward declarations
 /// logs
 int checkpoint ( hash_table *p_hash_table, const char *p_event );
 
-/// string
-int string_equality ( const void *const p_a, const void *const p_b );
-void *string_key_accessor ( void *p_property );
-hash64 string_hash ( const void *const string, size_t i );
-void *string_get_sample ( void );
-
-// number
-int number_equality ( const void *const p_a, const void *const p_b );
-void *number_key_accessor ( void *p_property );
-hash64 number_hash (const void *const string, size_t i );
+/// color
+fn_foreach      color_print;
+fn_foreach      accumulate_accesses;
+fn_fori         color_slot_print;
+fn_equality     color_equality;
+fn_hash64       color_hash_key;
+fn_hash64       color_hash;
+fn_key_accessor color_key_accessor;
+fn_pack         color_pack;
+fn_unpack       color_unpack;
 
 // data
-/// immutable color strings
-const char *_p_colors[COLOR_QUANTITY] =
-{
-    [RED]    = "Red",
-    [ORANGE] = "Orange",
-    [YELLOW] = "Yellow",
-    [GREEN]  = "Green",
-    [BLUE]   = "Blue",
-    [INDIGO] = "Indigo",
-    [PURPLE] = "Purple"
-};
-
-struct 
-{
-    char *name;
-    fn_equality *pfn_equality;
-    fn_key_accessor *pfn_key_accessor;
-    fn_hash64 *pfn_hash64;
-    fn_get_sample *pfn_get_sample;
-}
-_sources[RANDOM_QUANTITY] = 
-{
-    [NUMBERS] = 
-    {
-        .name = "numbers",
-        // .pfn_equality = number_equality,
-        // .pfn_key_accessor = number_key_accessor,
-        // .pfn_hash64 = number_hash
-    },
-    [DATES] = { 0 },
-    [WORDS] = 
-    {
-        .name = "words",
-        .pfn_equality     = (fn_equality *)     string_equality,
-        .pfn_key_accessor = (fn_key_accessor *) string_key_accessor,
-        .pfn_hash64       = (fn_hash64 *)       string_hash,
-        .pfn_get_sample   = (fn_get_sample *)   string_get_sample,
-    }
-};
-
 /// working hash table
 hash_table *p_hash_table = NULL;
-enum random_source_e _random = WORDS;
+
+/// file for reflection
+FILE *p_f = NULL;
+size_t file_len = 0;
+
+/// hashes
+hash64 h1 = 0,
+       h2 = 0;
+       
+/// total accesses
+size_t total_accesses = 0;
+
+/// example data
+color _values[] =
+{
+    [RED]    = { ._string = "Red"   , .hex_code = 0xFF0000 },
+    [ORANGE] = { ._string = "Orange", .hex_code = 0xFFA500 },
+    [YELLOW] = { ._string = "Yellow", .hex_code = 0xFFFF00 },
+    [GREEN]  = { ._string = "Green" , .hex_code = 0x00FF00 },
+    [BLUE]   = { ._string = "Blue"  , .hex_code = 0x0000FF },
+    [INDIGO] = { ._string = "Indigo", .hex_code = 0x4B0082 },
+    [VIOLET] = { ._string = "Violet", .hex_code = 0x7F00FF }
+};
 
 // entry point
 int main ( int argc, const char* argv[] )
@@ -122,80 +98,187 @@ int main ( int argc, const char* argv[] )
     // #0 - start
     checkpoint(p_hash_table, "start");
     
-    // #1 - initial
+    // #1 - construct
     {
 
         // construct the hash table
         hash_table_construct(
             &p_hash_table, 
-            128549, // 8863, 22157, 54499,
-            LINEAR_PROBE,
+            7,
+            COLLISION_RESOLUTION_DEFAULT,
             
-            _sources[_random].pfn_equality, 
-            _sources[_random].pfn_key_accessor, 
-            _sources[_random].pfn_hash64
+            color_equality, 
+            color_key_accessor, 
+            color_hash_key
         );
 
         // checkpoint
         checkpoint(p_hash_table, "after construction");
     }
 
-    // #2 - add
+    // #2 - insert
     {
-        for (size_t i = 0;; i++)
-        {   
-            string_counter *s = string_get_sample();
-            void *p_result = NULL;
-
-            if (s == NULL) break;
-
-            hash_table_search(p_hash_table, s->_string, &p_result);
-
-            if ( p_result == NULL ) 
-                hash_table_insert(p_hash_table, s);
-            else
-                free(s);
-        }
+        
+        // add some colors
+        for (enum color_e _color = RED; _color < COLOR_QUANTITY; _color++)
+            if ( 0 == hash_table_insert(p_hash_table, &_values[_color]) )
+                log_error("Error: Failed to insert \"%s\"\n", _values[_color]._string);
 
         // checkpoint
-        checkpoint(p_hash_table, "after alice");
-    }
-
-    // #2 - add 
-    {
-
-        // add some colors
-        // for (enum color_e _color = RED; _color < COLOR_QUANTITY; _color++)
-        //     hash_table_insert(p_hash_table, (void *)_p_colors[_color]),
-        //     checkpoint(p_hash_table, (void *)_p_colors[_color]);
-
-        // // checkpoint
-        // checkpoint(p_hash_table, "after adding colors");
+        checkpoint(p_hash_table, "after adding < Red, Orange, Yellow, Green, Blue, Indigo, Purple>");
     }
 
     // #3 - search
     {
-        void *p_value = NULL;
-        const char *p_key = "Green";
 
-        log_info("Searching for key \"%s\"...", p_key);
-        if (hash_table_search(p_hash_table, (void *)p_key, &p_value) && p_value)
-            log_info("Found: %s\n", (char *)p_value);
-        else
-            log_error("Could not find key \"%s\"\n", p_key);
+        // initialized data
+        color *p_color = NULL;
+
+        // search for a value
+        hash_table_search(p_hash_table, "Green", &p_color);
+
+        // print results
+        printf("Searching for \"Green\" yields #%06x\n", p_color->hex_code);
+
+        // checkpoint
+        checkpoint(p_hash_table, "after search");
     }
 
-    // #4 - destroy
+    // #4 - remove
     {
 
-        // destroy the hash_table
-        hash_table_destroy(&p_hash_table);
+        // initialized data
+        void *p_value = NULL; 
+
+        // remove an element
+        hash_table_remove(p_hash_table, "Orange", &p_value);
+
+        // print the removed element
+        color_print(p_value);
+
+        // checkpoint
+        checkpoint(p_hash_table, "after remove");
+    }
+    
+    // #4 - to binary
+    {
+
+        // initialized data
+        char buf[1024] = { 0 };
+        
+        // Open a file for writing
+        p_f = fopen("resources/reflection/hash_table.bin", "wb");
+
+        // reflect the hash table to a buffer
+        file_len = hash_table_pack(buf, p_hash_table, color_pack),
+        
+        // write the buffer to a file
+        fwrite(buf, file_len, 1, p_f),
+
+        // close the file
+        fclose(p_f);
+
+        // checkpoint
+        checkpoint(p_hash_table, "after serialize");
+    }
+
+    // #5 - hash 1
+    {
+
+        // hash the hash table
+        h1 = hash_table_hash(p_hash_table, color_hash_key);
+
+        // print the hash
+        printf("hash 1 -> 0x%llx\n", h1);
+
+        // checkpoint
+        checkpoint(p_hash_table, "after hash 1");
+    }
+
+    // #8 - search
+    {
+
+        // initialized data
+        color *p_color = NULL;
+
+        // search for a value
+        hash_table_search(p_hash_table, "Yellow", &p_color);
+
+        // print results
+        printf("Searching for \"Yellow\" yields #%06x\n", p_color->hex_code);
+
+        // checkpoint
+        checkpoint(p_hash_table, "after search");
+    }
+
+    // #8 - destroy
+    {
+        
+        // destroy the hash table
+        hash_table_destroy(&p_hash_table, NULL);
 
         // checkpoint
         checkpoint(p_hash_table, "after destroy");
     }
 
-    // #5 - end
+    // #9 - from binary
+    {
+        
+        // initialized data
+        char buf[1024] = { 0 };
+        
+        // read a buffer from a file
+        p_f = fopen("resources/reflection/hash_table.bin", "rb"),
+        fread(buf, sizeof(char), file_len, p_f),
+        
+        // reflect a hash table from the buffer
+        hash_table_unpack(
+            &p_hash_table,
+            buf,
+            color_unpack,
+
+            color_equality,
+            color_key_accessor,
+            color_hash_key
+        ),
+
+        // close the file
+        fclose(p_f);
+
+        // checkpoint
+        checkpoint(p_hash_table, "after parse");
+    }
+
+    // #10 - hash 2
+    {
+
+        // hash the hash table
+        h2 = hash_table_hash(p_hash_table, color_hash_key);
+
+        // print the hash
+        printf("hash 2 -> 0x%llx\n", h2);
+
+        // error check
+        if ( h1 != h2 ) 
+
+            // abort
+            log_error("Error: hash 1 != hash 2\n"), exit(EXIT_FAILURE);
+
+        // checkpoint
+        checkpoint(p_hash_table, "after hash 2");
+    }
+
+    // #11 - destroy
+    {
+        
+        // destroy the hash table
+        hash_table_destroy(&p_hash_table, default_allocator);
+
+        // checkpoint
+        checkpoint(p_hash_table, "after destroy");
+    }
+
+    // #X - end
     checkpoint(p_hash_table, "end");
     
     // success
@@ -204,42 +287,28 @@ int main ( int argc, const char* argv[] )
 
 int checkpoint ( hash_table *p_hash_table, const char *p_event )
 {
+
     // static data
     static int step = 0;
 
-    // print the hash_table
+    // print the array
     if ( NULL == p_hash_table )
-    {
-        log_info("#%d - Hash Table %s: ", step, p_event);
-        printf("NULL\n");
-    }
+        log_info("#%d - Hash table %s: NULL\n", step, p_event);
     else
-    {
-        log_info("#%d - Hash Table %s:\n", step, p_event);
-        
-        for (size_t i = 0; i < p_hash_table->properties.max; i++)
-        {
-            if (p_hash_table->properties.pp_data[i] != NULL)
-            {
-                printf(
-                    "%d %s\n",
-                    // "    [%zu]: %d : %s\n",
-                    // i, 
-                    ((string_counter *)p_hash_table->properties.pp_data[i])->counter + 1,
-                    ((string_counter *)p_hash_table->properties.pp_data[i])->_string
-                );
-            }
-        }
-        putchar('\n');
-        printf(
-            "  α: %%%5.2lf, count: %zu, max: %zu\n",
+        log_info("#%d - Hash table %s:\n", step, p_event),
 
-            100 * (double) p_hash_table->properties.count / (double) p_hash_table->properties.max,
-            p_hash_table->properties.count,
-            p_hash_table->properties.max
-        );
-        printf("  elements:\n");
-    }
+        // summate accesses
+        total_accesses = 0, hash_table_foreach(p_hash_table, accumulate_accesses),
+
+        // print load factor and average accesses
+        printf("α: %%%lf, avg. accesses: %lf\n", 
+            100.00 * hash_table_load_factor(p_hash_table),
+            (double)total_accesses / (double)COLOR_QUANTITY
+        ),
+
+        // print the contents of the hash table
+        hash_table_fori(p_hash_table, color_slot_print),
+        putchar('\n');
 
     // increment counter
     step++;
@@ -248,49 +317,157 @@ int checkpoint ( hash_table *p_hash_table, const char *p_event )
     return 1;
 }
 
-int string_equality ( const void *const p_a, const void *const p_b )
+int color_equality ( const void *const p_a, const void *const p_b )
 {
 
     // done
     return strcmp
     (
-        ((string_counter *)p_a)->_string,
-        ((string_counter *)p_b)->_string
+        ((color *)p_a)->_string,
+        ((color *)p_b)->_string
     );
 }
 
-void *string_key_accessor ( void *p_property )
+void color_print ( void *p_element )
 {
 
     // initialized data
-    string_counter *p_string_counter = p_property;
+    color *p_color = p_element;
 
-    // increment the counter
-    p_string_counter->counter++;
+    // print the element
+    printf("%d : ( %-7s -> #%06lx )\n", p_color->counter, p_color->_string, p_color->hex_code);
 
     // done
-    return p_string_counter->_string;
+    return;
 }
 
-hash64 string_hash(const void *const string, size_t i)
+void accumulate_accesses ( void *p_element )
 {
-    return i + hash_crc64(string, strlen(string));
+
+    // initialized data
+    color *p_color = p_element;
+
+    // accumulate
+    total_accesses += p_color->counter;
+
+    // done
+    return;
 }
 
-void *string_get_sample ( void )
+hash64 color_hash ( const void *const k, unsigned long long l )
 {
-    static FILE *p_f = NULL;
-
-    string_counter *s = malloc(sizeof(string_counter));
-
-    if ( p_f == NULL )
-        p_f = fopen("include/test/word-list.txt", "r");
     
-    if ( feof(p_f) ) return NULL;
-    fscanf(p_f, "%[^\n] ", s->_string);
+    // initialized data
+    color *p_color = k;
 
-    s->_string;
-    s->counter = 0;
+    // done
+    return hash_crc64(p_color, sizeof(*p_color));
+}
 
-    return s;
+hash64 color_hash_key ( const void *const k, unsigned long long unused )
+{
+
+    // initialized data
+    char *p_key = k;
+
+    // done
+    return hash_fnv64(p_key, strlen(p_key));
+}
+
+void color_slot_print ( void *p_element, int i )
+{
+    
+    // initialized data
+    color *p_color = p_element;
+
+    // fast fail
+    if ( NULL == p_color ) 
+    {
+
+        // print the empty slot
+        printf("[%d] -> NULL\n", i);
+
+        // done
+        return;
+    }
+
+    if ( TOMBSTONE == p_color )
+    {
+
+        // print the tombstone
+        printf("[%d] -> 👻🪦 👻\n", i);
+
+        // done
+        return;   
+    }
+
+    // print the element
+    printf("[%d] : ( %s -> #%06lx )\n", i, p_color->_string, p_color->hex_code, p_color->counter);
+
+    // done
+    return;
+}
+
+void *color_key_accessor ( const void *const p_property )
+{
+
+    // initialized data
+    color *p_color = p_property;
+
+    // increment the access counter
+    p_color->counter++;
+
+    // done
+    return p_color->_string;
+}
+
+int color_pack ( void *p_buffer, const void *const p_value )
+{
+
+    // initialized data
+    color *p_color = p_value;
+    char  *p       = p_buffer;
+    
+    // pack the color
+    p += pack_pack(p, "%s%2i32",
+        p_color->_string,
+        p_color->hex_code,
+        p_color->counter
+    );
+
+    // done
+    return sizeof(color);
+}
+
+int color_unpack ( void *p_value, void *p_buffer )
+{
+
+    // initialized data
+    color **pp_value = (color **) p_value;
+    color  *p_color  = NULL;
+
+    const char _string[1024] = { 0 };
+    int        hex_code      = 0;
+    int        counter       = 0;
+
+    // unpack the buffer
+    pack_unpack(p_buffer, "%s%2i32",
+        &_string,
+        &hex_code,
+        &counter
+    );
+
+    // allocate memory for the result
+    p_color = default_allocator(0, sizeof(color));
+
+    // populate the fields
+    p_color->hex_code = hex_code,
+    p_color->counter = counter,
+    strncpy(p_color->_string, _string, sizeof(p_color->_string));
+
+    // return a pointer to the caller
+    *pp_value = p_color;
+
+    // done
+    return sizeof(color);
 }
