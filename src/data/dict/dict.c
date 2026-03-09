@@ -46,7 +46,7 @@ int dict_construct
 
     // argument check
     if ( NULL == pp_dict ) goto no_dict;
-    if ( NULL ==    size ) goto zero_size;
+    if ( 0    ==    size ) goto zero_size;
 
     // initialized data
     dict *p_dict = NULL;
@@ -212,20 +212,6 @@ int dict_get ( dict *const p_dict, const char *const p_key, void **pp_value )
                 // error
                 return 0;
         }
-
-        // standard library errors
-        {
-            no_mem:
-                #ifndef NDEBUG
-                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // unlock
-                mutex_unlock(&p_dict->_lock);
-
-                // error
-                return 0;
-        }
     }
 }
 
@@ -243,18 +229,18 @@ int dict_values ( dict *p_dict, void *pp_values[], size_t limit )
     mutex_lock(&p_dict->_lock);
 
     // iterate over dictionary items
-    for (size_t i = 0; i < p_dict->max; i++)
+    for (size_t j = 0; j < p_dict->max; j++)
     {
 
         // initialized data
-        dict_item *p_item = p_dict->data[i];
+        dict_item *p_item = p_dict->data[j];
 
         // walk the chain
         while ( p_item )
         {
 
             // store the value
-            pp_values[i] = p_item->value;
+            pp_values[j] = p_item->value;
 
             // step
             p_item = p_item->next, i++;
@@ -386,7 +372,7 @@ int dict_add ( dict *const p_dict, const void *const p_value )
 
 
         // update the value
-        p_item->value = p_value;
+        p_item->value = (void *) p_value;
     }
 
     // allocate a new item
@@ -397,7 +383,7 @@ int dict_add ( dict *const p_dict, const void *const p_value )
     memset(p_item, 0, sizeof(dict_item));
 
     // set the value
-    p_item->value = p_value;
+    p_item->value = (void *) p_value;
 
     // repair the 
     p_item->next = p_dict->data[(h % p_dict->max)];
@@ -540,20 +526,6 @@ int dict_pop ( dict *const p_dict, const char *const p_key, const void **const p
                 #ifndef NDEBUG
                     log_error("[dict] Null pointer provided for parameter \"p_key\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
-
-                // error
-                return 0;
-        }
-
-        // standard library errors
-        {
-            no_mem:
-                #ifndef NDEBUG
-                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // unlock
-                mutex_unlock(&p_dict->_lock);
 
                 // error
                 return 0;
