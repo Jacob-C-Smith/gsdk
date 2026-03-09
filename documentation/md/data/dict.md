@@ -43,32 +43,52 @@
  ## Definitions
  ### Type definitions
  ```c
- typedef struct dict_s dict;
+// type definitions
+typedef struct dict_s dict;
  ```
  ### Function declarations
  ```c 
 // function declarations
 /// constructors
-int dict_construct ( dict **pp_dict, size_t   size, fn_hash64 *pfn_hash_function );
-int dict_from_keys ( dict **pp_dict, char   **keys, size_t     keys_length );
+int dict_construct
+(
+    dict **const pp_dict,
+    size_t size,
+
+    fn_allocator    *pfn_allocator,
+    fn_key_accessor *pfn_key_accessor,
+    fn_hash64       *pfn_hash64
+);
 
 /// accessors
-void   *dict_get    ( dict *p_dict, char  *key );
-size_t  dict_values ( dict *p_dict, char **values );
-size_t  dict_keys   ( dict *p_dict, char **keys );
+int dict_get    ( dict *const p_dict, const char *const p_key, void **pp_value );
+int dict_values ( dict *const p_dict, void *pp_values[], size_t limit );
+int dict_size   ( dict *const p_dict, size_t *p_result );
 
 /// mutators
-int dict_add ( dict *p_dict, const char *key, void  *p_value );
-int dict_pop ( dict *p_dict, char       *key, void **pp_value );
+int dict_add ( dict *const p_dict, const void *const p_value );
+int dict_pop ( dict *const p_dict, const char *const p_key, const void **const pp_value );
 
-/// shallow copy
-int dict_copy ( dict *p_dict, dict **pp_dict );
+/// iterators
+int dict_foreach ( dict *const p_dict, fn_foreach *pfn_foreach );
 
-/// clear all items
-int dict_clear      ( dict *p_dict );
-int dict_free_clear ( dict *p_dict, void (*free_func) (void *) );
+/// reflection
+int dict_pack ( void *p_buffer, dict *const p_dict, fn_pack *pfn_element );
+int dict_unpack
+(
+    dict **const pp_dict,
+    void *const p_buffer,
+    fn_unpack *pfn_element,
+
+    fn_allocator    *pfn_allocator,
+    fn_key_accessor *pfn_key_accessor,
+    fn_hash64       *pfn_hash64
+);
+
+/// hash
+hash64 dict_hash ( dict *const p_dict, fn_hash64 *pfn_element );
 
 /// destructors
-int dict_destroy ( dict **pp_dict );
+int dict_destroy ( dict **const pp_dict, fn_allocator *pfn_allocator );
  ```
 

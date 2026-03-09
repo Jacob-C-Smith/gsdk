@@ -1,4 +1,4 @@
-﻿/** !
+/** !
  * Dictionary interface
  * 
  * @file src/data/dict/dict.h
@@ -48,12 +48,12 @@ int dict_construct
     dict **const pp_dict,
     size_t size,
 
-    fn_allocator    pfn_allocator,
-    fn_key_accessor pfn_key_accessor,
-    fn_hash64       pfn_hash64
+    fn_allocator    *pfn_allocator,
+    fn_key_accessor *pfn_key_accessor,
+    fn_hash64       *pfn_hash64
 );
 
-// accessors
+/// accessors
 /** !
  * Get a value from a dictioanry through a key
  *
@@ -74,7 +74,7 @@ int dict_get ( dict *const p_dict, const char *const p_key, void **pp_value );
  * 
  * @return 1 on success, 0 on error 
 */
-int dict_values ( dict *p_dict, void *pp_values[], size_t limit );
+int dict_values ( dict *const p_dict, void *pp_values[], size_t limit );
 
 /** !
  * Get the quantity of values in a dictionary
@@ -86,7 +86,7 @@ int dict_values ( dict *p_dict, void *pp_values[], size_t limit );
  */
 int dict_size ( dict *const p_dict, size_t *p_result );
 
-// mutators
+/// mutators
 /** !
  * Add a value to a dictionary. 
  *
@@ -129,7 +129,7 @@ int dict_foreach ( dict *const p_dict, fn_foreach *pfn_foreach );
  * 
  * @return bytes written on success, 0 on error
  */
-int dict_pack ( void *p_buffer, dict *p_dict, fn_pack *pfn_element );
+int dict_pack ( void *p_buffer, dict *const p_dict, fn_pack *pfn_element );
 
 /** !
  * Unpack a buffer into a dictionary
@@ -146,13 +146,13 @@ int dict_pack ( void *p_buffer, dict *p_dict, fn_pack *pfn_element );
  */
 int dict_unpack
 (
-    dict **pp_dict,
+    dict **const pp_dict,
     void *p_buffer,
     fn_unpack *pfn_element,
 
-    fn_allocator    pfn_allocator,
-    fn_key_accessor pfn_key_accessor,
-    fn_hash64       pfn_hash64
+    fn_allocator    *pfn_allocator,
+    fn_key_accessor *pfn_key_accessor,
+    fn_hash64       *pfn_hash64
 );
 
 /// hash
@@ -164,9 +164,9 @@ int dict_unpack
  * 
  * @return hash on success, 0 on error
  */
-hash64 dict_hash ( dict *p_dict, fn_hash64 *pfn_element );
+hash64 dict_hash ( dict *const p_dict, fn_hash64 *pfn_element );
 
-// destructors
+/// destructors
 /** !
  * Destroy and deallocate a dictionary
  *

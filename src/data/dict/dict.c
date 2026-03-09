@@ -159,7 +159,7 @@ int dict_get ( dict *const p_dict, const char *const p_key, void **pp_value )
     mutex_lock(&p_dict->_lock);
 
     // compute the hash of the key
-    h = p_dict->pfn_hash_function(p_key, sizeof(p_key)),
+    h = p_dict->pfn_hash_function(p_key, strlen(p_key)),
 
     // store the first item in the chain
     p_item = p_dict->data[h % p_dict->max];
@@ -215,7 +215,7 @@ int dict_get ( dict *const p_dict, const char *const p_key, void **pp_value )
     }
 }
 
-int dict_values ( dict *p_dict, void *pp_values[], size_t limit )
+int dict_values ( dict *const p_dict, void *pp_values[], size_t limit )
 {
 
     // argument check
@@ -240,7 +240,7 @@ int dict_values ( dict *p_dict, void *pp_values[], size_t limit )
         {
 
             // store the value
-            pp_values[j] = p_item->value;
+            pp_values[i] = p_item->value;
 
             // step
             p_item = p_item->next, i++;
@@ -344,7 +344,7 @@ int dict_add ( dict *const p_dict, const void *const p_value )
     p_key = p_dict->pfn_key_accessor(p_value),
 
     // compute the hash of the key
-    h = p_dict->pfn_hash_function(p_key, sizeof(p_key)),
+    h = p_dict->pfn_hash_function(p_key, strlen(p_key)),
 
     // store the first item in the chain
     p_item = p_dict->data[h % p_dict->max];
@@ -364,20 +364,26 @@ int dict_add ( dict *const p_dict, const void *const p_value )
     if ( p_item )
     {
 
-        // same pointer?
-        if ( p_item->value == p_value ) 
-            
-            // do nothing
-            goto done;
+        // initialized data
+        void *p_old = p_item->value;
 
+        // same pointer?
+        if ( p_old == p_value ) goto done;
 
         // update the value
         p_item->value = (void *) p_value;
+
+        // release the old value
+        if ( p_dict->pfn_allocator )
+            p_dict->pfn_allocator(p_old, 0);
+        
+        // done
+        goto done;
     }
 
     // allocate a new item
     p_item = default_allocator(0, sizeof(dict_item));
-    if ( p_item == (void *) 0 ) goto no_mem;
+    if ( NULL == p_item ) goto no_mem;
 
     // zero set
     memset(p_item, 0, sizeof(dict_item));
@@ -385,7 +391,7 @@ int dict_add ( dict *const p_dict, const void *const p_value )
     // set the value
     p_item->value = (void *) p_value;
 
-    // repair the 
+    // repair the list
     p_item->next = p_dict->data[(h % p_dict->max)];
     
     // insert the item
@@ -457,7 +463,7 @@ int dict_pop ( dict *const p_dict, const char *const p_key, const void **const p
     mutex_lock(&p_dict->_lock);
 
     // compute the hash of the key
-    h = p_dict->pfn_hash_function(p_key, sizeof(p_key)),
+    h = p_dict->pfn_hash_function(p_key, strlen(p_key)),
 
     // store the first item in the chain
     p_item = p_dict->data[h % p_dict->max];
@@ -592,7 +598,7 @@ int dict_foreach ( dict *const p_dict, fn_foreach *pfn_foreach )
     }
 }
 
-int dict_pack ( void *p_buffer, dict *p_dict, fn_pack *pfn_element )
+int dict_pack ( void *const p_buffer, dict *const p_dict, fn_pack *pfn_element )
 {
 
     // argument check
@@ -774,7 +780,7 @@ int dict_unpack
     }
 }
 
-hash64 dict_hash ( dict *p_dict, fn_hash64 *pfn_element )
+hash64 dict_hash ( dict *const p_dict, fn_hash64 *pfn_element )
 {
 
     // argument check

@@ -136,7 +136,7 @@ int main ( int argc, const char* argv[] )
         person *p_person = NULL;
         
         // search for a value
-        dict_get(p_dict, "Lisa", &p_person);
+        dict_get(p_dict, "Lisa", (void **)&p_person);
 
         // checkpoint
         checkpoint(p_dict, "after search");
@@ -187,11 +187,11 @@ int main ( int argc, const char* argv[] )
         // compute the hash of the dictionary
         h1 = dict_hash(p_dict, person_hash);
 
-        // print the hash
-        printf("hash 1 -> 0x%llx\n", h1);
-
         // checkpoint
         checkpoint(p_dict, "after hash 1");
+
+        // print the hash
+        printf("hash 1 -> 0x%llx\n", h1);
     }
 
     // #8 - remove 
@@ -205,7 +205,7 @@ int main ( int argc, const char* argv[] )
             void *p_value = NULL; 
             
             // remove one
-            if ( 0 == dict_pop(p_dict, _people[_person]._name, &p_value) )
+            if ( 0 == dict_pop(p_dict, _people[_person]._name, (const void **)&p_value) )
                 log_error("Error: Failed to remove \"%s\"\n", _people[_person]._name);
         }
 
@@ -258,6 +258,9 @@ int main ( int argc, const char* argv[] )
         // hash the dictionary
         h2 = dict_hash(p_dict, person_hash);
 
+        // checkpoint
+        checkpoint(p_dict, "after hash 2");
+
         // print the hash
         printf("hash 2 -> 0x%llx\n", h2);
 
@@ -266,9 +269,6 @@ int main ( int argc, const char* argv[] )
 
             // abort
             log_error("Error: hash 1 != hash 2\n"), exit(EXIT_FAILURE);
-
-        // checkpoint
-        checkpoint(p_dict, "after hash 2");
     }
     
     // #12 - destroy
@@ -300,7 +300,9 @@ int checkpoint ( dict *p_dict, const char *p_event )
     else
         log_info("#%d - Dictionary %s:\n", step, p_event),
         dict_foreach(p_dict, person_print);
-        putchar('\n');
+    
+    // formatting
+    putchar('\n');
 
     // increment counter
     step++;
@@ -335,14 +337,11 @@ void *person_key_accessor ( const void *const p_value )
 hash64 person_hash_key ( const void *const k, unsigned long long l )
 {
 
-    // unused
-    (void) l;
-
     // initialized data
     char *key = (char *)k;
 
     // done
-    return default_hash(key, strlen(key));
+    return default_hash(key, l);
 }
 
 hash64 person_hash ( const void *const k, unsigned long long l )
