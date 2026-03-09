@@ -1,7 +1,7 @@
 /** !
- * JSON example program
+ * Example program for json module
  * 
- * @file main.c
+ * @file src/examples/json_example.c
  * 
  * @author Jacob Smith
  */
@@ -13,7 +13,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-// json
+// gsdk
+/// core
+#include <core/log.h>
+#include <core/sync.h>
+#include <core/hash.h>
+#include <core/pack.h>
+#include <core/interfaces.h>
+
+/// data
+#include <data/array.h>
+#include <data/dict.h>
+
+/// reflection
 #include <reflection/json.h>
 
 // function declarations
@@ -38,8 +50,8 @@ int print_json_file ( const char *path );
 /**!
  * Return the size of a file IF buffer == 0 ELSE read a file into buffer
  * 
- * @param path path to the file
- * @param buffer buffer
+ * @param path        path to the file
+ * @param buffer      buffer
  * @param binary_mode "wb" IF true ELSE "w"
  * 
  * @return 1 on success, 0 on error
@@ -50,20 +62,20 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode );
 int main ( int argc, const char* argv[] )
 {
 
-    // Check for valid argument
+    // check for valid arguments
     if ( argc == 1 ) goto no_argument;
 
     // iterate over command line arguments
     for (int i = 1; i < argc; i++)
     {
 
-        // Output formatting
+        // formatting
         printf("--- %s ---\n", argv[i]);
 
-        // Write the contents of the file to stdout
+        // print the contents of the file to stdout
         print_json_file(argv[i]);
 
-        // Output formatting
+        // formatting
         putchar('\n');
         putchar('\n');
     }
@@ -75,7 +87,7 @@ int main ( int argc, const char* argv[] )
     {
         no_argument:
 
-            // Write a usage message
+            // print a usage message
             printf("Usage: json_example file1.json [file2.json ... fileN.json]\n");
             
             // error
@@ -86,7 +98,7 @@ int main ( int argc, const char* argv[] )
 int print_json_file ( const char *path )
 {
     
-    // argument checking 
+    // argument check 
     if ( path == 0 ) goto no_path;
 
     // initialized data
@@ -94,19 +106,19 @@ int print_json_file ( const char *path )
     size_t       file_len = load_file(path, 0, false);
     char        *file_buf = calloc(file_len + 1, sizeof(char));
 
-    // Load the file
+    // load the file
     if ( load_file(path, file_buf, false) == 0 ) goto failed_to_load_file;
 
-    // Parse the JSON into a value
+    // parse the JSON into a value
     if ( json_value_parse(file_buf, 0, &p_value) == 0 ) goto failed_to_parse_json;
 
-    // Free the allocation
+    // release the allocation
     file_buf = default_allocator(file_buf, 0);
 
-    // Print the parsed contents to stdout
+    // print the parsed contents to stdout
     json_value_print(p_value);
 
-    // Free the JSON value
+    // release the json value
     json_value_free(p_value, 0);
 
     // success
@@ -137,7 +149,7 @@ int print_json_file ( const char *path )
                 return 0;
         }
 
-        // JSON Errors
+        // json errors
         {
 
             failed_to_parse_json:
@@ -154,26 +166,26 @@ int print_json_file ( const char *path )
 size_t load_file ( const char *path, void *buffer, bool binary_mode )
 {
 
-    // argument checking 
+    // argument check 
     if ( path == 0 ) goto no_path;
 
     // initialized data
     size_t  ret = 0;
     FILE   *f   = fopen(path, (binary_mode) ? "rb" : "r");
     
-    // Check if file is valid
-    if ( f == NULL ) goto invalid_file;
+    // check if file exists
+    if ( NULL == f ) goto invalid_file;
 
     // Find file size and prep for read
-    fseek(f, 0, SEEK_END);
-    ret = (size_t) ftell(f);
+    fseek(f, 0, SEEK_END),
+    ret = (size_t) ftell(f),
     fseek(f, 0, SEEK_SET);
     
-    // Read to data
+    // read the file to a buffer
     if ( buffer ) 
         ret = fread(buffer, 1, ret, f);
 
-    // The file is no longer needed
+    // close the file
     fclose(f);
     
     // success

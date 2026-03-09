@@ -1,7 +1,7 @@
 /** !
- * JSON parser / serializer
+ * json implementation
  * 
- * @file json.c
+ * @file src/reflection/json/json.c
  * 
  * @author Jacob Smith
  */
@@ -9,8 +9,11 @@
 // header 
 #include <reflection/json.h>
 
-// Data
-const size_t DICT_SIZE = 16;
+// preprocessor macros
+#define DICT_SIZE 16
+
+// forward declarations
+fn_key_accessor object_key_accessor;
 
 int double_precision ( double value )
 {
@@ -250,23 +253,23 @@ int json_object_parse ( char *pointer, char **return_pointer, dict **const pp_di
 {
     
     // initialized data
-    dict *p_dict = (void *)0;
+    dict *p_dict = NULL;
 
-    // Construct a dict
-    if ( dict_construct(&p_dict, DICT_SIZE, 0) == 0 ) goto failed_to_construct_dict;
+    // construct a dictionary
+    if ( 0 == dict_construct(&p_dict, DICT_SIZE, NULL, object_key_accessor, NULL)  ) goto failed_to_construct_dict;
 
     // error checking
     if ( *pointer != '{' ) return 0;
 
-    // Increment the cursor
+    // increment the cursor
     pointer++;
 
     parse_property:
 
-    // Parse whitespaces
+    // parse whitespaces
     json_whitespace_parse(pointer, &pointer);
 
-    // Parse the property key
+    // parse the property key
     if ( *pointer == '\"' )
     {
 
@@ -274,26 +277,29 @@ int json_object_parse ( char *pointer, char **return_pointer, dict **const pp_di
         char       *key   = pointer;
         json_value *value = 0;
 
-        // Parse the property key
+        // parse the property key
         json_string_parse(pointer, &pointer);
 
-        // Increment the cursor
+        // increment the cursor
         pointer++;
 
-        // Parse any whitespace
+        // parse any whitespace
         json_whitespace_parse(pointer, &pointer);
 
-        // Check for a valid property
+        // check for a valid property
         if ( *pointer == ':' ) pointer++;
 
-        // Invalid property
+        // invalid property
         else goto expected_value;
 
-        // Parse a JSON value
+        // parse a JSON value
         if ( json_value_parse(pointer, &pointer, &value) == 0 ) goto failed_to_parse_json_value;
 
-        // Add the value to the dictionary
-        dict_add(p_dict, key, value);
+        // store the key
+        value->p_key = key;
+
+        // add the value to the dictionary
+        dict_add(p_dict, value);
 
         // Search for the next property ...
         if ( *pointer == ',' )
@@ -951,36 +957,36 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                 break;
             }
             
-            // Print an object
+            // print an object
             case JSON_VALUE_OBJECT:
             {
                 if ( p_value->object )
                 {
+                    
                     // initialized data
-                    size_t        property_count = dict_values(p_value->object, 0);
-                    const char **keys            = 0;
-                    json_value **values          = 0;
+                    size_t       property_count = 0;
+                    json_value **values         = 0;
+
+                    dict_size(p_value->object, &property_count);
 
                     written_characters += (size_t) sprintf(&_buffer[written_characters],"{");
 
                     if ( property_count == 0 )
                         goto doned;
 
-                    keys   = default_allocator(0, property_count * sizeof(char*));
                     values = default_allocator(0, property_count * sizeof(json_value*));
 
-                    dict_keys(p_value->object, keys);
-                    dict_values(p_value->object, (void **)values);
+                    dict_values(p_value->object, (void **)values, property_count);
+
                     for (size_t i = 0; i < property_count-1; i++)
                     {
-                        written_characters += (size_t) sprintf(&_buffer[written_characters],"\"%s\":",keys[i]);
+                        written_characters += (size_t) sprintf(&_buffer[written_characters],"\"%s\":", (char *)object_key_accessor(values[i]));
                         written_characters += json_value_serialize(values[i],&_buffer[written_characters]);
                         written_characters += (size_t) sprintf(&_buffer[written_characters],",");
                     }
-                    written_characters += (size_t) sprintf(&_buffer[written_characters],"\"%s\":",keys[property_count-1]);
+                    written_characters += (size_t) sprintf(&_buffer[written_characters],"\"%s\":", (char *)object_key_accessor(values[property_count-1]));
                     written_characters +=  json_value_serialize(values[property_count-1], &_buffer[written_characters]);
 
-                    keys = default_allocator(keys, 0);
                     values = default_allocator(values, 0);
                     doned:
                     written_characters += (size_t) sprintf(&_buffer[written_characters],"}");
@@ -1215,34 +1221,31 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
                 if ( p_value->object )
                 {
                     // initialized data
-                    size_t        property_count = dict_values(p_value->object, 0);
-                    const char **keys            = 0;
-                    json_value **values          = 0;
+                    size_t       property_count = 0;
+                    json_value **values         = 0;
 
                     written_characters += fprintf(p_f,"{");
 
+                    // store the size of the object
+                    dict_size(p_value->object, &property_count);
+
                     if ( property_count == 0 ) goto doned;
 
-                    keys   = default_allocator(0, property_count * sizeof(char*));
                     values = default_allocator(0, property_count * sizeof(json_value*));
 
-                    dict_keys(p_value->object, keys);
-                    dict_values(p_value->object, (void **)values);
+                    dict_values(p_value->object, (void **)values, property_count);
                     for (size_t i = 0; i < property_count-1; i++)
                     {
-                        written_characters += fprintf(p_f,"\"%s\":",keys[i]);
+                        written_characters += fprintf(p_f,"\"%s\":", (char *) object_key_accessor(values[i]));
                         written_characters += json_value_fprint(values[i],p_f);
                         written_characters += fprintf(p_f,",");
                     }
-                    written_characters += fprintf(p_f,"\"%s\":",keys[property_count-1]);
+                    written_characters += fprintf(p_f,"\"%s\":", (char *) object_key_accessor(values[property_count-1]));
                     written_characters += json_value_fprint(values[property_count-1],p_f);
 
-                    keys = default_allocator(keys, 0);
                     values = default_allocator(values, 0);
                     doned:
                     written_characters += fprintf(p_f,"}");
-                    
-                    
                 }
                 
                 // done
@@ -1390,4 +1393,14 @@ void *json_value_free ( json_value *p_value, unsigned long long unused )
 
     // done
     return default_allocator(p_value, 0);
+}
+
+void *object_key_accessor ( const void *const p_value )
+{
+
+    // initialized data
+    json_value *p_json = (json_value *) p_value;
+
+    // done
+    return p_json->p_key;
 }
