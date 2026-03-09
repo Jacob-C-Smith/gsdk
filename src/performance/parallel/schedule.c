@@ -16,6 +16,9 @@
 #define PARALLEL_SCHEDULE_MAX_THREADS        64
 #define PARALLEL_SCHEDULE_MAX_TASKS          256
 
+// external declarations
+fn_key_accessor object_key_accessor;
+
 // forward declarations
 struct parallel_schedule_thread_s;
 struct parallel_schedule_task_s;
@@ -65,6 +68,16 @@ struct schedule_s
     char  _main_thread_name [PARALLEL_SCHEDULE_THREAD_NAME_LENGTH];
     parallel_schedule_work_parameter _work_parameters[PARALLEL_SCHEDULE_MAX_THREADS];
 };
+
+void *parallel_schedule_thread_key_accessor ( const void *const p_value )
+{
+    
+    // initialized data
+    parallel_schedule_thread *p_schedule_thread = (parallel_schedule_thread *) p_value;
+
+    // done
+    return p_schedule_thread->_name;
+}
 
 // function declarations
 /** !
@@ -355,15 +368,20 @@ int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value
 
     // initialized data
     dict *p_dict = p_value->object;
-    const json_value *const p_name        = dict_get(p_dict, "name"),
-                     *const p_threads     = dict_get(p_dict, "threads"),
-                     *const p_main_thread = dict_get(p_dict, "main thread"),
-                     *const p_repeat      = dict_get(p_dict, "repeat");
+    json_value *p_name        = NULL,
+               *p_threads     = NULL,
+               *p_main_thread = NULL,
+               *p_repeat      = NULL;
     schedule  _schedule  = { 0 }, 
-                      *p_schedule = (void *) 0;
+             *p_schedule = (void *) 0;
+
+    dict_get(p_dict, "name", &p_name),
+    dict_get(p_dict, "threads", &p_threads),
+    dict_get(p_dict, "main thread", &p_main_thread),
+    dict_get(p_dict, "repeat", &p_repeat);
 
     // Check for missing properties
-    if ( ! ( p_name && p_threads ) ) goto missing_properties;
+    if ( NULL == p_name || NULL == p_threads ) goto missing_properties;
 
     // Parse the name property
     if ( p_name->type == JSON_VALUE_STRING )
@@ -416,22 +434,26 @@ int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value
 
         // initialized data
         dict       *p_dict           = p_threads->object;
-        size_t      threads_quantity = dict_keys(p_dict, (void *) 0 );
+        size_t      threads_quantity = 0;
         const char *_keys[PARALLEL_SCHEDULE_MAX_THREADS]     = { 0 };
         json_value *_p_values[PARALLEL_SCHEDULE_MAX_THREADS] = { 0 };
         
+        // store the quantity of threads
+        dict_size(p_dict, &threads_quantity);
+
         // error check
         if ( threads_quantity == 0 ) goto threads_property_is_empty;
         if ( threads_quantity > PARALLEL_SCHEDULE_MAX_THREADS ) goto threads_property_is_too_large;
 
-        // store the names of the threads
-        dict_keys(p_dict, _keys);
-
         // store the values of the threads
-        dict_values(p_dict, (void **)_p_values);
+        dict_values(p_dict, _p_values, threads_quantity);
 
-        // Construct a dictionary for the threads
-        (void) dict_construct(&_schedule.p_threads, threads_quantity * 2, 0);
+        // iterate through each value
+        for (size_t i = 0; i < threads_quantity; i++)
+            _keys[i] = (const char *) object_key_accessor(_p_values[i]);
+
+        // construct a dictionary for the threads
+        (void) dict_construct(&_schedule.p_threads, threads_quantity * 2, NULL, parallel_schedule_thread_key_accessor, NULL);
 
         // iterate over each thread
         for (size_t i = 0; i < threads_quantity; i++)
@@ -444,7 +466,7 @@ int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value
             if ( parallel_schedule_thread_load_as_json_value(&p_thread, _keys[i], _p_values[i]) == 0 ) goto failed_to_create_thread;
 
             // Add the schedule thread to the schedule
-            dict_add(_schedule.p_threads, p_thread->_name, p_thread);
+            dict_add(_schedule.p_threads, p_thread);
         }
     }
 
@@ -469,13 +491,16 @@ int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value
     {
 
         // initialized data
-        size_t thread_quantity = dict_values(_schedule.p_threads, 0);
+        size_t thread_quantity = 0;
         parallel_schedule_thread *_p_threads [PARALLEL_SCHEDULE_MAX_THREADS] = { 0 };
         parallel_schedule_thread *p_thread = (void *) 0;
         parallel_schedule_task   *p_task = (void *) 0;
         
+        // store the quantity of threads
+        dict_size(_schedule.p_threads, &thread_quantity);
+
         // store the threads from the schedule
-        dict_values(_schedule.p_threads, (void **)_p_threads);
+        dict_values(_schedule.p_threads, (void **)_p_threads, thread_quantity);
 
         // iterate over each thread
         for (size_t i = 0; i < thread_quantity; i++)
@@ -496,7 +521,9 @@ int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value
                 {
                     
                     // initialized data
-                    parallel_schedule_thread *p_dependency_thread = (parallel_schedule_thread *) dict_get(_schedule.p_threads, p_task->_wait_thread);
+                    parallel_schedule_thread *p_dependency_thread = NULL;
+                    
+                    dict_get(_schedule.p_threads, p_task->_wait_thread, &p_dependency_thread);
 
                     // TODO: Error check
                     //
@@ -730,9 +757,12 @@ int parallel_schedule_thread_load_as_json_value ( parallel_schedule_thread **con
 
             // initialized data
             dict *p_dict = p_ith_value->object;
-            const json_value *const p_task = dict_get(p_dict, "task"),
-                             *const p_wait = dict_get(p_dict, "wait");
+            json_value *p_task = NULL,
+                       *p_wait = NULL;
             
+            dict_get(p_dict, "task", &p_task),
+            dict_get(p_dict, "wait", &p_wait);
+
             // Check for missing properties
             if ( p_task == (void *) 0 ) goto missing_properties;
 
@@ -914,7 +944,7 @@ int schedule_start ( schedule *const p_schedule, void *const p_parameter )
     if ( p_schedule == (void *) 0 ) goto no_schedule;
 
     // initialized data
-    size_t thread_quantity = dict_values(p_schedule->p_threads, 0);
+    size_t thread_quantity = 0;
     parallel_schedule_thread *_p_threads [PARALLEL_SCHEDULE_MAX_THREADS] = { 0 };
     parallel_schedule_thread *p_main_thread = (void *)0;
     parallel_schedule_work_parameter *p_main_thread_work_parameter = (void *) 0;
@@ -922,8 +952,11 @@ int schedule_start ( schedule *const p_schedule, void *const p_parameter )
     // store the parameter
     p_schedule->p_parameter = p_parameter;
 
+    // store the quantity of threads
+    dict_size(p_schedule->p_threads, &thread_quantity);
+
     // store the threads from the schedule
-    dict_values(p_schedule->p_threads, (void **)_p_threads);
+    dict_values(p_schedule->p_threads, (void **)_p_threads, thread_quantity);
 
     // iterate over each thread
     for (size_t i = 0; i < thread_quantity; i++)
@@ -1038,14 +1071,17 @@ int schedule_stop ( schedule *const p_schedule )
     if ( p_schedule == (void *) 0 ) goto no_schedule;
 
     // initialized data
-    size_t thread_quantity = dict_values(p_schedule->p_threads, 0);
+    size_t thread_quantity = 0;
     parallel_schedule_thread *_p_threads[PARALLEL_SCHEDULE_MAX_THREADS] = { 0 };
 
-    // Clear the repeat flag
+    // clear the repeat flag
     p_schedule->repeat = false;
+ 
+    // store the quantity of threads
+    dict_size(p_schedule->p_threads, &thread_quantity);
 
     // store the threads from the schedule
-    dict_values(p_schedule->p_threads, (void **)_p_threads);
+    dict_values(p_schedule->p_threads, (void **)_p_threads, thread_quantity);
 
     // iterate over each thread
     for (size_t i = 0; i < thread_quantity; i++)
@@ -1178,7 +1214,9 @@ void *parallel_schedule_work ( parallel_schedule_work_parameter *p_parameter )
 
         // initialized data
         char *thread_name = i_task->_wait_thread;
-        parallel_schedule_thread *p_schedule_thread = (parallel_schedule_thread *) dict_get(p_schedule->p_threads, thread_name);
+        parallel_schedule_thread *p_schedule_thread = NULL;
+        
+        dict_get(p_schedule->p_threads, thread_name, &p_schedule_thread);
         
         // Find the monitor 
         for (size_t i = 0; i < p_schedule_thread->task_quantity; i++)
@@ -1298,7 +1336,9 @@ void *parallel_schedule_main_work ( parallel_schedule_work_parameter *p_paramete
 
         // initialized data
         char *thread_name = i_task->_wait_thread;
-        parallel_schedule_thread *p_schedule_thread_wait = (parallel_schedule_thread *) dict_get(p_schedule->p_threads, thread_name);
+        parallel_schedule_thread *p_schedule_thread_wait = NULL;
+
+        dict_get(p_schedule->p_threads, thread_name, &p_schedule_thread_wait);
         
         // Find the monitor 
         for (size_t i = 0; i < p_schedule_thread_wait->task_quantity; i++)

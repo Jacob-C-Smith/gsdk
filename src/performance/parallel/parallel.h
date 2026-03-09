@@ -27,11 +27,13 @@
 #include <reflection/json.h>
 
 // forward declarations
+struct parallel_task_s;
 struct parallel_thread_s;
 struct thread_pool_s;
 struct schedule_s;
 
 // type definitions
+typedef struct   parallel_task_s parallel_task;
 typedef struct   parallel_thread_s parallel_thread;
 typedef struct   thread_pool_s thread_pool;
 typedef struct   schedule_s schedule;
