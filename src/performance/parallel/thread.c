@@ -1,14 +1,15 @@
 /** !
- * High level abstraction of a thread
+ * Thread interface
  * 
- * @file thread.c
+ * @file src/performance/parallel/thread.c
  *
  * @author Jacob Smith
  */
 
-// parallel
+// header file
 #include <performance/thread.h>
 
+// function definitions
 int parallel_thread_create ( parallel_thread **pp_parallel_thread )
 {
     
@@ -21,7 +22,7 @@ int parallel_thread_create ( parallel_thread **pp_parallel_thread )
     // error check
     if ( p_parallel_thread == (void *) 0 ) goto no_mem;
 
-    // Zero set the struct
+    // zero set the struct
     memset(p_parallel_thread, 0, sizeof(parallel_thread));
 
     // return a pointer to the caller
@@ -70,7 +71,7 @@ int parallel_thread_start ( parallel_thread **pp_parallel_thread, fn_parallel_ta
     // allocate a parallel thread
     if ( parallel_thread_create(&p_parallel_thread) == 0 ) goto failed_to_allocate_parallel_thread;
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
 
         // TODO:
@@ -86,9 +87,6 @@ int parallel_thread_start ( parallel_thread **pp_parallel_thread, fn_parallel_ta
 
     // success
     return 1;
-
-        // error
-        return 0;
 
     // error handling
     {
@@ -112,7 +110,7 @@ int parallel_thread_start ( parallel_thread **pp_parallel_thread, fn_parallel_ta
                 return 0;
         }
 
-        // Parallel errors
+        // parallel errors
         {
             failed_to_allocate_parallel_thread:
                 #ifndef NDEBUG
@@ -142,7 +140,7 @@ int parallel_thread_cancel ( parallel_thread *p_parallel_thread )
     // argument check
     if ( p_parallel_thread == (void *) 0 ) goto no_parallel_thread;
 
-    // Platform dependent implementation
+    // platform dependent implementation
     #ifdef _WIN64
 
         // TODO:
@@ -180,10 +178,10 @@ int parallel_thread_join ( parallel_thread **pp_parallel_thread )
     // initialized data
     parallel_thread *p_parallel_thread = *pp_parallel_thread;
 
-    // No more pointer for caller
+    // no more pointer for caller
     *pp_parallel_thread = (void *) 0;
 
-    // Destory the parallel thread
+    // destory the parallel thread
     parallel_thread_destory(&p_parallel_thread);
 
     // success
@@ -214,13 +212,13 @@ int parallel_thread_destory ( parallel_thread **pp_parallel_thread )
     // initialized data
     parallel_thread *p_parallel_thread = *pp_parallel_thread;
 
-    // No more pointer for caller
+    // no more pointer for caller
     *pp_parallel_thread = (void *) 0;
 
-    // Wait for the thread to finish executing
+    // wait for the thread to finish executing
     if ( pthread_join(p_parallel_thread->platform_dependent_thread, NULL) != 0 ) goto failed_to_join_pthread;
         
-    // Free the parallel thread struct
+    // release the parallel thread struct
     p_parallel_thread = default_allocator(p_parallel_thread, 0);
 
     // success

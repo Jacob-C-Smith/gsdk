@@ -1,7 +1,7 @@
 /** !
- * High level abstractions for schedule
+ * Schedule interface
  * 
- * @file parallel/schedule.h
+ * @file src/performance/parallel/schedule.h
  *
  * @author Jacob Smith
  */
@@ -36,17 +36,7 @@ struct schedule_s;
 typedef struct schedule_s schedule;
 
 // function declarations
-// allocators
-/** !
- * Allocate memory for a schedule
- * 
- * @param pp_schedule return
- * 
- * @return 1 on success, 0 on error
-*/
-int schedule_create ( schedule **const pp_schedule );
-
-// constructors
+/// constructors
 /** !
  * Construct a schedule from a file 
  * 
@@ -67,7 +57,7 @@ int schedule_load ( schedule **const pp_schedule, const char *const path );
 */
 int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value *const p_value );
 
-// Start
+/// start
 /** !
  * Start running a schedule
  *
@@ -79,7 +69,7 @@ int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value
  */
 int schedule_start ( schedule *const p_schedule, void *const p_parameter );
 
-// Wait idle
+/// wait
 /** !
  * Block until a schedule is done
  * 
@@ -98,7 +88,7 @@ int schedule_wait_idle ( schedule *const p_schedule );
  */
 int schedule_pause ( schedule *const p_schedule );
 
-// Stop
+/// stop
 /** !
  * Stop running a schedule
  *
@@ -110,7 +100,7 @@ int schedule_pause ( schedule *const p_schedule );
  */
 int schedule_stop ( schedule *const p_schedule );
 
-// destructors
+/// destructors
 /** !
  * Destroy a schedule
  * 

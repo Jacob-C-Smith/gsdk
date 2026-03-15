@@ -56,8 +56,7 @@ int main ( int argc, const char *argv[] )
 
         // initialized data
         FILE          *p_public_key_f            = fopen("resources/core/public.key"   , "wb"),
-                      *p_private_key_f           = fopen("resources/core/private.key"  , "wb"),
-                      *p_keypair_f               = fopen("resources/core/key_pair.json", "w");
+                      *p_private_key_f           = fopen("resources/core/private.key"  , "wb");
         size_t         public_key_length         = 0,
                        private_key_length        = 0;
         unsigned char  _public_key_buffer [1024] = { 0 },
@@ -66,7 +65,6 @@ int main ( int argc, const char *argv[] )
         // error check
         if ( NULL == p_public_key_f  ) goto failed_to_open_public_key;
         if ( NULL == p_private_key_f ) goto failed_to_open_private_key;
-        if ( NULL == p_keypair_f     ) goto failed_to_open_keypair;
         
         // pack the keys
         public_key_length  = public_key_pack(_public_key_buffer, p_public_key),
@@ -86,37 +84,6 @@ int main ( int argc, const char *argv[] )
             fclose(p_public_key_f),
             fclose(p_private_key_f);
         }
-
-        // write the keypair json file
-        {
-
-            // Initialized data
-            char _public_key_base64 [2048] = { 0 },
-                 _private_key_base64[2048] = { 0 };
-            json_value _value       = { .type = JSON_VALUE_OBJECT };
-            json_value _public_key  = { .type = JSON_VALUE_STRING, .string = _public_key_base64 };
-            json_value _private_key = { .type = JSON_VALUE_STRING, .string = _private_key_base64 };
-
-            // construct a dictionary
-            if ( 0 == dict_construct(&_value.object, 4, 0) ) goto failed_to_construct_dictionary;
-
-            // encode the public key
-            if ( 0 == base64_encode(_public_key_base64, _public_key_buffer, public_key_length) ) goto failed_to_encode_base64;
-            
-            // encode the private key
-            if ( 0 == base64_encode(_private_key_base64, _private_key_buffer, private_key_length) ) goto failed_to_encode_base64;
-
-            // add the keys to the dictionary
-            dict_add(_value.object, "public", &_public_key),
-            dict_add(_value.object, "private", &_private_key);
-
-            // write the value to the file
-            json_value_fprint(&_value, p_keypair_f);
-
-            // clean up
-            dict_destroy(&_value.object, NULL),
-            fclose(p_keypair_f);
-        }
     } 
 
     // success
@@ -124,14 +91,6 @@ int main ( int argc, const char *argv[] )
 
     // error handling
     {
-
-        // base64 errors
-        {
-            failed_to_encode_base64:
-
-                // Error
-                return EXIT_FAILURE;
-        }
 
         // rsa errors
         {
@@ -158,14 +117,6 @@ int main ( int argc, const char *argv[] )
 
                 // error
                 return EXIT_FAILURE;
-                
-            failed_to_open_keypair:
-
-                // log the error
-                log_error("Error: Failed to open keypair file!\n");
-
-                // error
-                return EXIT_FAILURE;
 
             failed_to_serialize_public_key:
 
@@ -181,14 +132,6 @@ int main ( int argc, const char *argv[] )
                 log_error("Error: Failed to serialize private key!\n");
 
                 // error
-                return EXIT_FAILURE;
-        }
-    
-        // dict errors
-        {
-            failed_to_construct_dictionary:
-
-                // Error
                 return EXIT_FAILURE;
         }
     }
