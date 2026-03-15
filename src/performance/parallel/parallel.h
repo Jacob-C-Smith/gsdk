@@ -1,7 +1,7 @@
 /** !
- * High level abstractions for parallelized computing
+ * Parallel interface
  * 
- * @file parallel/parallel.h
+ * @file src/performance/parallel/parallel.h
  *
  * @author Jacob Smith
  */
@@ -15,29 +15,34 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-// core
+// gsdk
+/// core
 #include <core/sync.h>
 #include <core/log.h>
 
-// data
+/// data
 #include <data/dict.h>
 #include <data/array.h>
 
-// reflection
+/// reflection
 #include <reflection/json.h>
 
-// forward declarations
+// structure declarations
+struct parallel_task_s;
 struct parallel_thread_s;
 struct thread_pool_s;
 struct schedule_s;
 
 // type definitions
-typedef struct   parallel_thread_s parallel_thread;
-typedef struct   thread_pool_s thread_pool;
-typedef struct   schedule_s schedule;
+typedef struct parallel_task_s parallel_task;
+typedef struct parallel_thread_s parallel_thread;
+typedef struct thread_pool_s thread_pool;
+typedef struct schedule_s schedule;
+
 typedef void   *(fn_parallel_task)(void *p_parameter);
 
-// initializers
+// function definitions
+/// initializers
 /** !
  * This gets called at runtime before main. 
  * 
@@ -47,20 +52,29 @@ typedef void   *(fn_parallel_task)(void *p_parameter);
  */
 void parallel_init ( void ) __attribute__((constructor));
 
+/// register
 /** !
- * Register a task with the scheduler
+ * Register a named task
  * 
- * @param name     the name of the task
+ * @param p_name   the name of the task
  * @param pfn_task pointer to task function
- * 
- * @sa parallel_schedule_unregister_task
  * 
  * @return 1 on success, 0 on error
  */
-int parallel_register_task ( const char *const name, fn_parallel_task *pfn_parallel_task );
-int parallel_find_task ( const char *const name, fn_parallel_task **p_pfn_parallel_task );
+int parallel_register_task ( const char *const p_name, fn_parallel_task *pfn_task );
 
-// cleanup
+/// find
+/** !
+ * Find a named task in the task registery
+ * 
+ * @param p_name    the name of the task
+ * @param ppfn_task result
+ * 
+ * @return 1 on success, 0 on error
+ */
+int parallel_find_task ( const char *const p_name, fn_parallel_task **ppfn_task );
+
+/// cleanup
 /** !
  * This gets called at runtime after main
  * 

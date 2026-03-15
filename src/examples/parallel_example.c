@@ -1,7 +1,7 @@
 /** !
  * Example parallel program
  * 
- * @file main.c
+ * @file src/examples/parallel_example.c
  * 
  * @author Jacob Smith
  */
@@ -19,7 +19,7 @@
 #include <performance/thread_pool.h>
 #include <performance/schedule.h>
 
-// Preprocessor defines
+// preprocessor defines
 #define PARALLEL_THREADS_QUANTITY  4
 #define PARALLEL_THREADS_MAX_DELAY 4
 #define PARALLEL_THREAD_POOL_TASKS 16
@@ -96,38 +96,56 @@ void *print_something_to_standard_out ( void *p_parameter );
 /** !
  * Alice tells a joke
  * 
- * @param null_pointer 0
+ * @param unused unused
  * 
  * @return void
  */
-void *alice_joke ( void *null_pointer );
+void *alice_joke ( void *unused );
 
 /** !
  * Bob tells a joke
  * 
- * @param null_pointer 0
+ * @param unused unused
  * 
  * @return void
  */
-void *bob_joke ( void *null_pointer );
+void *bob_joke ( void *unused );
 
 /** !
  * Charlie tells a joke
  * 
- * @param null_pointer 0
+ * @param unused unused
  * 
  * @return void
  */
-void *charlie_joke ( void *null_pointer );
+void *charlie_joke ( void *unused );
 
 /** !
- * Someone starts laughing
+ * Alice starts laughing
  * 
- * @param null_pointer 0
+ * @param unused unused
  * 
  * @return void
-*/
-void *laugh ( void *null_pointer );
+ */
+void *alice_laugh ( void *unused );
+
+/** !
+ * Bob starts laughing
+ * 
+ * @param unused unused
+ * 
+ * @return void
+ */
+void *bob_laugh ( void *unused );
+
+/** !
+ * Charlie starts laughing
+ * 
+ * @param unused unused
+ * 
+ * @return void
+ */
+void *charlie_laugh ( void *unused );
 
 // entry point
 int main ( int argc, const char *argv[] )
@@ -136,10 +154,10 @@ int main ( int argc, const char *argv[] )
     // initialized data
     bool examples_to_run[PARALLEL_EXAMPLES_QUANTITY] = { 0 };
 
-    // Parse command line arguments
+    // parse command line arguments
     parse_command_line_arguments(argc, argv, examples_to_run);
 
-    // Formatting
+    // formatting
     log_info("╭──────────────────╮\n");
     log_info("│ parallel example │\n");
     log_info("╰──────────────────╯\n");
@@ -150,22 +168,22 @@ int main ( int argc, const char *argv[] )
     log_info("A schedule is an abstraction for coordinating logical units of work over time. \n\n");
 
     //////////////////////
-    // Run the examples //
+    // run the examples //
     //////////////////////
 
-    // Run the thread example program
+    // run the thread example program
     if ( examples_to_run[PARALLEL_THREAD_EXAMPLE] )
 
         // error check
         if ( parallel_thread_example(argc, argv) == 0 ) goto failed_to_run_thread_example;
 
-    // Run the thread pool example program
+    // run the thread pool example program
     if ( examples_to_run[PARALLEL_THREAD_POOL_EXAMPLE] )
 
         // error check
         if ( parallel_thread_pool_example(argc, argv) == 0 ) goto failed_to_run_thread_pool_example;
 
-    // Run the schedule example program
+    // run the schedule example program
     if ( examples_to_run[PARALLEL_SCHEDULE_EXAMPLE] )
 
         // error check
@@ -178,7 +196,7 @@ int main ( int argc, const char *argv[] )
     {
         failed_to_run_thread_example:
 
-            // Print an error message
+            // print an error message
             log_error("Error: Failed to run thread example!\n");
 
             // error
@@ -186,7 +204,7 @@ int main ( int argc, const char *argv[] )
 
         failed_to_run_thread_pool_example:
 
-            // Print an error message
+            // print an error message
             log_error("Error: Failed to run thread pool example!\n");
 
             // error
@@ -194,7 +212,7 @@ int main ( int argc, const char *argv[] )
         
         failed_to_run_schedule_example:
             
-            // Print an error message
+            // print an error message
             log_error("Error: Failed to run schedule example!\n");
 
             // error
@@ -206,9 +224,9 @@ void print_usage ( const char *argv0 )
 {
 
     // argument check
-    if ( argv0 == (void *) 0 ) exit(EXIT_FAILURE);
+    if ( NULL == argv0 ) exit(EXIT_FAILURE);
 
-    // Print a usage message to standard out
+    // print a usage message to standard out
     printf("Usage: %s [thread] [thread-pool] [schedule]\n", argv0);
 
     // done
@@ -218,7 +236,7 @@ void print_usage ( const char *argv0 )
 void parse_command_line_arguments ( int argc, const char *argv[], bool *examples_to_run )
 {
 
-    // If no command line arguments are supplied, run all the examples
+    // if no command line arguments are supplied, run all the examples
     if ( argc == 1 ) goto all_examples;
 
     // error check
@@ -228,36 +246,36 @@ void parse_command_line_arguments ( int argc, const char *argv[], bool *examples
     for (size_t i = 1; i < (size_t) argc; i++)
     {
         
-        // Thread example?
-        if ( strcmp(argv[i], "thread") == 0 )
+        // thread example?
+        if ( 0 == strcmp(argv[i], "thread") )
 
-            // Set the thread example flag
+            // set the thread example flag
             examples_to_run[PARALLEL_THREAD_EXAMPLE] = true;
 
-        // Thread pool example?
-        else if ( strcmp(argv[i], "thread-pool") == 0 )
+        // thread pool example?
+        else if ( 0 == strcmp(argv[i], "thread-pool") )
             
-            // Set the thread pool example flag
+            // set the thread pool example flag
             examples_to_run[PARALLEL_THREAD_POOL_EXAMPLE] = true;
 
-        // Schedule example?
-        else if ( strcmp(argv[i], "schedule") == 0 )
+        // schedule example?
+        else if ( 0 == strcmp(argv[i], "schedule") )
 
-            // Set the schedule example flag
+            // set the schedule example flag
             examples_to_run[PARALLEL_SCHEDULE_EXAMPLE] = true;
 
-        // Default
+        // default
         else goto invalid_arguments;
     }
     
     // success
     return;
 
-    // Set each example flag
+    // set each example flag
     all_examples:
     {
 
-        // For each example ...
+        // for each example ...
         for (size_t i = 0; i < PARALLEL_EXAMPLES_QUANTITY; i++)
         
             // ... set the example flag
@@ -274,10 +292,10 @@ void parse_command_line_arguments ( int argc, const char *argv[], bool *examples
         {
             invalid_arguments:
                 
-                // Print a usage message to standard out
+                // print a usage message to standard out
                 print_usage(argv[0]);
 
-                // Abort
+                // abort
                 exit(EXIT_FAILURE);
         }
     }
@@ -286,11 +304,11 @@ void parse_command_line_arguments ( int argc, const char *argv[], bool *examples
 int parallel_thread_example ( int argc, const char *argv[] )
 {
     
-    // Supress warnings
+    // supress warnings
     (void) argc;
     (void) argv;
 
-    // Formatting
+    // formatting
     log_info("╭────────────────╮\n");
     log_info("│ thread example │\n");
     log_info("╰────────────────╯\n");
@@ -300,22 +318,22 @@ int parallel_thread_example ( int argc, const char *argv[] )
     // initialized data
     parallel_thread *_p_parallel_threads[PARALLEL_THREADS_QUANTITY] = { 0 };
 
-    // Seed the random number generator
+    // seed the random number generator
     srand((unsigned int) time(NULL));
 
-    // Start some threads
+    // start some threads
     for (size_t i = 0; i < PARALLEL_THREADS_QUANTITY; i++)
 
-        // Start a thread
+        // start a thread
         if ( parallel_thread_start(&_p_parallel_threads[i], print_something_to_standard_out, (void *) i + 1) == 0 ) goto failed_to_start_thread;
 
-    // Wait for the threads to finish
+    // wait for the threads to finish
     for (size_t i = 0; i < PARALLEL_THREADS_QUANTITY; i++)
 
-        // Wait for the threads to finish
+        // wait for the threads to finish
         if ( parallel_thread_join(&_p_parallel_threads[i]) == 0 ) goto failed_to_join_thread;
 
-    // Example formatting
+    // example formatting
     putchar('\n');
 
     // success
@@ -324,11 +342,11 @@ int parallel_thread_example ( int argc, const char *argv[] )
     // error handling
     {
 
-        // Parallel errors
+        // parallel errors
         {
             failed_to_start_thread:
 
-                // Write an error message to standard out
+                // write an error message to standard out
                 log_error("Failed to create parallel thread in call to function \"%s\"\n", __FUNCTION__);
 
                 // error
@@ -336,7 +354,7 @@ int parallel_thread_example ( int argc, const char *argv[] )
 
             failed_to_join_thread:
                 
-                // Write an error message to standard out
+                // write an error message to standard out
                 log_error("Failed to join parallel thread in call to function \"%s\"\n", __FUNCTION__);
 
                 // error
@@ -348,11 +366,11 @@ int parallel_thread_example ( int argc, const char *argv[] )
 int parallel_thread_pool_example ( int argc, const char *argv[] )
 {
 
-    // Supress warnings
+    // supress warnings
     (void) argc;
     (void) argv;
 
-    // Formatting
+    // formatting
     log_info("╭─────────────────────╮\n");
     log_info("│ thread pool example │\n");
     log_info("╰─────────────────────╯\n");
@@ -361,31 +379,31 @@ int parallel_thread_pool_example ( int argc, const char *argv[] )
     log_info("The thread pool keeps processor utilization high, in spite of the bottleneck.\n\n");
 
     // initialized data
-    thread_pool *p_thread_pool = (void *) 0;
+    thread_pool *p_thread_pool = NULL;
 
-    // Construct a thread pool
-    if ( thread_pool_construct(&p_thread_pool, PARALLEL_THREADS_QUANTITY) == 0 ) goto failed_to_construct_thread_pool;
+    // construct a thread pool
+    if ( 0 == thread_pool_construct(&p_thread_pool, PARALLEL_THREADS_QUANTITY) ) goto failed_to_construct_thread_pool;
 
-    // Add 15 tasks ...
+    // add 15 tasks ...
     for (size_t i = 1; i <= 16; i++)
 
         // ... to the thread pool
         thread_pool_execute(
-            p_thread_pool,                   // The thread pool
-            print_something_to_standard_out, // The function
-            (void *)i                        // The parameters
+            p_thread_pool,                   // the thread pool
+            print_something_to_standard_out, // the function
+            (void *)i                        // the parameters
         );
 
-    // Log the idle start
+    // log the idle start
     log_info("Started thread pool wait\n");
 
-    // Wait for everything to finish
+    // wait for the thread pool to idle
     thread_pool_wait_idle(p_thread_pool);
 
-    // Log the idle finish
+    // log the idle finish
     log_info("Thread pool is idle\n");
 
-    // Formatting
+    // formatting
     putchar('\n');
     
     // success
@@ -398,7 +416,7 @@ int parallel_thread_pool_example ( int argc, const char *argv[] )
         {
             failed_to_construct_thread_pool:
                 
-                // Write an error message to standard out
+                // write an error message to standard out
                 log_error("Failed to construct thread pool!\n");
 
                 // error
@@ -410,11 +428,11 @@ int parallel_thread_pool_example ( int argc, const char *argv[] )
 int parallel_schedule_example ( int argc, const char *argv[] )
 {
 
-    // Supress warnings
+    // supress warnings
     (void) argc;
     (void) argv;
 
-    // Formatting
+    // formatting
     log_info("╭──────────────────╮\n");
     log_info("│ schedule example │\n");
     log_info("╰──────────────────╯\n");
@@ -424,28 +442,27 @@ int parallel_schedule_example ( int argc, const char *argv[] )
     log_info("the most important features of the scheduler. Concurrency, and parallelism. \n\n");
 
     // initialized data
-    schedule *p_schedule = (void *) 0;
+    schedule *p_schedule = NULL;
     
-    // Register tasks for the scheduler
-    (void) parallel_register_task("Alice tells a joke"  , (fn_parallel_task *)alice_joke);
-    (void) parallel_register_task("Bob tells a joke"    , (fn_parallel_task *)bob_joke);
-    (void) parallel_register_task("Charlie tells a joke", (fn_parallel_task *)charlie_joke);
-    (void) parallel_register_task("laugh"               , (fn_parallel_task *)laugh);
+    // register tasks for the scheduler
+    parallel_register_task("Alice tells a joke"  , alice_joke),
+    parallel_register_task("Alice laugh"         , alice_laugh),
+    parallel_register_task("Bob tells a joke"    , bob_joke),
+    parallel_register_task("Bob laugh"           , bob_laugh),
+    parallel_register_task("Charlie tells a joke", charlie_joke),
+    parallel_register_task("Charlie laugh"       , charlie_laugh);
 
-    // Construct a schedule
-    if ( schedule_load(&p_schedule, "resources/performance/schedule_1.json") == 0 ) goto failed_to_construct_schedule;
+    // construct a schedule
+    if ( 0 == schedule_load(&p_schedule, "resources/performance/schedule_1.json") ) goto failed_to_construct_schedule;
 
-    // Start the schedule
-    if ( schedule_start(p_schedule, 0) == 0 ) goto failed_to_start_schedule;
+    // start the schedule
+    if ( 0 == schedule_start(p_schedule, 0) ) goto failed_to_start_schedule;
 
-    // Wait for the schedule to stop
-    (void) schedule_wait_idle(p_schedule);
+    // wait for the schedule to idle
+    schedule_wait_idle(p_schedule);
 
-    // Stop the schedule
-    if ( schedule_stop(p_schedule) == 0 ) goto failed_to_stop_schedule;
-
-    // Destroy the scheudle
-    (void) schedule_destroy(&p_schedule);
+    // destroy the scheudle
+    schedule_destroy(&p_schedule);
     
     // success
     return 1;
@@ -453,7 +470,7 @@ int parallel_schedule_example ( int argc, const char *argv[] )
     // error handling
     {
 
-        // Parallel errors
+        // parallel errors
         {
             failed_to_construct_schedule:
                 #ifndef NDEBUG
@@ -470,14 +487,6 @@ int parallel_schedule_example ( int argc, const char *argv[] )
                 
                 // error
                 return 0;
-
-            failed_to_stop_schedule:
-                #ifndef NDEBUG
-                    log_error("[parallel] [schedule] Failed to stop schedule in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-                
-                // error
-                return 0;
         }
     }
 }
@@ -488,112 +497,107 @@ void *print_something_to_standard_out ( void *p_parameter )
     // initialized data
     int delay = (rand() % 5);
 
-    // Sleep for 0-4 seconds
+    // sleep for 0-4 seconds
     sleep((unsigned int) delay);
 
-    // Print the parameter to standard out
+    // print the parameter to standard out
     printf("Task %zu finished in %d seconds\n", (size_t) p_parameter, delay);
-
-    // Flush standard out
-    fflush(stdout);
 
     // done
     return 0;
 }
 
-void *alice_joke ( void *null_pointer )
+void *alice_joke ( void *unused )
 {
 
-    // Unused
-    (void) null_pointer;
+    // unused
+    (void) unused;
 
-    // Alice's setup
-    printf("Alice > Did you hear the story about the claustrophobic astronaut?\n"); fflush(stdout);
+    // alice's setup
+    log_error("Alice > Did you hear the story about the claustrophobic astronaut?\n");
     
-    // Alice hesitates
-    for (size_t i = 0; i < 3; i++)
-    {
-        printf("."); fflush(stdout);
-        sleep(1);
-    }
+    // alice hesitates
+    for (size_t i = 0; i < 3; i++) log_error(".");
 
-    // Alice delivers the punchline
-    printf("\nAlice > He just needed some space!\n"); fflush(stdout);
+    // alice delivers the punchline
+    log_error("\nAlice > He just needed some space!\n");
 
     // success
     return (void *) 1;
 }
 
-void *bob_joke ( void *null_pointer )
+void *bob_joke ( void *unused )
 {
 
-    // Unused
-    (void) null_pointer;
+    // unused
+    (void) unused;
 
-    // Bob's setup
-    printf("\nBob > What's red and bad for your teeth?\n"); fflush(stdout);
+    // bob's setup
+    log_info("\nBob > What's red and bad for your teeth?\n");
     
-    // Bob hesitates
-    for (size_t i = 0; i < 3; i++)
-    {
-        printf("."); fflush(stdout);
-        sleep(1);
-    }
+    // bob hesitates
+    for (size_t i = 0; i < 3; i++) log_info(".");
     
-    // Bob delivers the punchline
-    printf("\nBob > A brick!\n"); fflush(stdout);
+    // bob delivers the punchline
+    log_info("\nBob > A brick!\n");
     
     // success
     return (void *) 1;
 }
 
-void *charlie_joke ( void *null_pointer )
+void *charlie_joke ( void *unused )
 {
 
-    // Unused
-    (void) null_pointer;
+    // unused
+    (void) unused;
 
-    // Charlie's setup
-    printf("\nCharlie > What's the leading cause of dry skin?\n"); fflush(stdout);
+    // charlie's setup
+    log_warning("\nCharlie > What's the leading cause of dry skin?\n"); 
 
-    // Charlie hesitates
-    for (size_t i = 0; i < 3; i++)
-    {
-        printf("."); fflush(stdout);
-        sleep(1);
-    }
+    // charlie hesitates
+    for (size_t i = 0; i < 3; i++) log_warning("."); 
 
-    // Charlie delivers the punchline
-    printf("\nCharlie > Towels!\n"); fflush(stdout);
+    // charlie delivers the punchline
+    log_warning("\nCharlie > Towels!\n"); 
 
     // success
     return (void *) 1;
 }
 
-void *task_1 ( void *null_pointer )
+void *alice_laugh ( void *unused )
 {
 
-    // Unused
-    (void) null_pointer;
+    // unused
+    (void) unused;
 
-    // Task 1
-    sleep(2); printf("\nTask 1\n"); fflush(stdout);
+    // alice is laughing ...
+    log_error("Hahahaha\n"); 
 
     // success
-    return (void *) 1;    
+    return (void *) 1;
 }
 
-void *laugh ( void *null_pointer )
+void *bob_laugh ( void *unused )
 {
 
-    // Unused
-    (void) null_pointer;
+    // unused
+    (void) unused;
 
-    // Someone is laughing ...
-    printf("Hahahaha\n"); fflush(stdout);
+    // bob is laughing ...
+    log_info("Hahahaha\n"); 
 
-    // ... for 1 second
-    sleep(1);
+    // success
+    return (void *) 1;
+}
+
+void *charlie_laugh ( void *unused )
+{
+
+    // unused
+    (void) unused;
+
+    // charlie is laughing ...
+    log_warning("Hahahaha\n"); 
 
     // success
     return (void *) 1;

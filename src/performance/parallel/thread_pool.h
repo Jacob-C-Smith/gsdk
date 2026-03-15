@@ -1,7 +1,7 @@
 /** !
- * High level abstractions for thread pool 
+ * Thread pool interface
  * 
- * @file parallel/threadpool.h
+ * @file src/performance/parallel/thread_pool.h
  *
  * @author Jacob Smith
  */
@@ -15,22 +15,23 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-// core
+// gsdk
+/// core
+#include <core/log.h>
 #include <core/sync.h>
 
-// performance
+/// performance
 #include <performance/parallel.h>
 #include <performance/thread.h>
 
-// forward declarations
+// structure declarations
 struct thread_pool_s;
 
 // type definitions
 typedef struct thread_pool_s thread_pool;
 
 // function declarations
-
-// constructors
+/// constructors
 /** !
  * Construct a thread pool
  * 
@@ -41,6 +42,7 @@ typedef struct thread_pool_s thread_pool;
  */
 int thread_pool_construct ( thread_pool **pp_thread_pool, size_t thread_quantity );
 
+/// executors
 /** !
  * Execute a job on a thread pool
  * 
@@ -52,6 +54,7 @@ int thread_pool_construct ( thread_pool **pp_thread_pool, size_t thread_quantity
  */
 int thread_pool_execute ( thread_pool *p_thread_pool, fn_parallel_task *pfn_parallel_task, void *p_parameter );
 
+/// accessors
 /** !
  * Test if the thread pool is idle
  * 
@@ -61,6 +64,7 @@ int thread_pool_execute ( thread_pool *p_thread_pool, fn_parallel_task *pfn_para
  */
 bool thread_pool_is_idle ( thread_pool *p_thread_pool );
 
+/// blockers
 /** !
  * Block until a thread pool finishes it's active jobs
  * 
@@ -70,6 +74,7 @@ bool thread_pool_is_idle ( thread_pool *p_thread_pool );
  */
 int thread_pool_wait_idle ( thread_pool *p_thread_pool );
 
+/// destructors
 /** !
  * Destroy a thread pool
  * 

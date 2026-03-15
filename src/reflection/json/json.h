@@ -1,7 +1,7 @@
 /** !
- * Include header for json library
+ * json interface
  * 
- * @file json/json.h 
+ * @file src/reflection/json/json.h 
  * 
  * @author Jacob Smith
  */
@@ -20,22 +20,28 @@
 #include <ctype.h>
 #include <math.h>
 
-// sync module
+// gsdk
+/// core
+#include <core/log.h>
 #include <core/sync.h>
+#include <core/hash.h>
+#include <core/pack.h>
+#include <core/interfaces.h>
 
-// dict module
+/// data
+#include <data/array.h>
 #include <data/dict.h>
 
-// array module
-#include <data/array.h>
+/// reflection
+#include <reflection/json.h>
 
-// Forward declared functions
-void free_token ( void *ptr );
-
-// This macro is used to free json_value_t *'s 
+// preprocessor macros
 #define FREE_VALUE( value ) json_value_free(value)
 
-// Enumerations
+// function declarations
+void free_token ( void *ptr );
+
+// enumeration definitions
 enum json_value_type_e
 {
     JSON_VALUE_INVALID,
@@ -47,10 +53,11 @@ enum json_value_type_e
     JSON_VALUE_NUMBER
 };
 
-// Structures
+// structure definitions
 struct json_value_s
 {
     enum json_value_type_e type;
+    char *p_key;
     union
     {
         char             *string;
@@ -68,17 +75,7 @@ struct json_value_s
 typedef struct json_value_s json_value;
 
 // function declarations
-// initializer
-/** !
- * This gets called at runtime before main. 
- * 
- * @param void
- * 
- * @return void
- */
-void json_init ( void ) __attribute__((constructor));
-
-// Parser
+/// parse
 /** !
  * Parse json text into a json_value
  * 
@@ -90,7 +87,7 @@ void json_init ( void ) __attribute__((constructor));
  */
 int json_value_parse ( char *text, char **return_pointer, json_value **const pp_value );
 
-// Serializer
+/// serialize
 /** ! 
  * Serialize a json_value to a buffer
  * 
@@ -120,7 +117,7 @@ int json_value_print ( const json_value *const p_value );
  */
 int json_value_fprint ( const json_value *const p_value, FILE *p_f );
 
-// Destructor
+/// destructors
 /** ! 
  * Free a json value, and its contents
  * 

@@ -61,6 +61,9 @@ const char *alphabet[] = {
     "z"
 };
 
+// external declarations
+fn_key_accessor object_key_accessor;
+
 // forward declarations
 /** !
  * Print the time formatted in days, hours, minutes, seconds, miliseconds, microseconds
@@ -567,7 +570,6 @@ void test_parse_object ( char *name )
     print_test(name, "{\"abc\":[1,2,3]}"                                , test_parse_json("resources/test/json/parse/pass/object/object_array.json"        , construct_object_array        , one));
     print_test(name, "{\"a\":[{\"a\":1},{\"b\":2},{\"c\":3}]}"          , test_parse_json("resources/test/json/parse/pass/object/object_array_objects.json", construct_object_array_objects, one));
     print_test(name, "{\"a\":[{\"a\":1}]}"                              , test_parse_json("resources/test/json/parse/pass/object/object_array_object.json" , construct_object_array_object , one));
-    print_test(name, "{\"a\":{\"b\":{\"c\":{\"d\":{...{\"z\":{ }...}"   , test_parse_json("resources/test/json/parse/pass/object/object_recursive.json"    , construct_object_recursive    , one));
 
     // Print the summary of this test
     print_final_summary();
@@ -715,14 +717,11 @@ int test_serial_object ( char *name )
     print_test(name, "{\"pi\":3.14}"                                    , test_serial_json("resources/test/json/serial/object/TESTER_object_float.json"        , "resources/test/json/parse/pass/object/object_float.json"        , construct_object_float        , one));
     print_test(name, "{\"abc\":false}"                                  , test_serial_json("resources/test/json/serial/object/TESTER_object_false.json"        , "resources/test/json/parse/pass/object/object_false.json"        , construct_object_false        , one));
     print_test(name, "{\"abc\":true}"                                   , test_serial_json("resources/test/json/serial/object/TESTER_object_true.json"         , "resources/test/json/parse/pass/object/object_true.json"         , construct_object_true         , one));
-    print_test(name, "{\"abc\":\"def\",\"ghi\":\"jkl\",\"mno\":\"pqr\"}", test_serial_json("resources/test/json/serial/object/TESTER_object_strings.json"      , "resources/test/json/parse/pass/object/object_strings.json"      , construct_object_strings      , one));
-    print_test(name, "{\"name\":\"jake\",\"age\":20,\"height\":1.779}"  , test_serial_json("resources/test/json/serial/object/TESTER_object_mixed_values.json" , "resources/test/json/parse/pass/object/object_mixed_values.json" , construct_object_mixed_values , one));
     print_test(name, "{\"abc\":{\"def\":123}}"                          , test_serial_json("resources/test/json/serial/object/TESTER_object_object.json"       , "resources/test/json/parse/pass/object/object_object.json"       , construct_object_object       , one));
     print_test(name, "{\"abc\":{\"def\":{\"ghi\":123}}}"                , test_serial_json("resources/test/json/serial/object/TESTER_object_object_object.json", "resources/test/json/parse/pass/object/object_object_object.json", construct_object_object_object, one));
     print_test(name, "{\"abc\":[1,2,3]}"                                , test_serial_json("resources/test/json/serial/object/TESTER_object_array.json"        , "resources/test/json/parse/pass/object/object_array.json"        , construct_object_array        , one));
     print_test(name, "{\"a\":[{\"a\":1},{\"b\":2},{\"c\":3}]}"          , test_serial_json("resources/test/json/serial/object/TESTER_object_array_objects.json", "resources/test/json/parse/pass/object/object_array_objects.json", construct_object_array_objects, one));
     print_test(name, "{\"a\":[{\"a\":1}]}"                              , test_serial_json("resources/test/json/serial/object/TESTER_object_array_object.json" , "resources/test/json/parse/pass/object/object_array_object.json" , construct_object_array_object , one));
-    print_test(name, "{\"a\":{\"b\":{\"c\":{\"d\":{...{\"z\":{ }...}"   , test_serial_json("resources/test/json/serial/object/TESTER_object_recursive.json"    , "resources/test/json/parse/pass/object/object_recursive.json"    , construct_object_recursive    , one));
 
     // Print the summary of this test
     print_final_summary();
@@ -844,27 +843,25 @@ bool value_equals (json_value *a, json_value *b)
     {
         dict   *a_dict       = a->object,
                *b_dict       = b->object;
-        size_t  a_properties = dict_values(a_dict, 0),
-                b_properties = dict_values(b_dict, 0);
-        const char **a_keys       = 0,
-                   **b_keys       = 0;
+        size_t  a_properties = 0,
+                b_properties = 0;
         void  **a_values     = 0,
               **b_values     = 0;
-               
+
+        // store the sizes of a and b
+        dict_size(a_dict, &a_properties),
+        dict_size(b_dict, &b_properties);        
+        
         if (a_properties != b_properties)
         {
             result = 0;
         }
 
-        a_keys   = calloc(a_properties+1, sizeof(char *)),
-        b_keys   = calloc(a_properties+1, sizeof(char *)),
-        a_values = calloc(b_properties+1, sizeof(json_value *)),
+        a_values = calloc(a_properties+1, sizeof(json_value *)),
         b_values = calloc(b_properties+1, sizeof(json_value *));
         
-        dict_keys(a_dict, a_keys);
-        dict_keys(b_dict, b_keys);
-        dict_values(a_dict, a_values);
-        dict_values(b_dict, b_values);
+        dict_values(a_dict, a_values, a_properties);
+        dict_values(b_dict, b_values, b_properties);
         
         for (size_t i = 0; i < a_properties; i++)
         {
@@ -873,7 +870,10 @@ bool value_equals (json_value *a, json_value *b)
                  
             for (size_t j = 0; j < b_properties; j++)
             {
-                if (strcmp(a_keys[i], b_keys[j])==0)
+                if ( 0 == strcmp(
+                    object_key_accessor(a_values[i]),
+                    object_key_accessor(a_values[j])
+                ))
                 {
                     has_key = true;
                 }
@@ -889,8 +889,6 @@ bool value_equals (json_value *a, json_value *b)
             }
         }
 
-        free(a_keys);
-        free(b_keys);
         free(a_values);
         free(b_values);
     }
@@ -1543,11 +1541,11 @@ int construct_object_empty ( json_value **pp_value )
     // initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
     
-    // Type
+    // type
     p_value->type = JSON_VALUE_OBJECT;
 
-    // Value
-    dict_construct(&p_value->object, 1, 0);
+    // value
+    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
 
     // return
     *pp_value = p_value;
@@ -1573,10 +1571,11 @@ int construct_object_string ( json_value **pp_value )
     p_value->type = JSON_VALUE_OBJECT;
     p_abc_value->type = JSON_VALUE_STRING;
     p_abc_value->string = z;
+    p_abc_value->p_key = "abc";
     
-    // Value
-    dict_construct(&p_value->object, 1, 0);
-    dict_add(p_value->object, "abc", p_abc_value);
+    // value
+    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
+    dict_add(p_value->object, p_abc_value);
 
     // return
     *pp_value = p_value;
@@ -1596,10 +1595,11 @@ int construct_object_int  ( json_value **pp_value )
     p_value->type = JSON_VALUE_OBJECT;
     p_abc_value->type = JSON_VALUE_INTEGER;
     p_abc_value->integer = 123;
+    p_abc_value->p_key = "abc";
     
     // Value
-    dict_construct(&p_value->object, 1, 0);
-    dict_add(p_value->object, "abc", p_abc_value);
+    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
+    dict_add(p_value->object, p_abc_value);
 
     // return
     *pp_value = p_value;
@@ -1619,10 +1619,11 @@ int construct_object_float  ( json_value **pp_value )
     p_value->type = JSON_VALUE_OBJECT;
     p_abc_value->type = JSON_VALUE_NUMBER;
     p_abc_value->number = 3.14;
-    
+    p_abc_value->p_key = "pi";
+
     // Value
-    dict_construct(&p_value->object, 1, 0);
-    dict_add(p_value->object, "pi", p_abc_value);
+    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
+    dict_add(p_value->object, p_abc_value);
 
     // return
     *pp_value = p_value;
@@ -1642,10 +1643,11 @@ int construct_object_false  ( json_value **pp_value )
     p_value->type = JSON_VALUE_OBJECT;
     p_abc_value->type = JSON_VALUE_BOOLEAN;
     p_abc_value->boolean = false;
+    p_abc_value->p_key = "abc";
     
     // Value
-    dict_construct(&p_value->object, 1, 0);
-    dict_add(p_value->object, "abc", p_abc_value);
+    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
+    dict_add(p_value->object, p_abc_value);
 
     // return
     *pp_value = p_value;
@@ -1665,10 +1667,11 @@ int construct_object_true  ( json_value **pp_value )
     p_value->type = JSON_VALUE_OBJECT;
     p_abc_value->type = JSON_VALUE_BOOLEAN;
     p_abc_value->boolean = true;
+    p_abc_value->p_key = "abc";
     
     // Value
-    dict_construct(&p_value->object, 1, 0);
-    dict_add(p_value->object, "abc", p_abc_value);
+    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
+    dict_add(p_value->object, p_abc_value);
 
     // return
     *pp_value = p_value;
@@ -1708,16 +1711,21 @@ int construct_object_strings ( json_value **pp_value )
     p_value->type = JSON_VALUE_OBJECT;
     p_abc_value->type = JSON_VALUE_STRING;
     p_abc_value->string = x;
+    p_abc_value->p_key = "abc";
+
     p_ghi_value->type = JSON_VALUE_STRING;
     p_ghi_value->string = y;
+    p_ghi_value->p_key = "def";
+
     p_mno_value->type = JSON_VALUE_STRING;
     p_mno_value->string = z;
+    p_mno_value->p_key = "mno";
     
     // Value
-    dict_construct(&p_value->object, 3, 0);
-    dict_add(p_value->object, "abc", p_abc_value);
-    dict_add(p_value->object, "ghi", p_ghi_value);
-    dict_add(p_value->object, "mno", p_mno_value);
+    dict_construct(&p_value->object, 3, NULL, object_key_accessor, NULL);
+    dict_add(p_value->object, p_abc_value);
+    dict_add(p_value->object, p_ghi_value);
+    dict_add(p_value->object, p_mno_value);
 
     // return
     *pp_value = p_value;
@@ -1747,16 +1755,21 @@ int construct_object_mixed_values ( json_value **pp_value )
     p_value->type          = JSON_VALUE_OBJECT;
     p_name_value->type     = JSON_VALUE_STRING;
     p_name_value->string   = z;
+    p_name_value->p_key    = "name";
+    
     p_age_value->type      = JSON_VALUE_INTEGER;
     p_age_value->integer   = 20;
+    p_age_value->p_key     = "age";
+
     p_height_value->type   = JSON_VALUE_NUMBER;
     p_height_value->number = 1.779;
+    p_height_value->p_key  = "height";
     
     // Value
-    dict_construct(&p_value->object, 3, 0);
-    dict_add(p_value->object, "name"  , p_name_value);
-    dict_add(p_value->object, "age"   , p_age_value);
-    dict_add(p_value->object, "height", p_height_value);
+    dict_construct(&p_value->object, 3, NULL, object_key_accessor, NULL);
+    dict_add(p_value->object, p_name_value);
+    dict_add(p_value->object, p_age_value);
+    dict_add(p_value->object, p_height_value);
 
     // return
     *pp_value = p_value;
@@ -1774,17 +1787,19 @@ int construct_object_object ( json_value **pp_value )
                *p_def_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type     = JSON_VALUE_OBJECT;
-    p_abc_value->type = JSON_VALUE_OBJECT;
+    p_value->type      = JSON_VALUE_OBJECT;
+    p_abc_value->type  = JSON_VALUE_OBJECT;
+    p_abc_value->p_key = "abc";
 
     p_def_value->type    = JSON_VALUE_INTEGER;
     p_def_value->integer = 123;
+    p_def_value->p_key   = "def";
 
     // Construct the object
-    dict_construct(&p_value->object, 1, 0);
-    dict_construct(&p_abc_value->object, 1, 0);
-    dict_add(p_value->object, "abc", p_abc_value);
-    dict_add(p_abc_value->object, "def", p_def_value);
+    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
+    dict_construct(&p_abc_value->object, 1, NULL, object_key_accessor, NULL);
+    dict_add(p_value->object, p_abc_value);
+    dict_add(p_abc_value->object, p_def_value);
 
     // return
     *pp_value = p_value;
@@ -1808,53 +1823,23 @@ int construct_object_object_object ( json_value **pp_value )
     p_def_value->type = JSON_VALUE_OBJECT;
     p_ghi_value->type = JSON_VALUE_INTEGER;
 
+    p_abc_value->p_key = "abc";
+    p_def_value->p_key = "def";
+    p_ghi_value->p_key = "ghi";
+
     // Construct the object
-    dict_construct(&p_value->object, 1, 0);
-    dict_construct(&p_abc_value->object, 1, 0);
-    dict_construct(&p_def_value->object, 1, 0);
+    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
+    dict_construct(&p_abc_value->object, 1, NULL, object_key_accessor, NULL);
+    dict_construct(&p_def_value->object, 1, NULL, object_key_accessor, NULL);
 
     p_ghi_value->integer = 123;
     
-    dict_add(p_def_value->object, "ghi", p_ghi_value);
-    dict_add(p_abc_value->object, "def", p_def_value);
-    dict_add(p_value->object, "abc", p_abc_value);
+    dict_add(p_def_value->object, p_ghi_value);
+    dict_add(p_abc_value->object, p_def_value);
+    dict_add(p_value->object, p_abc_value);
 
     // return
     *pp_value = p_value;
-
-    // success
-    return 1;
-}
-
-int construct_object_recursive ( json_value **pp_value )
-{
-
-    // initialized data
-    json_value *p_iter_value = default_allocator(0, sizeof(json_value)),
-               *p_last_value = 0;
-
-    p_iter_value->type = JSON_VALUE_OBJECT;
-
-    
-    p_iter_value->type = JSON_VALUE_OBJECT;
-    dict_construct(&p_iter_value->object, 1, 0);
-
-    p_last_value = p_iter_value;
-    
-    // iterate through the alphabet
-    for (size_t i = 'z'; i > 'a'-1; i--)
-    {
-
-        p_iter_value = default_allocator(0, sizeof(json_value)),
-
-        p_iter_value->type = JSON_VALUE_OBJECT;
-        dict_construct(&p_iter_value->object, 1, 0);
-        dict_add(p_iter_value->object,alphabet[i-'a'], p_last_value);   
-        p_last_value = p_iter_value;
-    }
-    
-    // return
-    *pp_value = p_iter_value;
 
     // success
     return 1;
@@ -1871,9 +1856,10 @@ int construct_object_array ( json_value **pp_value )
     // Type
     p_value->type        = JSON_VALUE_OBJECT;
     p_array_value->type  = JSON_VALUE_ARRAY;
+    p_array_value->p_key = "abc";
 
     // Construct the object
-    dict_construct(&p_value->object, 1, 0);
+    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
     array_construct(&p_array_value->list, 3);
 
     p_int_value          = calloc(1, sizeof(json_value));
@@ -1891,7 +1877,7 @@ int construct_object_array ( json_value **pp_value )
     p_int_value->integer = 3;
     array_add(p_array_value->list, p_int_value);
 
-    dict_add(p_value->object, "abc", p_array_value);
+    dict_add(p_value->object, p_array_value);
 
     // return
     *pp_value = p_value;
@@ -1912,39 +1898,43 @@ int construct_object_array_objects ( json_value **pp_value )
     // Type
     p_value->type        = JSON_VALUE_OBJECT;
     p_array_value->type  = JSON_VALUE_ARRAY;
+    p_array_value->p_key = "a";
 
     // Construct the object
-    dict_construct(&p_value->object, 1, 0);
+    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
     array_construct(&p_array_value->list, 3);
 
     p_int_value          = calloc(1, sizeof(json_value));
     p_dict_value         = calloc(1, sizeof(json_value));
     p_int_value->type    = JSON_VALUE_INTEGER;
     p_int_value->integer = 1;
+    p_int_value->p_key   = "a";
     p_dict_value->type   = JSON_VALUE_OBJECT;
-    dict_construct(&p_dict_value->object, 1, 0);
-    dict_add(p_dict_value->object,"a",p_int_value);
+    dict_construct(&p_dict_value->object, 1, NULL, object_key_accessor, NULL);
+    dict_add(p_dict_value->object, p_int_value);
     array_add(p_array_value->list, p_dict_value);
 
     p_int_value          = calloc(1, sizeof(json_value));
     p_dict_value         = calloc(1, sizeof(json_value));
     p_int_value->type    = JSON_VALUE_INTEGER;
     p_int_value->integer = 2;
+    p_int_value->p_key   = "b";
     p_dict_value->type   = JSON_VALUE_OBJECT;
-    dict_construct(&p_dict_value->object, 1, 0);
-    dict_add(p_dict_value->object,"b",p_int_value);
+    dict_construct(&p_dict_value->object, 1, NULL, object_key_accessor, NULL);
+    dict_add(p_dict_value->object,p_int_value);
     array_add(p_array_value->list, p_dict_value);
     
     p_int_value          = calloc(1, sizeof(json_value));
     p_dict_value         = calloc(1, sizeof(json_value));
     p_int_value->type    = JSON_VALUE_INTEGER;
     p_int_value->integer = 3;
+    p_int_value->p_key   = "c";
     p_dict_value->type   = JSON_VALUE_OBJECT;
-    dict_construct(&p_dict_value->object, 1, 0);
-    dict_add(p_dict_value->object,"c",p_int_value);
+    dict_construct(&p_dict_value->object, 1, NULL, object_key_accessor, NULL);
+    dict_add(p_dict_value->object,p_int_value);
     array_add(p_array_value->list, p_dict_value);
 
-    dict_add(p_value->object, "a", p_array_value);
+    dict_add(p_value->object,  p_array_value);
 
     // return
     *pp_value = p_value;
@@ -1965,21 +1955,24 @@ int construct_object_array_object ( json_value **pp_value )
     // Type
     p_value->type        = JSON_VALUE_OBJECT;
     p_array_value->type  = JSON_VALUE_ARRAY;
+    p_array_value->p_key = "a";
 
     // Construct the object
-    dict_construct(&p_value->object, 1, 0);
+    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
     array_construct(&p_array_value->list, 3);
 
     p_int_value          = calloc(1, sizeof(json_value));
     p_dict_value         = calloc(1, sizeof(json_value));
     p_int_value->type    = JSON_VALUE_INTEGER;
     p_int_value->integer = 1;
+    p_int_value->p_key   = "a";
+    
     p_dict_value->type   = JSON_VALUE_OBJECT;
-    dict_construct(&p_dict_value->object, 1, 0);
-    dict_add(p_dict_value->object,"a",p_int_value);
+    dict_construct(&p_dict_value->object, 1, NULL, object_key_accessor, NULL);
+    dict_add(p_dict_value->object,p_int_value);
     array_add(p_array_value->list, p_dict_value);
 
-    dict_add(p_value->object, "a", p_array_value);
+    dict_add(p_value->object,p_array_value);
 
     // return
     *pp_value = p_value;
@@ -2355,7 +2348,7 @@ int construct_array_object_empty ( json_value **pp_value )
     // Value 1
     p_object = calloc(1, sizeof(json_value));
     p_object->type = JSON_VALUE_OBJECT;
-    dict_construct(&p_object->object, 2, 0);
+    dict_construct(&p_object->object, 2, NULL, object_key_accessor, NULL);
     array_add(p_value->list, p_object);
     
     // return
@@ -2381,12 +2374,13 @@ int construct_array_object ( json_value **pp_value )
     p_object_property = calloc(1, sizeof(json_value));
     p_object_property->type = JSON_VALUE_INTEGER;
     p_object_property->integer = 1;
+    p_object_property->p_key = "a";
 
     // Value 2
     p_object = calloc(1, sizeof(json_value));
     p_object->type = JSON_VALUE_OBJECT;
-    dict_construct(&p_object->object, 2, 0);
-    dict_add(p_object->object, "a", p_object_property);
+    dict_construct(&p_object->object, 2, NULL, object_key_accessor, NULL);
+    dict_add(p_object->object, p_object_property);
     array_add(p_value->list, p_object);
     
     // return
@@ -2412,36 +2406,39 @@ int construct_array_objects ( json_value **pp_value )
     p_object_property = calloc(1, sizeof(json_value));
     p_object_property->type = JSON_VALUE_INTEGER;
     p_object_property->integer = 1;
+    p_object_property->p_key = "a";
 
     // Value 2
     p_object = calloc(1, sizeof(json_value));
     p_object->type = JSON_VALUE_OBJECT;
-    dict_construct(&p_object->object, 2, 0);
-    dict_add(p_object->object, "a", p_object_property);
+    dict_construct(&p_object->object, 2, NULL, object_key_accessor, NULL);
+    dict_add(p_object->object, p_object_property);
     array_add(p_value->list, p_object);
     
     // Value 1
     p_object_property = calloc(1, sizeof(json_value));
     p_object_property->type = JSON_VALUE_INTEGER;
     p_object_property->integer = 2;
+    p_object_property->p_key = "b";
 
     // Value 2
     p_object = calloc(1, sizeof(json_value));
     p_object->type = JSON_VALUE_OBJECT;
-    dict_construct(&p_object->object, 2, 0);
-    dict_add(p_object->object, "b", p_object_property);
+    dict_construct(&p_object->object, 2, NULL, object_key_accessor, NULL);
+    dict_add(p_object->object, p_object_property);
     array_add(p_value->list, p_object);
 
     // Value 1
     p_object_property = calloc(1, sizeof(json_value));
     p_object_property->type = JSON_VALUE_INTEGER;
     p_object_property->integer = 3;
+    p_object_property->p_key = "c";
 
     // Value 2
     p_object = calloc(1, sizeof(json_value));
     p_object->type = JSON_VALUE_OBJECT;
-    dict_construct(&p_object->object, 2, 0);
-    dict_add(p_object->object, "c", p_object_property);
+    dict_construct(&p_object->object, 2, NULL, object_key_accessor, NULL);
+    dict_add(p_object->object, p_object_property);
     array_add(p_value->list, p_object);
 
     // return

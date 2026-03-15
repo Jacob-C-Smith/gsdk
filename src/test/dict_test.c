@@ -1,53 +1,46 @@
 /** !
- * dict tester
+ * Dictionary tester
  * 
- * @file dict_test.c
+ * @file src/test/dict_test.c
  * 
  * @author Jacob Smith
 */
 
-// Include
+// standard library
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
-// core
+// gsdk
+/// core
 #include <core/log.h>
+#include <core/sync.h>
+#include <core/hash.h>
+#include <core/pack.h>
+#include <core/interfaces.h>
 
-// data
+/// data
 #include <data/dict.h>
 
-// Possible values
-void *A_value = (void *) 0x0000000000000001,
-     *B_value = (void *) 0x0000000000000002,
-     *C_value = (void *) 0x0000000000000003,
-     *D_value = (void *) 0x0000000000000004,
-     *X_value = (void *) 0xFFFFFFFFFFFFFFFF;
+// type definitions
+typedef int (fn_dict_constructor)(dict **);
 
-// Possible keys
-char *A_key   = "A",
-     *B_key   = "B",
-     *C_key   = "C",
-     *D_key   = "D",
-     *X_key   = "X";
+// keys
+const char *const A_value   = "A",
+           *const B_value   = "B",
+           *const C_value   = "C",
+           *const D_value   = "D",
+           *const X_value   = "X";
 
-// Expected results
-char  *_keys     [] = { 0x0 };
-void  *_values   [] = { (void *) 0x0 };
-char  *A_keys    [] = { "A", 0x0 };
-void  *A_values  [] = { (void *) 0x1, (void *) 0x0 };
-char  *B_keys    [] = { "B", 0x0 };
-void  *B_values  [] = { (void *) 0x2, (void *) 0x0 };
-char  *C_keys    [] = { "C", 0x0 };
-void  *C_values  [] = { (void *) 0x3, (void *) 0x0 };
-char  *AB_keys   [] = { "A", "B", 0x0 };
-void  *AB_values [] = { (void *) 0x1, (void *) 0x2, (void *) 0x0 };
-char  *BC_keys   [] = { "B", "C", 0x0 };
-void  *BC_values [] = { (void *) 0x2, (void *) 0x3, (void *) 0x0 };
-char  *AC_keys   [] = { "A", "C", 0x0 };
-void  *AC_values [] = { (void *) 0x1, (void *) 0x3, (void *) 0x0 };
-char  *ABC_keys  [] = { "A", "B", "C", 0x0 };
-void  *ABC_values[] = { (void *) 0x1, (void *) 0x2, (void *) 0x3, (void *) 0x0 };
+// expected results
+const void *const _values   [] = { NULL };
+const void *const A_values  [] = { "A", NULL };
+const void *const B_values  [] = { "B", NULL };
+const void *const C_values  [] = { "C", NULL };
+const void *const AB_values [] = { "A", "B", NULL };
+const void *const BC_values [] = { "B", "C", NULL };
+const void *const AC_values [] = { "A", "C", NULL };
+const void *const ABC_values[] = { "A", "B", "C", NULL };
 
 // Test results
 enum result_e {
@@ -67,46 +60,43 @@ int total_tests      = 0,
 
 
 // forward declarations
-int print_time_pretty       ( double seconds );
-int run_tests               ( void );
-int print_final_summary     ( void );
-int print_test              ( const char  *scenario_name, const char *test_name, bool passed );
+int print_time_pretty   ( double seconds );
+int run_tests           ( void );
+int print_final_summary ( void );
+int print_test          ( const char  *scenario_name, const char *test_name, bool passed );
 
-bool test_add               ( int (*dict_constructor)(dict **), char  *key            , void     *value         , result_t expected );
-bool test_get               ( int (*dict_constructor)(dict **), char  *key            , void     *expected_value, result_t expected );
-bool test_key_count         ( int (*dict_constructor)(dict **), char **expected_keys  , result_t  expected );
-bool test_value_count       ( int (*dict_constructor)(dict **), void **expected_values, result_t  expected );
-bool test_values            ( int (*dict_constructor)(dict **), void **expected_values, result_t  expected );
-bool test_keys              ( int (*dict_constructor)(dict **), char **expected_keys  , result_t  expected );
-bool test_pop               ( int (*dict_constructor)(dict **), char  *key            , void     *expected_value, result_t expected );
+bool test_add    ( fn_dict_constructor *dict_constructor, const void *const value, result_t expected );
+bool test_get    ( fn_dict_constructor *dict_constructor, char *key, const void *const expected_value, result_t expected );
+bool test_size   ( fn_dict_constructor *dict_constructor, size_t size, result_t  expected );
+bool test_values ( fn_dict_constructor *dict_constructor, const void *const *expected_values, result_t expected );
+bool test_pop    ( fn_dict_constructor *dict_constructor, char *key, const void *const expected_value, result_t expected );
 
-int test_empty_dict         ( int (*dict_constructor)(dict **), char *name );
-int test_one_element_dict   ( int (*dict_constructor)(dict **), char *name, char **keys, void **values );
-int test_two_element_dict   ( int (*dict_constructor)(dict **), char *name, char **keys, void **values );
-int test_three_element_dict ( int (*dict_constructor)(dict **), char *name, char **keys, void **values );
+int test_empty_dict         ( fn_dict_constructor *dict_constructor, char *name );
+int test_one_element_dict   ( fn_dict_constructor *dict_constructor, char *name, const void *const *values );
+int test_two_element_dict   ( fn_dict_constructor *dict_constructor, char *name, const void *const *values );
+int test_three_element_dict ( fn_dict_constructor *dict_constructor, char *name, const void *const *values );
 
-int construct_empty                 ( dict **pp_dict );
-int construct_empty_addA_A          ( dict **pp_dict );
-int construct_A_popA_empty          ( dict **pp_dict );
-int construct_A_addB_AB             ( dict **pp_dict ); 
-int construct_AB_popA_B             ( dict **pp_dict ); 
-int construct_AB_popB_A             ( dict **pp_dict ); 
-int construct_AB_addC_ABC           ( dict **pp_dict );
-int construct_ABC_popA_BC           ( dict **pp_dict );
-int construct_ABC_popB_AC           ( dict **pp_dict );
-int construct_ABC_popC_AB           ( dict **pp_dict );
-int construct_ABC_clear_empty       ( dict **pp_dict );
-int construct_AB_clear_empty        ( dict **pp_dict );
-int construct_A_clear_empty         ( dict **pp_dict );
-int construct_empty_fromkeysABC_ABC ( dict **pp_dict );
-int construct_empty_fromkeysAB_AB   ( dict **pp_dict );
-int construct_empty_fromkeysA_A     ( dict **pp_dict );
+fn_dict_constructor construct_empty;
+fn_dict_constructor construct_empty_addA_A;
+fn_dict_constructor construct_empty_addB_B;
+fn_dict_constructor construct_empty_addC_C;
+fn_dict_constructor construct_A_popA_empty;
+fn_dict_constructor construct_A_addB_AB; 
+fn_dict_constructor construct_AB_popA_B; 
+fn_dict_constructor construct_AB_popB_A; 
+fn_dict_constructor construct_AB_addC_ABC;
+fn_dict_constructor construct_ABC_popA_BC;
+fn_dict_constructor construct_ABC_popB_AC;
+fn_dict_constructor construct_ABC_popC_AB;
+fn_dict_constructor construct_empty_fromkeysABC_ABC;
+fn_dict_constructor construct_empty_fromkeysAB_AB;
+fn_dict_constructor construct_empty_fromkeysA_A;
 
 // entry point
 int main ( int argc, const char* argv[] )
 {
 
-    // Suppress warnings
+    // suppress warnings
     (void) argc;
     (void) argv;    
 
@@ -114,22 +104,22 @@ int main ( int argc, const char* argv[] )
     timestamp t0 = 0,
               t1 = 0;
 
-    // Formatting
+    // formatting
     printf(
         "╭─────────────╮\n"\
         "│ dict tester │\n"\
         "╰─────────────╯\n\n");
 
-    // Start
+    // start
     t0 = timer_high_precision();
 
-    // Run tests
+    // run tests
     run_tests();
 
-    // Stop
+    // stop
     t1 = timer_high_precision();
 
-    // Report the time it took to run the tests
+    // report the time it took to run the tests
     log_info("dict took ");
     print_time_pretty ( (double)(t1-t0)/(double)timer_seconds_divisor() );
     log_info(" to test\n");
@@ -150,40 +140,40 @@ int print_time_pretty ( double seconds )
            milliseconds = 0,
            microseconds = 0;
 
-    // Days
+    // days
     while ( _seconds > 86400.0 ) { days++;_seconds-=286400.0; };
 
-    // Hours
+    // hours
     while ( _seconds > 3600.0 ) { hours++;_seconds-=3600.0; };
 
-    // Minutes
+    // minutes
     while ( _seconds > 60.0 ) { minutes++;_seconds-=60.0; };
 
-    // Seconds
+    // seconds
     while ( _seconds > 1.0 ) { __seconds++;_seconds-=1.0; };
 
     // milliseconds
     while ( _seconds > 0.001 ) { milliseconds++;_seconds-=0.001; };
 
-    // Microseconds        
+    // microseconds        
     while ( _seconds > 0.000001 ) { microseconds++;_seconds-=0.000001; };
 
-    // Print days
+    // print days
     if ( days ) log_info("%d D, ", days);
     
-    // Print hours
+    // print hours
     if ( hours ) log_info("%d h, ", hours);
 
-    // Print minutes
+    // print minutes
     if ( minutes ) log_info("%d m, ", minutes);
 
-    // Print seconds
+    // print seconds
     if ( __seconds ) log_info("%d s, ", __seconds);
     
-    // Print milliseconds
+    // print milliseconds
     if ( milliseconds ) log_info("%d ms, ", milliseconds);
     
-    // Print microseconds
+    // print microseconds
     if ( microseconds ) log_info("%d us", microseconds);
     
     // success
@@ -197,49 +187,47 @@ int run_tests ( void )
     test_empty_dict(construct_empty, "empty");
 
     // [] -> add(A) -> [A]
-    test_one_element_dict(construct_empty_addA_A, "empty_addA_A", (char **)A_keys, (void **) A_values);
+    test_one_element_dict(construct_empty_addA_A, "empty_addA_A", A_values);
+
+    // [] -> add(B) -> [B]
+    test_one_element_dict(construct_empty_addB_B, "empty_addB_B", B_values);
+
+    // [] -> add(C) -> [C]
+    test_one_element_dict(construct_empty_addC_C, "empty_addC_C", C_values);
 
     // [A] -> pop(A) -> []
     test_empty_dict(construct_A_popA_empty, "A_popA_empty");
 
     // [A] -> add(B) -> [A,B]
-    test_two_element_dict(construct_A_addB_AB, "A_addB_AB", (char **)AB_keys, (void **) AB_values);
+    test_two_element_dict(construct_A_addB_AB, "A_addB_AB", AB_values);
     
     // [A,B] -> pop(A) -> [B]
-    test_one_element_dict(construct_AB_popA_B, "AB_popA_B", (char **)B_keys, (void **) B_values);
+    test_one_element_dict(construct_AB_popA_B, "AB_popA_B", B_values);
 
     // [A,B] -> pop(B) -> [A]
-    test_one_element_dict(construct_AB_popB_A, "AB_popB_A", (char **)A_keys, (void **) A_values);
+    test_one_element_dict(construct_AB_popB_A, "AB_popB_A", A_values);
 
     // [A,B] -> add(C) -> [A,B,C]
-    test_three_element_dict(construct_AB_addC_ABC, "AB_addC_ABC", (char **)ABC_keys, (void **) ABC_values);
+    test_three_element_dict(construct_AB_addC_ABC, "AB_addC_ABC", ABC_values);
     
     // [A,B,C] -> pop(A) -> [B,C]
-    test_two_element_dict(construct_ABC_popA_BC, "ABC_popA_BC", (char **)BC_keys, (void **) BC_values);
+    test_two_element_dict(construct_ABC_popA_BC, "ABC_popA_BC", BC_values);
 
     // [A,B,C] -> pop(B) -> [A,C]
-    test_two_element_dict(construct_ABC_popB_AC, "ABC_popB_AC", (char **)AC_keys, (void **) AC_values);
+    test_two_element_dict(construct_ABC_popB_AC, "ABC_popB_AC", AC_values);
 
     // [A,B,C] -> pop(C) -> [A,B]
-    test_two_element_dict(construct_ABC_popC_AB, "ABC_popC_AB", (char **)AB_keys, (void **) AB_values);
-
-    // [A,B,C] -> clear() -> []
-    test_empty_dict(construct_ABC_clear_empty, "ABC_clear_empty");
-
-    // [A,B] -> clear() -> []
-    test_empty_dict(construct_AB_clear_empty, "AB_clear_empty");
-
-    // [A] -> clear() -> []
-    test_empty_dict(construct_A_clear_empty, "A_clear_empty");
+    test_two_element_dict(construct_ABC_popC_AB, "ABC_popC_AB", AB_values);
 
     // success
     return 1;
 }
 
-int construct_empty(dict **pp_dict)
+int construct_empty ( dict **pp_dict )
 {
-    // Construct a dict
-    dict_construct(pp_dict, 1, 0);
+
+    // construct a dict
+    dict_construct(pp_dict, 1, NULL, NULL, NULL);
 
     // dict = []
     return 1;
@@ -252,9 +240,37 @@ int construct_empty_addA_A(dict **pp_dict)
     construct_empty(pp_dict);
 
     // add(A)
-    dict_add(*pp_dict, A_key, A_value);
+    dict_add(*pp_dict, A_value);
     
     // dict = [A]
+    // success
+    return 1;
+}
+
+int construct_empty_addB_B(dict **pp_dict)
+{
+
+    // Construct a [] dict
+    construct_empty(pp_dict);
+
+    // add(B)
+    dict_add(*pp_dict, B_value);
+    
+    // dict = [B]
+    // success
+    return 1;
+}
+
+int construct_empty_addC_C(dict **pp_dict)
+{
+
+    // Construct a [] dict
+    construct_empty(pp_dict);
+
+    // add(C)
+    dict_add(*pp_dict, C_value);
+    
+    // dict = [C]
     // success
     return 1;
 }
@@ -266,7 +282,7 @@ int construct_A_popA_empty(dict **pp_dict)
     construct_empty_addA_A(pp_dict);
 
     // pop(A)
-    dict_pop(*pp_dict, A_key, 0);
+    dict_pop(*pp_dict, "A", 0);
     
     // dict = []
     // success
@@ -280,7 +296,7 @@ int construct_A_addB_AB( dict **pp_dict )
     construct_empty_addA_A(pp_dict);
 
     // add(B)
-    dict_add(*pp_dict, B_key, B_value);
+    dict_add(*pp_dict, B_value);
     
     // dict = [A, B]
     // success
@@ -293,7 +309,7 @@ int construct_AB_popA_B ( dict **pp_dict )
     construct_A_addB_AB(pp_dict);
 
     // pop(A)
-    dict_pop(*pp_dict, A_key, 0);
+    dict_pop(*pp_dict, "A", 0);
     
     // dict = [B]
     // success
@@ -306,7 +322,7 @@ int construct_AB_popB_A ( dict **pp_dict )
     construct_A_addB_AB(pp_dict);
 
     // pop(B)
-    dict_pop(*pp_dict, B_key, 0);
+    dict_pop(*pp_dict, "B", 0);
     
     // dict = [A]
     // success
@@ -320,7 +336,7 @@ int construct_AB_addC_ABC ( dict **pp_dict )
     construct_A_addB_AB(pp_dict);
 
     // add(C)
-    dict_add(*pp_dict, C_key, C_value);
+    dict_add(*pp_dict, C_value);
 
     // dict = [A, B, C]
     // success
@@ -333,7 +349,7 @@ int construct_ABC_popA_BC  ( dict **pp_dict )
     construct_AB_addC_ABC(pp_dict);
 
     // pop(A)
-    dict_pop(*pp_dict, A_key, 0);
+    dict_pop(*pp_dict, "A", 0);
 
     // dict = [B, C]
     // success
@@ -346,7 +362,7 @@ int construct_ABC_popB_AC  ( dict **pp_dict )
     construct_AB_addC_ABC(pp_dict);
 
     // pop(B)
-    dict_pop(*pp_dict, B_key, 0);
+    dict_pop(*pp_dict, "B", 0);
 
     // dict = [A, C]
     // success
@@ -359,106 +375,41 @@ int construct_ABC_popC_AB  ( dict **pp_dict )
     construct_AB_addC_ABC(pp_dict);
 
     // pop(C)
-    dict_pop(*pp_dict, C_key, 0);
+    dict_pop(*pp_dict, "C", 0);
 
     // dict = [A, B]
     // success
     return 1;
 }
 
-int construct_ABC_clear_empty ( dict **pp_dict )
+int test_empty_dict(fn_dict_constructor *dict_constructor, char *name)
 {
 
-    // Construct an [A, B, C] dict
-    construct_AB_addC_ABC(pp_dict);
+    log_scenario("%s\n", name);
 
-    // clear()
-    dict_clear(*pp_dict);
-
-    // dict = []
-    // success
-    return 1;
-}
-
-int construct_AB_clear_empty ( dict **pp_dict )
-{
-    // Construct an [A, B] dict
-    construct_A_addB_AB(pp_dict);
-
-    // clear()
-    dict_clear(*pp_dict);
-
-    // dict = []
-    // success
-    return 1;
-}
-
-int construct_A_clear_empty ( dict **pp_dict )
-{
-    // Construct an [A] dict
-    construct_empty_addA_A(pp_dict);
-
-    // clear()
-    dict_clear(*pp_dict);
-
-    // dict = []
-    // success
-    return 1;
-}
-
-int test_empty_dict(int(*dict_constructor)(dict **pp_dict), char *name)
-{
-
-    log_info("Scenario: %s\n", name);
-
-    print_test(name, "dict_add_A"      , test_add(dict_constructor, A_key    , A_value, one) );
-    print_test(name, "dict_add_(null)" , test_add(dict_constructor, (void *)0, A_value, zero) );
-    print_test(name, "dict_get_X"      , test_get(dict_constructor, X_key, X_value, zero) );    
-    print_test(name, "dict_value_count", test_value_count(dict_constructor, 0, zero) );
-    print_test(name, "dict_key_count"  , test_key_count(dict_constructor, 0, zero) );
+    print_test(name, "dict_add_D"      , test_add(dict_constructor, D_value, one) );
+    print_test(name, "dict_add_(null)" , test_add(dict_constructor, NULL, zero) );
+    print_test(name, "dict_get_X"      , test_get(dict_constructor, "X", X_value, zero) );    
     print_test(name, "dict_values"     , test_values(dict_constructor, 0, zero) );
-    print_test(name, "dict_keys"       , test_keys(dict_constructor, 0, zero) );
-    print_test(name, "dict_pop_X"      , test_pop(dict_constructor, X_key, X_value, zero) );
-    print_test(name, "dict_pop_(null)" , test_pop(dict_constructor, (void *)0, X_value, zero) );
+    print_test(name, "dict_pop_X"      , test_pop(dict_constructor, "X", X_value, zero) );
+    print_test(name, "dict_pop_(null)" , test_pop(dict_constructor, NULL, X_value, zero) );
 
     print_final_summary();
 
     return 1;
 }
 
-int test_one_element_dict ( int (*dict_constructor)(dict **), char       *name     , char **keys  , void **values )
+int test_one_element_dict ( fn_dict_constructor *dict_constructor, char *name, const void *const *values )
 {
 
-    log_info("Scenario: %s\n", name);
+    log_scenario("%s\n", name);
 
-    print_test(name, "dict_add_D"      , test_add(dict_constructor, D_key    , D_value, one) );
-    print_test(name, "dict_add_(null)" , test_add(dict_constructor, (void *)0, A_value, zero) );
-    
-    for (size_t i = 0; keys[i]; i++)
-    {
-        char *test_name = default_allocator(0, (10 + 1) * sizeof(char));
-        memset(test_name, 0, sizeof(10+1 * sizeof(char)));
-        sprintf(test_name, "dict_get_%s", keys[i]);
-        print_test(name, test_name, test_get(dict_constructor, keys[i], values[i], match) );    
-        if ( default_allocator(test_name, 0) ) return 0;
-    }
-
-    print_test(name, "dict_get_X"      , test_get(dict_constructor, X_key, X_value, zero) );    
-    print_test(name, "dict_value_count", test_value_count(dict_constructor, values, zero) );
-    print_test(name, "dict_key_count"  , test_key_count(dict_constructor, keys, zero) );
+    print_test(name, "dict_add_D"      , test_add(dict_constructor, D_value, one) );
+    print_test(name, "dict_add_(null)" , test_add(dict_constructor, NULL, zero) );
+    print_test(name, "dict_get_X"      , test_get(dict_constructor, "X", X_value, zero) );    
     print_test(name, "dict_values"     , test_values(dict_constructor, values, match) );
-    print_test(name, "dict_keys"       , test_keys(dict_constructor, keys, match) );
-
-    for (size_t i = 0; keys[i]; i++)
-    {
-        char *test_name = default_allocator(0, (10 + 1) * sizeof(char));
-        memset(test_name, 0, sizeof(10+1 * sizeof(char)));
-        sprintf(test_name, "dict_pop_%s", keys[i]);
-        print_test(name, test_name , test_pop(dict_constructor, keys[i], values[i], match) );
-        if ( default_allocator(test_name, 0) ) return 0;
-    }
-    print_test(name, "dict_pop_X"      , test_pop(dict_constructor, X_key, X_value, zero) );
-    print_test(name, "dict_pop_(null)" , test_pop(dict_constructor, (void *)0, X_value, zero) );
+    print_test(name, "dict_pop_X"      , test_pop(dict_constructor, "X", X_value, zero) );
+    print_test(name, "dict_pop_(null)" , test_pop(dict_constructor, NULL, X_value, zero) );
 
     print_final_summary();
 
@@ -466,39 +417,17 @@ int test_one_element_dict ( int (*dict_constructor)(dict **), char       *name  
     return 1;
 }
 
-int test_two_element_dict ( int (*dict_constructor)(dict **), char *name, char **keys, void **values )
+int test_two_element_dict ( fn_dict_constructor *dict_constructor, char *name, const void *const *values )
 {
 
-    printf("Scenario: %s\n", name);
+    log_scenario("%s\n", name);
 
-    print_test(name, "dict_add_D"      , test_add(dict_constructor, D_key    , D_value, one) );
-    print_test(name, "dict_add_(null)" , test_add(dict_constructor, (void *)0, A_value, zero) );
-    
-    for (size_t i = 0; keys[i]; i++)
-    {
-        char *test_name = default_allocator(0, ( 10 + 1 ) * sizeof(char));
-        memset(test_name, 0, sizeof(10+1 * sizeof(char)));
-        sprintf(test_name, "dict_get_%s", keys[i]);
-        print_test(name, test_name, test_get(dict_constructor, keys[i], values[i], match) );    
-        if ( default_allocator(test_name, 0) ) return 0;
-    }
-
-    print_test(name, "dict_get_X"      , test_get(dict_constructor, X_key, X_value, zero) );    
-    print_test(name, "dict_value_count", test_value_count(dict_constructor, values, zero) );
-    print_test(name, "dict_key_count"  , test_key_count(dict_constructor, keys, zero) );
+    print_test(name, "dict_add_D"      , test_add(dict_constructor, D_value, one) );
+    print_test(name, "dict_add_(null)" , test_add(dict_constructor, NULL, zero) );
+    print_test(name, "dict_get_X"      , test_get(dict_constructor, "X", X_value, zero) );    
     print_test(name, "dict_values"     , test_values(dict_constructor, values, match) );
-    print_test(name, "dict_keys"       , test_keys(dict_constructor, keys, match) );
-
-    for (size_t i = 0; keys[i]; i++)
-    {
-        char *test_name = default_allocator(0, ( 10 + 1 ) * sizeof(char));
-        memset(test_name, 0, sizeof(10+1 * sizeof(char)));
-        sprintf(test_name, "dict_pop_%s", keys[i]);
-        print_test(name, test_name , test_pop(dict_constructor, keys[i], values[i], match) );
-        if ( default_allocator(test_name, 0) ) return 0;
-    }
-    print_test(name, "dict_pop_X"      , test_pop(dict_constructor, X_key, X_value, zero) );
-    print_test(name, "dict_pop_(null)" , test_pop(dict_constructor, (void *)0, X_value, zero) );
+    print_test(name, "dict_pop_X"      , test_pop(dict_constructor, "X", X_value, zero) );
+    print_test(name, "dict_pop_(null)" , test_pop(dict_constructor, NULL, X_value, zero) );
 
     print_final_summary();
 
@@ -506,41 +435,17 @@ int test_two_element_dict ( int (*dict_constructor)(dict **), char *name, char *
     return 1;
 }
 
-int test_three_element_dict ( int (*dict_constructor)(dict **), char *name, char **keys, void **values )
+int test_three_element_dict ( fn_dict_constructor *dict_constructor, char *name, const void *const *values )
 {
     
-    printf("Scenario: %s\n", name);
+    log_scenario("%s\n", name);
 
-    print_test(name, "dict_add_D"      , test_add(dict_constructor, D_key    , D_value, one) );
-    print_test(name, "dict_add_(null)" , test_add(dict_constructor, (void *)0, A_value, zero) );
-    
-    for (size_t i = 0; keys[i]; i++)
-    {
-        char *test_name = default_allocator(0, ( 10 + 1 ) * sizeof(char));
-
-        memset(test_name, 0, 10+1 * sizeof(char));
-
-        sprintf(test_name, "dict_get_%s", keys[i]);
-        print_test(name, test_name, test_get(dict_constructor, keys[i], values[i], match) );    
-        if ( default_allocator(test_name, 0) ) return 0;
-    }
-
-    print_test(name, "dict_get_X"      , test_get(dict_constructor, X_key, X_value, zero) );    
-    print_test(name, "dict_value_count", test_value_count(dict_constructor, values, zero) );
-    print_test(name, "dict_key_count"  , test_key_count(dict_constructor, keys, zero) );
+    print_test(name, "dict_add_D"      , test_add(dict_constructor, D_value, one) );
+    print_test(name, "dict_add_(null)" , test_add(dict_constructor, NULL, zero) );
+    print_test(name, "dict_get_X"      , test_get(dict_constructor, "X", X_value, zero) );    
     print_test(name, "dict_values"     , test_values(dict_constructor, values, match) );
-    print_test(name, "dict_keys"       , test_keys(dict_constructor, keys, match) );
-
-    for (size_t i = 0; keys[i]; i++)
-    {
-        char *test_name = default_allocator(0, ( 10 + 1 ) * sizeof(char));
-        memset(test_name, 0, 10+1 * sizeof(char));
-        sprintf(test_name, "dict_pop_%s", keys[i]);
-        print_test(name, test_name , test_pop(dict_constructor, keys[i], values[i], match) );
-        if ( default_allocator(test_name, 0) ) return 0;
-    }
-    print_test(name, "dict_pop_X"      , test_pop(dict_constructor, X_key, X_value, zero) );
-    print_test(name, "dict_pop_(null)" , test_pop(dict_constructor, (void *)0, X_value, zero) );
+    print_test(name, "dict_pop_X"      , test_pop(dict_constructor, "X", X_value, zero) );
+    print_test(name, "dict_pop_(null)" , test_pop(dict_constructor, NULL, X_value, zero) );
 
     print_final_summary();
 
@@ -585,229 +490,109 @@ int print_final_summary ( void )
     return 1;
 }
 
-bool test_add ( int(*dict_constructor)(dict **pp_dict), char *key, void *value, result_t expected )
+bool test_add ( fn_dict_constructor *dict_constructor, const void *const value, result_t expected )
 {
 
     // initialized data
     result_t  result = 0;
     dict     *p_dict = 0;
 
-    // Build the dict
+    // build the dict
     dict_constructor(&p_dict);
 
-    result = (result_t) dict_add(p_dict, key, value);
+    // store the result
+    result = (result_t) dict_add(p_dict, value);
 
-    // Free the dict
+    // release the dict
     dict_destroy(&p_dict, 0);
 
     // return result
     return (result == expected);
 }
 
-bool test_get ( int(*dict_constructor)(dict **pp_dict), char *key, void *expected_value, result_t expected )
+bool test_get ( fn_dict_constructor *dict_constructor, char *key, const void *const expected_value, result_t expected )
 {
 
     // initialized data
     result_t    result       = 0;
     dict       *p_dict       = 0;
-    const void *result_value = 0;
+    void       *result_value = 0;
 
-    // Build the dict
+    // build the dict
     dict_constructor(&p_dict);
 
-    // Get a key 
-    result_value = dict_get(p_dict, key);
+    // get the key 
+    dict_get(p_dict, key, &result_value);
 
-    if (result_value == expected_value)
-        result = match;
-    else
-        result = zero;
+    result = (result_value == expected_value) ? match : zero;
 
-    // Free the dict
+    // release the dict
     dict_destroy(&p_dict, 0);
 
     // return result
     return (result == expected);
 }
 
-bool test_key_count ( int(*dict_constructor)(dict **pp_dict), char **expected_keys, result_t expected )
-{
-
-    // Suppress warnings
-    (void) expected;
-
-    // initialized data
-    dict      *p_dict              = 0;
-    size_t     expected_keys_count = 0,
-               keys_count          = 0;
-
-    // Build the dict
-    dict_constructor(&p_dict);
-
-    // Count the keys
-    if (expected_keys)
-        while(expected_keys[++expected_keys_count]);
-
-    // Get a key 
-    keys_count = dict_keys(p_dict, 0);
-
-    // Free the dict
-    dict_destroy(&p_dict, 0);
-
-    // return result
-    return (expected_keys_count == keys_count) ? true : false;
-}
-
-bool test_value_count ( int(*dict_constructor)(dict **pp_dict), void **expected_values, result_t expected )
-{
-
-    // Suppress warnings
-    (void) expected;
-
-    // initialized data
-    dict      *p_dict               = 0;
-    size_t     expected_value_count = 0,
-               value_count          = 0;
-
-    // Build the dict
-    dict_constructor(&p_dict);
-
-    // Count the values
-    if ( expected_values)
-        while(expected_values[++expected_value_count]);
-
-    // Get a key 
-    value_count = dict_values(p_dict, 0);
-
-    // Free the dict
-    dict_destroy(&p_dict, 0);
-
-    // return result
-    return (expected_value_count == value_count) ? true : false;
-}
-
-bool test_keys ( int(*dict_constructor)(dict **pp_dict), char **expected_keys, result_t expected )
-{
-    // initialized data
-    result_t     result             = match;
-    dict        *p_dict             = 0;
-    const char **keys               = 0;
-    size_t       expected_key_count = 0,
-                 key_count          = 0;
-
-    // Build the dict
-    dict_constructor(&p_dict);
-
-    // Count the key
-    if ( expected_keys)
-    {
-        while(expected_keys[++expected_key_count]);
-    }
-    else
-    {
-        result = zero;
-    }
-
-    // Get the key
-    key_count = dict_keys(p_dict, 0);
-    keys      = default_allocator(0, ( key_count + 1 ) * sizeof(char *));
-    dict_keys(p_dict, keys);
-
-    if ( expected_key_count != key_count )
-    {
-        result = zero; 
-        goto exit;
-    }
-
-    for (size_t i = 0; i < key_count; i++)
-    {
-        bool found = false;
-
-        for (size_t j = 0; j < expected_key_count; j++)
-        {
-            if ( strcmp(keys[i], expected_keys[j]) == 0 )
-                found = true;
-        }
-
-        if (found == false)
-            result = zero; 
-    }
-    
-    exit:
-
-    // Free the keys
-    if ( default_allocator(keys, 0) ) return false;
-
-    // Free the dict
-    dict_destroy(&p_dict, 0);
-
-    // return result
-    return (result == expected);    
-}
-
-bool test_values ( int(*dict_constructor)(dict **pp_dict), void **expected_values, result_t expected )
+bool test_values ( fn_dict_constructor *dict_constructor, const void *const *expected_values, result_t expected )
 {
 
     // initialized data
     result_t   result               = match;
     dict      *p_dict               = 0;
-    void     **values               = 0;
     size_t     expected_value_count = 0,
                value_count          = 0;
+    void      *values[4]            = { 0 };
 
-    // Build the dict
+    // build the dict
     dict_constructor(&p_dict);
 
-    // Count the values
-    if ( expected_values)
-    {
+    // count the values
+    if ( expected_values )
         while(expected_values[++expected_value_count]);
-    }
     else
     {
         result = zero;
         goto exit;
     }
 
-    // Get the values
-    value_count = dict_values(p_dict, 0);
-    values      = default_allocator(0, (value_count + 1) * sizeof(char *));
-    dict_values(p_dict, values);
+    // store the expected values
+    dict_size(p_dict, &value_count),
+    dict_values(p_dict, values, value_count);
 
+    // fast fail
     if ( expected_value_count != value_count )
     {
         result = zero; 
-        goto exit2;
+        goto exit;
     }
 
+    // iterate through each actual value
     for (size_t i = 0; i < value_count; i++)
     {
+
+        // initialized data
         bool found = false;
 
+        // iterate through each expected value
         for (size_t j = 0; j < expected_value_count; j++)
-        {
             if ( values[i] == expected_values[j] )
                 found = true;
-        }
 
-        if (found == false)
+        // catch missing values
+        if ( found == false )
             result = zero; 
     }
     
-    exit2:
-
-    // Free the values
-    if ( default_allocator(values, 0) ) return false;
-
     exit:
-    // Free the dict
+
+    // release the dict
     dict_destroy(&p_dict, 0);
 
     // return result
     return (result == expected);
 }
 
-bool test_pop ( int (*dict_constructor)(dict **), char *key , void *expected_value, result_t expected )
+bool test_pop ( fn_dict_constructor *dict_constructor, char *key, const void *const expected_value, result_t expected )
 {
 
     // initialized data
@@ -815,18 +600,16 @@ bool test_pop ( int (*dict_constructor)(dict **), char *key , void *expected_val
     dict       *p_dict       = 0;
     const void *result_value = 0;
 
-    // Build the dict
+    // build the dict
     dict_constructor(&p_dict);
 
-    // Pop a property
+    // remove a value
     dict_pop(p_dict, key, &result_value);
 
-    if (result_value == expected_value)
-        result = match;
-    else
-        result = zero;
+    // compute the result
+    result = (result_value == expected_value) ? match : zero;
 
-    // Free the dict
+    // release the dict
     dict_destroy(&p_dict, 0);
 
     // return result

@@ -1,7 +1,7 @@
 /** !
- * High level abstractions for parallelized computing
+ * Thread interface
  * 
- * @file parallel/parallel.h
+ * @file src/performance/parallel/thread.h
  *
  * @author Jacob Smith
  */
@@ -15,10 +15,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-// core
+// gsdk
+/// core
 #include <core/sync.h>
 
-// performance
+/// performance
 #include <performance/parallel.h>
 
 // structure definitions
@@ -33,19 +34,18 @@ struct parallel_thread_s
     #endif
 };
 
-// constructors
+// function declarations
+/// constructors
 /** !
  *  Allocate a parallel thread
  *
  * @param p_thread return
  * 
- * @sa parallel_thread_start
- *
  * @return 1 on success, 0 on error
  */
 int parallel_thread_create ( parallel_thread **pp_parallel_thread );
 
-// Start
+/// start
 /** !
  * Start a new parallel thread
  * 
@@ -53,14 +53,11 @@ int parallel_thread_create ( parallel_thread **pp_parallel_thread );
  * @param pfn_task           pointer to start function
  * @param p_parameter        parameter for start function
  * 
- * @sa parallel_thread_join
- * @sa parallel_thread_destroy
- * 
  * @return 1 on success, 0 on error
  */
 int parallel_thread_start ( parallel_thread **pp_parallel_thread, fn_parallel_task *pfn_task, void *p_parameter );
 
-// Cancel
+/// cancel
 /** !
  * Stop a thread
  * 
@@ -70,25 +67,21 @@ int parallel_thread_start ( parallel_thread **pp_parallel_thread, fn_parallel_ta
  */
 int parallel_thread_cancel ( parallel_thread *p_parallel_thread );
 
-// Stop
+/// stop
 /** !
- *  Wait for a thread to end, then destory it
+ * Wait for a thread to end, then destory it
  *
  * @param pp_parallel_thread pointer to a parallel thread pointer
- *
- * @sa parallel_thread_create
  *
  * @return 1 on success, 0 on error
  */
 int parallel_thread_join ( parallel_thread **pp_parallel_thread );
 
-// destructors
+/// destructors
 /** !
- *  Destroy a thread
+ * Destroy a thread
  *
  * @param pp_parallel_thread pointer to a parallel thread pointer
- *
- * @sa parallel_thread_create
  *
  * @return 1 on success, 0 on error
  */

@@ -1,7 +1,7 @@
-﻿/** !
- * Include header for dictionary library
+/** !
+ * Dictionary interface
  * 
- * @file dict/dict.h 
+ * @file src/data/dict/dict.h
  * 
  * @author Jacob Smith
  */
@@ -9,215 +9,168 @@
 // header guard
 #pragma once
 
-#undef NDEBUG
-
 // standard library
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 
-// core
+// gsdk
+/// core
+#include <core/interfaces.h>
+#include <core/log.h>
+#include <core/sync.h>
 #include <core/hash.h>
-
-// reflection
 #include <core/pack.h>
 
 // forward declarations
-struct dict_item_s;
 struct dict_s;
 
 // type definitions
-/** !
- *  @brief The type definition of a dictionary struct
- */
 typedef struct dict_s dict;
 
-// initializer
+// function declarations
+/// constructors
 /** !
- * This gets called at runtime before main. 
- * 
- * @param void
- * 
- * @return void
- */
-void dict_init ( void ) __attribute__((constructor));
-
-// constructors
-/** !
- *  Construct a dictionary with a specific number of hash table entries
+ * Construct a dictionary with a specific number of hash table entries
  *
- * @param pp_dict           return
- * @param size              number of hash table entries. 
- * @param pfn_hash_function pointer to a hash function, or 0 for default
- *
- * @sa dict_create
- * @sa dict_destroy
- *
- * @return 1 on success, 0 on error
- */
-int dict_construct ( dict **const pp_dict, size_t size, fn_hash64 pfn_hash_function );
-
-/** !
- *  Construct a dictionary from an array of strings
- *
- * @param pp_dict return
- * @param keys    pointer to null terminated array of strings
+ * @param pp_dict result
  * @param size    number of hash table entries. 
- *
- * @sa dict_create
- * @sa dict_destroy
+ * 
+ * @param pfn_allocator    pointer to allocator function IF NOT NULL ELSE unused
+ * @param pfn_key_accessor pointer to key accessor function IF NOT NULL ELSE default
+ * @param pfn_hash64       pointer to hash function IF NOT NULL ELSE default
  *
  * @return 1 on success, 0 on error
  */
-int dict_from_keys ( dict **const pp_dict, const char **const keys, size_t size );
+int dict_construct
+(
+    dict **const pp_dict,
+    size_t size,
 
-// accessors
+    fn_allocator    *pfn_allocator,
+    fn_key_accessor *pfn_key_accessor,
+    fn_hash64       *pfn_hash64
+);
+
+/// accessors
 /** !
- *  Get a property's value
+ * Get a value from a dictioanry through a key
  *
- * @param p_dict dictionary
- * @param key    the name of the property
+ * @param p_dict   the dictionary
+ * @param p_key    the key
+ * @param pp_value result IF NOT NULL ELSE unused
  *
- * @sa dict_values
- * @sa dict_keys
- *
- * @return pointer to specified property's value on success, null pointer on error
+ * @return 1 on success, 0 on error
  */
-const void *dict_get ( dict *const p_dict, const char *const key );
+int dict_get ( dict *const p_dict, const char *const p_key, void **pp_value );
 
 /** !
- *  Get a dictionarys' values, or the number of properties in the dictionary
- *
- * @param p_dict dictionary
- * @param values return -OR- null pointer
- *
- * @sa dict_get
- * @sa dict_keys
- *
- * @return 1 on success, 0 on error, if values != null, else number of properties in dictionary
+ * Get a set of values from a dictionary
+ * 
+ * @param p_dict    the dictionary
+ * @param pp_values result
+ * @param limit     the upper limit of values to store
+ * 
+ * @return 1 on success, 0 on error 
+*/
+int dict_values ( dict *const p_dict, void *pp_values[], size_t limit );
+
+/** !
+ * Get the quantity of values in a dictionary
+ * 
+ * @param p_dict   the dictionary
+ * @param p_result result
+ * 
+ * @return 1 on success, 0 on error
  */
-size_t dict_values ( dict *const p_dict, void **const values );
+int dict_size ( dict *const p_dict, size_t *p_result );
 
+/// mutators
 /** !
- *  Get a dictionarys' keys, or the number of properties in the dictionary
- *
- * @param p_dict dictionary
- * @param keys   return -OR- null pointer
- *
- * @sa dict_get
- * @sa dict_values
- *
- * @return 1 on success, 0 on error, if keys != null, else number of properties in dictionary
- */
-size_t dict_keys ( dict *const p_dict, const char **const keys );
-
-// mutators
-/** !
- *  Add a property to a dictionary. 
+ * Add a value to a dictionary. 
  *
  * @param p_dict  dictionary
- * @param key     the name of the property
  * @param p_value the value of the property
  *
- * @sa dict_pop
+ * @return 1 on success, 0 on error
+ */
+int dict_add ( dict *const p_dict, const void *const p_value );
+
+/** !
+ * Remove a value from a dictionary by key
+ *
+ * @param p_dict   the dictionary
+ * @param p_key    the key
+ * @param pp_value result IF NOT NULL ELSE unused
  *
  * @return 1 on success, 0 on error
  */
-int dict_add ( dict *const p_dict, const char *const key,  void * const p_value );
+int dict_pop ( dict *const p_dict, const char *const p_key, const void **const pp_value );
 
+/// iterators
 /** !
- *  Remove a property from a dictionary. 
- *
- * @param p_dict   dictionary
- * @param key      the name of the property
- * @param pp_value return
- *
- * @sa dict_add
- *
- * @return 1 on success, 0 on error
- */
-int dict_pop ( dict *const p_dict, const char *const key, const void **const pp_value );
-
-// iterators
-/** !
- *  Call a function on each value in a dictionary
+ * Call a function on each value in a dictionary
  * 
- * @param p_dict dictionary
- * @param function the function to call. 
+ * @param p_dict      the dictionary
+ * @param pfn_foreach pointer to foreach function
  * 
  * @return 1 on success, 0 on error
 */
-int dict_foreach ( dict *const p_dict, void (*function)(const void *const, size_t i) );
+int dict_foreach ( dict *const p_dict, fn_foreach *pfn_foreach );
 
-// Shallow copy
+/// reflection
 /** !
- *  Make a shallow copy of a dictionary
- *
- * @param p_dict  source dictionary
- * @param pp_dict return
- *
- * @sa dict_clear
- *
- * @return 1 on success, 0 on error
- */
-int dict_copy ( dict *const p_dict, dict **const pp_dict );
-
-// reflection
-/** !
- * Pack a dict into a buffer
+ * Pack a dictionary into a buffer
  * 
- * @param p_dict       the dict
  * @param p_buffer     the buffer
- * @param pfn_elemenet pointer to pack function IF not null ELSE default
+ * @param p_dict       the dictionary
+ * @param pfn_elemenet pointer to pack function 
  * 
- * @return 1 on success, 0 on error
+ * @return bytes written on success, 0 on error
  */
-int dict_pack ( dict *p_dict, void *p_buffer, fn_pack *pfn_element );
+int dict_pack ( void *p_buffer, dict *const p_dict, fn_pack *pfn_element );
 
 /** !
- * Unpack a buffer into a dict
+ * Unpack a buffer into a dictionary
  * 
  * @param pp_dict      result
  * @param p_buffer     the buffer
- * @param pfn_elemenet pointer to unpack function IF not null ELSE default
+ * @param pfn_elemenet pointer to unpack function
  * 
- * @return 1 on success, 0 on error
- */
-int dict_unpack ( dict **pp_dict, void *p_buffer, fn_unpack *pfn_element );
-
-// Clear all items
-/** !
- *  Remove all properties from a dictionary
- *
- * @param p_dict dictionary
- *
- * @sa dict_copy
- *
- * @return 1 on success, 0 on error
- */
-int dict_clear ( dict *const p_dict );
-
-/** !
- *  Remove all properties from a dictionary, and deallocate values with free_func
- *
- * @param p_dict       dictionary
- * @param free_fun_ptr pointer to deallocator function 
+ * @param pfn_allocator    pointer to allocator function IF NOT NULL ELSE unused
+ * @param pfn_key_accessor pointer to key accessor function IF NOT NULL ELSE default
+ * @param pfn_hash64       pointer to hash function IF NOT NULL ELSE default
  * 
- * @sa dict_clear
- * @sa dict_copy
- *
- * @return 1 on success, 0 on error
+ * @return bytes read on success, 0 on error
  */
-int dict_free_clear ( dict *const p_dict, void (*const free_func)(const void *const) );
+int dict_unpack
+(
+    dict **const pp_dict,
+    void *p_buffer,
+    fn_unpack *pfn_element,
 
-// destructors
+    fn_allocator    *pfn_allocator,
+    fn_key_accessor *pfn_key_accessor,
+    fn_hash64       *pfn_hash64
+);
+
+/// hash
 /** !
- *  Destroy and deallocate a dictionary
+ * Compute a 64-bit hash of a dictionary
+ * 
+ * @param p_dict      the dictionary
+ * @param pfn_element hashing function applied to each element
+ * 
+ * @return hash on success, 0 on error
+ */
+hash64 dict_hash ( dict *const p_dict, fn_hash64 *pfn_element );
+
+/// destructors
+/** !
+ * Destroy and deallocate a dictionary
  *
- * @param pp_dict dictionary
- *
- * @sa dict_create
+ * @param pp_dict pointer to dictionary pointer
  *
  * @return 1 on success, 0 on error
  */

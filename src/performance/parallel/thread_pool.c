@@ -1,12 +1,12 @@
 /** !
- * High level abstraction of a thread pool
+ * Thread pool implementation
  * 
- * @file thread_pool.c
+ * @file src/performance/parallel/thread_pool.c
  *
  * @author Jacob Smith
  */
 
-// header
+// header file
 #include <performance/thread_pool.h>
 
 // preprocessor definitions
@@ -56,8 +56,6 @@ struct thread_pool_s
  * Allocate memory for a scheudle thread
  * 
  * @param pp_thread_pool_thread return
- * 
- * @sa parallel_thread_pool_destroy
  * 
  * @return 1 on success, 0 on error
 */
