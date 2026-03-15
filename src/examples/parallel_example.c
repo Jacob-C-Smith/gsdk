@@ -96,38 +96,56 @@ void *print_something_to_standard_out ( void *p_parameter );
 /** !
  * Alice tells a joke
  * 
- * @param null_pointer 0
+ * @param unused unused
  * 
  * @return void
  */
-void *alice_joke ( void *null_pointer );
+void *alice_joke ( void *unused );
 
 /** !
  * Bob tells a joke
  * 
- * @param null_pointer 0
+ * @param unused unused
  * 
  * @return void
  */
-void *bob_joke ( void *null_pointer );
+void *bob_joke ( void *unused );
 
 /** !
  * Charlie tells a joke
  * 
- * @param null_pointer 0
+ * @param unused unused
  * 
  * @return void
  */
-void *charlie_joke ( void *null_pointer );
+void *charlie_joke ( void *unused );
 
 /** !
- * Someone starts laughing
+ * Alice starts laughing
  * 
- * @param null_pointer 0
+ * @param unused unused
  * 
  * @return void
-*/
-void *laugh ( void *null_pointer );
+ */
+void *alice_laugh ( void *unused );
+
+/** !
+ * Bob starts laughing
+ * 
+ * @param unused unused
+ * 
+ * @return void
+ */
+void *bob_laugh ( void *unused );
+
+/** !
+ * Charlie starts laughing
+ * 
+ * @param unused unused
+ * 
+ * @return void
+ */
+void *charlie_laugh ( void *unused );
 
 // entry point
 int main ( int argc, const char *argv[] )
@@ -430,7 +448,9 @@ int parallel_schedule_example ( int argc, const char *argv[] )
     (void) parallel_register_task("Alice tells a joke"  , (fn_parallel_task *)alice_joke);
     (void) parallel_register_task("Bob tells a joke"    , (fn_parallel_task *)bob_joke);
     (void) parallel_register_task("Charlie tells a joke", (fn_parallel_task *)charlie_joke);
-    (void) parallel_register_task("laugh"               , (fn_parallel_task *)laugh);
+    (void) parallel_register_task("Alice laugh"         , (fn_parallel_task *)alice_laugh);
+    (void) parallel_register_task("Bob laugh"           , (fn_parallel_task *)bob_laugh);
+    (void) parallel_register_task("Charlie laugh"       , (fn_parallel_task *)charlie_laugh);
 
     // construct a schedule
     if ( schedule_load(&p_schedule, "resources/performance/schedule_1.json") == 0 ) goto failed_to_construct_schedule;
@@ -501,86 +521,118 @@ void *print_something_to_standard_out ( void *p_parameter )
     return 0;
 }
 
-void *alice_joke ( void *null_pointer )
+void *alice_joke ( void *unused )
 {
 
     // unused
-    (void) null_pointer;
+    (void) unused;
 
     // alice's setup
-    printf("Alice > Did you hear the story about the claustrophobic astronaut?\n"); fflush(stdout);
+    log_error("Alice > Did you hear the story about the claustrophobic astronaut?\n"); fflush(stdout);
     
     // alice hesitates
     for (size_t i = 0; i < 3; i++)
     {
-        printf("."); fflush(stdout);
-        sleep(1);
+        log_error("."); fflush(stdout);
+        // sleep(1);
     }
 
     // alice delivers the punchline
-    printf("\nAlice > He just needed some space!\n"); fflush(stdout);
+    log_error("\nAlice > He just needed some space!\n"); fflush(stdout);
 
     // success
     return (void *) 1;
 }
 
-void *bob_joke ( void *null_pointer )
+void *bob_joke ( void *unused )
 {
 
     // unused
-    (void) null_pointer;
+    (void) unused;
 
     // Bob's setup
-    printf("\nBob > What's red and bad for your teeth?\n"); fflush(stdout);
+    log_info("\nBob > What's red and bad for your teeth?\n"); fflush(stdout);
     
     // Bob hesitates
     for (size_t i = 0; i < 3; i++)
     {
-        printf("."); fflush(stdout);
-        sleep(1);
+        log_info("."); fflush(stdout);
+        // sleep(1);
     }
     
     // Bob delivers the punchline
-    printf("\nBob > A brick!\n"); fflush(stdout);
+    log_info("\nBob > A brick!\n"); fflush(stdout);
     
     // success
     return (void *) 1;
 }
 
-void *charlie_joke ( void *null_pointer )
+void *charlie_joke ( void *unused )
 {
 
     // unused
-    (void) null_pointer;
+    (void) unused;
 
     // charlie's setup
-    printf("\nCharlie > What's the leading cause of dry skin?\n"); fflush(stdout);
+    log_warning("\nCharlie > What's the leading cause of dry skin?\n"); fflush(stdout);
 
     // charlie hesitates
     for (size_t i = 0; i < 3; i++)
     {
-        printf("."); fflush(stdout);
-        sleep(1);
+        log_warning("."); fflush(stdout);
+        // sleep(1);
     }
 
     // charlie delivers the punchline
-    printf("\nCharlie > Towels!\n"); fflush(stdout);
+    log_warning("\nCharlie > Towels!\n"); fflush(stdout);
 
     // success
     return (void *) 1;
 }
 
-void *laugh ( void *null_pointer )
+void *alice_laugh ( void *unused )
 {
 
     // unused
-    (void) null_pointer;
+    (void) unused;
 
     // someone is laughing ...
-    printf("Hahahaha\n"); fflush(stdout);
+    log_error("Hahahaha\n"); fflush(stdout);
 
     // ... for 1 second
-    sleep(1);
+    // sleep(1);
+
+    // success
+    return (void *) 1;
+}
+
+void *bob_laugh ( void *unused )
+{
+
+    // unused
+    (void) unused;
+
+    // someone is laughing ...
+    log_info("Hahahaha\n"); fflush(stdout);
+
+    // ... for 1 second
+    // sleep(1);
+
+    // success
+    return (void *) 1;
+}
+
+void *charlie_laugh ( void *unused )
+{
+
+    // unused
+    (void) unused;
+
+    // someone is laughing ...
+    log_warning("Hahahaha\n"); fflush(stdout);
+
+    // ... for 1 second
+    // sleep(1);
 
     // success
     return (void *) 1;

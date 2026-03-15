@@ -61,7 +61,7 @@ struct schedule_s
 {
     mutex _lock;
     condition_variable _ready, _go;
-    size_t running_threads;
+    volatile size_t running_threads;
     dict *p_threads;
     bool repeat, ready, go;
     void *p_parameter;
@@ -162,7 +162,7 @@ int parallel_schedule_thread_create ( parallel_schedule_thread **const pp_schedu
     if ( p_schedule_thread == (void *) 0 ) goto no_mem;
 
     // zero set memory
-    memset(p_schedule_thread, 0, sizeof(parallel_schedule_thread));
+    memset(p_schedule_thread, 0, sizeof(parallel_schedule_thread) + (task_quantity * sizeof(parallel_schedule_task)));
 
     // store the task quantity
     p_schedule_thread->task_quantity = task_quantity;
@@ -342,7 +342,7 @@ int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value
 
         // error check
         if ( len < 1 ) goto name_property_too_short;
-        if ( len > PARALLEL_SCHEDULE_NAME_LENGTH ) goto name_property_too_long;
+        if ( len >= PARALLEL_SCHEDULE_NAME_LENGTH ) goto name_property_too_long;
         
         // copy the name into the schedule struct
         strncpy(_schedule._name, p_name_string, len);
@@ -364,7 +364,7 @@ int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value
         
         // error check
         if ( len < 1 ) goto main_thread_property_too_short;
-        if ( len > PARALLEL_SCHEDULE_THREAD_NAME_LENGTH ) goto main_thread_property_too_long;
+        if ( len >= PARALLEL_SCHEDULE_THREAD_NAME_LENGTH ) goto main_thread_property_too_long;
         
         // copy the name into the schedule struct
         strncpy(_schedule._main_thread_name, p_main_thread_string, len);
@@ -464,6 +464,10 @@ int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value
                 // store the task
                 p_task = &p_thread->tasks[j];
 
+                // construct synchronization primitives
+                condition_variable_create(&p_task->_ready);
+                mutex_create(&p_task->_lock);
+
                 // will this task wait for something else?
                 if ( p_task->dependent )
                 {
@@ -473,44 +477,22 @@ int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value
                     
                     dict_get(_schedule.p_threads, p_task->_wait_thread, (void **) &p_dependency_thread);
 
-                    // TODO: Error check
-                    //
-
                     // iterate through each task
                     for (size_t k = 0; k < p_dependency_thread->task_quantity; k++)
                     {
                         
                         // initialized data
                         parallel_schedule_task *i_dependency_task = &p_dependency_thread->tasks[k];
-                        struct { char *th, *ta; } thread_task[64] = { 0 };
 
                         // will the task wait on this task?
-                        i_dependency_task->dependency = ( strcmp(i_dependency_task->_name, p_task->_wait_task) == 0 );
-
-                        if ( i_dependency_task->dependency )
+                        if ( strcmp(i_dependency_task->_name, p_task->_wait_task) == 0 )
                         {
-                            thread_task[i].ta = p_thread->_name,
-                            thread_task[i].th = p_task->_name;
                             i_dependency_task->dependency = true;
                             i_dependency_task->dependencies++;
                         }
                     }
                 }
             }
-        }
-    
-        // iterate over each thread
-        for (size_t i = 0; i < thread_quantity; i++)
-        {
-            
-            // store the thread
-            p_thread = _p_threads[i];
-
-            // iterate through each task
-            for (size_t j = 0; j < p_thread->task_quantity; j++)
-                
-                // store the task
-                p_task = &p_thread->tasks[j];            
         }
     }
 
@@ -690,8 +672,12 @@ int parallel_schedule_thread_load_as_json_value ( parallel_schedule_thread **con
     // allocate memory for a schedule thread
     if ( parallel_schedule_thread_create(&p_schedule_thread, task_quantity) == 0 ) goto failed_to_allocate_schedule_thread;
 
+    // error check
+    if ( thread_name_len >= PARALLEL_SCHEDULE_THREAD_NAME_LENGTH ) goto thread_name_too_long;
+
     // copy the name of the thread
     strncpy(p_schedule_thread->_name, name, thread_name_len);
+    p_schedule_thread->_name[thread_name_len] = '\0';
 
     // iterate through the array
     for (size_t i = 0; i < task_quantity; i++)
@@ -743,11 +729,12 @@ int parallel_schedule_thread_load_as_json_value ( parallel_schedule_thread **con
                 // store the length of the task name
                 len = strlen(p_task->string);
 
-                // TODO: Bounds check
-                //
+                // error check
+                if ( len >= PARALLEL_SCHEDULE_TASK_NAME_LENGTH ) goto task_name_too_long;
 
                 // copy the task name
                 strncpy(p_schedule_thread->tasks[i]._name, p_task->string, len);
+                p_schedule_thread->tasks[i]._name[len] = '\0';
 
                 // store the task function pointer
                 p_schedule_thread->tasks[i].pfn_task = pfn_task;
@@ -785,16 +772,18 @@ int parallel_schedule_thread_load_as_json_value ( parallel_schedule_thread **con
                 wait_task_len = strlen(wait_task);
 
                 // error check
-                if ( wait_task_len   > PARALLEL_SCHEDULE_TASK_NAME_LENGTH - 1 ) goto wait_task_too_long;
+                if ( wait_task_len   >= PARALLEL_SCHEDULE_TASK_NAME_LENGTH ) goto wait_task_too_long;
                 if ( wait_task_len   < 1 ) goto wait_task_too_short;
-                if ( wait_thread_len > PARALLEL_SCHEDULE_THREAD_NAME_LENGTH - 1 ) goto wait_thread_too_long;
+                if ( wait_thread_len >= PARALLEL_SCHEDULE_THREAD_NAME_LENGTH ) goto wait_thread_too_long;
                 if ( wait_thread_len < 1 ) goto wait_thread_too_short;
 
                 // copy the wait thread
                 strncpy(p_schedule_thread->tasks[i]._wait_thread, wait_thread, wait_thread_len);
+                p_schedule_thread->tasks[i]._wait_thread[wait_thread_len] = '\0';
 
                 // copy the wait task
                 strncpy(p_schedule_thread->tasks[i]._wait_task, wait_task, wait_task_len);
+                p_schedule_thread->tasks[i]._wait_task[wait_task_len] = '\0';
             }
 
             // default 
@@ -817,8 +806,10 @@ int parallel_schedule_thread_load_as_json_value ( parallel_schedule_thread **con
     wrong_task_task_type:
     wrong_task_wait_type:
     no_colon_delimiter:
+    task_name_too_long:
     wait_task_too_long:
     wait_task_too_short:
+    thread_name_too_long:
     wait_thread_too_long:
     wait_thread_too_short:
 
@@ -1004,7 +995,8 @@ int schedule_wait_idle ( schedule *const p_schedule )
 {
     
     // spin until all threads are done
-    while (p_schedule->running_threads);
+    while (p_schedule->running_threads)
+        sleep(0);
 
     // success
     return 1;
@@ -1119,20 +1111,15 @@ void *parallel_schedule_work ( parallel_schedule_work_parameter *p_parameter )
     // increment running threads
     p_schedule->running_threads++;
 
+    // signal
     condition_variable_signal(&p_schedule->_ready);
 
-    // log_info("[%s] Ready!\n", p_parameter->p_thread->_name), fflush(stdout);
-
     // monitor
-    while ( !p_parameter->p_schedule->go )
+    while ( !p_schedule->go )
         condition_variable_wait(&p_schedule->_go, &p_schedule->_lock);
-
-    // log_info("[%s] Go!\n", p_parameter->p_thread->_name), fflush(stdout);
 
     // unlock
     mutex_unlock(&p_schedule->_lock);
-    
-    // turnover:
     
     // iterate through each task
     for (size_t i = 0; i < p_schedule_thread->task_quantity; i++)
@@ -1153,15 +1140,18 @@ void *parallel_schedule_work ( parallel_schedule_work_parameter *p_parameter )
         // set the done task
         i_task->done = true;
 
+        // lock
+        mutex_lock(&p_schedule->_lock);
+        
         // signal
         if ( i_task->dependency ) 
-            // log_error("[%s] Broadcast\n", p_parameter->p_thread->_name), fflush(stdout);
+            // log_error("[%s] Broadcast\n", p_parameter->p_thread->_name), fflush(stdout),
             condition_variable_broadcast(&i_task->_ready);
+
+        // unlock
+        mutex_unlock(&p_schedule->_lock);
     }
 
-    // repeat?
-    // if ( p_schedule->repeat ) goto turnover;
-    
     // lock
     mutex_lock(&p_schedule->_lock);
     
@@ -1182,24 +1172,30 @@ void *parallel_schedule_work ( parallel_schedule_work_parameter *p_parameter )
 
         // initialized data
         char *thread_name = i_task->_wait_thread;
-        parallel_schedule_thread *p_schedule_thread = NULL;
+        parallel_schedule_thread *p_dependency_thread = NULL;
         
         // store the dependency
-        dict_get(p_schedule->p_threads, thread_name, (void **)&p_schedule_thread);
+        dict_get(p_schedule->p_threads, thread_name, (void **)&p_dependency_thread);
         
         // find the monitor
-        for (size_t i = 0; i < p_schedule_thread->task_quantity; i++)
+        for (size_t k = 0; k < p_dependency_thread->task_quantity; k++)
         {
         
             // check the monitor
-            if ( strcmp(p_schedule_thread->tasks[i]._name, i_task->_wait_task) == 0 ) 
+            if ( strcmp(p_dependency_thread->tasks[k]._name, i_task->_wait_task) == 0 ) 
             {
 
-                // log_info("[%s] waiting for %s:%s\n", p_parameter->p_thread->_name, p_schedule_thread->_name, i_task->_wait_task), fflush(stdout);
+                // log_info("[%s] waiting for %s:%s\n", p_parameter->p_thread->_name, p_dependency_thread->_name, i_task->_wait_task), fflush(stdout);
+
+                // lock
+                mutex_lock(&p_schedule->_lock);
 
                 // monitor
-                while ( !p_schedule_thread->tasks[i].done )
-                    condition_variable_wait(&p_schedule_thread->tasks[i]._ready, &p_schedule_thread->tasks[i]._lock);
+                while ( !p_dependency_thread->tasks[k].done )
+                    condition_variable_wait(&p_dependency_thread->tasks[k]._ready, &p_schedule->_lock);
+
+                // unlock
+                mutex_unlock(&p_schedule->_lock);
 
                 // done
                 break;
