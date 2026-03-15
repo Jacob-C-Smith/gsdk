@@ -41,8 +41,6 @@ struct parallel_thread_s
  *
  * @param p_thread return
  * 
- * @sa parallel_thread_start
- *
  * @return 1 on success, 0 on error
  */
 int parallel_thread_create ( parallel_thread **pp_parallel_thread );

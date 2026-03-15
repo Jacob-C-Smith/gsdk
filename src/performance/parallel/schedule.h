@@ -57,19 +57,18 @@ int schedule_load ( schedule **const pp_schedule, const char *const path );
 */
 int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value *const p_value );
 
-/// start
+/// executors
 /** !
  * Start running a schedule
  *
  * @param p_schedule  the schedule
  * @param p_parameter this parameter is passed to each task
- * @sa stop_schedule
  *
  * @return 1 on success, 0 on error
  */
 int schedule_start ( schedule *const p_schedule, void *const p_parameter );
 
-/// wait
+/// blockers
 /** !
  * Block until a schedule is done
  * 
@@ -78,27 +77,6 @@ int schedule_start ( schedule *const p_schedule, void *const p_parameter );
  * @return 1 on success, 0 on error
  */
 int schedule_wait_idle ( schedule *const p_schedule );
-
-/** !
- * Clear a schedule's repeat flag
- * 
- * @param p_schedule the schedule
- * 
- * @return 1 on success, 0 on error
- */
-int schedule_pause ( schedule *const p_schedule );
-
-/// stop
-/** !
- * Stop running a schedule
- *
- * @param p_schedule the schedule
- *
- * @sa start_schedule
- *
- * @return 1 on success, 0 on error
- */
-int schedule_stop ( schedule *const p_schedule );
 
 /// destructors
 /** !

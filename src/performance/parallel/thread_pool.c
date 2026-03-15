@@ -57,8 +57,6 @@ struct thread_pool_s
  * 
  * @param pp_thread_pool_thread return
  * 
- * @sa parallel_thread_pool_destroy
- * 
  * @return 1 on success, 0 on error
 */
 int parallel_thread_pool_thread_create ( thread_pool_thread **pp_thread_pool_thread, size_t task_quantity );

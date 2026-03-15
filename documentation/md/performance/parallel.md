@@ -10,19 +10,14 @@
  >
  >> 2.1 [Type definitions](#type-definitions)
  >>
- >> 2.2 [Function definitions](#function-definitions)
+ >> 2.2 [Function declarations](#function-declarations)
 
  ## Example
- To run the example program, execute the following commands
+ To run the example program, execute the following command
  ```bash
- $ ./parallel_example
+ $ ./build/examples/parallel_example [thread] [thread-pool] [schedule]
  ```
- ### Example output
  
- **TODO**
- 
- [Source](main.c)
-
 ## Tester
  **TODO**
  
@@ -30,60 +25,84 @@
  ### Type definitions
 ```c
 // type definitions
+typedef struct parallel_task_s parallel_task;
 typedef struct parallel_thread_s parallel_thread;
-typedef struct thread_pool_s     thread_pool;
-typedef struct schedule_s        schedule;
+typedef struct thread_pool_s thread_pool;
+typedef struct schedule_s schedule;
 
 typedef void *(fn_parallel_task)(void *p_parameter);
 ```
-### Parallel function definitions
+ ### Function declarations
+ #### Parallel function declarations
  ```c
-// initializers
-int parallel_init ( void );
-
-// Task
-int parallel_register_task  ( const char *const name, fn_parallel_task  *pfn_parallel_task );
-int parallel_unrgister_task ( const char *const name );
-int parallel_find_task      ( const char *const name, fn_parallel_task **p_pfn_parallel_task );
-
-// destructors
-void parallel_quit ( void );
- ```
-
-### Thread function definitions
- ```c
-// constructors
+// function declarations
+/// constructors
 int parallel_thread_create ( parallel_thread **pp_parallel_thread );
 
-// Start
+/// start
 int parallel_thread_start ( parallel_thread **pp_parallel_thread, fn_parallel_task *pfn_task, void *p_parameter );
 
-// Stop
+/// cancel
+int parallel_thread_cancel ( parallel_thread *p_parallel_thread );
+
+/// stop
 int parallel_thread_join ( parallel_thread **pp_parallel_thread );
 
-// destructors
+/// destructors
 int parallel_thread_destory ( parallel_thread **pp_parallel_thread );
  ```
 
-### Thread pool function definitions
+ #### Thread function declarations
  ```c
- // TODO
+// function declarations
+/// constructors
+int parallel_thread_create ( parallel_thread **pp_parallel_thread );
+
+/// start
+int parallel_thread_start ( parallel_thread **pp_parallel_thread, fn_parallel_task *pfn_task, void *p_parameter );
+
+/// cancel
+int parallel_thread_cancel ( parallel_thread *p_parallel_thread );
+
+/// stop
+int parallel_thread_join ( parallel_thread **pp_parallel_thread );
+
+/// destructors
+int parallel_thread_destory ( parallel_thread **pp_parallel_thread );
  ```
 
-### Schedule function definitions
+ #### Thread pool function declarations
  ```c
-// allocators
-int schedule_create ( schedule **const pp_schedule );
+// function declarations
+/// constructors
+int thread_pool_construct ( thread_pool **pp_thread_pool, size_t thread_quantity );
 
-// constructors
-int schedule_load ( schedule **const pp_schedule, const char *const path );
+/// executors
+int thread_pool_execute ( thread_pool *p_thread_pool, fn_parallel_task *pfn_parallel_task, void *p_parameter );
 
-// Start
-int schedule_start ( schedule *const p_schedule );
+/// accessors
+bool thread_pool_is_idle ( thread_pool *p_thread_pool );
 
-// Stop
-int schedule_stop ( schedule *const p_schedule );
+/// blockers
+int thread_pool_wait_idle ( thread_pool *p_thread_pool );
 
-// destructors
+/// destructors
+int thread_pool_destroy ( thread_pool **pp_thread_pool );
+ ```
+
+ #### Schedule function declarations
+ ```c
+// function declarations
+/// constructors
+int schedule_load               ( schedule **const pp_schedule, const char       *const path );
+int schedule_load_as_json_value ( schedule **const pp_schedule, const json_value *const p_value );
+
+/// start
+int schedule_start ( schedule *const p_schedule, void *const p_parameter );
+
+/// wait
+int schedule_wait_idle ( schedule *const p_schedule );
+
+/// destructors
 int schedule_destroy ( schedule **const pp_schedule );
  ```

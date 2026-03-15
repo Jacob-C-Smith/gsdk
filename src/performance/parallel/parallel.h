@@ -34,12 +34,14 @@ struct thread_pool_s;
 struct schedule_s;
 
 // type definitions
-typedef struct   parallel_task_s parallel_task;
-typedef struct   parallel_thread_s parallel_thread;
-typedef struct   thread_pool_s thread_pool;
-typedef struct   schedule_s schedule;
+typedef struct parallel_task_s parallel_task;
+typedef struct parallel_thread_s parallel_thread;
+typedef struct thread_pool_s thread_pool;
+typedef struct schedule_s schedule;
+
 typedef void   *(fn_parallel_task)(void *p_parameter);
 
+// function definitions
 /// initializers
 /** !
  * This gets called at runtime before main. 
@@ -57,13 +59,11 @@ void parallel_init ( void ) __attribute__((constructor));
  * @param p_name   the name of the task
  * @param pfn_task pointer to task function
  * 
- * @sa parallel_schedule_unregister_task
- * 
  * @return 1 on success, 0 on error
  */
 int parallel_register_task ( const char *const p_name, fn_parallel_task *pfn_task );
 
-/// unregister
+/// find
 /** !
  * Find a named task in the task registery
  * 
