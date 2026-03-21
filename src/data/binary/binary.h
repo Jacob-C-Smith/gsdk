@@ -30,7 +30,6 @@ struct binary_tree_node_s;
 // type definitions
 typedef struct binary_tree_s binary_tree;
 typedef struct binary_tree_node_s binary_tree_node;
-typedef int (fn_binary_tree_traverse)(void *p_value);
 
 // structure definitions
 struct binary_tree_node_s
@@ -84,7 +83,7 @@ int binary_tree_construct
  * @param pp_binary_tree    return
  * @param pp_values         the list of values
  * @param property_quantity the size of the list
- * @param pfn_comparator      function for testing equality of elements in set IF parameter is not null ELSE default
+ * @param pfn_comparator    function for testing equality of elements in set IF parameter is not null ELSE default
  * @param node_size         the size of a serialized node in bytes
  * 
 */
@@ -132,36 +131,47 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_v
  */
 int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_key, const void **const p_value );
 
-/// traversal
+/// iterator
 /** !
  * Traverse a binary tree using the pre order technique
  * 
  * @param p_binary_tree pointer to binary tree
- * @param pfn_traverse  called for each node in the binary tree
+ * @param pfn_foreach   called for each node in the binary tree
  * 
  * @return 1 on success, 0 on error
 */
-int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse );
+int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, fn_foreach *pfn_foreach );
 
 /** !
  * Traverse a binary tree using the in order technique
  * 
  * @param p_binary_tree pointer to binary tree
- * @param pfn_traverse  called for each node in the binary tree
+ * @param pfn_foreach   called for each node in the binary tree
  * 
  * @return 1 on success, 0 on error
 */
-int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse );
+int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, fn_foreach *pfn_foreach );
 
 /** !
  * Traverse a binary tree using the post order technique
  * 
  * @param p_binary_tree pointer to binary tree
- * @param pfn_traverse  called for each node in the binary tree
+ * @param pfn_foreach   called for each node in the binary tree
  * 
  * @return 1 on success, 0 on error
 */
-int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse );
+int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_foreach *pfn_foreach );
+
+/** !
+ * Call function on every node in a binary tree
+ *
+ * @param p_binary_tree  the binary tree
+ * @param pfn_forcontext pointer to forcontext function
+ * @param p_context      the context
+ * 
+ * @return 1 on success, 0 on error
+ */
+int binary_tree_forcontext ( binary_tree *const p_binary_tree, fn_forcontext *pfn_forcontext, void *p_context );
 
 /// reflection
 /** !
