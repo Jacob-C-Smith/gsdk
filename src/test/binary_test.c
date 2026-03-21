@@ -385,12 +385,12 @@ void construct_ABCD ( binary_tree **p_binary_tree )
 
 // Removal constructor functions
 // Traversal callback for testing
-int test_traverse_callback(void *const p_value)
+void test_traverse_callback(void *const p_value)
 {
     if (traverse_counter < 10) {
         traverse_order[traverse_counter++] = (char*)p_value;
     }
-    return 1; // Continue traversal
+    return; // Continue traversal
 }
 
 void construct_A_remove_A_empty ( binary_tree **pp_binary_tree )

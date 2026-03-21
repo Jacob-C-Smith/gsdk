@@ -67,31 +67,42 @@ hash64 binary_tree_node_hash ( binary_tree_node *p_node, fn_hash64 *pfn_hash64 )
  * Traverse a binary tree using the pre order technique
  * 
  * @param p_binary_tree_node pointer to binary tree node
- * @param pfn_traverse       called for each node in the binary tree
+ * @param pfn_foreach       called for each node in the binary tree
  * 
  * @return 1 on success, 0 on error
 */
-int binary_tree_node_traverse_preorder ( binary_tree_node *p_binary_tree_node, fn_binary_tree_traverse *pfn_traverse );
+int binary_tree_node_traverse_preorder ( binary_tree_node *p_binary_tree_node, fn_foreach *pfn_foreach );
 
 /** !
  * Traverse a binary tree using the in order technique
  * 
  * @param p_binary_tree_node pointer to binary tree node
- * @param pfn_traverse       called for each node in the binary tree
+ * @param pfn_foreach       called for each node in the binary tree
  * 
  * @return 1 on success, 0 on error
 */
-int binary_tree_node_traverse_inorder ( binary_tree_node *p_binary_tree_node, fn_binary_tree_traverse *pfn_traverse );
+int binary_tree_node_traverse_inorder ( binary_tree_node *p_binary_tree_node, fn_foreach *pfn_foreach );
 
 /** !
  * Traverse a binary tree using the post order technique
  * 
  * @param p_binary_tree_node pointer to binary tree node
- * @param pfn_traverse       called for each node in the binary tree
+ * @param pfn_foreach       called for each node in the binary tree
  * 
  * @return 1 on success, 0 on error
 */
-int binary_tree_node_traverse_postorder ( binary_tree_node *p_binary_tree_node, fn_binary_tree_traverse *pfn_traverse );
+int binary_tree_node_traverse_postorder ( binary_tree_node *p_binary_tree_node, fn_foreach *pfn_foreach );
+
+/** !
+ * Call function on a node in a binary tree
+ *
+ * @param p_binary_tree_node the node
+ * @param pfn_forcontext     pointer to forcontext function
+ * @param p_context          the context
+ * 
+ * @return 1 on success, 0 on error
+ */
+int binary_tree_node_forcontext ( binary_tree_node *p_binary_tree_node, fn_forcontext *pfn_forcontext, void *p_context );
 
 /** ! 
  * Pack a binary tree node into a buffer
@@ -762,12 +773,12 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
     }
 }
 
-int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse )
+int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, fn_foreach *pfn_foreach )
 {
 
     // argument check
-    if ( p_binary_tree == (void *) 0 ) goto no_binary_tree;
-    if ( pfn_traverse  == (void *) 0 ) goto no_traverse_function;
+    if ( NULL == p_binary_tree ) goto no_binary_tree;
+    if ( NULL ==   pfn_foreach ) goto no_foreach_function;
 
     // edge case
     if ( 0 == p_binary_tree->metadata.quantity ) return 1;
@@ -776,7 +787,7 @@ int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, fn_binary_
     mutex_lock(&p_binary_tree->_lock);
 
     // traverse the tree
-    if ( binary_tree_node_traverse_preorder(p_binary_tree->p_root, pfn_traverse) == 0 ) goto failed_to_traverse_binary_tree;    
+    if ( binary_tree_node_traverse_preorder(p_binary_tree->p_root, pfn_foreach) == 0 ) goto failed_to_traverse_binary_tree;    
 
     // unlock
     mutex_unlock(&p_binary_tree->_lock);
@@ -797,9 +808,9 @@ int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, fn_binary_
                 // error
                 return 0;
 
-            no_traverse_function:
+            no_foreach_function:
                 #ifndef NDEBUG
-                    log_error("[binary] Null pointer provided for parameter \"pfn_traverse\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[binary] Null pointer provided for parameter \"pfn_foreach\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -822,12 +833,12 @@ int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, fn_binary_
     }
 }
 
-int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse )
+int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, fn_foreach *pfn_foreach )
 {
 
     // argument check
     if ( NULL == p_binary_tree ) goto no_binary_tree;
-    if ( NULL ==  pfn_traverse ) goto no_traverse_function;
+    if ( NULL ==   pfn_foreach ) goto no_foreach_function;
 
     // edge case
     if ( 0 == p_binary_tree->metadata.quantity ) return 1;
@@ -836,7 +847,7 @@ int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, fn_binary_t
     mutex_lock(&p_binary_tree->_lock);
 
     // traverse the tree
-    if ( binary_tree_node_traverse_inorder(p_binary_tree->p_root, pfn_traverse) == 0 ) goto failed_to_traverse_binary_tree;    
+    if ( binary_tree_node_traverse_inorder(p_binary_tree->p_root, pfn_foreach) == 0 ) goto failed_to_traverse_binary_tree;    
 
     // unlock
     mutex_unlock(&p_binary_tree->_lock);
@@ -857,9 +868,9 @@ int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, fn_binary_t
                 // error
                 return 0;
 
-            no_traverse_function:
+            no_foreach_function:
                 #ifndef NDEBUG
-                    log_error("[binary] Null pointer provided for parameter \"pfn_traverse\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[binary] Null pointer provided for parameter \"pfn_foreach\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -882,12 +893,12 @@ int binary_tree_traverse_inorder ( binary_tree *const p_binary_tree, fn_binary_t
     }
 }
 
-int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse )
+int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_foreach *pfn_foreach )
 {
 
     // argument check
     if ( NULL == p_binary_tree ) goto no_binary_tree;
-    if ( NULL ==  pfn_traverse ) goto no_traverse_function;
+    if ( NULL ==   pfn_foreach ) goto no_foreach_function;
 
     // edge case
     if ( 0 == p_binary_tree->metadata.quantity ) return 1;
@@ -896,7 +907,7 @@ int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_binary
     mutex_lock(&p_binary_tree->_lock);
 
     // traverse the tree
-    if ( binary_tree_node_traverse_postorder(p_binary_tree->p_root, pfn_traverse) == 0 ) goto failed_to_traverse_binary_tree;    
+    if ( binary_tree_node_traverse_postorder(p_binary_tree->p_root, pfn_foreach) == 0 ) goto failed_to_traverse_binary_tree;    
 
     // unlock
     mutex_unlock(&p_binary_tree->_lock);
@@ -917,9 +928,69 @@ int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_binary
                 // error
                 return 0;
 
-            no_traverse_function:
+            no_foreach_function:
                 #ifndef NDEBUG
-                    log_error("[binary] Null pointer provided for parameter \"pfn_traverse\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[binary] Null pointer provided for parameter \"pfn_foreach\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // binary tree errors
+        {
+            failed_to_traverse_binary_tree:
+                #ifndef NDEBUG
+                    log_error("[binary] Failed to traverse binary tree in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+                
+                // unlock
+                mutex_unlock(&p_binary_tree->_lock);
+                
+                // error
+                return 0;
+        }
+    }
+}
+
+int binary_tree_forcontext ( binary_tree *const p_binary_tree, fn_forcontext *pfn_forcontext, void *p_context )
+{
+
+    // argument check
+    if ( NULL ==  p_binary_tree ) goto no_binary_tree;
+    if ( NULL == pfn_forcontext ) goto no_forcontext_function;
+
+    // edge case
+    if ( 0 == p_binary_tree->metadata.quantity ) return 1;
+
+    // lock
+    mutex_lock(&p_binary_tree->_lock);
+
+    // traverse the tree
+    if ( binary_tree_node_forcontext(p_binary_tree->p_root, pfn_forcontext, p_context) == 0 ) goto failed_to_traverse_binary_tree;    
+
+    // unlock
+    mutex_unlock(&p_binary_tree->_lock);
+
+    // success
+    return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_binary_tree:
+                #ifndef NDEBUG
+                    log_error("[binary] Null pointer provided for parameter \"p_binary_tree\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_forcontext_function:
+                #ifndef NDEBUG
+                    log_error("[binary] Null pointer provided for parameter \"pfn_forcontext\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -1273,21 +1344,21 @@ hash64 binary_tree_node_hash ( binary_tree_node *p_node, fn_hash64 *pfn_hash64 )
     return result;
 }
 
-int binary_tree_node_traverse_preorder ( binary_tree_node *p_binary_tree_node, fn_binary_tree_traverse *pfn_traverse )
+int binary_tree_node_traverse_preorder ( binary_tree_node *p_binary_tree_node, fn_foreach *pfn_foreach )
 {
 
     // argument check
     if ( NULL == p_binary_tree_node ) goto no_binary_tree_node;
-    if ( NULL ==       pfn_traverse ) goto no_traverse_function;
+    if ( NULL ==        pfn_foreach ) goto no_foreach_function;
 
     // root
-    pfn_traverse(p_binary_tree_node->p_value);
+    pfn_foreach(p_binary_tree_node->p_value);
 
     // left
-    if ( p_binary_tree_node->p_left ) binary_tree_node_traverse_preorder(p_binary_tree_node->p_left, pfn_traverse);
+    if ( p_binary_tree_node->p_left ) binary_tree_node_traverse_preorder(p_binary_tree_node->p_left, pfn_foreach);
 
     // right
-    if ( p_binary_tree_node->p_right ) binary_tree_node_traverse_preorder(p_binary_tree_node->p_right, pfn_traverse);
+    if ( p_binary_tree_node->p_right ) binary_tree_node_traverse_preorder(p_binary_tree_node->p_right, pfn_foreach);
 
     // success
     return 1;
@@ -1305,9 +1376,9 @@ int binary_tree_node_traverse_preorder ( binary_tree_node *p_binary_tree_node, f
                 // error
                 return 0;
 
-            no_traverse_function:
+            no_foreach_function:
                 #ifndef NDEBUG
-                    log_error("[binary] Null pointer provided for parameter \"pfn_traverse\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[binary] Null pointer provided for parameter \"pfn_foreach\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -1316,21 +1387,21 @@ int binary_tree_node_traverse_preorder ( binary_tree_node *p_binary_tree_node, f
     }
 }
 
-int binary_tree_node_traverse_inorder ( binary_tree_node *p_binary_tree_node, fn_binary_tree_traverse *pfn_traverse )
+int binary_tree_node_traverse_inorder ( binary_tree_node *p_binary_tree_node, fn_foreach *pfn_foreach )
 {
 
     // argument check
     if ( NULL == p_binary_tree_node ) goto no_binary_tree_node;
-    if ( NULL ==       pfn_traverse ) goto no_traverse_function;
+    if ( NULL ==        pfn_foreach ) goto no_foreach_function;
 
     // left
-    if ( p_binary_tree_node->p_left ) binary_tree_node_traverse_inorder(p_binary_tree_node->p_left, pfn_traverse);
+    if ( p_binary_tree_node->p_left ) binary_tree_node_traverse_inorder(p_binary_tree_node->p_left, pfn_foreach);
 
     // root
-    pfn_traverse(p_binary_tree_node->p_value);
+    pfn_foreach(p_binary_tree_node->p_value);
 
     // right
-    if ( p_binary_tree_node->p_right ) binary_tree_node_traverse_inorder(p_binary_tree_node->p_right, pfn_traverse);
+    if ( p_binary_tree_node->p_right ) binary_tree_node_traverse_inorder(p_binary_tree_node->p_right, pfn_foreach);
 
     // success
     return 1;
@@ -1348,9 +1419,9 @@ int binary_tree_node_traverse_inorder ( binary_tree_node *p_binary_tree_node, fn
                 // error
                 return 0;
 
-            no_traverse_function:
+            no_foreach_function:
                 #ifndef NDEBUG
-                    log_error("[binary] Null pointer provided for parameter \"pfn_traverse\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[binary] Null pointer provided for parameter \"pfn_foreach\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -1359,21 +1430,21 @@ int binary_tree_node_traverse_inorder ( binary_tree_node *p_binary_tree_node, fn
     }
 }
 
-int binary_tree_node_traverse_postorder ( binary_tree_node *p_binary_tree_node, fn_binary_tree_traverse *pfn_traverse )
+int binary_tree_node_traverse_postorder ( binary_tree_node *p_binary_tree_node, fn_foreach *pfn_foreach )
 {
 
     // argument check
     if ( NULL == p_binary_tree_node ) goto no_binary_tree_node;
-    if ( NULL ==       pfn_traverse ) goto no_traverse_function;
+    if ( NULL ==        pfn_foreach ) goto no_foreach_function;
 
     // left
-    if ( p_binary_tree_node->p_left ) binary_tree_node_traverse_postorder(p_binary_tree_node->p_left, pfn_traverse);
+    if ( p_binary_tree_node->p_left ) binary_tree_node_traverse_postorder(p_binary_tree_node->p_left, pfn_foreach);
 
     // right
-    if ( p_binary_tree_node->p_right ) binary_tree_node_traverse_postorder(p_binary_tree_node->p_right, pfn_traverse);
+    if ( p_binary_tree_node->p_right ) binary_tree_node_traverse_postorder(p_binary_tree_node->p_right, pfn_foreach);
 
     // root
-    pfn_traverse(p_binary_tree_node->p_value);
+    pfn_foreach(p_binary_tree_node->p_value);
 
     // success
     return 1;
@@ -1391,9 +1462,52 @@ int binary_tree_node_traverse_postorder ( binary_tree_node *p_binary_tree_node, 
                 // error
                 return 0;
 
-            no_traverse_function:
+            no_foreach_function:
                 #ifndef NDEBUG
-                    log_error("[binary] Null pointer provided for parameter \"pfn_traverse\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[binary] Null pointer provided for parameter \"pfn_foreach\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int binary_tree_node_forcontext ( binary_tree_node *p_binary_tree_node, fn_forcontext *pfn_forcontext, void *p_context )
+{
+
+    // argument check
+    if ( NULL == p_binary_tree_node ) goto no_binary_tree_node;
+    if ( NULL ==     pfn_forcontext ) goto no_forcontext_function;
+
+    // left
+    if ( p_binary_tree_node->p_left ) binary_tree_node_forcontext(p_binary_tree_node->p_left, pfn_forcontext, p_context);
+    
+    // root
+    pfn_forcontext(p_binary_tree_node->p_value, p_context);
+
+    // right
+    if ( p_binary_tree_node->p_right ) binary_tree_node_forcontext(p_binary_tree_node->p_right, pfn_forcontext, p_context);
+
+    // success
+    return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_binary_tree_node:
+                #ifndef NDEBUG
+                    log_error("[binary] Null pointer provided for parameter \"p_binary_tree_node\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_forcontext_function:
+                #ifndef NDEBUG
+                    log_error("[binary] Null pointer provided for parameter \"pfn_forcontext\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

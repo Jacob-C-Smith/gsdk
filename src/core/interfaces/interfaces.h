@@ -23,11 +23,13 @@ typedef void *(fn_allocator) ( void *p_pointer, unsigned long long size );
 typedef int   (fn_comparator)   ( const void *p_a, const void *p_b );
 typedef int   (fn_equality)     ( const void *p_a, const void *p_b );
 typedef void *(fn_key_accessor) ( const void *const  p_value );
+typedef bool  (fn_predicate)    ( const void *const  p_value );
 
 /// iterators
-typedef void  (fn_fori)    ( void *p_element, int i );
-typedef void  (fn_foreach) ( void *p_element );
-typedef void *(fn_map)     ( void *p_element );
+typedef void  (fn_fori)       ( void *p_element, int i );
+typedef void  (fn_foreach)    ( void *p_element );
+typedef void  (fn_forcontext) ( void *p_element, void *p_context );
+typedef void *(fn_map)        ( void *p_element );
 
 /// reflection
 typedef int    (fn_pack)   ( void              *p_buffer, const void *const   p_value );
