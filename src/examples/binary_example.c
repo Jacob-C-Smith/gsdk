@@ -32,17 +32,17 @@ typedef struct number_and_string_s number_and_string;
 /// logs
 int checkpoint ( binary_tree *p_binary_tree, const char *p_event );
 
-fn_comparator   number_and_string_string_comparator;
-fn_key_accessor number_and_string_string_key_accessor;
+fn_allocator    number_and_string_destroy;
 fn_comparator   number_and_string_number_comparator;
+fn_comparator   number_and_string_string_comparator;
+fn_forcontext   number_and_string_accumulate;
+fn_foreach      number_and_string_number_print;
+fn_foreach      number_and_string_string_print;
+fn_hash64       number_and_string_hash;
+fn_key_accessor number_and_string_string_key_accessor;
 fn_key_accessor number_and_string_number_key_accessor;
 fn_pack         number_and_string_pack;
 fn_unpack       number_and_string_unpack;
-fn_hash64       number_and_string_hash;
-fn_allocator    number_and_string_destroy;
-
-int number_and_string_number_print ( void *p_value );
-int number_and_string_string_print ( void *p_value );
 
 // data
 /// working binary tree
@@ -267,7 +267,23 @@ int main ( int argc, const char *argv[] )
         checkpoint(p_binary_tree, "after hash 2");
     }
 
-    // #12 - destroy
+    // #12 - for context
+    {
+
+        // initialized data
+        int sum = 0;
+
+        // checkpoint
+        checkpoint(NULL, "for context (accumulate)");
+
+        // perform a pre order traversal on the keys in the binary tree
+        binary_tree_forcontext(p_binary_tree, number_and_string_accumulate, (void *) &sum);
+
+        // log the sum
+        printf("sum: %d\n", sum);
+    }
+
+    // #13 - destroy
     {
 
         // destroy the binary tree
@@ -277,6 +293,7 @@ int main ( int argc, const char *argv[] )
         checkpoint(p_binary_tree, "after destroy"),
         putchar('\n');
     }
+
     // success
     return EXIT_SUCCESS;
 }
@@ -346,7 +363,7 @@ void *number_and_string_number_key_accessor ( const void *const p_value )
     return (void *)p_number_and_string->number;
 }
 
-int number_and_string_number_print ( void *p_value )
+void number_and_string_number_print ( void *p_value )
 {
 
     // initialized data
@@ -355,11 +372,11 @@ int number_and_string_number_print ( void *p_value )
     // print the property
     printf("%d ", p_number_and_string->number);
 
-    // success
-    return 1;
+    // done
+    return;
 }
 
-int number_and_string_string_print ( void *p_value )
+void number_and_string_string_print ( void *p_value )
 {
 
     // initialized data
@@ -368,9 +385,24 @@ int number_and_string_string_print ( void *p_value )
     // print the property
     printf("%s ", p_number_and_string->_string);
 
-    // success
-    return 1;
+    // done
+    return;
 }
+
+void number_and_string_accumulate ( void *p_value, void *p_context )
+{
+
+    // initialized data
+    number_and_string *p_number_and_string = (number_and_string *)p_value;
+    int               *p_sum               = (int *)p_context;
+
+    // accumulate
+    *p_sum += p_number_and_string->number;
+
+    // done
+    return;
+}
+
 
 hash64 number_and_string_hash ( const void *const k, unsigned long long l )
 {
