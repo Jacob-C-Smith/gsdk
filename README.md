@@ -31,7 +31,7 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 ## Modules
 
 <b>key</b><br>
-⭐ → <b>1.0 relese</b><br>
+⭐ → <b>1.0 release</b><br>
 ✔️ → <i>Needs interfaces</i><br>
 🧪 → <i>Needs testing</i><br>
 🏗️ → <i>Work in progress</i><br>
