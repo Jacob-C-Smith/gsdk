@@ -29,7 +29,8 @@
             "markdown" : "md/core/digital_signature.md",
             "tester" : "src/test/digital_signature_test.c",
             "example" : "src/examples/digital_signature_example.c",
-            "icon": {
+            "icon": 
+            {
                 "light" : "resource/icon/digital_signature_light.png",
                 "dark" : "resource/icon/digital_signature_dark.png"
             }
@@ -64,7 +65,7 @@
         {
             "name": "pack",
             "description": "Composable reflection",
-            "path": "src/reflection/pack",
+            "path": "src/core/pack",
             "markdown": "md/core/pack.md",
             "tester": "src/test/pack_test.c",
             "example": "src/examples/pack_example.c",
