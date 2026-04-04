@@ -1,7 +1,7 @@
 /** ! 
- * SHA256 utility
+ * SHA512 utility
  * 
- * @file src/utilities/sha256_hash.c
+ * @file src/utilities/sha512_hash.c
  * 
  * @author Jacob Smith
  */
@@ -23,25 +23,25 @@ int main ( int argc, const char *argv[] )
     (void) argv;
 
     // initialized data
-    sha256_state _sha256_state = { 0 };
-    sha256_hash hash = { 0 };
+    sha512_state _sha512_state = { 0 };
+    sha512_hash hash = { 0 };
     unsigned char buffer[4096] = { 0 };
     size_t bytes_read = 0;
     
-    // construct a sha256 hasher
-    sha256_construct(&_sha256_state);
+    // construct a sha512 hasher
+    sha512_construct(&_sha512_state);
 
     // read from standard input in chunks
     while ((bytes_read = fread(buffer, 1, sizeof(buffer), stdin)) > 0)
         
         // feed hasher
-        sha256_update(&_sha256_state, buffer, bytes_read);
+        sha512_update(&_sha512_state, buffer, bytes_read);
 
     // digest it
-    sha256_final(&_sha256_state, hash);
+    sha512_final(&_sha512_state, hash);
 
     // print the hash
-    sha256_print(hash);
+    sha512_print(hash);
     
     // flush stdout
     putchar('\n');
