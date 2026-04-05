@@ -551,7 +551,7 @@ int sha512_final ( sha512_state *p_sha512_state, unsigned char *hash)
         while (i < 128) p_sha512_state->_data[i++] = 0x00;
         
         sha512_transform(p_sha512_state, p_sha512_state->_data);
-        memset(p_sha512_state->_data, 0, 112);
+        memset(p_sha512_state->_data, 0, 128);
     }
 
     // accumulate the length
