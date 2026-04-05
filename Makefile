@@ -6,7 +6,7 @@ ifeq ($(UNAME_S),Darwin)
 	SHARED_EXT = dylib
 	SHARED_FLAGS = -dynamiclib -install_name @rpath/$(@F)
 	RPATH_FLAGS = -Wl,-rpath,@executable_path/../lib
-	LDFLAGS += -lpthread -lm -O2
+	LDFLAGS += -lpthread -lm -O3
 else
 	SHARED_EXT = so
 	SHARED_FLAGS = -shared -Wl,-soname,$(@F)
@@ -32,7 +32,7 @@ UTILS_DIR         = $(SRC_DIR)/utilities
 ROOT_DIR          = $(shell pwd)
 
 # Core libraries
-CORE_LIBS = interfaces log sync pack rsa sha digital_signature hash socket
+CORE_LIBS = interfaces log sync pack rsa sha digital_signature hash socket ed25519
 DATA_LIBS = array bitmap cache circular_buffer dict double_queue binary tuple priority_queue queue set stack hash_table
 REFLECTION_LIBS = base64 json
 PERFORMANCE_LIBS = parallel
@@ -43,7 +43,7 @@ TESTS = $(DATA_LIBS) $(REFLECTION_LIBS)
 UTILS = rsa_key_generator rsa_key_info hash_optimal lisp_syntax_highlighter aes_assert sha256_hash digital_sign digital_verify echo_server
 
 # Phony targets
-.PHONY: all clean libs examples utils tests valgrind
+.PHONY: all clean libs examples utils tests valgrind ed25519_test_vectors
 
 #############
 # Libraries #
@@ -88,6 +88,9 @@ $(BUILD_LIB_DIR)/socket.$(SHARED_EXT): $(wildcard $(SRC_DIR)/core/socket/*.c) | 
 
 $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT): $(wildcard $(SRC_DIR)/core/interfaces/*.c) | $(BUILD_LIB_DIR)
 	$(CC) $(CFLAGS) $(SHARED_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^
+
+$(BUILD_LIB_DIR)/ed25519.$(SHARED_EXT): $(wildcard $(SRC_DIR)/core/ed25519/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SHARED_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
 # Data structures
 $(BUILD_LIB_DIR)/array.$(SHARED_EXT): $(wildcard $(SRC_DIR)/data/array/*.c) | $(BUILD_LIB_DIR)
@@ -173,6 +176,9 @@ $(BUILD_EXAMPLE_DIR)/hash_example: $(EXAMPLES_DIR)/hash_example.c $(BUILD_LIB_DI
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^
 
 $(BUILD_EXAMPLE_DIR)/socket_example: $(EXAMPLES_DIR)/socket_example.c $(BUILD_LIB_DIR)/socket.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/rsa.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) $(BUILD_LIB_DIR)/pack.$(SHARED_EXT) | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^
+
+$(BUILD_EXAMPLE_DIR)/ed25519_example: $(EXAMPLES_DIR)/ed25519_example.c $(BUILD_LIB_DIR)/ed25519.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) | $(BUILD_EXAMPLE_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^
 
 $(BUILD_EXAMPLE_DIR)/array_example: $(EXAMPLES_DIR)/array_example.c $(BUILD_LIB_DIR)/array.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) | $(BUILD_EXAMPLE_DIR)
@@ -261,7 +267,7 @@ $(BUILD_UTIL_DIR)/echo_server: $(UTILS_DIR)/echo_server.c | $(BUILD_UTIL_DIR)
 #########
 # Tests #
 #########
-tests: $(BUILD_TEST_DIR)/sync_test $(BUILD_TEST_DIR)/pack_test $(BUILD_TEST_DIR)/hash_test $(BUILD_TEST_DIR)/sha_test $(BUILD_TEST_DIR)/array_test $(BUILD_TEST_DIR)/bitmap_test $(BUILD_TEST_DIR)/cache_test $(BUILD_TEST_DIR)/circular_buffer_test $(BUILD_TEST_DIR)/dict_test $(BUILD_TEST_DIR)/double_queue_test $(BUILD_TEST_DIR)/binary_test $(BUILD_TEST_DIR)/tuple_test $(BUILD_TEST_DIR)/priority_queue_test $(BUILD_TEST_DIR)/queue_test $(BUILD_TEST_DIR)/set_test $(BUILD_TEST_DIR)/stack_test $(BUILD_TEST_DIR)/base64_test $(BUILD_TEST_DIR)/json_test
+tests: $(BUILD_TEST_DIR)/sync_test $(BUILD_TEST_DIR)/pack_test $(BUILD_TEST_DIR)/hash_test $(BUILD_TEST_DIR)/sha_test $(BUILD_TEST_DIR)/ed25519_test $(BUILD_TEST_DIR)/array_test $(BUILD_TEST_DIR)/bitmap_test $(BUILD_TEST_DIR)/cache_test $(BUILD_TEST_DIR)/circular_buffer_test $(BUILD_TEST_DIR)/dict_test $(BUILD_TEST_DIR)/double_queue_test $(BUILD_TEST_DIR)/binary_test $(BUILD_TEST_DIR)/tuple_test $(BUILD_TEST_DIR)/priority_queue_test $(BUILD_TEST_DIR)/queue_test $(BUILD_TEST_DIR)/set_test $(BUILD_TEST_DIR)/stack_test $(BUILD_TEST_DIR)/base64_test $(BUILD_TEST_DIR)/json_test
 
 $(BUILD_TEST_DIR):
 	@mkdir -p $@
@@ -278,6 +284,9 @@ $(BUILD_TEST_DIR)/hash_test: $(TESTS_DIR)/hash_test.c | $(BUILD_TEST_DIR)
 
 $(BUILD_TEST_DIR)/sha_test: $(TESTS_DIR)/sha_test.c | $(BUILD_TEST_DIR)
 	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) 
+
+$(BUILD_TEST_DIR)/ed25519_test: $(TESTS_DIR)/ed25519_test.c | $(BUILD_TEST_DIR)
+	$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(BUILD_LIB_DIR)/ed25519.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) 
 
 # data
 $(BUILD_TEST_DIR)/array_test: $(TESTS_DIR)/array_test.c | $(BUILD_TEST_DIR)
@@ -329,6 +338,12 @@ $(BUILD_TEST_DIR)/json_test: $(TESTS_DIR)/json_test.c | $(BUILD_TEST_DIR)
 valgrind: libs examples
 	@mkdir -p output/valgrind output/valgrind/core output/valgrind/data output/valgrind/reflection output/valgrind/performance
 	@./scripts/packages.sh _example output/valgrind
+
+########################
+# Ed25519 test vectors #
+########################
+ed25519_test_vectors:
+	@awk -f scripts/ed25519-test-vectors.awk scripts/sign.input > src/core/ed25519/ed25519_test.h
 
 #########
 # Clean #

@@ -13,7 +13,7 @@
 #define SEC_2_NS 1000000000
 
 // Data
-static signed SYNC_TIMER_DIVISOR = 0;
+static timestamp SYNC_TIMER_DIVISOR = 0;
 static bool initialized = false;
 
 void sync_init ( void ) 
@@ -22,19 +22,16 @@ void sync_init ( void )
     // state check
     if ( initialized == true ) return;
 
-    // Initialize the log library
-    log_init();
-
     // platform dependent implementation
     #ifdef _WIN64
         QueryPerformanceFrequency((LARGE_INTEGER *)&SYNC_TIMER_DIVISOR);
     #else
 
-        // Update the timer divisor
-        *(signed *)(&SYNC_TIMER_DIVISOR) = SEC_2_NS;
+        // update the timer divisor
+        *(timestamp *)(&SYNC_TIMER_DIVISOR) = SEC_2_NS;
     #endif
 
-    // Set the initialized flag
+    // set the initialized flag
     initialized = true;
 
     // done
@@ -1183,14 +1180,14 @@ timestamp timer_high_precision ( void )
         clock_gettime(CLOCK_MONOTONIC, &ts);
 
         // Compute the monotonic time in nanoseconds
-        ret = ( (signed)ts.tv_sec * SEC_2_NS ) + ( (signed) ts.tv_nsec );
+        ret = ( (timestamp)ts.tv_sec * SEC_2_NS ) + ( (timestamp) ts.tv_nsec );
     #endif
 
     // error
     return ret;
 }
 
-signed timer_seconds_divisor ( void )
+timestamp timer_seconds_divisor ( void )
 {
 
     // done

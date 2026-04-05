@@ -203,6 +203,31 @@
             ]
         },
         {
+            "name": "example > ed25519",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/examples/ed25519_example",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "setupCommands":
+            [
+                {
+                    "description": "Enable pretty-printing for lldb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-lldb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
             "name": "example > hash",
             "type": "cppdbg",
             "request": "launch",
@@ -757,6 +782,31 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/tests/double_queue_test",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "setupCommands":
+            [
+                {
+                    "description": "Enable pretty-printing for lldb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-lldb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "test > ed25519",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/tests/ed25519_test",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/",

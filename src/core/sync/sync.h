@@ -113,7 +113,7 @@ timestamp timer_high_precision ( void );
  * 
  * @return a constant integer for converting time to seconds
  */
-signed timer_seconds_divisor ( void );
+timestamp timer_seconds_divisor ( void );
 
 /// mutex
 /** !
