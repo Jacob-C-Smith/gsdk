@@ -71,6 +71,16 @@
             "example": "src/examples/pack_example.c",
             "icon": "resource/icon/pack.png"
         },
+        "ed25519" : 
+        {
+            "name": "ed25519",
+            "description": "Edwards-curve digital signature algorithm",
+            "path": "src/core/ed25519",
+            "markdown": "md/core/ed25519.md",
+            "tester": "src/test/ed25519_test.c",
+            "example": "src/examples/ed25519_example.c",
+            "icon": "resource/icon/ed25519.png"
+        },
         "rsa" : 
         {
             "name": "rsa",
