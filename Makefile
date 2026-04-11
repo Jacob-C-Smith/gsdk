@@ -16,7 +16,7 @@ endif
 
 # Compiler
 CC = clang #/opt/gcc-15.1.0/bin/gcc
-CFLAGS = -fPIC -Wall -Wextra -O2 -Iinclude -Iinclude/core -Iinclude/data -Iinclude/performance -Iinclude/reflection -std=c23 -g
+CFLAGS = -fsanitize=address -fno-omit-frame-pointer -fPIC -Wall -Wextra -Iinclude -Iinclude/core -Iinclude/data -Iinclude/performance -Iinclude/reflection -std=c23 -g
 
 # Directories
 SRC_DIR           = src
@@ -32,7 +32,7 @@ UTILS_DIR         = $(SRC_DIR)/utilities
 ROOT_DIR          = $(shell pwd)
 
 # Core libraries
-CORE_LIBS = interfaces log sync pack rsa sha digital_signature hash socket ed25519
+CORE_LIBS = interfaces log sync pack rsa sha digital_signature hash socket ed25519 aead
 DATA_LIBS = array bitmap cache circular_buffer dict double_queue binary tuple priority_queue queue set stack hash_table
 REFLECTION_LIBS = base64 json
 PERFORMANCE_LIBS = parallel
@@ -92,6 +92,9 @@ $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT): $(wildcard $(SRC_DIR)/core/interfaces
 $(BUILD_LIB_DIR)/ed25519.$(SHARED_EXT): $(wildcard $(SRC_DIR)/core/ed25519/*.c) | $(BUILD_LIB_DIR)
 	$(CC) $(CFLAGS) $(SHARED_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
+$(BUILD_LIB_DIR)/aead.$(SHARED_EXT): $(wildcard $(SRC_DIR)/core/aead/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SHARED_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
+
 # Data structures
 $(BUILD_LIB_DIR)/array.$(SHARED_EXT): $(wildcard $(SRC_DIR)/data/array/*.c) | $(BUILD_LIB_DIR)
 	$(CC) $(CFLAGS) $(SHARED_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
@@ -146,8 +149,7 @@ $(BUILD_LIB_DIR)/parallel.$(SHARED_EXT): $(wildcard $(SRC_DIR)/performance/paral
 ############
 # Examples #
 ############
-examples: $(addprefix $(BUILD_EXAMPLE_DIR)/, $(addsuffix _example, $(LIBS))) 
-
+examples: $(BUILD_EXAMPLE_DIR)/array_example $(BUILD_EXAMPLE_DIR)/base64_example $(BUILD_EXAMPLE_DIR)/binary_example $(BUILD_EXAMPLE_DIR)/bitmap_example $(BUILD_EXAMPLE_DIR)/cache_example $(BUILD_EXAMPLE_DIR)/chacha20_example $(BUILD_EXAMPLE_DIR)/circular_buffer_example $(BUILD_EXAMPLE_DIR)/dict_example $(BUILD_EXAMPLE_DIR)/digital_signature_example $(BUILD_EXAMPLE_DIR)/double_queue_example $(BUILD_EXAMPLE_DIR)/ed25519_example $(BUILD_EXAMPLE_DIR)/hash_example $(BUILD_EXAMPLE_DIR)/hash_table_example $(BUILD_EXAMPLE_DIR)/interfaces_example $(BUILD_EXAMPLE_DIR)/json_example $(BUILD_EXAMPLE_DIR)/log_example $(BUILD_EXAMPLE_DIR)/pack_example $(BUILD_EXAMPLE_DIR)/parallel_example $(BUILD_EXAMPLE_DIR)/priority_queue_example $(BUILD_EXAMPLE_DIR)/queue_example $(BUILD_EXAMPLE_DIR)/rsa_example $(BUILD_EXAMPLE_DIR)/set_example $(BUILD_EXAMPLE_DIR)/sha_example $(BUILD_EXAMPLE_DIR)/socket_example $(BUILD_EXAMPLE_DIR)/stack_example $(BUILD_EXAMPLE_DIR)/sync_example $(BUILD_EXAMPLE_DIR)/tuple_example
 $(BUILD_EXAMPLE_DIR):
 	@mkdir -p $@
 
@@ -179,6 +181,9 @@ $(BUILD_EXAMPLE_DIR)/socket_example: $(EXAMPLES_DIR)/socket_example.c $(BUILD_LI
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^
 
 $(BUILD_EXAMPLE_DIR)/ed25519_example: $(EXAMPLES_DIR)/ed25519_example.c $(BUILD_LIB_DIR)/ed25519.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) | $(BUILD_EXAMPLE_DIR)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^
+
+$(BUILD_EXAMPLE_DIR)/chacha20_example: $(EXAMPLES_DIR)/chacha20_example.c $(BUILD_LIB_DIR)/chacha20.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) | $(BUILD_EXAMPLE_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^
 
 $(BUILD_EXAMPLE_DIR)/array_example: $(EXAMPLES_DIR)/array_example.c $(BUILD_LIB_DIR)/array.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) | $(BUILD_EXAMPLE_DIR)
