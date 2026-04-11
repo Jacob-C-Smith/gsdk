@@ -42,10 +42,8 @@ void chacha20_quarter_round
     unsigned int *d
 );
 
-void chacha20_round ( chacha20 *p_chacha20 );
-
 // function definitions
-void chacha20_block_print ( chacha20_block block )
+void chacha20_block_print ( chacha20_state block )
 {
 
     // print block row
@@ -67,7 +65,7 @@ void chacha20_block_print ( chacha20_block block )
     return;
 }
 
-void chacha20_block_byte_print ( chacha20_block block )
+void chacha20_block_byte_print ( chacha20_state block )
 {
 
     // initialized data
@@ -138,6 +136,14 @@ int chacha20_setup ( chacha20 *p_chacha20 )
                 return 0;
         }
     }
+}
+
+int chacha20_state_get ( chacha20_state *p_state, chacha20 *p_chacha20 )
+{
+
+    memcpy(p_state, p_chacha20->state, sizeof(chacha20_state));
+
+    return 1;
 }
 
 int chacha20_construct
@@ -231,10 +237,10 @@ int chacha20_process ( void *p_ciphertext, chacha20 *p_chacha20, void *p_plainte
         chacha20_round(p_chacha20);
 
         // copy the block key
-        memcpy(ciphertext, p_chacha20->state, sizeof(chacha20_block));
+        memcpy(ciphertext, p_chacha20->state, sizeof(chacha20_state));
 
         // compute and store ciphertext
-        for (size_t i = 0; i < sizeof(chacha20_block); i++)
+        for (size_t i = 0; i < sizeof(chacha20_state); i++)
             ciphertext[i] = p_p[i] ^ ciphertext[i];
         
         // debug
@@ -243,11 +249,11 @@ int chacha20_process ( void *p_ciphertext, chacha20 *p_chacha20, void *p_plainte
             chacha20_block_byte_print((unsigned int *)ciphertext);
         #endif
 
-        memcpy(p_c, ciphertext, sizeof(chacha20_block));
+        memcpy(p_c, ciphertext, sizeof(chacha20_state));
 
         // step
-        p_c += sizeof(chacha20_block),
-        p_p += sizeof(chacha20_block),
+        p_c += sizeof(chacha20_state),
+        p_p += sizeof(chacha20_state),
         p_chacha20->block++;
     }
 
@@ -286,8 +292,8 @@ int chacha20_process ( void *p_ciphertext, chacha20 *p_chacha20, void *p_plainte
         memcpy(p_c, ciphertext, residual);
 
         // step
-        p_c += sizeof(chacha20_block),
-        p_p += sizeof(chacha20_block);
+        p_c += sizeof(chacha20_state),
+        p_p += sizeof(chacha20_state);
     }
 
     // success
