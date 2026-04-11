@@ -29,10 +29,9 @@
 struct chacha20_s;
 
 // type definitions
-typedef unsigned int  chacha20_key    [8];
-typedef unsigned int  chacha20_nonce  [3];
-typedef unsigned int  chacha20_block  [16];
-typedef unsigned int  chacha20_state  [16];
+typedef unsigned int chacha20_key  [8];
+typedef unsigned int chacha20_nonce[3];
+typedef unsigned int chacha20_state[16];
 
 typedef unsigned char poly1305_one_time_key[32];
 typedef unsigned char poly1305_tag         [16];
@@ -106,6 +105,15 @@ int chacha20_seek ( chacha20 *p_chacha20, unsigned int block );
  * @return 1 on success, 0 on error
  */
 int chacha20_tell ( chacha20 *p_chacha20, unsigned int *p_block );
+
+/// round
+void chacha20_round ( chacha20 *p_chacha20 );
+
+/// setup
+int chacha20_setup ( chacha20 *p_chacha20 );
+
+/// accessor
+int chacha20_state_get ( chacha20_state *p_state, chacha20 *p_chacha20 );
 
 /// destroy
 /** !
