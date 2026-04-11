@@ -1,7 +1,7 @@
 /** !
- * Example ChaCha20 program
+ * Example Poly1305 program
  * 
- * @file src/examples/chacha20_example.c
+ * @file src/examples/poly1305_example.c
  * 
  * @author Jacob Smith
  */
@@ -13,10 +13,10 @@
 // gsdk
 /// core
 #include <core/log.h>
-#include <core/chacha20.h>
+#include <core/poly1305.h>
 
 // preprocessor definitions
-#define BYTES_PER_ROW 32
+#define BYTES_PER_ROW 16
 
 // forward declarations
 /// logs
@@ -24,13 +24,22 @@ int checkpoint ( const char *p_event );
 int hex_print ( char *p, size_t len );
 
 // data
-/// chacha20
-chacha20 *p_chacha20 = NULL;
-
-/// plain text, encrypted text, and decrypted text
-char _x[114] = { 0 },
-     _y[114] = { 0 },
-     _z[114] = { 0 };
+/// poly1305
+poly1305_one_time_key _one_time_key = 
+{ 
+    0x85, 0xd6, 0xbe, 0x78, 0x57, 0x55, 0x6d, 0x33,
+    0x7f, 0x44, 0x52, 0xfe, 0x42, 0xd5, 0x06, 0xa8, 
+    0x01, 0x03, 0x80, 0x8a, 0xfb, 0x0d, 0xb2, 0xfd, 
+    0x4a, 0xbf, 0xf6, 0xaf, 0x41, 0x49, 0xf5, 0x1b,
+};
+chacha20_key _key = 
+{
+    0x83828180, 0x87868584, 0x8b8a8988, 0x8f8e8d8c,
+    0x93929190, 0x97969594, 0x9b9a9998, 0x9f9e9d9c,    
+};
+chacha20_nonce _nonce =  { 0x00000000, 0x03020100, 0x07060504, };
+poly1305_tag _tag = { 0 };
+char _message[34] = "Cryptographic Forum Research Group";
 
 // entry point
 int main ( int argc, const char *argv[] )
@@ -43,58 +52,31 @@ int main ( int argc, const char *argv[] )
     // #0 - start
     checkpoint("start");
 
-    // #1 - initial
-    {
-        
-        // construct a chacha20 stream cipher
-        chacha20_construct(
-            &p_chacha20,
-            (chacha20_key) { 0x03020100, 0x07060504, 0x0b0a0908, 0x0f0e0d0c, 0x13121110, 0x17161514, 0x1b1a1918, 0x1f1e1d1c },
-            (chacha20_nonce) { 0x00000000, 0x4a000000, 0x00000000 },
-            1
-        ); 
-
-        // copy plaintext
-        strncpy(_x, "Ladies and Gentlemen of the class of '99: If I could offer you only one tip for the future, sunscreen would be it.", sizeof(_x));
-        
-        // checkpoint
-        checkpoint("after construct");
-    }
-
-    // #2 - encrypt 
+    // #1 - message authentication code
     {
 
-        // encrypt
-        chacha20_encrypt(_y, p_chacha20, _x, sizeof(_x));
+        // compute the message authentication code
+        poly1305_mac(_message, sizeof(_message), _tag, _one_time_key);
 
         // checkpoint
-        checkpoint("after encrypt");
+        checkpoint("after computing message authentication code");
     }
     
-    // #3 - decrypt
+    // #2 - key generation
     {
 
-        // seek
-        chacha20_seek(p_chacha20, 1),
-
-        // decrypt
-        chacha20_decrypt(_z, p_chacha20, _y, sizeof(_y));
-
-        // checkpoint
-        checkpoint("after decrypt");
-    }
-
-    // #4 - destroy
-    {
-
-        // destroy the chacha20 cipher
-        chacha20_destroy(&p_chacha20);
+        // clear message and tag
+        memset(_message, 0, sizeof(_message)),
+        memset(_tag, 0, sizeof(_tag));
+        
+        // generate a key
+        poly1305_key_generate(&_one_time_key, _key, _nonce, 0);
 
         // checkpoint
-        checkpoint("after destroy");
+        checkpoint("key generation");
     }
 
-    // #5 - done
+    // #3 - done
     checkpoint("done");
  
     // success
@@ -163,19 +145,19 @@ int checkpoint ( const char *p_event )
     static int step = 0;
 
     // print the event
-    log_info("#%d - chacha20 %s\n", step, p_event);
+    log_info("#%d - poly1305 %s\n", step, p_event);
 
     // print the plain text
-    log_info("\n - plain text - \n"), 
-    hex_print(_x, sizeof(_x));
+    log_info("- one time key - \n"), 
+    hex_print(_one_time_key, sizeof(_one_time_key));
 
     // print the encrypted text
-    log_warning("\n - encrypted text - \n"), 
-    hex_print(_y, sizeof(_y));
+    log_warning("\n - message - \n"), 
+    hex_print(_message, sizeof(_message));
     
     // print the decrypted text
-    log_error("\n - decrypted text - \n", _z), 
-    hex_print(_z, sizeof(_z));
+    log_error("\n - tag - \n"), 
+    hex_print(_tag, sizeof(_tag));
 
     // formatting
     putchar('\n');
