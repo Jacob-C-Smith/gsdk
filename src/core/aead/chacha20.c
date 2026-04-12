@@ -1,7 +1,7 @@
 /** ! 
  * ChaCha20 implementation
  * 
- * @file src/core/chacha20/chacha20.c
+ * @file src/core/aead/chacha20.c
  * 
  * @author Jacob Smith
  */
@@ -136,6 +136,15 @@ int chacha20_setup ( chacha20 *p_chacha20 )
                 return 0;
         }
     }
+}
+
+int chacha20_nonce_set ( chacha20 *p_chacha20, chacha20_nonce nonce )
+{
+
+    memcpy(p_chacha20->nonce, nonce, sizeof(chacha20_nonce));
+
+    // success
+    return 1;
 }
 
 int chacha20_state_get ( chacha20_state *p_state, chacha20 *p_chacha20 )
@@ -419,13 +428,16 @@ int chacha20_destroy ( chacha20 **pp_chacha20 )
     }
 }
 
-void chacha20_round ( chacha20 *p_chacha20 )
+int chacha20_round ( chacha20 *p_chacha20 )
 {
     
-    unsigned int *p_x = p_chacha20->state;
+    // initialized data
     unsigned int x[16] = { 0 };
-    memcpy(x,&p_chacha20->state,sizeof(chacha20_state));
+
+    // copy the current chacha20 state
+    memcpy(x, &p_chacha20->state, sizeof(chacha20_state));
     
+    // 10 iterations; 4 column quarter rounds and 4 diagonal quarter rounds
     for ( int i = 0; i < 10; i++ )
     
         chacha20_quarter_round(&x[0], &x[4], &x[8] , &x[12]),
@@ -439,6 +451,7 @@ void chacha20_round ( chacha20 *p_chacha20 )
         chacha20_quarter_round(&x[3], &x[4], &x[9] , &x[14]);
     
 
+    // accumulate
     for ( int i = 0; i < 16; i++ ) x[i] += p_chacha20->state[i];
     
     #ifdef CHACHA20_DEBUG
@@ -447,11 +460,11 @@ void chacha20_round ( chacha20 *p_chacha20 )
         chacha20_block_byte_print(x);
     #endif
 
+    // store the state after the round operation
     memcpy(&p_chacha20->state, x, sizeof(chacha20_state));
     
-
     // done
-    return;
+    return 1;
 }
 
 void chacha20_quarter_round 
