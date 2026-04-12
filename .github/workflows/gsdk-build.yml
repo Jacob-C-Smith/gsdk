@@ -513,6 +513,24 @@ jobs:
           chmod +x build/examples/poly1305_example
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/examples/poly1305_example
+  
+  aead-example:
+    needs: [log-example, pack-example,chacha20-example, poly1305-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run aead example
+        run: |
+          chmod +x build/examples/aead_example
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/examples/aead_example
 
   pack-example:
     needs: [pack-test, log-example]
