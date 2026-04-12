@@ -1,7 +1,7 @@
 /** ! 
  * Poly1305 interface
  * 
- * @file src/core/chacha20/poly1305.h
+ * @file src/core/aead/poly1305.h
  * 
  * @author Jacob Smith
  */
@@ -49,6 +49,7 @@ int poly1305_mac
     poly1305_one_time_key  key
 );
 
+/// key generation
 /** !
  * Generate a poly1305 key  
  * 

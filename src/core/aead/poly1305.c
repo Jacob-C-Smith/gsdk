@@ -1,7 +1,7 @@
 /** ! 
  * Poly1305 implementation
  * 
- * @file src/core/chacha20/poly1305.c
+ * @file src/core/aead/poly1305.c
  * 
  * @author Jacob Smith
  */
@@ -251,6 +251,9 @@ int poly1305_key_generate
 
     // return the one time key to the caller
     memcpy(p_key, _s, sizeof(poly1305_one_time_key));
+
+    // release the chacha20 cipher
+    chacha20_destroy(&p_chacha20);
 
     // success
     return 1;

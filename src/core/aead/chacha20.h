@@ -1,7 +1,7 @@
 /** ! 
  * ChaCha20 interface
  * 
- * @file src/core/chacha20/chacha20.h
+ * @file src/core/aead/chacha20.h
  * 
  * @author Jacob Smith
  */
@@ -32,9 +32,6 @@ struct chacha20_s;
 typedef unsigned int chacha20_key  [8];
 typedef unsigned int chacha20_nonce[3];
 typedef unsigned int chacha20_state[16];
-
-typedef unsigned char poly1305_one_time_key[32];
-typedef unsigned char poly1305_tag         [16];
 
 typedef struct chacha20_s chacha20;
 
@@ -107,15 +104,48 @@ int chacha20_seek ( chacha20 *p_chacha20, unsigned int block );
 int chacha20_tell ( chacha20 *p_chacha20, unsigned int *p_block );
 
 /// round
-void chacha20_round ( chacha20 *p_chacha20 );
+/** !
+ * Perform a chacha20 operation
+ * 
+ * @param p_chacha20 the chacha cipher
+ * 
+ * @return 1 on success, 0 on error
+ */
+int chacha20_round ( chacha20 *p_chacha20 );
 
 /// setup
+/** !
+ * Setup a chacha20 block
+ * 
+ * @param p_chacha20 the chacha cipher
+ * 
+ * @return 1 on success, 0 on error
+ */
 int chacha20_setup ( chacha20 *p_chacha20 );
 
-/// accessor
+/// mutators
+/** !
+ * Set the nonce
+ * 
+ * @param p_chacha20 the chacha cipher
+ * @param nonce      the nonce
+ * 
+ * @return 1 on success, 0 on error
+ */
+int chacha20_nonce_set ( chacha20 *p_chacha20, chacha20_nonce nonce );
+
+/// accessors
+/** !
+ * Set the nonce
+ * 
+ * @param p_state    result
+ * @param p_chacha20 the chacha cipher
+ * 
+ * @return 1 on success, 0 on error
+ */
 int chacha20_state_get ( chacha20_state *p_state, chacha20 *p_chacha20 );
 
-/// destroy
+/// destructors
 /** !
  * Destory a chacha20 cipher
  * 
