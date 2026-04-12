@@ -1,6 +1,16 @@
 {
     "core" :
     {
+        "aead" : 
+        {
+            "name" : "aead",
+            "description" : "Authenticated Encryption with Associated Data",
+            "path": "src/core/aead",
+            "markdown" : "md/core/aead.md",
+            "tester" : "src/test/aead_test.c",
+            "example" : "src/examples/aead_example.c",
+            "icon": "resource/icon/aead.png"
+        },
         "hash" : 
         {
             "name" : "hash",
