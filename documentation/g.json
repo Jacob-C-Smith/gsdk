@@ -107,6 +107,19 @@
             "markdown": "md/core/sync.md",
             "example": "src/examples/sync_example.c",
             "icon": "resource/icon/sync.png"
+        },
+        "x25519" : 
+        {
+            "name": "x25519",
+            "description": "Elliptic Curve Diffie Hellman key exchange",
+            "path": "src/core/x25519",
+            "markdown": "md/core/x25519.md",
+            "example": "src/examples/x25519_example.c",
+            "icon": 
+            {
+                "dark": "resource/icon/x25519_dark.png", 
+                "light": "resource/icon/x25519_light.png"
+            }
         }
     },
     "data" :
