@@ -63,15 +63,23 @@ int aead_construct
  */
 int aead_encrypt
 (
-    void *p_ciphertext,
-    aead *p_aead,
-    poly1305_tag tag,
+    void         *p_ciphertext,
+    aead         *p_aead,
+    poly1305_tag  tag,
 
     const void *p_aad,       size_t aad_len,
     const void *p_plaintext, size_t len
 );
 
 /// seek
+/** !
+ * Set the sequence counter
+ * 
+ * @param p_aead   the aead
+ * @param sequence the sequence counter
+ * 
+ * @return 1 on success, 0 on error
+ */
 int aead_sequence_set ( aead *p_aead, size_t sequence );
 
 /// decrypt
