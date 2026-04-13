@@ -69,6 +69,9 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>🧪 <a href="./documentation/md/core/rsa.md">
             rsa
         </a></li>
+        <li>🧪 <a href="./documentation/md/core/socket.md">
+            socket
+        </a></li>
         <li>🧪 <a href="./documentation/md/core/x25519.md">
             x25519
         </a></li>

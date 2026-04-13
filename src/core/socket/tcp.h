@@ -32,6 +32,7 @@
 typedef int socket_tcp;
 typedef int(*fn_socket_tcp_accept)( socket_tcp _socket_tcp, socket_ip_address ip_address, socket_port port_number, void *const p_parameter );
 
+/// construct
 /** !
  * Create a TCP socket
  * 
@@ -43,6 +44,7 @@ typedef int(*fn_socket_tcp_accept)( socket_tcp _socket_tcp, socket_ip_address ip
  */
 int socket_tcp_create ( socket_tcp *const p_socket_tcp, enum socket_address_family_e address_family, socket_port port_number );
 
+/// listen
 /** !
  * Block and listen for a connection on a TCP socket, then call pfn_tcp_accept_callback.
  * 
@@ -53,6 +55,7 @@ int socket_tcp_create ( socket_tcp *const p_socket_tcp, enum socket_address_fami
  */
 int socket_tcp_listen ( socket_tcp _socket_tcp, fn_socket_tcp_accept pfn_tcp_accept_callback, void *const p_parameter );
 
+/// receive
 /** !
  * Receive data from a TCP socket, and store in a buffer
  * 
@@ -66,6 +69,7 @@ int socket_tcp_listen ( socket_tcp _socket_tcp, fn_socket_tcp_accept pfn_tcp_acc
  */
 int socket_tcp_receive ( socket_tcp _socket_tcp, void *const p_buffer, size_t buffer_len );
 
+/// send
 /** !
  * Send data to a TCP socket
  * 
@@ -79,6 +83,7 @@ int socket_tcp_receive ( socket_tcp _socket_tcp, void *const p_buffer, size_t bu
  */
 int socket_tcp_send ( socket_tcp _socket_tcp, const void *const p_buffer, size_t buffer_len );
 
+/// connect
 /** !
  * Connect to a TCP socket
  * 
@@ -92,6 +97,7 @@ int socket_tcp_send ( socket_tcp _socket_tcp, const void *const p_buffer, size_t
  */
 int socket_tcp_connect ( socket_tcp *const p_socket_tcp, enum socket_address_family_e address_family, socket_ip_address ip_address, socket_port port_number );
 
+/// destroy
 /** !
  * Destroy a TCP socket
  * 
