@@ -99,6 +99,15 @@
             "markdown": "md/core/rsa.md",
             "icon": "resource/icon/crypto.png"
         },
+        "socket" : 
+        {
+            "name": "socket",
+            "description": "Cross platform networking primatives",
+            "path": "src/core/socket",
+            "markdown": "md/core/socket.md",
+            "example": "src/examples/time_server.c",
+            "icon": "resource/icon/socket.png"
+        },
         "sync" : 
         {
             "name": "sync",
