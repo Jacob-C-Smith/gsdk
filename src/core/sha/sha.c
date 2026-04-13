@@ -808,28 +808,24 @@ int sha256_unpack ( sha256_hash *p_hash, void *p_buffer )
     if ( NULL == p_buffer ) goto no_buffer;
  
     // initialized data
-    char *p       = p_buffer;
-    char  buf[64] = { 0 };
-
+    char *p   = p_buffer;
+    char *p_h = (char*) p_hash;
+    
     // unpack the hash
     p += pack_unpack(
         p, "%32i8",
-        buf,
-        &p_hash[0] , &p_hash[1] , &p_hash[2] , &p_hash[3],
-        &p_hash[4] , &p_hash[5] , &p_hash[6] , &p_hash[7],
-        &p_hash[8] , &p_hash[9] , &p_hash[10], &p_hash[11],
-        &p_hash[12], &p_hash[13], &p_hash[14], &p_hash[15],
-        &p_hash[16], &p_hash[17], &p_hash[18], &p_hash[19],
-        &p_hash[20], &p_hash[21], &p_hash[22], &p_hash[23],
-        &p_hash[24], &p_hash[25], &p_hash[26], &p_hash[27],
-        &p_hash[28], &p_hash[29], &p_hash[30], &p_hash[31]
+        &p_h[0] , &p_h[1] , &p_h[2] , &p_h[3],
+        &p_h[4] , &p_h[5] , &p_h[6] , &p_h[7],
+        &p_h[8] , &p_h[9] , &p_h[10], &p_h[11],
+        &p_h[12], &p_h[13], &p_h[14], &p_h[15],
+        &p_h[16], &p_h[17], &p_h[18], &p_h[19],
+        &p_h[20], &p_h[21], &p_h[22], &p_h[23],
+        &p_h[24], &p_h[25], &p_h[26], &p_h[27],
+        &p_h[28], &p_h[29], &p_h[30], &p_h[31]
     );
 
-    // error check
-    if ( 32 != (p - (char*) p_buffer) ) goto failed_to_unpack_hash;
-
     // success
-    return 1;
+    return p - (char *)p_buffer;
 
     // error handling
     {
@@ -875,35 +871,32 @@ int sha512_unpack ( sha512_hash *p_hash, void *p_buffer )
  
     // initialized data
     char *p       = p_buffer;
-    char  buf[64] = { 0 };
+    char *p_h = (char*) p_hash;
 
     // unpack the hash
     p += pack_unpack(
         p, "%64i8",
-        buf,
-        &p_hash[0] , &p_hash[1] , &p_hash[2] , &p_hash[3],
-        &p_hash[4] , &p_hash[5] , &p_hash[6] , &p_hash[7],
-        &p_hash[8] , &p_hash[9] , &p_hash[10], &p_hash[11],
-        &p_hash[12], &p_hash[13], &p_hash[14], &p_hash[15],
-        &p_hash[16], &p_hash[17], &p_hash[18], &p_hash[19],
-        &p_hash[20], &p_hash[21], &p_hash[22], &p_hash[23],
-        &p_hash[24], &p_hash[25], &p_hash[26], &p_hash[27],
-        &p_hash[28], &p_hash[29], &p_hash[30], &p_hash[31],
-        &p_hash[32], &p_hash[33], &p_hash[34], &p_hash[35],
-        &p_hash[36], &p_hash[37], &p_hash[38], &p_hash[39],
-        &p_hash[40], &p_hash[41], &p_hash[42], &p_hash[43],
-        &p_hash[44], &p_hash[45], &p_hash[46], &p_hash[47],
-        &p_hash[48], &p_hash[49], &p_hash[50], &p_hash[51],
-        &p_hash[52], &p_hash[53], &p_hash[54], &p_hash[55],
-        &p_hash[56], &p_hash[57], &p_hash[58], &p_hash[59],
-        &p_hash[60], &p_hash[61], &p_hash[62], &p_hash[63]
+        &p_h[0] , &p_h[1] , &p_h[2] , &p_h[3],
+        &p_h[4] , &p_h[5] , &p_h[6] , &p_h[7],
+        &p_h[8] , &p_h[9] , &p_h[10], &p_h[11],
+        &p_h[12], &p_h[13], &p_h[14], &p_h[15],
+        &p_h[16], &p_h[17], &p_h[18], &p_h[19],
+        &p_h[20], &p_h[21], &p_h[22], &p_h[23],
+        &p_h[24], &p_h[25], &p_h[26], &p_h[27],
+        &p_h[28], &p_h[29], &p_h[30], &p_h[31],
+        &p_h[32], &p_h[33], &p_h[34], &p_h[35],
+        &p_h[36], &p_h[37], &p_h[38], &p_h[39],
+        &p_h[40], &p_h[41], &p_h[42], &p_h[43],
+        &p_h[44], &p_h[45], &p_h[46], &p_h[47],
+        &p_h[48], &p_h[49], &p_h[50], &p_h[51],
+        &p_h[52], &p_h[53], &p_h[54], &p_h[55],
+        &p_h[56], &p_h[57], &p_h[58], &p_h[59],
+        &p_h[60], &p_h[61], &p_h[62], &p_h[63]
     );
 
-    // error check
-    if ( 64 != (p - (char*) p_buffer) ) goto failed_to_unpack_hash;
-
+    
     // success
-    return 1;
+    return p - (char *)p_buffer;
 
     // error handling
     {
