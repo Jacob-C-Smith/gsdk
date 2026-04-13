@@ -1,5 +1,5 @@
 /** !
- * Include header for socket library
+ * Socket TCP interface 
  * 
  * @file src/core/socket/tcp.h 
  * 
