@@ -76,6 +76,16 @@ int certificate_print ( certificate *p_certificate );
  */
 int certificate_get_subject ( certificate *p_certificate, const char **pp_subject );
 
+/** !
+ * Get the public key of a certificate
+ * 
+ * @param p_certificate the certificate
+ * @param p_public_key  result
+ * 
+ * @return 1 on success, 0 on error
+ */
+int certificate_public_key_get ( certificate *p_certificate, ed25519_public_key *p_public_key );
+
 /// sign
 /** !
  * Sign a certificate

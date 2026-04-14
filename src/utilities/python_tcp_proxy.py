@@ -1,109 +1,106 @@
 import socket
 from threading import Thread
+import importlib
+import parser
 import os
 
-# Placeholder for parser module
-import importlib
-import parser  # assumes a module named parser.py exists
 
-class Proxy2Server(Thread):
-    def __init__(self, host, port):
-        super().__init__()
-        self.client = None  # Set externally
-        self.port = port
-        self.host = host
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.connect((self.host, self.port))
+class Pipe(Thread):
+    def __init__(self, src, dst, listen_port, direction):
+        super().__init__(daemon=True)
+        self.src = src
+        self.dst = dst
+        self.listen_port = listen_port
+        self.direction = direction
 
     def run(self):
         while True:
             try:
-                data = self.server.recv(4096)
+                data = self.src.recv(4096)
                 if not data:
                     break
+
                 try:
                     importlib.reload(parser)
-                    parser.parse(data, self.port, 'server')
+                    parser.parse(data, self.listen_port, self.direction)
                 except Exception as e:
-                    print(f"[Proxy2Server] Parser error: {e}")
-                if self.client:
-                    self.client.sendall(data)
+                    print(f"[{self.direction}] Parser error: {e}")
+
+                self.dst.sendall(data)
+
             except Exception as e:
-                print(f"[Proxy2Server] Error: {e}")
+                print(f"[{self.direction}] Error: {e}")
                 break
 
+        try:
+            self.src.close()
+        except:
+            pass
 
-class Client2Proxy(Thread):
-    def __init__(self, host, port):
-        super().__init__()
-        self.server = None  # Set externally
-        self.port = port
-        self.host = host
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.sock.bind((self.host, self.port))
-        self.sock.listen(1)
-        print(f"[Client2Proxy] Listening on {self.host}:{self.port}")
-        self.client, addr = self.sock.accept()
-        print(f"[Client2Proxy] Connection from {addr}")
-
-    def run(self):
-        while True:
-            try:
-                data = self.client.recv(4096)
-                if not data:
-                    break
-                try:
-                    importlib.reload(parser)
-                    parser.parse(data, self.port, 'client')
-                except Exception as e:
-                    print(f"[Client2Proxy] Parser error: {e}")
-                if self.server:
-                    self.server.sendall(data)
-            except Exception as e:
-                print(f"[Client2Proxy] Error: {e}")
-                break
+        try:
+            self.dst.close()
+        except:
+            pass
 
 
 class Proxy(Thread):
-    def __init__(self, from_host, to_host, port):
-        super().__init__()
-        self.from_host = from_host
-        self.to_host = to_host
-        self.port = port
+    def __init__(self, listen_host, listen_port, target_host, target_port):
+        super().__init__(daemon=True)
+        self.listen_host = listen_host
+        self.listen_port = listen_port
+        self.target_host = target_host
+        self.target_port = target_port
 
     def run(self):
+        server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        server_sock.bind((self.listen_host, self.listen_port))
+        server_sock.listen(5)
+
+        print(f"[Proxy] Listening on {self.listen_host}:{self.listen_port}")
+        print(f"[Proxy] Forwarding to {self.target_host}:{self.target_port}")
+
         while True:
-            print(f"[Proxy({self.port})] Setting up")
-            try:
-                c2p = Client2Proxy(self.from_host, self.port)
-                p2s = Proxy2Server(self.to_host, self.port)
+            client_sock, addr = server_sock.accept()
+            print(f"[Proxy] Client connected from {addr}")
 
-                c2p.server = p2s.server
-                p2s.client = c2p.client
+            target_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            target_sock.connect((self.target_host, self.target_port))
 
-                c2p.start()
-                p2s.start()
+            upstream = Pipe(
+                client_sock,
+                target_sock,
+                self.listen_port,
+                "client->server"
+            )
 
-                c2p.join()
-                p2s.join()
-            except Exception as e:
-                print(f"[Proxy({self.port})] Error: {e}")
-            print(f"[Proxy({self.port})] Restarting connection...")
+            downstream = Pipe(
+                target_sock,
+                client_sock,
+                self.listen_port,
+                "server->client"
+            )
+
+            upstream.start()
+            downstream.start()
 
 
 if __name__ == "__main__":
-    proxy_port = 3001
-    master_server = Proxy('0.0.0.0', '127.0.0.1', proxy_port)
-    master_server.start()
+    proxy = Proxy(
+        listen_host="0.0.0.0",
+        listen_port=3001,
+        target_host="127.0.0.1",
+        target_port=3000
+    )
+
+    proxy.start()
 
     try:
         while True:
-            cmd = input('$ ')
-            if cmd.strip() == 'quit':
+            cmd = input("$ ")
+            if cmd.strip() == "quit":
                 os._exit(0)
+
     except KeyboardInterrupt:
         print("\nExiting...")
         os._exit(0)
-    except Exception as e:
-        print("Error: {}".format(e))

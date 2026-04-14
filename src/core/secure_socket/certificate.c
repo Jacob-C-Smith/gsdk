@@ -140,6 +140,43 @@ int certificate_print ( certificate *p_certificate )
     }
 }
 
+int certificate_public_key_get ( certificate *p_certificate, ed25519_public_key *p_public_key )
+{
+
+    // argument check
+    if ( NULL == p_certificate ) goto no_certificate;
+    if ( NULL ==  p_public_key ) goto no_public_key;
+
+    // store the public key
+    memcpy(p_public_key, p_certificate->public_key, sizeof(ed25519_public_key));
+
+    // success
+    return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_certificate:
+                #ifndef NDEBUG
+                    log_error("[certificate] Null pointer provided for parameter \"p_certificate\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_public_key:
+                #ifndef NDEBUG
+                    log_error("[certificate] Null pointer provided for parameter \"p_public_key\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
 int certificate_get_subject ( certificate *p_certificate, const char **pp_subject )
 {
 
