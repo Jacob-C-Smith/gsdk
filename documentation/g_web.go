@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -25,6 +26,7 @@ type Module struct {
 	Description string `json:"description"`
 	Path        string `json:"path"`
 	Markdown    string `json:"markdown"`
+	Interface   string
 	Tester      string `json:"tester"`
 	Example     string `json:"example"`
 	Array       []string
@@ -318,6 +320,8 @@ func moduleHTML(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Module not found", http.StatusNotFound)
 		return
 	}
+
+	module.Interface = strings.ReplaceAll(module.Name, " ", "_")
 
 	w.Header().Set("Content-Type", "text/html")
 	mt.Execute(w, module)

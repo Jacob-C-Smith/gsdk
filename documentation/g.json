@@ -99,6 +99,15 @@
             "markdown": "md/core/rsa.md",
             "icon": "resource/icon/crypto.png"
         },
+        "secure socket" : 
+        {
+            "name": "secure socket",
+            "description": "Authenticated and encrypted network communication",
+            "path": "src/core/secure_socket",
+            "markdown": "md/core/secure_socket.md",
+            "example": "src/examples/secure_time_server.c",
+            "icon": "resource/icon/secure_socket.png"
+        },
         "socket" : 
         {
             "name": "socket",
