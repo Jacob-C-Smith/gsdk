@@ -16,7 +16,7 @@ endif
 
 # Compiler
 CC = clang #/opt/gcc-15.1.0/bin/gcc
-CFLAGS = -fsanitize=address -fPIC -Wall -Wextra -Iinclude -Iinclude/core -Iinclude/data -Iinclude/performance -Iinclude/reflection -std=c23 -g
+CFLAGS = -fPIC -Wall -Wextra -Iinclude -Iinclude/core -Iinclude/data -Iinclude/performance -Iinclude/reflection -std=c23 -g
 
 # Directories
 SRC_DIR           = src
