@@ -115,6 +115,7 @@ int secure_socket_listen
  */
 int secure_socket_send ( secure_socket *p_secure_socket, const void *p_data, size_t len );
 
+/// receive
 /** !
  * Receive and decrypt data from the secure socket.
  *
@@ -126,6 +127,7 @@ int secure_socket_send ( secure_socket *p_secure_socket, const void *p_data, siz
  */
 int secure_socket_receive ( secure_socket *p_secure_socket, void *p_buffer, size_t buffer_len );
 
+/// descructor
 /** !
  * Release the secure socket and underlying resources.
  *
