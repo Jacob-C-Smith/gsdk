@@ -608,9 +608,12 @@ int secure_socket_receive ( secure_socket *p_secure_socket, void *p_buffer, size
     uint64_t       n_len      = 0;
     poly1305_tag   tag        = { 0 };
     unsigned char *ciphertext = NULL;
+    int r = 0;
 
     // read the length
-    if ( sizeof(n_len) != socket_tcp_receive(p_secure_socket->tcp_socket, &n_len, sizeof(n_len)) ) goto failed_to_receive;
+    r = socket_tcp_receive(p_secure_socket->tcp_socket, &n_len, sizeof(n_len));
+    if ( 0 == r ) return 0;
+    if ( sizeof(n_len) != r ) goto failed_to_receive;
 
     // error check
     if ( n_len > buffer_len ) goto buffer_too_small;

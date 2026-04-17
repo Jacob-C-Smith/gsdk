@@ -82,7 +82,7 @@ int socket_tcp_create ( socket_tcp *const p_socket_tcp, enum socket_address_fami
         {
             no_tcp_socket:
                 #ifndef NDEBUG
-                    printf("[socket] Null pointer provided for parameter \"p_tcp_socket\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[socket] Null pointer provided for parameter \"p_tcp_socket\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -93,7 +93,7 @@ int socket_tcp_create ( socket_tcp *const p_socket_tcp, enum socket_address_fami
         {
             failed_to_create_socket:
                 #ifndef NDEBUG
-                    printf("[socket] Call to function \"socket\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[socket] Call to function \"socket\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -101,7 +101,7 @@ int socket_tcp_create ( socket_tcp *const p_socket_tcp, enum socket_address_fami
 
             failed_to_set_socket_option:
                 #ifndef NDEBUG
-                    printf("[socket] Call to function \"setsockopt\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[socket] Call to function \"setsockopt\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -109,7 +109,7 @@ int socket_tcp_create ( socket_tcp *const p_socket_tcp, enum socket_address_fami
             
             failed_to_bind_socket:
                 #ifndef NDEBUG
-                    printf("[socket] Call to function \"bind\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[socket] Call to function \"bind\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -170,7 +170,7 @@ int socket_tcp_listen ( socket_tcp _socket_tcp, fn_socket_tcp_accept pfn_tcp_acc
         {
             failed_to_listen:
                 #ifndef NDEBUG
-                    printf("[socket] Call to function \"listen\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[socket] Call to function \"listen\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -178,7 +178,7 @@ int socket_tcp_listen ( socket_tcp _socket_tcp, fn_socket_tcp_accept pfn_tcp_acc
             
             failed_to_connect:
                 #ifndef NDEBUG
-                    printf("[socket] Call to function \"connect\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[socket] Call to function \"connect\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -197,7 +197,7 @@ int socket_tcp_receive ( socket_tcp _socket_tcp, void *p_buffer, size_t buffer_l
     int r = (int) recv(_socket_tcp, p_buffer, buffer_len, 0);
 
     // error check
-    if ( r < 1 ) goto failed_to_recv;
+    if ( r < 0 ) goto failed_to_recv;
 
     // success
     return r;
@@ -209,7 +209,7 @@ int socket_tcp_receive ( socket_tcp _socket_tcp, void *p_buffer, size_t buffer_l
         {
             no_buffer:
                 #ifndef NDEBUG
-                    printf("[socket] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[socket] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif 
 
                 // error
@@ -220,7 +220,7 @@ int socket_tcp_receive ( socket_tcp _socket_tcp, void *p_buffer, size_t buffer_l
         {
             failed_to_recv:
                 #ifndef NDEBUG
-                    printf("[socket] Call to \"recv\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[socket] Call to \"recv\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -252,7 +252,7 @@ int socket_tcp_send ( socket_tcp _socket_tcp, const void *const p_buffer, size_t
         {
             no_buffer:
                 #ifndef NDEBUG
-                    printf("[socket] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[socket] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif 
 
                 // error
@@ -263,7 +263,7 @@ int socket_tcp_send ( socket_tcp _socket_tcp, const void *const p_buffer, size_t
         {
             failed_to_send:
                 #ifndef NDEBUG
-                    printf("[socket] Call to \"send\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[socket] Call to \"send\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -333,7 +333,7 @@ int socket_tcp_connect ( socket_tcp *const p_socket_tcp, enum socket_address_fam
         {
             no_tcp_socket:
                 #ifndef NDEBUG
-                    printf("[socket] Null pointer provided for parameter \"p_tcp_socket\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[socket] Null pointer provided for parameter \"p_tcp_socket\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -344,7 +344,7 @@ int socket_tcp_connect ( socket_tcp *const p_socket_tcp, enum socket_address_fam
         {
             failed_to_create_socket:
                 #ifndef NDEBUG
-                    printf("[socket] Call to function \"socket\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[socket] Call to function \"socket\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -352,7 +352,7 @@ int socket_tcp_connect ( socket_tcp *const p_socket_tcp, enum socket_address_fam
 
             failed_to_connect:
                 #ifndef NDEBUG
-                    printf("[socket] Call to function \"connect\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[socket] Call to function \"connect\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -395,7 +395,7 @@ int socket_tcp_destroy ( socket_tcp *p_socket_tcp )
         {
             no_socket:
                 #ifndef NDEBUG
-                    printf("[socket] Null pointer provided for parameter \"p_socket_tcp\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[socket] Null pointer provided for parameter \"p_socket_tcp\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -406,7 +406,7 @@ int socket_tcp_destroy ( socket_tcp *p_socket_tcp )
         {
             failed_to_close_socket:
                 #ifndef NDEBUG
-                    printf("[socket] Call to function \"close\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[socket] Call to function \"close\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

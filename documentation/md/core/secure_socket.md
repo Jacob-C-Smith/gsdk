@@ -14,7 +14,7 @@
  To run the example program, execute the following commands
 
  ```bash
- $ ./src/utilities/certificate.sh       # generate certificates
+ $ ./src/utilities/certificate/certificate.sh       # generate certificates
  ```
 
  ```bash

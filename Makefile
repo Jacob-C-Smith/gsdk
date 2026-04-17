@@ -249,69 +249,69 @@ $(BUILD_EXAMPLE_DIR)/parallel_example: $(EXAMPLES_DIR)/parallel_example.c $(BUIL
 #############
 # Utilities #
 #############
-utils: $(BUILD_UTIL_DIR)/rsa_key_generator $(BUILD_UTIL_DIR)/rsa_key_info $(BUILD_UTIL_DIR)/hash_optimal $(BUILD_UTIL_DIR)/lisp_syntax_highlighter $(BUILD_UTIL_DIR)/sha256_hash $(BUILD_UTIL_DIR)/sha512_hash $(BUILD_UTIL_DIR)/digital_sign $(BUILD_UTIL_DIR)/digital_verify $(BUILD_UTIL_DIR)/ed25519_key_generator $(BUILD_UTIL_DIR)/certificate_create $(BUILD_UTIL_DIR)/certificate_info $(BUILD_UTIL_DIR)/certificate_sign $(BUILD_UTIL_DIR)/certificate_verify $(BUILD_UTIL_DIR)/certificate_chain_verify $(BUILD_UTIL_DIR)/echo_server $(BUILD_UTIL_DIR)/echo_client $(BUILD_UTIL_DIR)/time_server $(BUILD_UTIL_DIR)/time_client $(BUILD_UTIL_DIR)/secure_time_server $(BUILD_UTIL_DIR)/secure_time_client
+utils: $(BUILD_UTIL_DIR)/rsa_key_generator $(BUILD_UTIL_DIR)/rsa_key_info $(BUILD_UTIL_DIR)/hash_optimal $(BUILD_UTIL_DIR)/lisp_syntax_highlighter $(BUILD_UTIL_DIR)/sha256_hash $(BUILD_UTIL_DIR)/sha512_hash $(BUILD_UTIL_DIR)/digital_sign $(BUILD_UTIL_DIR)/digital_verify $(BUILD_UTIL_DIR)/ed25519_key_generator $(BUILD_UTIL_DIR)/certificate_create $(BUILD_UTIL_DIR)/certificate_info $(BUILD_UTIL_DIR)/certificate_sign $(BUILD_UTIL_DIR)/certificate_verify $(BUILD_UTIL_DIR)/certificate_chain_verify $(BUILD_UTIL_DIR)/echo_server $(BUILD_UTIL_DIR)/echo_client $(BUILD_UTIL_DIR)/time_server $(BUILD_UTIL_DIR)/time_client $(BUILD_UTIL_DIR)/secure_time_server $(BUILD_UTIL_DIR)/secure_time_client 
 
 $(BUILD_UTIL_DIR):
 	@mkdir -p $@
 
-$(BUILD_UTIL_DIR)/rsa_key_generator: $(UTILS_DIR)/rsa_key_generator.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/rsa_key_generator: $(UTILS_DIR)/crypto/rsa_key_generator.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/rsa.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/array.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/dict.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/base64.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/json.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
-$(BUILD_UTIL_DIR)/rsa_key_info: $(UTILS_DIR)/rsa_key_info.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/rsa_key_info: $(UTILS_DIR)/crypto/rsa_key_info.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/rsa.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
-$(BUILD_UTIL_DIR)/hash_optimal: $(UTILS_DIR)/hash_optimal.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/hash_optimal: $(UTILS_DIR)/misc/hash_optimal.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
-$(BUILD_UTIL_DIR)/lisp_syntax_highlighter: $(UTILS_DIR)/lisp_syntax_highlighter.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/lisp_syntax_highlighter: $(UTILS_DIR)/misc/lisp_syntax_highlighter.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/stack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
-$(BUILD_UTIL_DIR)/sha256_hash: $(UTILS_DIR)/sha256_hash.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/sha256_hash: $(UTILS_DIR)/crypto/sha256_hash.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
-$(BUILD_UTIL_DIR)/sha512_hash: $(UTILS_DIR)/sha512_hash.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/sha512_hash: $(UTILS_DIR)/crypto/sha512_hash.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
-$(BUILD_UTIL_DIR)/digital_sign: $(UTILS_DIR)/digital_sign.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/digital_sign: $(UTILS_DIR)/crypto/digital_sign.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/rsa.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/digital_signature.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
-$(BUILD_UTIL_DIR)/digital_verify: $(UTILS_DIR)/digital_verify.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/digital_verify: $(UTILS_DIR)/crypto/digital_verify.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/rsa.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/digital_signature.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
-$(BUILD_UTIL_DIR)/ed25519_key_generator: $(UTILS_DIR)/ed25519_key_generator.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/ed25519_key_generator: $(UTILS_DIR)/crypto/ed25519_key_generator.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/secure_socket.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/ed25519.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
-$(BUILD_UTIL_DIR)/certificate_create: $(UTILS_DIR)/certificate_create.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/certificate_create: $(UTILS_DIR)/certificate/certificate_create.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/secure_socket.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/ed25519.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
-$(BUILD_UTIL_DIR)/certificate_info: $(UTILS_DIR)/certificate_info.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/certificate_info: $(UTILS_DIR)/certificate/certificate_info.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/secure_socket.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/ed25519.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
-$(BUILD_UTIL_DIR)/certificate_sign: $(UTILS_DIR)/certificate_sign.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/certificate_sign: $(UTILS_DIR)/certificate/certificate_sign.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/secure_socket.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/ed25519.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
-$(BUILD_UTIL_DIR)/certificate_verify: $(UTILS_DIR)/certificate_verify.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/certificate_verify: $(UTILS_DIR)/certificate/certificate_verify.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/secure_socket.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/ed25519.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
-$(BUILD_UTIL_DIR)/certificate_chain_verify: $(UTILS_DIR)/certificate_chain_verify.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/certificate_chain_verify: $(UTILS_DIR)/certificate/certificate_chain_verify.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/secure_socket.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/ed25519.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
-$(BUILD_UTIL_DIR)/echo_server: $(UTILS_DIR)/echo_server.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/echo_server: $(UTILS_DIR)/network/udp/echo_server.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(BUILD_LIB_DIR)/parallel.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/rsa.$(SHARED_EXT) $(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(BUILD_LIB_DIR)/array.$(SHARED_EXT) $(BUILD_LIB_DIR)/socket.$(SHARED_EXT) $(BUILD_LIB_DIR)/dict.$(SHARED_EXT) $(BUILD_LIB_DIR)/json.$(SHARED_EXT) $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) 
 
-$(BUILD_UTIL_DIR)/echo_client: $(UTILS_DIR)/echo_client.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/echo_client: $(UTILS_DIR)/network/udp/echo_client.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(BUILD_LIB_DIR)/parallel.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/rsa.$(SHARED_EXT) $(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(BUILD_LIB_DIR)/array.$(SHARED_EXT) $(BUILD_LIB_DIR)/socket.$(SHARED_EXT) $(BUILD_LIB_DIR)/dict.$(SHARED_EXT) $(BUILD_LIB_DIR)/json.$(SHARED_EXT) $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) 
 
-$(BUILD_UTIL_DIR)/time_server: $(UTILS_DIR)/time_server.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/time_server: $(UTILS_DIR)/network/tcp/time_server.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(BUILD_LIB_DIR)/parallel.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/rsa.$(SHARED_EXT) $(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(BUILD_LIB_DIR)/array.$(SHARED_EXT) $(BUILD_LIB_DIR)/socket.$(SHARED_EXT) $(BUILD_LIB_DIR)/dict.$(SHARED_EXT) $(BUILD_LIB_DIR)/json.$(SHARED_EXT) $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) 
 
-$(BUILD_UTIL_DIR)/time_client: $(UTILS_DIR)/time_client.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/time_client: $(UTILS_DIR)/network/tcp/time_client.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(BUILD_LIB_DIR)/parallel.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/rsa.$(SHARED_EXT) $(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(BUILD_LIB_DIR)/array.$(SHARED_EXT) $(BUILD_LIB_DIR)/socket.$(SHARED_EXT) $(BUILD_LIB_DIR)/dict.$(SHARED_EXT) $(BUILD_LIB_DIR)/json.$(SHARED_EXT) $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) 
 
-$(BUILD_UTIL_DIR)/secure_time_server: $(UTILS_DIR)/secure_time_server.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/secure_time_server: $(UTILS_DIR)/network/secure/secure_time_server.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(BUILD_LIB_DIR)/parallel.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/secure_socket.$(SHARED_EXT) $(BUILD_LIB_DIR)/aead.$(SHARED_EXT) $(BUILD_LIB_DIR)/ed25519.$(SHARED_EXT) $(BUILD_LIB_DIR)/x25519.$(SHARED_EXT) $(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(BUILD_LIB_DIR)/array.$(SHARED_EXT) $(BUILD_LIB_DIR)/socket.$(SHARED_EXT) $(BUILD_LIB_DIR)/dict.$(SHARED_EXT) $(BUILD_LIB_DIR)/json.$(SHARED_EXT) $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) 
 
-$(BUILD_UTIL_DIR)/secure_time_client: $(UTILS_DIR)/secure_time_client.c | $(BUILD_UTIL_DIR)
+$(BUILD_UTIL_DIR)/secure_time_client: $(UTILS_DIR)/network/secure/secure_time_client.c | $(BUILD_UTIL_DIR)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(RPATH_FLAGS) -o $@ $^ $(BUILD_LIB_DIR)/parallel.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/secure_socket.$(SHARED_EXT) $(BUILD_LIB_DIR)/aead.$(SHARED_EXT) $(BUILD_LIB_DIR)/ed25519.$(SHARED_EXT) $(BUILD_LIB_DIR)/x25519.$(SHARED_EXT) $(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(BUILD_LIB_DIR)/array.$(SHARED_EXT) $(BUILD_LIB_DIR)/socket.$(SHARED_EXT) $(BUILD_LIB_DIR)/dict.$(SHARED_EXT) $(BUILD_LIB_DIR)/json.$(SHARED_EXT) $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) 
 
 #########
