@@ -71,10 +71,10 @@ const void *key_accessor(const void *value) {
 }
 
 // Test helpers
-bool test_insert(void (*constructor)(cache **), const char *key, const void *value, result_t expected);
+bool test_insert(void (*constructor)(cache **), const void *value, result_t expected);
 bool test_find(void (*constructor)(cache **), const char *key, const void *expected_value, result_t expected);
 bool test_remove(void (*constructor)(cache **), const char *key, const void *expected_value, result_t expected);
-bool test_contents(void (*constructor)(cache **), const char **expected_contents, size_t expected_count);
+bool test_size(void (*constructor)(cache **), size_t expected_count);
 
 // Constructor functions
 void construct_empty(cache **pp_cache);
@@ -250,7 +250,7 @@ void construct_CA(cache **pp_cache) {
     cache_remove(*pp_cache, B_element, NULL);
 }
 
-bool test_insert(void (*constructor)(cache **), const char *key, const void *value, result_t expected) {
+bool test_insert(void (*constructor)(cache **), const void *value, result_t expected) {
     cache *p_cache = NULL;
     constructor(&p_cache);
     result_t result = (result_t)cache_insert(p_cache, value, NULL);
@@ -303,7 +303,7 @@ bool test_remove(void (*constructor)(cache **), const char *key, const void *exp
     return result == expected;
 }
 
-bool test_contents(void (*constructor)(cache **), const char **expected_contents, size_t expected_count) {
+bool test_size(void (*constructor)(cache **), size_t expected_count) {
     cache *p_cache = NULL;
     constructor(&p_cache);
 
@@ -318,38 +318,38 @@ bool test_contents(void (*constructor)(cache **), const char **expected_contents
 
 void test_empty_cache_scenario() {
     log_scenario("empty cache\n");
-    print_test("empty", "insert A", test_insert(construct_empty, A_element, A_element, one));
+    print_test("empty", "insert A", test_insert(construct_empty, A_element, one));
     print_test("empty", "find X", test_find(construct_empty, X_element, NULL, zero));
     print_test("empty", "remove X", test_remove(construct_empty, X_element, NULL, one));
-    print_test("empty", "contents", test_contents(construct_empty, (const char*[]){NULL}, 0));
+    print_test("empty", "contents", test_size(construct_empty, 0));
     print_final_summary();
 }
 
 void test_one_element_cache_scenario() {
     log_scenario("one element cache\n");
-    print_test("A", "insert B", test_insert(construct_A, B_element, B_element, one));
+    print_test("A", "insert B", test_insert(construct_A, B_element, one));
     print_test("A", "find A", test_find(construct_A, A_element, A_element, match));
     print_test("A", "find X", test_find(construct_A, X_element, NULL, zero));
-    print_test("A", "contents", test_contents(construct_A, A_elements, 1));
+    print_test("A", "contents", test_size(construct_A, 1));
     print_final_summary();
 }
 
 void test_two_element_cache_scenario() {
     log_scenario("two element cache\n");
-    print_test("BA", "insert C", test_insert(construct_BA, C_element, C_element, one));
+    print_test("BA", "insert C", test_insert(construct_BA, C_element, one));
     print_test("BA", "find A", test_find(construct_BA, A_element, A_element, match));
     print_test("BA", "find B", test_find(construct_BA, B_element, B_element, match));
-    print_test("BA", "contents", test_contents(construct_BA, BA_elements, 2));
+    print_test("BA", "contents", test_size(construct_BA, 2));
     print_final_summary();
 }
 
 void test_full_cache_scenario() {
     log_scenario("full cache\n");
-    print_test("CBA", "insert D (evict)", test_insert(construct_CBA, D_element, D_element, one));
+    print_test("CBA", "insert D (evict)", test_insert(construct_CBA, D_element, one));
     print_test("CBA", "find A", test_find(construct_CBA, A_element, A_element, match));
     print_test("CBA", "find B", test_find(construct_CBA, B_element, B_element, match));
     print_test("CBA", "find C", test_find(construct_CBA, C_element, C_element, match));
-    print_test("CBA", "contents", test_contents(construct_CBA, CBA_elements, 3));
+    print_test("CBA", "contents", test_size(construct_CBA, 3));
     print_final_summary();
 }
 
@@ -357,7 +357,7 @@ void test_eviction_scenario() {
     log_scenario("eviction scenario\n");
     print_test("DCB", "find A (miss)", test_find(construct_DCB, A_element, NULL, zero));
     print_test("DCB", "find D", test_find(construct_DCB, D_element, D_element, match));
-    print_test("DCB", "contents", test_contents(construct_DCB, DCB_elements, 3));
+    print_test("DCB", "contents", test_size(construct_DCB, 3));
     print_final_summary();
 }
 
@@ -366,14 +366,14 @@ void test_lru_find_scenario() {
     print_test("ACB", "find B", test_find(construct_ACB, B_element, B_element, match));
     print_test("ACB", "find C", test_find(construct_ACB, C_element, C_element, match));
     print_test("ACB", "find A", test_find(construct_ACB, A_element, A_element, match));
-    print_test("ACB", "contents", test_contents(construct_ACB, ACB_elements, 3));
+    print_test("ACB", "contents", test_size(construct_ACB, 3));
     print_final_summary();
 }
 
 void test_remove_scenario() {
     log_scenario("remove scenario\n");
     print_test("CBA", "remove B", test_remove(construct_CBA, B_element, B_element, match));
-    print_test("CA", "contents after remove", test_contents(construct_CA, CA_elements, 2));
+    print_test("CA", "contents after remove", test_size(construct_CA, 2));
     print_test("CBA", "remove X", test_remove(construct_CBA, X_element, NULL, one));
     print_final_summary();
 }

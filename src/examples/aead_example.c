@@ -23,7 +23,7 @@
 // forward declarations
 /// logs
 int checkpoint ( const char *p_event );
-int hex_print ( char *p, size_t len );
+int hex_print ( char *p, int len );
 
 // data
 /// aead
@@ -129,25 +129,25 @@ int main ( int argc, const char *argv[] )
     return EXIT_SUCCESS;
 }
 
-int hex_print ( char *p, size_t len )
+int hex_print ( char *p, int len )
 {
 
     // print full lines
-    for (size_t i = 0; i < len/BYTES_PER_ROW; i++)
+    for (int i = 0; i < len/BYTES_PER_ROW; i++)
     {
 
         // print offset
         printf("%03d  ", i*BYTES_PER_ROW);
 
         // print hex
-        for (size_t j = 0; j < BYTES_PER_ROW; j++)
+        for (int j = 0; j < BYTES_PER_ROW; j++)
             printf("%02hhx ", p[i*BYTES_PER_ROW+j]);
 
         // formatting
         putchar(' ');
 
         // print text
-        for (size_t j = 0; j < BYTES_PER_ROW; j++)
+        for (int j = 0; j < BYTES_PER_ROW; j++)
             putchar(isprint(p[i*BYTES_PER_ROW+j]) ? p[i*BYTES_PER_ROW+j] : '.');
         
         // formatting
@@ -162,18 +162,18 @@ int hex_print ( char *p, size_t len )
         printf("%03d  ", len-len%BYTES_PER_ROW);
         
         // print text
-        for (size_t j = 0; j < len%BYTES_PER_ROW; j++)
+        for (int j = 0; j < len%BYTES_PER_ROW; j++)
         printf("%02hhx ", p[len-len%BYTES_PER_ROW+j]);
         
         // padding
-        for (size_t i = 0; i < BYTES_PER_ROW-len%BYTES_PER_ROW; i++)
+        for (int i = 0; i < BYTES_PER_ROW-len%BYTES_PER_ROW; i++)
             putchar(' '), putchar(' '),  putchar(' ');
         
         // formatting
         putchar(' ');
         
         // print hex
-        for (size_t j = 0; j < len%BYTES_PER_ROW; j++)
+        for (int j = 0; j < len%BYTES_PER_ROW; j++)
             putchar(isprint(p[len-len%BYTES_PER_ROW+j])?p[len-len%BYTES_PER_ROW+j]:'.');
         
         // formatting
@@ -199,7 +199,7 @@ int checkpoint ( const char *p_event )
 
     // print the tag
     printf("\n - tag - \n"), 
-    hex_print(_tag, sizeof(_tag));
+    hex_print((char *)_tag, sizeof(_tag));
 
     // print the aad
     printf("\n - aad - \n"), 

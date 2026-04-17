@@ -21,7 +21,7 @@
 // forward declarations
 /// logs
 int checkpoint ( const char *p_event );
-int hex_print ( char *p, size_t len );
+int hex_print ( char *p, int len );
 
 // data
 /// poly1305
@@ -39,7 +39,7 @@ chacha20_key _key =
 };
 chacha20_nonce _nonce =  { 0x00000000, 0x03020100, 0x07060504, };
 poly1305_tag _tag = { 0 };
-char _message[34] = "Cryptographic Forum Research Group";
+char _message[] = "Cryptographic Forum Research Group";
 
 // entry point
 int main ( int argc, const char *argv[] )
@@ -56,7 +56,12 @@ int main ( int argc, const char *argv[] )
     {
 
         // compute the message authentication code
-        poly1305_mac(_message, sizeof(_message), _tag, _one_time_key);
+        poly1305_mac(
+            (const unsigned char *) _message, 
+            sizeof(_message) - 1, 
+            _tag,
+            _one_time_key
+        );
 
         // checkpoint
         checkpoint("after computing message authentication code");
@@ -83,25 +88,25 @@ int main ( int argc, const char *argv[] )
     return EXIT_SUCCESS;
 }
 
-int hex_print ( char *p, size_t len )
+int hex_print ( char *p, int len )
 {
 
     // print full lines
-    for (size_t i = 0; i < len/BYTES_PER_ROW; i++)
+    for (int i = 0; i < len/BYTES_PER_ROW; i++)
     {
 
         // print offset
         printf("%03d  ", i*BYTES_PER_ROW);
 
         // print hex
-        for (size_t j = 0; j < BYTES_PER_ROW; j++)
+        for (int j = 0; j < BYTES_PER_ROW; j++)
             printf("%02hhx ", p[i*BYTES_PER_ROW+j]);
 
         // formatting
         putchar(' ');
 
         // print text
-        for (size_t j = 0; j < BYTES_PER_ROW; j++)
+        for (int j = 0; j < BYTES_PER_ROW; j++)
             putchar(isprint(p[i*BYTES_PER_ROW+j]) ? p[i*BYTES_PER_ROW+j] : '.');
         
         // formatting
@@ -116,18 +121,18 @@ int hex_print ( char *p, size_t len )
         printf("%03d  ", len-len%BYTES_PER_ROW);
         
         // print text
-        for (size_t j = 0; j < len%BYTES_PER_ROW; j++)
+        for (int j = 0; j < len%BYTES_PER_ROW; j++)
         printf("%02hhx ", p[len-len%BYTES_PER_ROW+j]);
         
         // padding
-        for (size_t i = 0; i < BYTES_PER_ROW-len%BYTES_PER_ROW; i++)
+        for (int i = 0; i < BYTES_PER_ROW-len%BYTES_PER_ROW; i++)
             putchar(' '), putchar(' '),  putchar(' ');
         
         // formatting
         putchar(' ');
         
         // print hex
-        for (size_t j = 0; j < len%BYTES_PER_ROW; j++)
+        for (int j = 0; j < len%BYTES_PER_ROW; j++)
             putchar(isprint(p[len-len%BYTES_PER_ROW+j])?p[len-len%BYTES_PER_ROW+j]:'.');
         
         // formatting
@@ -149,7 +154,7 @@ int checkpoint ( const char *p_event )
 
     // print the plain text
     log_info("- one time key - \n"), 
-    hex_print(_one_time_key, sizeof(_one_time_key));
+    hex_print((char *)_one_time_key, sizeof(_one_time_key));
 
     // print the encrypted text
     log_warning("\n - message - \n"), 
@@ -157,7 +162,7 @@ int checkpoint ( const char *p_event )
     
     // print the decrypted text
     log_error("\n - tag - \n"), 
-    hex_print(_tag, sizeof(_tag));
+    hex_print((char *)_tag, sizeof(_tag));
 
     // formatting
     putchar('\n');

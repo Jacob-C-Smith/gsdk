@@ -96,7 +96,7 @@ int main ( int argc, const char* argv[] )
         
         // push some shapes
         for (enum shapes_e _shape = CIRCLE; _shape < PENTAGON; _shape++)
-            double_queue_rear_add(p_double_queue, _p_shapes[_shape]);
+            double_queue_rear_add(p_double_queue, (void *) _p_shapes[_shape]);
         
         // checkpoint
         checkpoint(p_double_queue,"after adding < Circle, Square, Triangle, Rectangle >");
@@ -112,7 +112,7 @@ int main ( int argc, const char* argv[] )
         double_queue_front(p_double_queue, &p_value);
         
         // print the top of the cache
-        printf("peek() -> %s\n", p_value);
+        printf("peek() -> %s\n", (char *)p_value);
 
         // checkpoint
         checkpoint(p_double_queue, "after peek front");
@@ -128,7 +128,7 @@ int main ( int argc, const char* argv[] )
         double_queue_rear(p_double_queue, &p_value);
         
         // print the top of the cache
-        printf("peek() -> %s\n", p_value);
+        printf("peek() -> %s\n", (char *) p_value);
 
         // checkpoint
         checkpoint(p_double_queue, "after peek rear");
@@ -184,8 +184,8 @@ int main ( int argc, const char* argv[] )
     {
 
         // push some pieces
-        double_queue_front_add(p_double_queue, _p_shapes[PENTAGON]),
-        double_queue_rear_add(p_double_queue, _p_shapes[HEXAGON]);
+        double_queue_front_add(p_double_queue, (void *) _p_shapes[PENTAGON]),
+        double_queue_rear_add(p_double_queue, (void *) _p_shapes[HEXAGON]);
 
         // checkpoint
         checkpoint(p_double_queue, "after adding < Pentagon, Hexagon >");
@@ -284,7 +284,7 @@ int checkpoint ( double_queue *p_double_queue, const char *p_event )
     // success
     return 1;
 }
-    
+
 void *string_upper_case ( void *p_value )
 {
 

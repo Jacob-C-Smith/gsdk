@@ -93,7 +93,7 @@ int socket_udp_send_to ( socket_udp _socket_udp, const void *const p_buffer, siz
  * 
  * @return 1 on success, 0 on error
  */
-int socket_udp_connect ( socket_udp *const p_socket_udp, enum socket_address_family_e address_family, socket_ip_address ip_address, socket_port port_number );
+int socket_udp_connect ( socket_udp *const p_socket_udp, socket_ip_address ip_address, socket_port port_number );
 
 /// destroy
 /** !

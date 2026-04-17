@@ -35,7 +35,7 @@ int total_tests      = 0,
     ephemeral_fails  = 0;
 
 // Possible elements
-char  *A_element      = "A",
+void  *A_element      = "A",
       *B_element      = "B",
       *C_element      = "C",
       *D_element      = "D",
@@ -110,11 +110,11 @@ bool test_add ( void (*set_constructor)(set **), void *value , result_t expected
  */
 bool test_count ( void(*set_constructor)(set **pp_set), size_t count, result_t expected );
 
-bool test_union ( void(*set_constructor)(set **pp_set), void(*set_constructor2)(set **pp_set), void **values1, void **values2, result_t expected );
+bool test_union ( void(*set_constructor)(set **pp_set), void(*set_constructor2)(set **pp_set), result_t expected );
 
-bool test_intersection ( void(*set_constructor)(set **pp_set), void(*set_constructor2)(set **pp_set), void **values1, void **values2, result_t expected );
+bool test_intersection ( void(*set_constructor)(set **pp_set), void(*set_constructor2)(set **pp_set), result_t expected );
 
-bool test_difference( void(*set_constructor)(set **pp_set), void(*set_constructor2)(set **pp_set), void **values1, void **values2, result_t expected );
+bool test_difference( void(*set_constructor)(set **pp_set), void(*set_constructor2)(set **pp_set), result_t expected );
 
 /** !
  * Test an set with no elements
@@ -131,33 +131,30 @@ void test_empty_set ( void (*set_constructor)(set **), char *name );
  * 
  * @param set_constructor function to construct set
  * @param name              the name of the test
- * @param values            the expected values of the set
  * 
  * @return void
  */
-void test_one_element_set ( void (*set_constructor)(set **), char *name, void **values );
+void test_one_element_set ( void (*set_constructor)(set **), char *name );
 
 /** !
  * Test an set with two elements
  * 
  * @param set_constructor function to construct set
  * @param name              the name of the test
- * @param values            the expected values of the set
  * 
  * @return void
  */
-void test_two_element_set ( void (*set_constructor)(set **), char *name, void **values );
+void test_two_element_set ( void (*set_constructor)(set **), char *name );
 
 /** !
  * Test an set with three elements
  * 
  * @param set_constructor function to construct set
  * @param name              the name of the test
- * @param values            the expected values of the set
  * 
  * @return void
  */
-void test_three_element_set ( void (*set_constructor)(set **), char *name, void **values );
+void test_three_element_set ( void (*set_constructor)(set **), char *name );
 
 /** !
  * Construct an empty set, return the result 
@@ -498,67 +495,67 @@ void run_tests ( void )
     test_empty_set(construct_C_removeC_empty, "{ C } -> { }");
 
     // { } -> { A }
-    test_one_element_set(construct_empty_addA_A, "{ } -> { A }", A_elements);
+    test_one_element_set(construct_empty_addA_A, "{ } -> { A }");
     
     // { } -> { B }
-    test_one_element_set(construct_empty_addB_B, "{ } -> { B }", B_elements);
+    test_one_element_set(construct_empty_addB_B, "{ } -> { B }");
     
     // { } -> { C }
-    test_one_element_set(construct_empty_addC_C, "{ } -> { C }", C_elements);
+    test_one_element_set(construct_empty_addC_C, "{ } -> { C }");
     
     // { A, B } -> { A }
-    test_one_element_set(construct_AB_removeB_A, "{ A, B } -> { A }", A_elements);
+    test_one_element_set(construct_AB_removeB_A, "{ A, B } -> { A }");
 
     // { A, B } -> { B }
-    test_one_element_set(construct_AB_removeA_B, "{ A, B } -> { B }", B_elements);
+    test_one_element_set(construct_AB_removeA_B, "{ A, B } -> { B }");
 
     // { A, C } -> { A }
-    test_one_element_set(construct_AC_removeC_A, "{ A, C } -> { A }", A_elements);
+    test_one_element_set(construct_AC_removeC_A, "{ A, C } -> { A }");
 
     // { A, C } -> { C }
-    test_one_element_set(construct_AC_removeA_C, "{ A, C } -> { C }", C_elements);
+    test_one_element_set(construct_AC_removeA_C, "{ A, C } -> { C }");
 
     // { B, C } -> { C }
-    test_one_element_set(construct_BC_removeB_C, "{ B, C } -> { C }", C_elements);
+    test_one_element_set(construct_BC_removeB_C, "{ B, C } -> { C }");
 
     // { B, C } -> { B }
-    test_one_element_set(construct_BC_removeC_B, "{ B, C } -> { B }", B_elements);
+    test_one_element_set(construct_BC_removeC_B, "{ B, C } -> { B }");
 
     // { A } -> { A, B }
-    test_two_element_set(construct_A_addB_AB, "{ A } -> { A, B }", AB_elements);
+    test_two_element_set(construct_A_addB_AB, "{ A } -> { A, B }");
 
     // { A } -> { A, C }
-    test_two_element_set(construct_A_addC_AC, "{ A } -> { A, C }", AC_elements);
+    test_two_element_set(construct_A_addC_AC, "{ A } -> { A, C }");
     
     // { B } -> { A, B }
-    test_two_element_set(construct_B_addA_AB, "{ B } -> { A, B }", AB_elements);
+    test_two_element_set(construct_B_addA_AB, "{ B } -> { A, B }");
     
     // { B } -> { B, C }
-    test_two_element_set(construct_B_addC_BC, "{ B } -> { B, C }", BC_elements);
+    test_two_element_set(construct_B_addC_BC, "{ B } -> { B, C }");
     
     // { C } -> { B, C }
-    test_two_element_set(construct_C_addB_BC, "{ C } -> { B, C }", BC_elements);
+    test_two_element_set(construct_C_addB_BC, "{ C } -> { B, C }");
     
     // { C } -> { A, C }
-    test_two_element_set(construct_C_addA_AC, "{ C } -> { A, C }", BC_elements);
+    test_two_element_set(construct_C_addA_AC, "{ C } -> { A, C }");
 
     // { A, B, C } -> { A, B }
-    test_two_element_set(construct_C_addA_AC, "{ A, B, C } -> { A, B }", AB_elements);
+    test_two_element_set(construct_C_addA_AC, "{ A, B, C } -> { A, B }");
 
     // { A, B, C } -> { A, C }
-    test_two_element_set(construct_C_addA_AC, "{ A, B, C } -> { A, C }", AC_elements);
+    test_two_element_set(construct_C_addA_AC, "{ A, B, C } -> { A, C }");
 
     // { A, B, C } -> { B, C }
-    test_two_element_set(construct_C_addA_AC, "{ A, B, C } -> { B, C }", BC_elements);
+    test_two_element_set(construct_C_addA_AC, "{ A, B, C } -> { B, C }");
 
     // { A, B } -> { A, B, C }
-    test_three_element_set(construct_AB_addC_ABC, "{ A, B } -> { A, B, C }", ABC_elements);
+    test_three_element_set(construct_AB_addC_ABC, "{ A, B } -> { A, B, C }");
 
     // { A, C } -> { A, B, C }
-    test_three_element_set(construct_AC_addB_ABC, "{ A, C } -> { A, B, C }", ABC_elements);
+    test_three_element_set(construct_AC_addB_ABC, "{ A, C } -> { A, B, C }");
 
     // { B, C } -> { A, B, C }
-    test_three_element_set(construct_BC_addA_ABC, "{ B, C } -> { A, B, C }", ABC_elements);
+    test_three_element_set(construct_BC_addA_ABC, "{ B, C } -> { A, B, C }");
 
     // done
     return;
@@ -623,31 +620,31 @@ void test_empty_set ( void (*set_constructor)(set **), char *name )
     print_test(name, "count", test_count(set_constructor, 0, match));
 
     // Union
-    print_test(name, "∪ { A }", test_union(set_constructor, construct_empty_addA_A, _elements, A_elements, match));
-    print_test(name, "∪ { B }", test_union(set_constructor, construct_empty_addB_B, _elements, B_elements, match));
-    print_test(name, "∪ { C }", test_union(set_constructor, construct_empty_addC_C, _elements, C_elements, match));
-    print_test(name, "∪ { A, B }", test_union(set_constructor, construct_A_addB_AB, _elements, AB_elements, match));
-    print_test(name, "∪ { A, C }", test_union(set_constructor, construct_A_addC_AC, _elements, AC_elements, match));
-    print_test(name, "∪ { B, C }", test_union(set_constructor, construct_B_addC_BC, _elements, BC_elements, match));
-    print_test(name, "∪ { A, B, C }", test_union(set_constructor, construct_AB_addC_ABC, _elements, ABC_elements, match));
+    print_test(name, "∪ { A }", test_union(set_constructor, construct_empty_addA_A, match));
+    print_test(name, "∪ { B }", test_union(set_constructor, construct_empty_addB_B, match));
+    print_test(name, "∪ { C }", test_union(set_constructor, construct_empty_addC_C, match));
+    print_test(name, "∪ { A, B }", test_union(set_constructor, construct_A_addB_AB, match));
+    print_test(name, "∪ { A, C }", test_union(set_constructor, construct_A_addC_AC, match));
+    print_test(name, "∪ { B, C }", test_union(set_constructor, construct_B_addC_BC, match));
+    print_test(name, "∪ { A, B, C }", test_union(set_constructor, construct_AB_addC_ABC, match));
 
     // Intersection
-    print_test(name, "∩ { A }", test_intersection(set_constructor, construct_empty_addA_A, _elements, _elements, match));
-    print_test(name, "∩ { B }", test_intersection(set_constructor, construct_empty_addB_B, _elements, _elements, match));
-    print_test(name, "∩ { C }", test_intersection(set_constructor, construct_empty_addC_C, _elements, _elements, match));
-    print_test(name, "∩ { A, B }", test_intersection(set_constructor, construct_A_addB_AB, _elements, _elements, match));
-    print_test(name, "∩ { A, C }", test_intersection(set_constructor, construct_A_addC_AC, _elements, _elements, match));
-    print_test(name, "∩ { B, C }", test_intersection(set_constructor, construct_B_addC_BC, _elements, _elements, match));
-    print_test(name, "∩ { A, B, C }", test_intersection(set_constructor, construct_AB_addC_ABC, _elements, _elements, match));
+    print_test(name, "∩ { A }", test_intersection(set_constructor, construct_empty_addA_A, match));
+    print_test(name, "∩ { B }", test_intersection(set_constructor, construct_empty_addB_B, match));
+    print_test(name, "∩ { C }", test_intersection(set_constructor, construct_empty_addC_C, match));
+    print_test(name, "∩ { A, B }", test_intersection(set_constructor, construct_A_addB_AB, match));
+    print_test(name, "∩ { A, C }", test_intersection(set_constructor, construct_A_addC_AC, match));
+    print_test(name, "∩ { B, C }", test_intersection(set_constructor, construct_B_addC_BC, match));
+    print_test(name, "∩ { A, B, C }", test_intersection(set_constructor, construct_AB_addC_ABC, match));
 
     // Difference
-    print_test(name, "Δ { A }", test_difference(set_constructor, construct_empty_addA_A, _elements, A_elements, match));
-    print_test(name, "Δ { B }", test_difference(set_constructor, construct_empty_addB_B, _elements, B_elements, match));
-    print_test(name, "Δ { C }", test_difference(set_constructor, construct_empty_addC_C, _elements, C_elements, match));
-    print_test(name, "Δ { A, B }", test_difference(set_constructor, construct_A_addB_AB, _elements, AB_elements, match));
-    print_test(name, "Δ { A, C }", test_difference(set_constructor, construct_A_addC_AC, _elements, AC_elements, match));
-    print_test(name, "Δ { B, C }", test_difference(set_constructor, construct_B_addC_BC, _elements, BC_elements, match));
-    print_test(name, "Δ { A, B, C }", test_difference(set_constructor, construct_AB_addC_ABC, _elements, ABC_elements, match));
+    print_test(name, "Δ { A }", test_difference(set_constructor, construct_empty_addA_A, match));
+    print_test(name, "Δ { B }", test_difference(set_constructor, construct_empty_addB_B, match));
+    print_test(name, "Δ { C }", test_difference(set_constructor, construct_empty_addC_C, match));
+    print_test(name, "Δ { A, B }", test_difference(set_constructor, construct_A_addB_AB, match));
+    print_test(name, "Δ { A, C }", test_difference(set_constructor, construct_A_addC_AC, match));
+    print_test(name, "Δ { B, C }", test_difference(set_constructor, construct_B_addC_BC, match));
+    print_test(name, "Δ { A, B, C }", test_difference(set_constructor, construct_AB_addC_ABC, match));
 
     // Is subset?
     //print_test(name, "⊂ { A }", test_subset(set_constructor, construct_empty_addA_A));
@@ -675,7 +672,7 @@ void test_empty_set ( void (*set_constructor)(set **), char *name )
     return;
 }
 
-void test_one_element_set ( void (*set_constructor)(set **), char *name, void **values )
+void test_one_element_set ( void (*set_constructor)(set **), char *name )
 {
     
     // Log
@@ -690,22 +687,22 @@ void test_one_element_set ( void (*set_constructor)(set **), char *name, void **
     print_test(name, "count", test_count(set_constructor, 1, match));
     
     // Union
-    print_test(name, "∪ { A }", test_union(set_constructor, construct_empty_addA_A, values, A_elements, match));
-    print_test(name, "∪ { B }", test_union(set_constructor, construct_empty_addB_B, values, B_elements, match));
-    print_test(name, "∪ { C }", test_union(set_constructor, construct_empty_addC_C, values, C_elements, match));
-    print_test(name, "∪ { A, B }", test_union(set_constructor, construct_A_addB_AB, values, AB_elements, match));
-    print_test(name, "∪ { A, C }", test_union(set_constructor, construct_A_addC_AC, values, AC_elements, match));
-    print_test(name, "∪ { B, C }", test_union(set_constructor, construct_B_addC_BC, values, BC_elements, match));
-    print_test(name, "∪ { A, B, C }", test_union(set_constructor, construct_AB_addC_ABC, values, ABC_elements, match));
+    print_test(name, "∪ { A }", test_union(set_constructor, construct_empty_addA_A, match));
+    print_test(name, "∪ { B }", test_union(set_constructor, construct_empty_addB_B, match));
+    print_test(name, "∪ { C }", test_union(set_constructor, construct_empty_addC_C, match));
+    print_test(name, "∪ { A, B }", test_union(set_constructor, construct_A_addB_AB, match));
+    print_test(name, "∪ { A, C }", test_union(set_constructor, construct_A_addC_AC, match));
+    print_test(name, "∪ { B, C }", test_union(set_constructor, construct_B_addC_BC, match));
+    print_test(name, "∪ { A, B, C }", test_union(set_constructor, construct_AB_addC_ABC, match));
 
     // Intersection
-    print_test(name, "∩ { A }", test_intersection(set_constructor, construct_empty_addA_A, values, _elements, match));
-    print_test(name, "∩ { B }", test_intersection(set_constructor, construct_empty_addB_B, values, _elements, match));
-    print_test(name, "∩ { C }", test_intersection(set_constructor, construct_empty_addC_C, values, _elements, match));
-    print_test(name, "∩ { A, B }", test_intersection(set_constructor, construct_A_addB_AB, values, _elements, match));
-    print_test(name, "∩ { A, C }", test_intersection(set_constructor, construct_A_addC_AC, values, _elements, match));
-    print_test(name, "∩ { B, C }", test_intersection(set_constructor, construct_B_addC_BC, values, _elements, match));
-    print_test(name, "∩ { A, B, C }", test_intersection(set_constructor, construct_AB_addC_ABC, values, _elements, match));
+    print_test(name, "∩ { A }", test_intersection(set_constructor, construct_empty_addA_A, match));
+    print_test(name, "∩ { B }", test_intersection(set_constructor, construct_empty_addB_B, match));
+    print_test(name, "∩ { C }", test_intersection(set_constructor, construct_empty_addC_C, match));
+    print_test(name, "∩ { A, B }", test_intersection(set_constructor, construct_A_addB_AB, match));
+    print_test(name, "∩ { A, C }", test_intersection(set_constructor, construct_A_addC_AC, match));
+    print_test(name, "∩ { B, C }", test_intersection(set_constructor, construct_B_addC_BC, match));
+    print_test(name, "∩ { A, B, C }", test_intersection(set_constructor, construct_AB_addC_ABC, match));
 
     // Difference
     //print_test(name, "Δ { A }", test_difference(set_constructor, construct_empty_addA_A, values, A_elements, match));
@@ -726,7 +723,7 @@ void test_one_element_set ( void (*set_constructor)(set **), char *name, void **
     return;
 }
 
-void test_two_element_set ( void (*set_constructor)(set **), char *name, void **values )
+void test_two_element_set ( void (*set_constructor)(set **), char *name )
 {
     
     // Log
@@ -741,22 +738,22 @@ void test_two_element_set ( void (*set_constructor)(set **), char *name, void **
     print_test(name, "count", test_count(set_constructor, 2, match));
     
     // Union
-    print_test(name, "∪ { A }", test_union(set_constructor, construct_empty_addA_A, values, A_elements, match));
-    print_test(name, "∪ { B }", test_union(set_constructor, construct_empty_addB_B, values, B_elements, match));
-    print_test(name, "∪ { C }", test_union(set_constructor, construct_empty_addC_C, values, C_elements, match));
-    print_test(name, "∪ { A, B }", test_union(set_constructor, construct_A_addB_AB, values, AB_elements, match));
-    print_test(name, "∪ { A, C }", test_union(set_constructor, construct_A_addC_AC, values, AC_elements, match));
-    print_test(name, "∪ { B, C }", test_union(set_constructor, construct_B_addC_BC, values, BC_elements, match));
-    print_test(name, "∪ { A, B, C }", test_union(set_constructor, construct_AB_addC_ABC, values, ABC_elements, match));
+    print_test(name, "∪ { A }", test_union(set_constructor, construct_empty_addA_A, match));
+    print_test(name, "∪ { B }", test_union(set_constructor, construct_empty_addB_B, match));
+    print_test(name, "∪ { C }", test_union(set_constructor, construct_empty_addC_C, match));
+    print_test(name, "∪ { A, B }", test_union(set_constructor, construct_A_addB_AB, match));
+    print_test(name, "∪ { A, C }", test_union(set_constructor, construct_A_addC_AC, match));
+    print_test(name, "∪ { B, C }", test_union(set_constructor, construct_B_addC_BC, match));
+    print_test(name, "∪ { A, B, C }", test_union(set_constructor, construct_AB_addC_ABC, match));
 
     // Intersection
-    print_test(name, "∩ { A }", test_intersection(set_constructor, construct_empty_addA_A, values, _elements, match));
-    print_test(name, "∩ { B }", test_intersection(set_constructor, construct_empty_addB_B, values, _elements, match));
-    print_test(name, "∩ { C }", test_intersection(set_constructor, construct_empty_addC_C, values, _elements, match));
-    print_test(name, "∩ { A, B }", test_intersection(set_constructor, construct_A_addB_AB, values, _elements, match));
-    print_test(name, "∩ { A, C }", test_intersection(set_constructor, construct_A_addC_AC, values, _elements, match));
-    print_test(name, "∩ { B, C }", test_intersection(set_constructor, construct_B_addC_BC, values, _elements, match));
-    print_test(name, "∩ { A, B, C }", test_intersection(set_constructor, construct_AB_addC_ABC, values, _elements, match));
+    print_test(name, "∩ { A }", test_intersection(set_constructor, construct_empty_addA_A, match));
+    print_test(name, "∩ { B }", test_intersection(set_constructor, construct_empty_addB_B, match));
+    print_test(name, "∩ { C }", test_intersection(set_constructor, construct_empty_addC_C, match));
+    print_test(name, "∩ { A, B }", test_intersection(set_constructor, construct_A_addB_AB, match));
+    print_test(name, "∩ { A, C }", test_intersection(set_constructor, construct_A_addC_AC, match));
+    print_test(name, "∩ { B, C }", test_intersection(set_constructor, construct_B_addC_BC, match));
+    print_test(name, "∩ { A, B, C }", test_intersection(set_constructor, construct_AB_addC_ABC, match));
 
     // Difference
     //print_test(name, "Δ { A }", test_difference(set_constructor, construct_empty_addA_A, values, A_elements, match));
@@ -777,7 +774,7 @@ void test_two_element_set ( void (*set_constructor)(set **), char *name, void **
     return;
 }
 
-void test_three_element_set ( void (*set_constructor)(set **), char *name, void **values )
+void test_three_element_set ( void (*set_constructor)(set **), char *name )
 {
     
     // Log
@@ -792,22 +789,22 @@ void test_three_element_set ( void (*set_constructor)(set **), char *name, void 
     print_test(name, "count", test_count(set_constructor, 3, match));
     
     // Union
-    print_test(name, "∪ { A }", test_union(set_constructor, construct_empty_addA_A, values, A_elements, match));
-    print_test(name, "∪ { B }", test_union(set_constructor, construct_empty_addB_B, values, B_elements, match));
-    print_test(name, "∪ { C }", test_union(set_constructor, construct_empty_addC_C, values, C_elements, match));
-    print_test(name, "∪ { A, B }", test_union(set_constructor, construct_A_addB_AB, values, AB_elements, match));
-    print_test(name, "∪ { A, C }", test_union(set_constructor, construct_A_addC_AC, values, AC_elements, match));
-    print_test(name, "∪ { B, C }", test_union(set_constructor, construct_B_addC_BC, values, BC_elements, match));
-    print_test(name, "∪ { A, B, C }", test_union(set_constructor, construct_AB_addC_ABC, values, ABC_elements, match));
+    print_test(name, "∪ { A }", test_union(set_constructor, construct_empty_addA_A, match));
+    print_test(name, "∪ { B }", test_union(set_constructor, construct_empty_addB_B, match));
+    print_test(name, "∪ { C }", test_union(set_constructor, construct_empty_addC_C, match));
+    print_test(name, "∪ { A, B }", test_union(set_constructor, construct_A_addB_AB, match));
+    print_test(name, "∪ { A, C }", test_union(set_constructor, construct_A_addC_AC, match));
+    print_test(name, "∪ { B, C }", test_union(set_constructor, construct_B_addC_BC, match));
+    print_test(name, "∪ { A, B, C }", test_union(set_constructor, construct_AB_addC_ABC, match));
 
     // Intersection
-    print_test(name, "∩ { A }", test_intersection(set_constructor, construct_empty_addA_A, values, _elements, match));
-    print_test(name, "∩ { B }", test_intersection(set_constructor, construct_empty_addB_B, values, _elements, match));
-    print_test(name, "∩ { C }", test_intersection(set_constructor, construct_empty_addC_C, values, _elements, match));
-    print_test(name, "∩ { A, B }", test_intersection(set_constructor, construct_A_addB_AB, values, _elements, match));
-    print_test(name, "∩ { A, C }", test_intersection(set_constructor, construct_A_addC_AC, values, _elements, match));
-    print_test(name, "∩ { B, C }", test_intersection(set_constructor, construct_B_addC_BC, values, _elements, match));
-    print_test(name, "∩ { A, B, C }", test_intersection(set_constructor, construct_AB_addC_ABC, values, _elements, match));
+    print_test(name, "∩ { A }", test_intersection(set_constructor, construct_empty_addA_A, match));
+    print_test(name, "∩ { B }", test_intersection(set_constructor, construct_empty_addB_B, match));
+    print_test(name, "∩ { C }", test_intersection(set_constructor, construct_empty_addC_C, match));
+    print_test(name, "∩ { A, B }", test_intersection(set_constructor, construct_A_addB_AB, match));
+    print_test(name, "∩ { A, C }", test_intersection(set_constructor, construct_A_addC_AC, match));
+    print_test(name, "∩ { B, C }", test_intersection(set_constructor, construct_B_addC_BC, match));
+    print_test(name, "∩ { A, B, C }", test_intersection(set_constructor, construct_AB_addC_ABC, match));
 
     // Difference
     // print_test(name, "Δ { A }", test_difference(set_constructor, construct_empty_addA_A, values, A_elements, match));
@@ -868,7 +865,7 @@ bool test_count ( void(*set_constructor)(set **pp_set), size_t count, result_t e
     return (result == expected);
 }
 
-bool test_union ( void(*set_constructor)(set **pp_set), void(*set_constructor2)(set **pp_set), void **values1, void **values2, result_t expected )
+bool test_union ( void(*set_constructor)(set **pp_set), void(*set_constructor2)(set **pp_set), result_t expected )
 {
 
     // initialized data
@@ -938,7 +935,7 @@ bool test_union ( void(*set_constructor)(set **pp_set), void(*set_constructor2)(
     return (result == expected);
 }
 
-bool test_intersection ( void(*set_constructor)(set **pp_set), void(*set_constructor2)(set **pp_set), void **values1, void **values2, result_t expected )
+bool test_intersection ( void(*set_constructor)(set **pp_set), void(*set_constructor2)(set **pp_set), result_t expected )
 {
 
     // initialized data
@@ -1006,7 +1003,7 @@ bool test_intersection ( void(*set_constructor)(set **pp_set), void(*set_constru
     return (result == expected);
 }
 
-bool test_difference ( void(*set_constructor)(set **pp_set), void(*set_constructor2)(set **pp_set), void **values1, void **values2, result_t expected )
+bool test_difference ( void(*set_constructor)(set **pp_set), void(*set_constructor2)(set **pp_set), result_t expected )
 {
     
     // initialized data

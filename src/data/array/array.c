@@ -29,7 +29,7 @@ int array_construct ( array **pp_array, size_t size )
 
     // argument check
     if ( NULL == pp_array ) goto no_array;
-    if ( NULL ==     size ) goto zero_size;
+    if ( 0    ==     size ) goto zero_size;
 
     // initialized data
     array *p_array = default_allocator(0, sizeof(array));

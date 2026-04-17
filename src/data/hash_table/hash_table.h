@@ -24,7 +24,7 @@
 #include <core/pack.h>
 
 // preprocessor definitions
-#define TOMBSTONE 0xffffffffffffffff
+#define TOMBSTONE ((void *)0xffffffffffffffff)
 
 // enumeration definitions
 enum collision_resolution_e 

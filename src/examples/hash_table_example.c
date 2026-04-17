@@ -135,7 +135,7 @@ int main ( int argc, const char* argv[] )
         color *p_color = NULL;
 
         // search for a value
-        hash_table_search(p_hash_table, "Green", &p_color);
+        hash_table_search(p_hash_table, "Green", (void **)&p_color);
 
         // print results
         printf("Searching for \"Green\" yields #%06x\n", p_color->hex_code);
@@ -202,7 +202,7 @@ int main ( int argc, const char* argv[] )
         color *p_color = NULL;
 
         // search for a value
-        hash_table_search(p_hash_table, "Yellow", &p_color);
+        hash_table_search(p_hash_table, "Yellow", (void **)&p_color);
 
         // print results
         printf("Searching for \"Yellow\" yields #%06x\n", p_color->hex_code);
@@ -335,7 +335,7 @@ void color_print ( void *p_element )
     color *p_color = p_element;
 
     // print the element
-    printf("%d : ( %-7s -> #%06lx )\n", p_color->counter, p_color->_string, p_color->hex_code);
+    printf("%d : ( %-7s -> #%06x )\n", p_color->counter, p_color->_string, p_color->hex_code);
 
     // done
     return;
@@ -356,9 +356,12 @@ void accumulate_accesses ( void *p_element )
 
 hash64 color_hash ( const void *const k, unsigned long long l )
 {
+
+    // unused
+    (void) l;
     
     // initialized data
-    color *p_color = k;
+    const color *const p_color = k;
 
     // done
     return hash_crc64(p_color, sizeof(*p_color));
@@ -367,8 +370,11 @@ hash64 color_hash ( const void *const k, unsigned long long l )
 hash64 color_hash_key ( const void *const k, unsigned long long unused )
 {
 
+    // unused
+    (void) unused;
+
     // initialized data
-    char *p_key = k;
+    const char *const p_key = k;
 
     // done
     return hash_fnv64(p_key, strlen(p_key));
@@ -402,7 +408,7 @@ void color_slot_print ( void *p_element, int i )
     }
 
     // print the element
-    printf("[%d] : ( %s -> #%06lx )\n", i, p_color->_string, p_color->hex_code, p_color->counter);
+    printf("[%d] : ( %s -> #%06x )\n", i, p_color->_string, p_color->hex_code);
 
     // done
     return;
@@ -412,7 +418,7 @@ void *color_key_accessor ( const void *const p_property )
 {
 
     // initialized data
-    color *p_color = p_property;
+    color *p_color = (color *)p_property;
 
     // increment the access counter
     p_color->counter++;
@@ -425,8 +431,8 @@ int color_pack ( void *p_buffer, const void *const p_value )
 {
 
     // initialized data
-    color *p_color = p_value;
-    char  *p       = p_buffer;
+    const color *const p_color = (const color *const)p_value;
+    char  *p                   = p_buffer;
     
     // pack the color
     p += pack_pack(p, "%s%2i32",

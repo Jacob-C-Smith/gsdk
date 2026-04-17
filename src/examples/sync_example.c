@@ -23,7 +23,7 @@
 // structure definitions
 struct box_s
 {
-    int value;
+    long value;
     bool occupied;
     mutex m;
     condition_variable empty, full;
@@ -37,8 +37,8 @@ typedef struct box_s box;
 int checkpoint ( const char *p_event );
 
 /// box
-int box_put ( box *p_box, int  value );
-int box_get ( box *p_box, int *p_value );
+int box_put ( box *p_box, long  value );
+int box_get ( box *p_box, long *p_value );
 
 /// threads
 void *child ( void *p_parameter );
@@ -162,7 +162,7 @@ int main ( int argc, const char *argv[] )
 
         // initialized data
         pthread_t _threads[8] = { 0 };
-        int v = 0;
+        long v = 0;
 
         // checkpoint
         checkpoint("condition variable example");
@@ -200,13 +200,13 @@ void *child ( void *p_parameter )
 {
 
     // put a number in the box
-    box_put(&_box, (int)p_parameter);
+    box_put(&_box, (long)p_parameter);
 
     // done
     return NULL;
 }
 
-int box_put ( box *p_box, int  value )
+int box_put ( box *p_box, long  value )
 {
 
     // lock
@@ -223,7 +223,7 @@ int box_put ( box *p_box, int  value )
     p_box->occupied = true;
 
     // logs
-    printf("\033[41m[CRITICAL]\033[0m put(%d)\n", p_box->value), fflush(stdout);
+    printf("\033[41m[CRITICAL]\033[0m put(%ld)\n", p_box->value), fflush(stdout);
 
     // signal
     condition_variable_signal(&_box.full);
@@ -235,7 +235,7 @@ int box_put ( box *p_box, int  value )
     return 1;
 }
 
-int box_get ( box *p_box, int *p_value )
+int box_get ( box *p_box, long *p_value )
 {
 
     // lock
@@ -255,7 +255,7 @@ int box_get ( box *p_box, int *p_value )
     p_box->occupied = false;
 
     // logs
-    printf("\033[41m[CRITICAL]\033[0m get( ) -> %d\n", *p_value), fflush(stdout);
+    printf("\033[41m[CRITICAL]\033[0m get( ) -> %ld\n", *p_value), fflush(stdout);
 
     // signal
     condition_variable_signal(&_box.empty);

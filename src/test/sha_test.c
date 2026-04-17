@@ -45,11 +45,11 @@ void print_time_pretty ( double seconds );
 /** !
  * Run all the tests
  * 
- * @param name the name of the test suite
+ * @param name void
  * 
  * @return void
  */
-void run_tests ( const char *name );
+void run_tests ( void );
 
 /** !
  * Print a summary of the test scenario
@@ -109,7 +109,7 @@ int main ( int argc, const char* argv[] )
     t0 = timer_high_precision();
 
     // Run tests
-    run_tests("sha256");
+    run_tests();
 
     // Stop
     t1 = timer_high_precision();
@@ -175,7 +175,7 @@ void print_time_pretty ( double seconds )
     return;
 }
 
-void run_tests ( const char *name )
+void run_tests ( void )
 {
 
     // test sha256
@@ -265,7 +265,7 @@ bool test_sha256 ( void *k, size_t len, sha256_hash *p_expected )
     if ( memcmp(result, expected, sizeof(sha256_hash)) == 0 ) return 1;
     
     // log the error
-    printf("\033[91m[sha512] given \"%s\", expected 0x", k),
+    printf("\033[91m[sha512] given \"%s\", expected 0x", (char *) k),
     sha256_print(expected),
     printf(", got 0x"),
     sha256_print(result),
@@ -299,7 +299,7 @@ bool test_sha512 ( void *k, size_t len, sha512_hash *p_expected )
     if ( memcmp(result, expected, sizeof(sha512_hash)) == 0 ) return 1;
     
     // log the error
-    printf("\033[91m[sha512] given \"%s\", expected 0x", k),
+    printf("\033[91m[sha512] given \"%s\", expected 0x", (char *) k),
     sha512_print(expected),
     printf(", got 0x"),
     sha512_print(result),

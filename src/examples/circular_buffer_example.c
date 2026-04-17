@@ -39,13 +39,13 @@ enum pieces_e
 int checkpoint ( circular_buffer *p_circular_buffer, const char *p_event );
 
 // string
-void   string_print      ( void *p_value, int unused );
-int    string_compare    ( const void *const p_a, const void *const p_b );
-void  *string_upper_case ( void *p_value );
-void  *string_lower_case ( void *p_value );
-int    string_pack       ( void *p_buffer, const void *const p_value );
-int    string_unpack     ( void *const p_value, void *p_buffer );
-hash64 string_hash       ( const void *const string, unsigned long long unused );
+fn_comparator string_compare;
+fn_foreach string_print;
+fn_hash64 string_hash;
+fn_map string_upper_case;
+fn_map string_lower_case;
+fn_pack string_pack;
+fn_unpack string_unpack;
 
 // data
 /// immutable piece strings
@@ -96,7 +96,7 @@ int main ( int argc, const char* argv[] )
         
         // push some pieces
         for (enum pieces_e _piece = PAWN; _piece < QUEEN; _piece++)
-            circular_buffer_push(p_circular_buffer, _p_pieces[_piece]);
+            circular_buffer_push(p_circular_buffer, (void *) _p_pieces[_piece]);
         
         // checkpoint
         checkpoint(p_circular_buffer,"after adding < Pawn, Rook, Knight, Bishop >");
@@ -112,7 +112,7 @@ int main ( int argc, const char* argv[] )
         circular_buffer_peek(p_circular_buffer, &p_value);
         
         // print the top of the cache
-        printf("peek() -> %s\n", p_value);
+        printf("peek() -> %s\n", (char *)p_value);
 
         // checkpoint
         checkpoint(p_circular_buffer, "after peek");
@@ -168,9 +168,9 @@ int main ( int argc, const char* argv[] )
     {
 
         // push some pieces
-        circular_buffer_push(p_circular_buffer, _p_pieces[QUEEN]),
-        circular_buffer_push(p_circular_buffer, _p_pieces[KING]);
-        circular_buffer_push(p_circular_buffer, _p_pieces[PAWN]);
+        circular_buffer_push(p_circular_buffer, (void *) _p_pieces[QUEEN]),
+        circular_buffer_push(p_circular_buffer, (void *) _p_pieces[KING]);
+        circular_buffer_push(p_circular_buffer, (void *) _p_pieces[PAWN]);
 
         // checkpoint
         checkpoint(p_circular_buffer,"after adding < Queen, King, Pawn >");
@@ -249,7 +249,7 @@ int checkpoint ( circular_buffer *p_circular_buffer, const char *p_event )
 		printf("NULL\n");
     else
 		log_info("#%d - Circular buffer %s:\n", step, p_event),
-		circular_buffer_foreach(p_circular_buffer, (fn_foreach *) string_print),
+		circular_buffer_foreach(p_circular_buffer, string_print),
 		putchar('\n');
     
     // increment counter
@@ -258,7 +258,8 @@ int checkpoint ( circular_buffer *p_circular_buffer, const char *p_event )
     // success
     return 1;
 }
-    
+
+
 void *string_upper_case ( void *p_value )
 {
 
@@ -309,12 +310,9 @@ void *string_lower_case ( void *p_value )
     return p_result;
 }
 
-void string_print ( void *p_value, int unused )
+void string_print ( void *p_value )
 {
     
-	// unused
-	(void) unused;
-
     // print the element
     printf("%s\n", (char *)p_value);
     
@@ -341,7 +339,7 @@ int string_unpack ( void *const p_value, void *p_buffer )
 {
 
     // initialized data
-    char       **pp_value        = (const char **) p_value;
+    char       **pp_value        = (char **) p_value;
     int          result          = 0;
     char        *p_string        = NULL;
     const char   _string  [1024] = { 0 };

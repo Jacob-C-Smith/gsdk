@@ -23,6 +23,10 @@
 int connection_callback ( socket_tcp socket, socket_ip_address ip, socket_port port, void *const p_parameter )
 {
 
+    // unused
+    (void) port;
+    (void) p_parameter;
+    
     // initialized data
     char _buf[1024] = { 0 };
     struct tm* ptr = NULL;

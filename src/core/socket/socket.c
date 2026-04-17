@@ -100,10 +100,10 @@ int socket_ip_address_print ( socket_ip_address ip_address )
             // print the ipv4 address
             printf(
                 "%hhu.%hhu.%hhu.%hhu\n",
-                (ip_address._address.ipv4 & 0xff000000) >> 24,
-                (ip_address._address.ipv4 & 0x00ff0000) >> 16,
-                (ip_address._address.ipv4 & 0x0000ff00) >> 8,
-                (ip_address._address.ipv4 & 0x000000ff) >> 0
+                (unsigned char) ((ip_address._address.ipv4 & 0xff000000) >> 24),
+                (unsigned char) ((ip_address._address.ipv4 & 0x00ff0000) >> 16),
+                (unsigned char) ((ip_address._address.ipv4 & 0x0000ff00) >> 8 ),
+                (unsigned char) ((ip_address._address.ipv4 & 0x000000ff) >> 0 )
             );
 
             // done

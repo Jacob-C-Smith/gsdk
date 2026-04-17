@@ -434,7 +434,7 @@ int string_unpack ( void *const p_value, void *p_buffer )
 {
 
     // initialized data
-    char       **pp_value        = (const char **) p_value;
+    char       **pp_value        = (char **) p_value;
     int          result          = 0;
     char        *p_string        = NULL;
     const char   _string  [1024] = { 0 };

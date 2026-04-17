@@ -20,7 +20,7 @@ struct secure_socket_s
 
 struct secure_bridge_s
 {
-    fn_secure_socket_accept  user_callback;
+    fn_secure_socket_accept *pfn_user_callback;
     certificate             *cert;
     ed25519_private_key     *priv;
     void                    *user_param;
@@ -33,11 +33,13 @@ typedef struct secure_bridge_s secure_bridge;
 int secure_socket_handshake ( secure_socket *p_secure_socket, bool is_server, certificate *p_certificate, ed25519_private_key *p_private_key )
 {
     
+    // argument check
+    if ( NULL == p_secure_socket ) goto no_secure_socket;
+    if ( NULL ==   p_certificate ) goto no_certificate;
+
     // initialized data
     char _plain_buf[1024] = { 0 };
-    short len = 0;
 
-    FILE                *p_urandom = NULL;
     x25519_private_key   priv      = { 0 };
     x25519_public_key    pub       = { 0 };
     x25519_public_key    peer_pub  = { 0 };
@@ -48,7 +50,7 @@ int secure_socket_handshake ( secure_socket *p_secure_socket, bool is_server, ce
     chacha20_nonce       nonce     = { 0 };
 
     // construct a key pair
-    x25519_key_pair_construct(&pub, &priv);
+    if ( 0 == x25519_key_pair_construct(&pub, &priv) ) goto failed_to_construct_key_pair;
 
     // construct a hasher
     sha512_construct(&s);
@@ -63,10 +65,10 @@ int secure_socket_handshake ( secure_socket *p_secure_socket, bool is_server, ce
         ed25519_signature _signature = { 0 };
 
         // store the public key from the certificate
-        certificate_public_key_get(p_certificate, &_public_key);
+        if ( 0 == certificate_public_key_get(p_certificate, &_public_key) ) goto failed_to_get_public_key;
 
         // sign the public key
-        ed25519_sign(&_signature, (const unsigned char *)&pub, sizeof(pub), &_public_key, p_private_key);
+        if ( 0 == ed25519_sign(&_signature, (const unsigned char *)&pub, sizeof(pub), &_public_key, p_private_key) ) goto failed_to_sign_public_key;
         
         // pack the ephemeral public key
         p_p += x25519_public_key_pack(p_p, &pub);
@@ -84,12 +86,16 @@ int secure_socket_handshake ( secure_socket *p_secure_socket, bool is_server, ce
             log_info("Signature : "), ed25519_signature_print(&_signature);
         #endif
 
-        // get the client's public key
-        socket_tcp_receive(p_secure_socket->tcp_socket, peer_pub, 32),
-        sha512_update(&s, (const unsigned char *)peer_pub, 32);
+        // receive client hello
+        if ( 0 == socket_tcp_receive(p_secure_socket->tcp_socket, peer_pub, sizeof(x25519_public_key)) ) goto failed_to_receive_client_hello;
 
-        // send the public key
-        socket_tcp_send(p_secure_socket->tcp_socket, _plain_buf, p_p - _plain_buf),
+        // update the hasher
+        sha512_update(&s, (const unsigned char *)peer_pub, sizeof(x25519_public_key));
+
+        // send server hello
+        if ( 0 == socket_tcp_send(p_secure_socket->tcp_socket, _plain_buf, p_p - _plain_buf) ) goto failed_to_send_server_hello;
+
+        // update the hasher
         sha512_update(&s, (const unsigned char *)_plain_buf, p_p - _plain_buf);
     }
     
@@ -103,12 +109,14 @@ int secure_socket_handshake ( secure_socket *p_secure_socket, bool is_server, ce
         ed25519_signature _signature = { 0 };
         certificate *p_server_certificate = NULL;
 
-        // send the public key
-        socket_tcp_send(p_secure_socket->tcp_socket, pub, 32),
-        sha512_update(&s, (const unsigned char *)pub, 32);
+        // send client hello
+        if ( 0 == socket_tcp_send(p_secure_socket->tcp_socket, pub, sizeof(x25519_public_key)) ) goto failed_to_send_client_hello;
+
+        // update the hasher
+        sha512_update(&s, (const unsigned char *)pub, sizeof(x25519_public_key));
         
-        // get the server's public key
-        socket_tcp_receive(p_secure_socket->tcp_socket, _plain_buf, sizeof(_plain_buf));
+        // receive server hello
+        if ( 0 == socket_tcp_receive(p_secure_socket->tcp_socket, _plain_buf, sizeof(_plain_buf)) ) goto failed_to_receive_server_hello;
 
         // unpack the public key
         p_p += x25519_public_key_unpack(&peer_pub, p_p);
@@ -123,16 +131,14 @@ int secure_socket_handshake ( secure_socket *p_secure_socket, bool is_server, ce
         sha512_update(&s, (const unsigned char *)_plain_buf, p_p - _plain_buf);
 
         // verify the certificate
-        if ( 0 == certificate_verify(p_server_certificate, p_certificate ) )
-            return 0;
+        if ( 0 == certificate_verify(p_server_certificate, p_certificate ) ) goto failed_to_verify_certificate;
 
         // store the public key from the certificate
-        certificate_public_key_get(p_server_certificate, &_server_key);
+        if ( 0 == certificate_public_key_get(p_server_certificate, &_server_key) ) goto failed_to_get_public_key;
 
         // verify
-        if ( 0 == ed25519_verify(&_signature, (const unsigned char *)&peer_pub, sizeof(x25519_public_key), &_server_key))
-            log_error("[client] Failed to verify ephemeral key "), x25519_public_key_print(&peer_pub);
-
+        if ( 0 == ed25519_verify(&_signature, (const unsigned char *)&peer_pub, sizeof(x25519_public_key), &_server_key)) goto failed_to_verify_ephemeral_key;
+        
         // debug
         #ifdef SECURE_SOCKET_DEBUG
             log_info("X25519       : "), x25519_public_key_print(&pub);
@@ -145,7 +151,9 @@ int secure_socket_handshake ( secure_socket *p_secure_socket, bool is_server, ce
     }
     
     // derive the shared secret
-    x25519_shared_secret_derive(&priv, &peer_pub, &ss),
+    if ( 0 == x25519_shared_secret_derive(&priv, &peer_pub, &ss) ) goto failed_to_derive_shared_secret;
+
+    // update the hasher
     sha512_update(&s, (const unsigned char *)&ss, sizeof(x25519_shared_secret));
 
     // zero set keys
@@ -167,14 +175,137 @@ int secure_socket_handshake ( secure_socket *p_secure_socket, bool is_server, ce
     // store the nonce
     memcpy(nonce, h + 32, 8);
 
-    // initialize the aead
-    if ( 0 == aead_construct(&p_secure_socket->p_aead, key, nonce) ) 
-
-        // error
-        return 0;
+    // construct the aead
+    if ( 0 == aead_construct(&p_secure_socket->p_aead, key, nonce) ) goto failed_to_construct_aead;
     
     // success
     return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_secure_socket:
+                #ifndef NDEBUG
+                    log_error("[secure socket] Null pointer provided for parameter \"%s\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_certificate:
+                #ifndef NDEBUG
+                    log_error("[secure socket] Null pointer provided for parameter \"p_certificate\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    
+        // aead errors
+        {
+            failed_to_construct_aead:
+                #ifndef NDEBUG
+                    log_error("[secure socket] Failed to construct aead in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // certificate errors
+        {
+            failed_to_get_public_key:
+                #ifndef NDEBUG
+                    log_error("[secure socket] Failed to get public key from certificate in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            failed_to_verify_certificate:
+                #ifndef NDEBUG
+                    log_error("[secure socket] Failed to verify certificate in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // ed25519 errors
+        {
+            failed_to_sign_public_key:
+                #ifndef NDEBUG
+                    log_error("[secure socket] Failed to sign public key in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+            
+            failed_to_verify_ephemeral_key:
+                #ifndef NDEBUG
+                    log_error("[secure socket] Failed to verify ephemeral key in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // socket errors
+        {
+            failed_to_send_client_hello:
+                #ifndef NDEBUG
+                    log_error("[secure socket] Failed to send client hello in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            failed_to_send_server_hello:
+                #ifndef NDEBUG
+                    log_error("[secure socket] Failed to send server hello in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            failed_to_receive_client_hello:
+                #ifndef NDEBUG
+                    log_error("[secure socket] Failed to receive client hello in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            failed_to_receive_server_hello:
+                #ifndef NDEBUG
+                    log_error("[secure socket] Failed to receive server hello in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // x25519 errors
+        {
+            failed_to_construct_key_pair:
+                #ifndef NDEBUG
+                    log_error("[secure socket] Failed to construct key pair in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            failed_to_derive_shared_secret:
+                #ifndef NDEBUG
+                    log_error("[secure socket] Failed to derive shared secret in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
 }
 
 int secure_bridge_callback ( socket_tcp new_tcp_sock, socket_ip_address ip, socket_port port, void *p_parameter )
@@ -188,7 +319,7 @@ int secure_bridge_callback ( socket_tcp new_tcp_sock, socket_ip_address ip, sock
     if ( 0 == secure_socket_construct(&p_secure_sock, new_tcp_sock, true, p_ctx->cert, p_ctx->priv) ) goto failed_to_construct_secure_socket;
 
     // done
-    return p_ctx->user_callback(p_secure_sock, ip, port, p_ctx->user_param);
+    return p_ctx->pfn_user_callback(p_secure_sock, ip, port, p_ctx->user_param);
 
     // error handling
     {
@@ -212,17 +343,21 @@ int secure_bridge_callback ( socket_tcp new_tcp_sock, socket_ip_address ip, sock
 int secure_socket_listen
 (
     socket_tcp               tcp_server_socket,
-    fn_secure_socket_accept  pfn_callback,
+    fn_secure_socket_accept *pfn_callback,
     certificate             *p_certificate,
     ed25519_private_key     *p_private_key,
     void                    *p_parameter
 )
 {
 
+    // argument check
+    if ( NULL == p_certificate ) goto no_certificate;
+    if ( NULL == p_private_key ) goto no_private_key;
+
     // initialized data
     secure_bridge ctx = 
     {
-        .user_callback = pfn_callback,
+        .pfn_user_callback = pfn_callback,
         .cert          = p_certificate,
         .priv          = p_private_key,
         .user_param    = p_parameter
@@ -230,6 +365,29 @@ int secure_socket_listen
     
     // done
     return socket_tcp_listen(tcp_server_socket, secure_bridge_callback, &ctx);
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_certificate:
+                #ifndef NDEBUG
+                    log_error("[secure socket] Null pointer provided for parameter \"p_certificate\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+            
+            no_private_key:
+                #ifndef NDEBUG
+                    log_error("[secure socket] Null pointer provided for parameter \"p_private_key\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
 }
 
 // function definitions
@@ -245,6 +403,7 @@ int secure_socket_connect
 
     // initialized data
     socket_tcp tcp_socket;
+    secure_socket *p_secure_socket = NULL;
 
     // create a tcp socket
     if ( 0 == socket_tcp_create(&tcp_socket, ip_address._type, 0) ) goto failed_to_create_tcp_socket;
@@ -252,8 +411,14 @@ int secure_socket_connect
     // connect
     if ( 0 == socket_tcp_connect(&tcp_socket, ip_address._type, ip_address, port) ) goto failed_to_connect_tcp_socket;
 
-    // done
-    return secure_socket_construct(pp_secure_socket, tcp_socket, false, p_certificate, p_private_key);
+    // construct a secure socket
+    if ( 0 == secure_socket_construct(&p_secure_socket, tcp_socket, false, p_certificate, p_private_key) ) goto failed_to_construct_secure_socket;
+
+    // return a pointer to the caller
+    *pp_secure_socket = p_secure_socket;
+
+    // success
+    return 1;
 
     // error handling
     {
@@ -279,17 +444,31 @@ int secure_socket_connect
                 // error
                 return 0;
         }
+
+        // secure socket errors
+        {
+            failed_to_construct_secure_socket:
+                #ifndef NDEBUG
+                    log_error("[secure socket] Failed to construct secure socket in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // destroy the socket
+                socket_tcp_destroy(&tcp_socket);
+
+                // error
+                return 0;
+        }
     }
 }
 
 
 int secure_socket_construct
 (
-    secure_socket **pp_secure_socket,
-    socket_tcp      tcp_socket,
-    bool            is_server,
-    certificate    *p_certificate,
-    ed25519_private_key *p_private_key
+    secure_socket       **pp_secure_socket,
+    socket_tcp            tcp_socket,
+    bool                  is_server,
+    certificate          *p_certificate,
+    ed25519_private_key  *p_private_key
 )
 {
 

@@ -50,7 +50,6 @@ int main ( int argc, const char *argv[] )
     FILE        *p_f           = NULL;
     certificate *p_certificate = NULL;
     char         _buffer[160]  = { 0 };
-    size_t       len           = 0;
 
     // parse command line arguments
     parse_command_line_arguments(argc, argv);

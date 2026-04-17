@@ -100,7 +100,7 @@ int main ( int argc, const char* argv[] )
         char *slice_of_tuple[] = { 0, 0, NULL };
 
         // take a slice
-        tuple_slice(p_tuple, (void**)slice_of_tuple, 1, 2);
+        tuple_slice(p_tuple, (const void **const)slice_of_tuple, 1, 2);
 
         // formatting
         printf("\nSlice [1..2]\n");
@@ -267,7 +267,7 @@ int string_unpack ( void *const p_value, void *p_buffer )
 {
 
     // initialized data
-    char       **pp_value        = (const char **) p_value;
+    char       **pp_value        = (char **) p_value;
     int          result          = 0;
     char        *p_string        = NULL;
     const char   _string  [1024] = { 0 };

@@ -35,10 +35,10 @@ enum fruit_type_e
 int checkpoint ( stack *p_stack, const char *p_event );
 
 /// string
-void    string_print ( void *p_value, int i );
-hash64  string_hash ( void *p_value );
-int     string_pack ( void *p_buffer, const void *const p_value );
-int     string_unpack ( void *const p_value, void *p_buffer );
+fn_fori   string_print;
+fn_hash64 string_hash;
+fn_pack   string_pack;
+fn_unpack string_unpack;
  
 // data
 /// immutable color strings
@@ -107,7 +107,7 @@ int main ( int argc, const char* argv[] )
 	    stack_peek(p_stack, &top);
 
         // print the top of the stack
-        printf("peek() -> %s\n", top);
+        printf("peek() -> %s\n", (char *) top);
 
         // checkpoint
         checkpoint(p_stack, "after peek");
@@ -149,7 +149,7 @@ int main ( int argc, const char* argv[] )
     {
 
         // initialized data
-        h1 = stack_hash(p_stack, (fn_hash64 *)string_hash);
+        h1 = stack_hash(p_stack, string_hash);
 
         // print the hash
         printf("hash 1 -> 0x%llx\n", h1);
@@ -217,7 +217,7 @@ int main ( int argc, const char* argv[] )
     {
 
         // initialized data
-        h2 = stack_hash(p_stack, (fn_hash64 *)string_hash);
+        h2 = stack_hash(p_stack, string_hash);
 
         // print the hash
         printf("hash 2 -> 0x%llx\n", h2);
@@ -265,11 +265,15 @@ void string_print ( void *p_value, int i )
     printf("[%d] - %s\n", i, (char *)p_value);
     
     // done
-    return ;
+    return;
 }
 
-hash64 string_hash ( void *string )
+
+hash64 string_hash ( const void *const string, unsigned long long unused )
 {
+
+    // unused
+    (void)unused;
 
     // done
     return hash_crc64(string, strlen(string));
@@ -285,6 +289,21 @@ int string_pack ( void *p_buffer, const void *const p_value )
 int string_unpack ( void *const p_value, void *p_buffer )
 {
 
+    // initialized data
+    char       **pp_value        = (char **) p_value;
+    int          result          = 0;
+    char        *p_string        = NULL;
+    const char   _string  [1024] = { 0 };
+
+    // unpack the buffer
+    result = pack_unpack(p_buffer, "%s", &_string);
+
+    // duplicate the string
+    p_string = strdup(_string);
+
+    // return a pointer to the caller
+    *pp_value = p_string;
+
     // done
-    return pack_unpack(p_buffer, "%s", p_value);
+    return result;
 }
