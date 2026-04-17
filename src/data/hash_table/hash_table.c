@@ -761,12 +761,13 @@ int hash_table_unpack
         p += pack_unpack(p, "%i64", &index);
 
         // tombstone 
-        if ( TOMBSTONE == p )
+        if ( TOMBSTONE == *(void **)p )
             p_element = TOMBSTONE,
             p += sizeof(TOMBSTONE);
-        
+
         // call the unpack function
-        else p += pfn_element(&p_element, p);
+        else 
+            p += pfn_element(&p_element, p);
 
 		// add the element to the hash table
 		p_hash_table->properties.pp_data[index] = p_element;
