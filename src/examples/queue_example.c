@@ -35,10 +35,11 @@ enum person_name_e
 int checkpoint ( queue *p_queue, const char *p_event );
 
 /// string
-void    string_print ( void *p_value, int i );
-hash64  string_hash ( void *p_value );
-int     string_pack ( void *p_buffer, const void *const p_value );
-int     string_unpack ( void *const p_value, void *p_buffer );
+fn_fori string_print;
+fn_hash64 string_hash;
+fn_pack string_pack;
+fn_unpack string_unpack;
+
  
 // data
 /// immutable people strings
@@ -78,7 +79,7 @@ int main ( int argc, const char* argv[] )
     {
 
         // construct a queue from the first 3 people
-	    queue_from_contents(&p_queue, _p_people, 3);
+	    queue_from_contents(&p_queue, (void *const *const)_p_people, 3);
         
         // checkpoint
         checkpoint(p_queue, "after construction");
@@ -106,8 +107,8 @@ int main ( int argc, const char* argv[] )
 	    queue_rear(p_queue, &rear);
 
         // print the top of the queue
-        printf("front() -> %s\n", front);
-        printf("rear()  -> %s\n", rear);
+        printf("front() -> %s\n", (char *) front);
+        printf("rear()  -> %s\n", (char *) rear);
 
         // checkpoint
         checkpoint(p_queue, "after peek");
@@ -163,8 +164,8 @@ int main ( int argc, const char* argv[] )
     {
 
         // enqueue eve and frank the queue
-	    queue_enqueue(p_queue, _p_people[EVE]),
-	    queue_enqueue(p_queue, _p_people[FRANK]);
+	    queue_enqueue(p_queue, (void *) _p_people[EVE]),
+	    queue_enqueue(p_queue, (void *) _p_people[FRANK]);
         
         // checkpoint
         checkpoint(p_queue, "after enqueue < Eve, Frank >");
@@ -202,7 +203,7 @@ int main ( int argc, const char* argv[] )
     {
 
         // initialized data
-        h2 = queue_hash(p_queue, (fn_hash64 *)string_hash);
+        h2 = queue_hash(p_queue, string_hash);
 
         // print the hash
         printf("hash 2 -> 0x%llx\n", h2);
@@ -250,11 +251,14 @@ void string_print ( void *p_value, int i )
     printf("[%d] - %s\n", i, (char *)p_value);
     
     // done
-    return ;
+    return;
 }
 
-hash64 string_hash ( void *string )
+hash64 string_hash ( const void *const string, unsigned long long unused )
 {
+
+    // unused
+    (void)unused;
 
     // done
     return hash_crc64(string, strlen(string));
@@ -270,6 +274,21 @@ int string_pack ( void *p_buffer, const void *const p_value )
 int string_unpack ( void *const p_value, void *p_buffer )
 {
 
+    // initialized data
+    char       **pp_value        = (char **) p_value;
+    int          result          = 0;
+    char        *p_string        = NULL;
+    const char   _string  [1024] = { 0 };
+
+    // unpack the buffer
+    result = pack_unpack(p_buffer, "%s", &_string);
+
+    // duplicate the string
+    p_string = strdup(_string);
+
+    // return a pointer to the caller
+    *pp_value = p_string;
+
     // done
-    return pack_unpack(p_buffer, "%s", p_value);
+    return result;
 }

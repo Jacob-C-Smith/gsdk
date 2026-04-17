@@ -404,14 +404,6 @@ int socket_tcp_destroy ( socket_tcp *p_socket_tcp )
 
         // socket errors
         {
-            failed_to_shutdown_socket:
-                #ifndef NDEBUG
-                    printf("[socket] Call to function \"shutdown\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-            
             failed_to_close_socket:
                 #ifndef NDEBUG
                     printf("[socket] Call to function \"close\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);

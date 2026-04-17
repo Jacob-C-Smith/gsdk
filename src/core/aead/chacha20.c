@@ -52,7 +52,7 @@ void chacha20_block_print ( chacha20_state block )
         
         // print block column
         for (size_t j = 0; j < 4; j++)
-            printf("%08lx ", block[i*4+j]);
+            printf("%08x ", block[i*4+j]);
         
         // formatting
         putchar('\n');

@@ -848,17 +848,6 @@ int sha256_unpack ( sha256_hash *p_hash, void *p_buffer )
                 // error
                 return 0;
         }
-
-        // format errors
-        {
-            failed_to_unpack_hash:
-                #ifndef NDEBUG
-                    log_error("[sha] Failed to unpack SHA256 hash from buffer in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-        }
     }
 }
 
@@ -914,17 +903,6 @@ int sha512_unpack ( sha512_hash *p_hash, void *p_buffer )
             no_buffer:
                 #ifndef NDEBUG
                     log_error("[sha] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-        }
-
-        // format errors
-        {
-            failed_to_unpack_hash:
-                #ifndef NDEBUG
-                    log_error("[sha] Failed to unpack SHA256 hash from buffer in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

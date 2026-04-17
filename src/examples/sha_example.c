@@ -52,7 +52,7 @@ int main ( int argc, const char *argv[] )
         sha256_construct(&_sha256_state);
 
         // feed it
-        sha256_update(&_sha256_state, _data, sizeof(_data)-1);
+        sha256_update(&_sha256_state, (const unsigned char *)_data, sizeof(_data)-1);
 
         // digest it
         sha256_final(&_sha256_state, hash_256);
@@ -76,7 +76,7 @@ int main ( int argc, const char *argv[] )
         sha512_construct(&_sha512_state);
 
         // feed it
-        sha512_update(&_sha512_state, _data, sizeof(_data)-1);
+        sha512_update(&_sha512_state, (const unsigned char *)_data, sizeof(_data)-1);
 
         // digest it
         sha512_final(&_sha512_state, hash_512);

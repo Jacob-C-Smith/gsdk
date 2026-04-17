@@ -231,7 +231,7 @@ int main ( int argc, const char *argv[] )
         unpack_checkpoint(i, "unpack > longs");
 
         // print the reflected data
-        printf("%lli, %lli\n", l, m);
+        printf("%i, %i\n", l, m);
 
         // formatting
         putchar('\n');
@@ -307,7 +307,7 @@ int main ( int argc, const char *argv[] )
         i = person_pack(_person_buffer, &_person);
 
         // checkpoint
-        pack_checkpoint(_person_buffer, i, "pack > person");
+        pack_checkpoint((char(*)[64])_person_buffer, i, "pack > person");
     }
 
     // #15 - unpack struct
@@ -317,7 +317,7 @@ int main ( int argc, const char *argv[] )
         _person = (person){ 0 };
 
         // unpack
-        i = person_unpack(&_person, &_person_buffer);
+        i = person_unpack(&_person, (void *)&_person_buffer);
 
         // checkpoint
         unpack_checkpoint(i, "unpack > person");
@@ -350,20 +350,20 @@ int pack_checkpoint ( char (*p_buffer)[64], size_t written, const char *p_event 
 {
     
     // initialized data
-    size_t rows = sizeof(*p_buffer) / HEX_DUMP_COLUMNS;
+    int rows = sizeof(*p_buffer) / HEX_DUMP_COLUMNS;
     
     // print the event
     log_info("#%d - %s (%d bytes)\n", step, p_event, written);
 
     // print the buffer
-    for (size_t i = 0; i < rows; i++)
+    for (int i = 0; i < rows; i++)
     {
         
         // print the offset
         printf("%08x: ", i * HEX_DUMP_COLUMNS);
 
         // print the buffer as hexadecimal
-        for (size_t j = 0; j < HEX_DUMP_COLUMNS; j++)
+        for (int j = 0; j < HEX_DUMP_COLUMNS; j++)
         {
             
             // initialized data
@@ -382,7 +382,7 @@ int pack_checkpoint ( char (*p_buffer)[64], size_t written, const char *p_event 
         putchar(' ');
 
         // print the buffer textually
-        for (size_t j = 0; j < HEX_DUMP_COLUMNS; j++)
+        for (int j = 0; j < HEX_DUMP_COLUMNS; j++)
         {
 
             // initialized data
@@ -517,7 +517,7 @@ int person_print ( person *p_person )
     printf("Age: %hhi\nHeight: %himm\n", p_person->age, p_person->height_mm);
 
     /// print the interests
-    for (size_t i = 0; i < sizeof(p_person->__interests)/sizeof(*p_person->__interests); i++)
+    for (int i = 0; i < (int)(sizeof(p_person->__interests)/sizeof(*p_person->__interests)); i++)
         printf("Interest #%i: %s\n", i, p_person->__interests[i]);
 
     // formatting

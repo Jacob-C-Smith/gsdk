@@ -21,6 +21,9 @@
 int connection_callback ( socket_udp socket, socket_ip_address ip, socket_port port, void *const p_parameter )
 {
 
+    // unused 
+    (void) p_parameter;
+
     // initialized data
     char _buf[1024] = { 0 };
     int len = 0;

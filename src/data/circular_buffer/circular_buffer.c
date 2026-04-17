@@ -660,8 +660,6 @@ int circular_buffer_unpack ( circular_buffer **pp_circular_buffer, void *p_buffe
     char   *p      = p_buffer;
 	size_t  length = 0;
 	size_t  size   = 0;
-	size_t  i      = 0;
-	bool    f      = 0;
 
 	// unpack the length of the circular buffer
 	p += pack_unpack(p, "%i64", &length);

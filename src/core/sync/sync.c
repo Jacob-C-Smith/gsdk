@@ -612,7 +612,7 @@ int semaphore_wait ( semaphore *p_semaphore )
         return ( WaitForSingleObject(_semaphore, INFINITE) == WAIT_FAILED ? 0 : 1 );
     #elif defined(__APPLE__)
         // return (using pointer type for macOS)
-        return (sem_wait(p_semaphore) == 0);
+        return (sem_wait(*p_semaphore) == 0);
     #else
         // done
         return (sem_wait(p_semaphore) == 0);
@@ -649,7 +649,7 @@ int semaphore_try_wait ( semaphore *p_semaphore )
         return ( WaitForSingleObject(_semaphore, 0) == WAIT_OBJECT_0 ? 1 : 0 );
     #elif defined(__APPLE__)
         // return (using pointer type for macOS)
-        return ( sem_trywait(p_semaphore) == 0 );
+        return ( sem_trywait(*p_semaphore) == 0 );
     #else
         // done
         return ( sem_trywait(p_semaphore) == 0 );
@@ -686,7 +686,7 @@ int semaphore_signal ( semaphore *p_semaphore )
         return ( ReleaseSemaphore(_semaphore, 1, 0) );
     #elif defined(__APPLE__)
         // return (using pointer type for macOS)
-        return ( sem_post(p_semaphore) == 0 );
+        return ( sem_post(*p_semaphore) == 0 );
     #else
         // done
         return ( sem_post(p_semaphore) == 0 );
@@ -725,7 +725,7 @@ int semaphore_destroy ( semaphore *p_semaphore )
 
         // done
         #ifdef __APPLE__
-            return (sem_close(p_semaphore) == 0);
+            return (sem_close(*p_semaphore) == 0);
         #else
             return (sem_destroy(p_semaphore) == 0);
         #endif

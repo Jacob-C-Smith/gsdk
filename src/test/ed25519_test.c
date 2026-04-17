@@ -229,7 +229,7 @@ void test_sign ( char *name )
     log_scenario("%s\n", name);
 
     // test vectors
-    for (size_t i = 0; i < sizeof(_ed25519_test_vectors)/sizeof(*_ed25519_test_vectors); i++)
+    for (int i = 0; i < (int)(sizeof(_ed25519_test_vectors)/sizeof(*_ed25519_test_vectors)); i++)
     {
 
         // initialized data
@@ -257,7 +257,7 @@ void test_verify ( char *name )
     log_scenario("%s\n", name);
 
     // test vectors
-    for (size_t i = 0; i < sizeof(_ed25519_test_vectors)/sizeof(*_ed25519_test_vectors); i++)
+    for (int i = 0; i < (int)(sizeof(_ed25519_test_vectors)/sizeof(*_ed25519_test_vectors)); i++)
     {
 
         // initialized data

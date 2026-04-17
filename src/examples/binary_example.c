@@ -360,7 +360,7 @@ void *number_and_string_number_key_accessor ( const void *const p_value )
     const number_and_string *p_number_and_string = p_value;
 
     // success
-    return (void *)p_number_and_string->number;
+    return (void *)((size_t)p_number_and_string->number);
 }
 
 void number_and_string_number_print ( void *p_value )
@@ -419,10 +419,9 @@ int number_and_string_pack ( void *p_buffer, const void *const p_value )
 
     // initialized data 
     number_and_string *p_number_and_string = (number_and_string *)p_value;
-    char *p = p_buffer;
 
     // pack the metadata
-    p += pack_pack(p_buffer, "%i32%s", 
+    pack_pack(p_buffer, "%i32%s", 
         p_number_and_string->number,
         p_number_and_string->_string
     );
@@ -438,7 +437,6 @@ int number_and_string_unpack ( void *const p_value, void *p_buffer )
     number_and_string **pp_value            = (number_and_string **) p_value;
     number_and_string  *p_number_and_string = NULL;
 
-    int        result        = 0;
     size_t     number        = 0;
     const char _string[1024] = { 0 };
 

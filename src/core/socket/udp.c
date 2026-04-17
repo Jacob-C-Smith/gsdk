@@ -301,7 +301,7 @@ int socket_udp_send_to ( socket_udp _socket_udp, const void *const p_buffer, siz
     }
 }
 
-int socket_udp_connect ( socket_udp *const p_socket_udp, enum socket_address_family_e address_family, socket_ip_address ip_address, socket_port port_number )
+int socket_udp_connect ( socket_udp *const p_socket_udp, socket_ip_address ip_address, socket_port port_number )
 {
 
     // argument check

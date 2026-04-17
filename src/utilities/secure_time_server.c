@@ -21,8 +21,12 @@
 #include <core/pack.h>
 #include <core/sync.h> 
 
-int connection_callback ( secure_socket *p_secure_socket, socket_ip_address ip_address, socket_port port_number, void *const p_parameter )
+int connection_callback ( secure_socket *p_secure_socket, socket_ip_address ip_address, socket_port port, void *const p_parameter )
 {
+
+    // unused
+    (void) port;
+    (void) p_parameter;
 
     // initialized data
     char _buf[1024] = { 0 };
@@ -63,7 +67,6 @@ int main ( int argc, const char *argv[] )
 
     // initialized data
     socket_tcp server_socket = 0;
-    secure_socket *p_secure_socket = NULL;
     certificate *p_root = NULL;
     certificate *p_intermediate = NULL;
     certificate *p_leaf = NULL;

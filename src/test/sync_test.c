@@ -38,15 +38,15 @@ enum workers_e
 // structure definitions
 struct counter_s
 {
-    volatile size_t c;
-    size_t upto;
+    volatile unsigned c;
+    unsigned upto;
     mutex  _mutex;
 };
 
 struct room_s
 {
-    size_t lim;
-    size_t occupied;
+    unsigned lim;
+    unsigned occupied;
     bool _spots[WORKER_QUANTITY];
     semaphore _semaphore;
 };
@@ -83,25 +83,25 @@ _workers[WORKER_QUANTITY] =
     { 
         ._id    = ALICE,
         .name   = "alice",
-        .thread = { 0 }
+        .thread = 0
     },
     [BOB] = 
     { 
         ._id    = BOB,
         .name   = "bob",
-        .thread = { 0 }
+        .thread = 0
     },
     [CAROL] = 
     { 
         ._id    = CAROL,
         .name   = "carol",
-        .thread = { 0 }
+        .thread = 0
     },
     [DAVID] = 
     { 
         ._id    = DAVID,
         .name   = "david",
-        .thread = { 0 }
+        .thread = 0
     }
 };
 
@@ -140,11 +140,11 @@ void print_test ( const char *scenario_name, const char *test_name, bool passed 
 /** !
  * Run all the tests
  * 
- * @param name the name of the test suite
+ * @param void
  * 
  * @return void
  */
-void run_tests ( const char *name );
+void run_tests ( void );
 
 /** !
  * Create a test scenario with a shared environment and worker threads
@@ -162,14 +162,14 @@ void run_tests ( const char *name );
  */
 bool test_factory
 (
-    void        *env,
-    const char  *name,
-    void       (*pfn_before)     ( void *env ),
-    void       (*pfn_after)      ( void *env ),
-    void       (*pfn_alice_task) ( void *env ),
-    void       (*pfn_bob_task)   ( void *env ),
-    void       (*pfn_carol_task) ( void *env ),
-    void       (*pfn_david_task) ( void *env )
+    void         *env,
+    const char   *name,
+    void        (*pfn_before)     ( void *env ),
+    void        (*pfn_after)      ( void *env ),
+    void       *(*pfn_alice_task) ( void *env ),
+    void       *(*pfn_bob_task)   ( void *env ),
+    void       *(*pfn_carol_task) ( void *env ),
+    void       *(*pfn_david_task) ( void *env )
 );
 
 /** !
@@ -185,7 +185,7 @@ void double_dispatch
 ( 
     void *env, 
     enum workers_e _id, 
-    void (*pfn_task)(void *env) 
+    void *(*pfn_task)(void *env) 
 );
 
 /** !
@@ -216,13 +216,13 @@ void test_mutex ( const char *name );
 void test_semaphore ( const char *name );
 
 /// counter
-void increment_counter ( void *env );
-void increment_locked_counter ( void *env );
+void *increment_counter ( void *env );
+void *increment_locked_counter ( void *env );
 void print_counter ( void *env );
 void clear_counter ( void *env );
 
 /// room
-void bathroom ( void *env );
+void *bathroom ( void *env );
 
 // entry point
 int main ( int argc, const char* argv[] )
@@ -247,7 +247,7 @@ int main ( int argc, const char* argv[] )
     t0 = timer_high_precision();
 
     // Run tests
-    run_tests("sync");
+    run_tests();
 
     // Stop
     t1 = timer_high_precision();
@@ -261,7 +261,7 @@ int main ( int argc, const char* argv[] )
     return ( total_passes == total_tests ) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-void run_tests ( const char *name )
+void run_tests ( void )
 {
 
     // run counter tests
@@ -438,7 +438,7 @@ void test_semaphore ( const char *name )
     {
         .lim = 1,
         ._spots = { 0 },
-        ._semaphore = { 0 }
+        ._semaphore = 0
     };
 
     // log
@@ -507,13 +507,13 @@ void print_counter ( void *env )
 {
 
     // logs
-    printf("[counter] counter -> %lld\n", *(size_t*)env);
+    printf("[counter] counter -> %llu\n", *(unsigned long long*)env);
 
     // done
     return;
 }
 
-void increment_counter ( void *env )
+void *increment_counter ( void *env )
 {
 
     // initialized data
@@ -524,10 +524,10 @@ void increment_counter ( void *env )
         p_counter->c++;
     
     // done
-    return;
+    return NULL;
 }
 
-void increment_locked_counter ( void *env )
+void *increment_locked_counter ( void *env )
 {
 
     // initialized data
@@ -546,7 +546,7 @@ void increment_locked_counter ( void *env )
         mutex_unlock(&p_counter->_mutex);
     
     // done
-    return;
+    return NULL;
 }
 
 void clear_counter ( void *env )
@@ -562,7 +562,7 @@ void clear_counter ( void *env )
     return;
 }
 
-void bathroom ( void *env )
+void *bathroom ( void *env )
 {
 
     // initialized data
@@ -584,7 +584,7 @@ void bathroom ( void *env )
     semaphore_signal(&p_room->_semaphore);
     
     // done
-    return;
+    return NULL;
 }
 
 bool test_factory (
@@ -602,10 +602,10 @@ bool test_factory (
     void (*pfn_after) ( void *env ),
     
     // workers
-    void (*pfn_alice_task) ( void *env ),
-    void (*pfn_bob_task)   ( void *env ),
-    void (*pfn_carol_task) ( void *env ),
-    void (*pfn_david_task) ( void *env )
+    void *(*pfn_alice_task) ( void *env ),
+    void *(*pfn_bob_task)   ( void *env ),
+    void *(*pfn_carol_task) ( void *env ),
+    void *(*pfn_david_task) ( void *env )
 )
 {
 
@@ -688,7 +688,7 @@ void double_dispatch
 ( 
     void *env, 
     enum workers_e _id, 
-    void (*pfn_task)(void *env) 
+    void *(*pfn_task)(void *env) 
 )
 {
 
@@ -696,7 +696,7 @@ void double_dispatch
     pthread_create(
         &_workers[_id].thread,
         NULL,
-        (void *(*)(void *))pfn_task,
+        pfn_task,
         env
     );
 

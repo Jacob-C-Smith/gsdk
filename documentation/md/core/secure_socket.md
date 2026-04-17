@@ -35,7 +35,7 @@ typedef struct certificate_s certificate;
 
 /// secure socket
 typedef struct secure_socket_s secure_socket;
-typedef int(*fn_secure_socket_accept)( secure_socket *p_secure_socket, socket_ip_address ip_address, socket_port port_number, void *const p_parameter );
+typedef int(fn_secure_socket_accept)( secure_socket *p_secure_socket, socket_ip_address ip_address, socket_port port_number, void *const p_parameter );
 ```
 
  ### Function declarations
@@ -103,7 +103,7 @@ int secure_socket_connect
 int secure_socket_listen
 (
     socket_tcp               tcp_server_socket,
-    fn_secure_socket_accept  pfn_callback,
+    fn_secure_socket_accept *pfn_callback,
     certificate             *p_certificate,
     ed25519_private_key     *p_private_key,
     void                    *p_parameter

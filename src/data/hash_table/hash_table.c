@@ -479,7 +479,7 @@ int hash_table_remove ( hash_table *const p_hash_table, void *p_key, void **pp_v
             void *p_value = p_hash_table->properties.pp_data[z];
 
             // mark the slot with a tombstone
-            p_hash_table->properties.pp_data[z] = (void *) TOMBSTONE;
+            p_hash_table->properties.pp_data[z] = TOMBSTONE;
 
             // return a pointer to the caller
             *pp_value = p_value;
@@ -761,13 +761,13 @@ int hash_table_unpack
         p += pack_unpack(p, "%i64", &index);
 
         // tombstone 
-        if ( TOMBSTONE == *(unsigned long long *)p )
-            p_element = (void *) TOMBSTONE,
+        if ( TOMBSTONE == *(void **)p )
+            p_element = TOMBSTONE,
             p += sizeof(TOMBSTONE);
-        
+
         // call the unpack function
-        else
-    		p += pfn_element(&p_element, p);
+        else 
+            p += pfn_element(&p_element, p);
 
 		// add the element to the hash table
 		p_hash_table->properties.pp_data[index] = p_element;

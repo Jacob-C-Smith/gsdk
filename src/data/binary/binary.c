@@ -1295,8 +1295,6 @@ int binary_tree_node_unpack ( binary_tree_node **pp_node, void *p_buffer, fn_unp
     // initialized data 
     binary_tree_node *p_node   = NULL;
     char             *p        = p_buffer;
-    size_t            quantity = 0, 
-                      size     = 0;
     unsigned long long l = 0, r = 0;
 
     // construct a binary tree node

@@ -963,14 +963,6 @@ hash64 double_queue_hash ( double_queue *p_double_queue, fn_hash64 *pfn_element 
 
 				// error
 				return 0;
-
-			no_hash64:
-				#ifndef NDEBUG
-					log_error("[double queue] Null pointer provided for parameter \"pfn_element\" in call to function \"%s\"\n",__FUNCTION__);
-				#endif
-
-				// error
-				return 0;
 		}
 	}
 }
