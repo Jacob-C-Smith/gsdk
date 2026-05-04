@@ -29,7 +29,6 @@ typedef struct avl_tree_node_s avl_tree_node;
  ### Function declarations
 
  ```c 
-
 // function declarations
 /// constructors
 int avl_tree_construct 
