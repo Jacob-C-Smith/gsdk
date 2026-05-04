@@ -310,7 +310,7 @@ int binary_tree_construct_balanced
         .metadata =
         {
             .quantity = 0,
-            .size     = node_size + ( 2 * sizeof(unsigned long long) )
+            .size     = node_size
         },
 
         .pfn_comparator   = (pfn_comparator)   ? pfn_comparator   : default_comparator,
