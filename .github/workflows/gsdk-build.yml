@@ -604,6 +604,24 @@ jobs:
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/examples/array_example
   
+  avl-example:
+    needs: [hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run avl example
+        run: |
+          chmod +x build/examples/avl_example
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/examples/avl_example
+
   binary-example:
     needs: [binary-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
