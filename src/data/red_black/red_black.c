@@ -636,6 +636,9 @@ int red_black_tree_remove ( red_black_tree *const p_red_black_tree, const void *
                     log_error("[red black] Failed to find key in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
+                // unlock
+                mutex_unlock(&p_red_black_tree->_lock);
+                
                 // error
                 return 0;
         }
