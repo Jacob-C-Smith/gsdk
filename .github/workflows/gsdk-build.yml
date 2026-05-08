@@ -623,7 +623,7 @@ jobs:
           ./build/examples/avl_example
 
   binary-example:
-    needs: [binary-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example, tree-test]
+    needs: [hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example, tree-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
