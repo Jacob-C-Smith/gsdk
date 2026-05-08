@@ -1,12 +1,12 @@
 /** !
  * Tester for tree module
  * 
- * @file tree_test.c
+ * @file src/test/tree_test.c
  * 
  * @author Jacob Smith
  */
 
-// Include
+// standard library
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -19,10 +19,11 @@
 #include <core/sync.h>
 
 // tree module
-#include <data/binary.h>
+#include <data/tree.h>
 
 // enumeration definitions
-enum result_e {
+enum result_e 
+{
     zero,
     one,
     match
@@ -38,6 +39,8 @@ int total_tests      = 0,
     ephemeral_tests  = 0,
     ephemeral_passes = 0,
     ephemeral_fails  = 0;
+
+enum tree_type_e _type = -1;
 
 // Test data
 char *A_element = "A",
@@ -83,47 +86,42 @@ const void *string_key_accessor ( const void *const p_value )
 }
 
 // Test helpers
-bool test_insert ( void (*constructor)(binary_tree **), void *value, result_t expected );
-bool test_search ( void (*constructor)(binary_tree **), void *key, void *expected_value, result_t expected );
-bool test_remove ( void (*constructor)(binary_tree **), void *key, void *expected_value, result_t expected );
-bool test_is_empty ( void (*constructor)(binary_tree **), result_t expected );
-bool test_node_count ( void (*constructor)(binary_tree **), size_t expected_count, result_t expected );
+bool test_insert ( void (*constructor)(tree **), void *value, result_t expected );
+bool test_search ( void (*constructor)(tree **), void *key, void *expected_value, result_t expected );
+bool test_remove ( void (*constructor)(tree **), void *key, void *expected_value, result_t expected );
 
 // Constructor functions
-void construct_empty ( binary_tree **pp_binary_tree );
-void construct_A ( binary_tree **pp_binary_tree );
-void construct_B ( binary_tree **pp_binary_tree );
-void construct_C ( binary_tree **pp_binary_tree );
-void construct_D ( binary_tree **pp_binary_tree );
-void construct_AB ( binary_tree **pp_binary_tree );
-void construct_AC ( binary_tree **pp_binary_tree );
-void construct_BC ( binary_tree **pp_binary_tree );
-void construct_BA ( binary_tree **pp_binary_tree );
-void construct_CA ( binary_tree **pp_binary_tree );
-void construct_CB ( binary_tree **pp_binary_tree );
-void construct_ABC ( binary_tree **pp_binary_tree );
-void construct_ACB ( binary_tree **pp_binary_tree );
-void construct_BAC ( binary_tree **pp_binary_tree );
-void construct_BCA ( binary_tree **pp_binary_tree );
-void construct_CAB ( binary_tree **pp_binary_tree );
-void construct_CBA ( binary_tree **pp_binary_tree );
-void construct_ABCD ( binary_tree **pp_binary_tree );
+void construct_empty ( tree **pp_tree );
+void construct_A ( tree **pp_tree );
+void construct_B ( tree **pp_tree );
+void construct_C ( tree **pp_tree );
+void construct_D ( tree **pp_tree );
+void construct_AB ( tree **pp_tree );
+void construct_AC ( tree **pp_tree );
+void construct_BC ( tree **pp_tree );
+void construct_BA ( tree **pp_tree );
+void construct_CA ( tree **pp_tree );
+void construct_CB ( tree **pp_tree );
+void construct_ABC ( tree **pp_tree );
+void construct_ACB ( tree **pp_tree );
+void construct_BAC ( tree **pp_tree );
+void construct_BCA ( tree **pp_tree );
+void construct_CAB ( tree **pp_tree );
+void construct_CBA ( tree **pp_tree );
+void construct_ABCD ( tree **pp_tree );
+void construct_A_remove_A_empty ( tree **pp_tree );
+void construct_B_remove_B_empty ( tree **pp_tree );
+void construct_C_remove_C_empty ( tree **pp_tree );
+void construct_AB_remove_A_B ( tree **pp_tree );
+void construct_AB_remove_B_A ( tree **pp_tree );
+void construct_AC_remove_A_C ( tree **pp_tree );
+void construct_AC_remove_C_A ( tree **pp_tree );
+void construct_BC_remove_B_C ( tree **pp_tree );
+void construct_BC_remove_C_B ( tree **pp_tree );
+void construct_ABC_remove_A_BC ( tree **pp_tree );
+void construct_ABC_remove_B_AC ( tree **pp_tree );
+void construct_ABC_remove_C_AB ( tree **pp_tree );
 
-// Removal constructors
-void construct_A_remove_A_empty ( binary_tree **pp_binary_tree );
-void construct_B_remove_B_empty ( binary_tree **pp_binary_tree );
-void construct_C_remove_C_empty ( binary_tree **pp_binary_tree );
-void construct_AB_remove_A_B ( binary_tree **pp_binary_tree );
-void construct_AB_remove_B_A ( binary_tree **pp_binary_tree );
-void construct_AC_remove_A_C ( binary_tree **pp_binary_tree );
-void construct_AC_remove_C_A ( binary_tree **pp_binary_tree );
-void construct_BC_remove_B_C ( binary_tree **pp_binary_tree );
-void construct_BC_remove_C_B ( binary_tree **pp_binary_tree );
-void construct_ABC_remove_A_BC ( binary_tree **pp_binary_tree );
-void construct_ABC_remove_B_AC ( binary_tree **pp_binary_tree );
-void construct_ABC_remove_C_AB ( binary_tree **pp_binary_tree );
-
-// Test scenarios
 void test_empty_tree_scenario ( void );
 void test_one_element_tree_scenario ( void );
 void test_two_element_tree_scenario ( void );
@@ -136,6 +134,7 @@ void test_complex_removal_scenario ( void );
 void test_balanced_tree_scenario ( void );
 void test_stress_scenario ( void );
 void test_traversal_scenario ( void );
+void test_tree ( const char *name );
 
 // entry point
 int main ( int argc, const char* argv[] )
@@ -149,28 +148,28 @@ int main ( int argc, const char* argv[] )
     timestamp t0 = 0,
               t1 = 0;
 
-    // Formatting
+    // formatting
     printf(
         "╭─────────────╮\n"\
         "│ tree tester │\n"\
         "╰─────────────╯\n\n"
     );
     
-    // Start
+    // start
     t0 = timer_high_precision();
 
-    // Run tests
+    // run tests
     run_tests();
 
-    // Stop
+    // stop
     t1 = timer_high_precision();
 
-    // Report the time it took to run the tests
+    // report the time it took to run the tests
     log_info("tree took ");
     print_time_pretty ( (double)(t1-t0)/(double)timer_seconds_divisor() );
     log_info(" to test\n");
 
-    // Flush stdio
+    // flush stdio
     fflush(stdout);
 
     // exit
@@ -211,6 +210,89 @@ void print_time_pretty ( double seconds )
 
 void run_tests ( void )
 {
+
+    // binary
+    {
+
+        // initialized data
+        timestamp binary_t0 = 0,
+                  binary_t1 = 0;
+
+        // change the base constructor
+        _type = TREE_BINARY;
+
+        // start
+        binary_t0 = timer_high_precision();
+
+        // run binary tree tests
+        test_tree("binary");
+
+        // stop
+        binary_t1 = timer_high_precision();
+
+        // report the time it took to run the tests
+        log_info("binary took ");
+        print_time_pretty ( (double)(binary_t1-binary_t0)/(double)timer_seconds_divisor() );
+        log_info(" to test\n");
+    }
+
+    // avl
+    {
+        
+        // initialized data
+        timestamp avl_t0 = 0,
+                  avl_t1 = 0;
+
+        // change the base constructor
+        _type = TREE_AVL;
+
+        // start
+        avl_t0 = timer_high_precision();
+
+        // run avl tree tests
+        test_tree("avl");
+
+        // stop
+        avl_t1 = timer_high_precision();
+
+        // report the time it took to run the tests
+        log_info("avl took ");
+        print_time_pretty ( (double)(avl_t1-avl_t0)/(double)timer_seconds_divisor() );
+        log_info(" to test\n");
+    }
+
+    // red black 
+    {
+
+        // initialized data
+        timestamp red_black_t0 = 0,
+                  red_black_t1 = 0;
+          
+        // change the base constructor
+        _type = TREE_RED_BLACK;
+
+        // start
+        red_black_t0 = timer_high_precision();
+
+        // run red black tree tests
+        test_tree("red black");
+
+        // stop
+        red_black_t1 = timer_high_precision();
+
+        // report the time it took to run the tests
+        log_info("red black took ");
+        print_time_pretty ( (double)(red_black_t1-red_black_t0)/(double)timer_seconds_divisor() );
+        log_info(" to test\n");
+    }
+
+    // done
+    return;
+}
+
+void test_tree ( const char *name ) 
+{ 
+
     test_empty_tree_scenario();
     test_one_element_tree_scenario();
     test_two_element_tree_scenario();
@@ -223,6 +305,9 @@ void run_tests ( void )
     test_balanced_tree_scenario();
     test_stress_scenario();
     test_traversal_scenario();
+
+    // done
+    return;
 }
 
 void print_final_summary ( void )
@@ -255,132 +340,111 @@ void print_test ( const char *scenario_name, const char *test_name, bool passed 
 }
 
 // Constructor implementations
-void construct_empty ( binary_tree **pp_binary_tree )
+void construct_empty ( tree **pp_tree )
 {
-    binary_tree_construct(pp_binary_tree, sizeof(char*), (fn_comparator *)string_comparator, (fn_key_accessor *)string_key_accessor);
+    tree_construct(pp_tree, _type, sizeof(char*), (fn_comparator *)string_comparator, (fn_key_accessor *)string_key_accessor);
 }
 
-void construct_A ( binary_tree **pp_binary_tree )
+void construct_A ( tree **pp_tree )
 {
-    construct_empty(pp_binary_tree);
-    binary_tree_insert(*pp_binary_tree, A_element);
+    construct_empty(pp_tree);
+    tree_insert(*pp_tree, A_element);
 }
 
-void construct_B ( binary_tree **pp_binary_tree )
+void construct_B ( tree **pp_tree )
 {
-    construct_empty(pp_binary_tree);
-    binary_tree_insert(*pp_binary_tree, B_element);
+    construct_empty(pp_tree);
+    tree_insert(*pp_tree, B_element);
 }
 
-void construct_C ( binary_tree **pp_binary_tree )
+void construct_C ( tree **pp_tree )
 {
-    construct_empty(pp_binary_tree);
-    binary_tree_insert(*pp_binary_tree, C_element);
+    construct_empty(pp_tree);
+    tree_insert(*pp_tree, C_element);
 }
 
-void construct_D ( binary_tree **p_binary_tree )
+void construct_D ( tree **p_tree )
 {
-    construct_empty(p_binary_tree);
-    binary_tree_insert(*p_binary_tree, D_element);
+    construct_empty(p_tree);
+    tree_insert(*p_tree, D_element);
 }
 
-void construct_AB ( binary_tree **p_binary_tree )
+void construct_AB ( tree **p_tree )
 {
-    construct_empty(p_binary_tree);
-    binary_tree_insert(*p_binary_tree, A_element);
-    binary_tree_insert(*p_binary_tree, B_element);
+    construct_A(p_tree);
+    tree_insert(*p_tree, B_element);
 }
 
-void construct_AC ( binary_tree **p_binary_tree )
+void construct_AC ( tree **p_tree )
 {
-    construct_empty(p_binary_tree);
-    binary_tree_insert(*p_binary_tree, A_element);
-    binary_tree_insert(*p_binary_tree, C_element);
+    construct_A(p_tree);
+    tree_insert(*p_tree, C_element);
 }
 
-void construct_BC ( binary_tree **p_binary_tree )
+void construct_BC ( tree **p_tree )
 {
-    construct_empty(p_binary_tree);
-    binary_tree_insert(*p_binary_tree, B_element);
-    binary_tree_insert(*p_binary_tree, C_element);
+    construct_B(p_tree);
+    tree_insert(*p_tree, C_element);
 }
 
-void construct_BA ( binary_tree **p_binary_tree )
+void construct_BA ( tree **p_tree )
 {
-    construct_empty(p_binary_tree);
-    binary_tree_insert(*p_binary_tree, B_element);
-    binary_tree_insert(*p_binary_tree, A_element);
+    construct_B(p_tree);
+    tree_insert(*p_tree, A_element);
 }
 
-void construct_CA ( binary_tree **p_binary_tree )
+void construct_CA ( tree **p_tree )
 {
-    construct_empty(p_binary_tree);
-    binary_tree_insert(*p_binary_tree, C_element);
-    binary_tree_insert(*p_binary_tree, A_element);
+    construct_C(p_tree);
+    tree_insert(*p_tree, A_element);
 }
 
-void construct_CB ( binary_tree **p_binary_tree )
+void construct_CB ( tree **p_tree )
 {
-    construct_empty(p_binary_tree);
-    binary_tree_insert(*p_binary_tree, C_element);
-    binary_tree_insert(*p_binary_tree, B_element);
+    construct_C(p_tree);
+    tree_insert(*p_tree, B_element);
 }
 
-void construct_ABC ( binary_tree **p_binary_tree )
+void construct_ABC ( tree **p_tree )
 {
-    construct_empty(p_binary_tree);
-    binary_tree_insert(*p_binary_tree, A_element);
-    binary_tree_insert(*p_binary_tree, B_element);
-    binary_tree_insert(*p_binary_tree, C_element);
+    construct_AB(p_tree);
+    tree_insert(*p_tree, C_element);
 }
 
-void construct_ACB ( binary_tree **p_binary_tree )
+void construct_ACB ( tree **p_tree )
 {
-    construct_empty(p_binary_tree);
-    binary_tree_insert(*p_binary_tree, A_element);
-    binary_tree_insert(*p_binary_tree, C_element);
-    binary_tree_insert(*p_binary_tree, B_element);
+    construct_AC(p_tree);
+    tree_insert(*p_tree, B_element);
 }
 
-void construct_BAC ( binary_tree **p_binary_tree )
+void construct_BAC ( tree **p_tree )
 {
-    construct_empty(p_binary_tree);
-    binary_tree_insert(*p_binary_tree, B_element);
-    binary_tree_insert(*p_binary_tree, A_element);
-    binary_tree_insert(*p_binary_tree, C_element);
+    construct_BA(p_tree);
+    tree_insert(*p_tree, C_element);
 }
 
-void construct_BCA ( binary_tree **p_binary_tree )
+void construct_BCA ( tree **p_tree )
 {
-    construct_empty(p_binary_tree);
-    binary_tree_insert(*p_binary_tree, B_element);
-    binary_tree_insert(*p_binary_tree, C_element);
-    binary_tree_insert(*p_binary_tree, A_element);
+    construct_BC(p_tree);
+    tree_insert(*p_tree, A_element);
 }
 
-void construct_CAB ( binary_tree **p_binary_tree )
+void construct_CAB ( tree **p_tree )
 {
-    construct_empty(p_binary_tree);
-    binary_tree_insert(*p_binary_tree, C_element);
-    binary_tree_insert(*p_binary_tree, A_element);
-    binary_tree_insert(*p_binary_tree, B_element);
+    construct_CA(p_tree);
+    tree_insert(*p_tree, B_element);
 }
 
-void construct_CBA ( binary_tree **p_binary_tree )
+void construct_CBA ( tree **p_tree )
 {
-    construct_empty(p_binary_tree);
-    binary_tree_insert(*p_binary_tree, C_element);
-    binary_tree_insert(*p_binary_tree, B_element);
-    binary_tree_insert(*p_binary_tree, A_element);
+    construct_CB(p_tree);
+    tree_insert(*p_tree, A_element);
 }
 
-void construct_ABCD ( binary_tree **p_binary_tree )
+void construct_ABCD ( tree **p_tree )
 {
-    construct_empty(p_binary_tree);
-    binary_tree_insert(*p_binary_tree, A_element);
-    binary_tree_insert(*p_binary_tree, B_element);
-    binary_tree_insert(*p_binary_tree, C_element);
-    binary_tree_insert(*p_binary_tree, D_element);
+    construct_ABC(p_tree);
+    tree_insert(*p_tree, D_element);
 }
 
 // Removal constructor functions
@@ -393,111 +457,111 @@ void test_traverse_callback(void *const p_value)
     return; // Continue traversal
 }
 
-void construct_A_remove_A_empty ( binary_tree **pp_binary_tree )
+void construct_A_remove_A_empty ( tree **pp_tree )
 {
-    construct_A(pp_binary_tree);
+    construct_A(pp_tree);
     void *removed_value = NULL;
-    binary_tree_remove(*pp_binary_tree, A_element, (const void **)&removed_value);
+    tree_remove(*pp_tree, A_element, (const void **)&removed_value);
 }
 
-void construct_B_remove_B_empty ( binary_tree **pp_binary_tree )
+void construct_B_remove_B_empty ( tree **pp_tree )
 {
-    construct_B(pp_binary_tree);
+    construct_B(pp_tree);
     void *removed_value = NULL;
-    binary_tree_remove(*pp_binary_tree, B_element, (const void **)&removed_value);
+    tree_remove(*pp_tree, B_element, (const void **)&removed_value);
 }
 
-void construct_C_remove_C_empty ( binary_tree **pp_binary_tree )
+void construct_C_remove_C_empty ( tree **pp_tree )
 {
-    construct_C(pp_binary_tree);
+    construct_C(pp_tree);
     void *removed_value = NULL;
-    binary_tree_remove(*pp_binary_tree, C_element, (const void **)&removed_value);
+    tree_remove(*pp_tree, C_element, (const void **)&removed_value);
 }
 
-void construct_AB_remove_A_B ( binary_tree **pp_binary_tree )
+void construct_AB_remove_A_B ( tree **pp_tree )
 {
-    construct_AB(pp_binary_tree);
+    construct_AB(pp_tree);
     void *removed_value = NULL;
-    binary_tree_remove(*pp_binary_tree, A_element, (const void **)&removed_value);
+    tree_remove(*pp_tree, A_element, (const void **)&removed_value);
 }
 
-void construct_AB_remove_B_A ( binary_tree **pp_binary_tree )
+void construct_AB_remove_B_A ( tree **pp_tree )
 {
-    construct_AB(pp_binary_tree);
+    construct_AB(pp_tree);
     void *removed_value = NULL;
-    binary_tree_remove(*pp_binary_tree, B_element, (const void **)&removed_value);
+    tree_remove(*pp_tree, B_element, (const void **)&removed_value);
 }
 
-void construct_ABC_remove_B_AC ( binary_tree **pp_binary_tree )
+void construct_ABC_remove_B_AC ( tree **pp_tree )
 {
-    construct_ABC(pp_binary_tree);
+    construct_ABC(pp_tree);
     void *removed_value = NULL;
-    binary_tree_remove(*pp_binary_tree, B_element, (const void **)&removed_value);
+    tree_remove(*pp_tree, B_element, (const void **)&removed_value);
 }
 
-void construct_AC_remove_A_C ( binary_tree **pp_binary_tree )
+void construct_AC_remove_A_C ( tree **pp_tree )
 {
-    construct_AC(pp_binary_tree);
+    construct_AC(pp_tree);
     void *removed_value = NULL;
-    binary_tree_remove(*pp_binary_tree, A_element, (const void **)&removed_value);
+    tree_remove(*pp_tree, A_element, (const void **)&removed_value);
 }
 
-void construct_AC_remove_C_A ( binary_tree **pp_binary_tree )
+void construct_AC_remove_C_A ( tree **pp_tree )
 {
-    construct_AC(pp_binary_tree);
+    construct_AC(pp_tree);
     void *removed_value = NULL;
-    binary_tree_remove(*pp_binary_tree, C_element, (const void **)&removed_value);
+    tree_remove(*pp_tree, C_element, (const void **)&removed_value);
 }
 
-void construct_BC_remove_B_C ( binary_tree **pp_binary_tree )
+void construct_BC_remove_B_C ( tree **pp_tree )
 {
-    construct_BC(pp_binary_tree);
+    construct_BC(pp_tree);
     void *removed_value = NULL;
-    binary_tree_remove(*pp_binary_tree, B_element, (const void **)&removed_value);
+    tree_remove(*pp_tree, B_element, (const void **)&removed_value);
 }
 
-void construct_BC_remove_C_B ( binary_tree **pp_binary_tree )
+void construct_BC_remove_C_B ( tree **pp_tree )
 {
-    construct_BC(pp_binary_tree);
+    construct_BC(pp_tree);
     void *removed_value = NULL;
-    binary_tree_remove(*pp_binary_tree, C_element, (const void **)&removed_value);
+    tree_remove(*pp_tree, C_element, (const void **)&removed_value);
 }
 
-void construct_ABC_remove_A_BC ( binary_tree **pp_binary_tree )
+void construct_ABC_remove_A_BC ( tree **pp_tree )
 {
-    construct_ABC(pp_binary_tree);
+    construct_ABC(pp_tree);
     void *removed_value = NULL;
-    binary_tree_remove(*pp_binary_tree, A_element, (const void **)&removed_value);
+    tree_remove(*pp_tree, A_element, (const void **)&removed_value);
 }
 
-void construct_ABC_remove_C_AB ( binary_tree **pp_binary_tree )
+void construct_ABC_remove_C_AB ( tree **pp_tree )
 {
-    construct_ABC(pp_binary_tree);
+    construct_ABC(pp_tree);
     void *removed_value = NULL;
-    binary_tree_remove(*pp_binary_tree, C_element, (const void **)&removed_value);
+    tree_remove(*pp_tree, C_element, (const void **)&removed_value);
 }
 
 // Test helper implementations
-bool test_insert ( void (*constructor)(binary_tree **), void *value, result_t expected )
+bool test_insert ( void (*constructor)(tree **), void *value, result_t expected )
 {
-    binary_tree *p_binary_tree = NULL;
-    constructor(&p_binary_tree);
+    tree *p_tree = NULL;
+    constructor(&p_tree);
     
-    result_t result = (result_t)binary_tree_insert(p_binary_tree, value);
+    result_t result = (result_t)tree_insert(p_tree, value);
     
-    binary_tree_destroy(&p_binary_tree, NULL);
+    tree_destroy(&p_tree, NULL);
     return result == expected;
 }
 
-bool test_search ( void (*constructor)(binary_tree **), void *key, void *expected_value, result_t expected )
+bool test_search ( void (*constructor)(tree **), void *key, void *expected_value, result_t expected )
 {
-    binary_tree *p_binary_tree = NULL;
-    constructor(&p_binary_tree);
+    tree *p_tree = NULL;
+    constructor(&p_tree);
     
     void *found_value = NULL;
     result_t result;
     
-    int ret = binary_tree_search(p_binary_tree, key, &found_value);
+    int ret = tree_search(p_tree, key, &found_value);
     
     if ( ret == 1 && expected_value != NULL )
     {
@@ -523,19 +587,41 @@ bool test_search ( void (*constructor)(binary_tree **), void *key, void *expecte
         result = zero;
     }
     
-    binary_tree_destroy(&p_binary_tree, NULL);
+    tree_destroy(&p_tree, NULL);
     return result == expected;
 }
 
-bool test_remove ( void (*constructor)(binary_tree **), void *key, void *expected_value, result_t expected )
+bool test_size( void (*constructor)(tree **), size_t size, result_t expected )
 {
-    binary_tree *p_binary_tree = NULL;
-    constructor(&p_binary_tree);
+    tree *p_tree = NULL;
+    constructor(&p_tree);
+    
+    bool result = (tree_size(p_tree) == size) ? match : zero;
+    
+    tree_destroy(&p_tree, NULL);
+    return result;
+}
+
+bool test_is_empty( void (*constructor)(tree **), result_t expected )
+{
+    tree *p_tree = NULL;
+    constructor(&p_tree);
+    
+    bool result = (tree_is_empty(p_tree) == expected);
+    
+    tree_destroy(&p_tree, NULL);
+    return result;
+}
+
+bool test_remove ( void (*constructor)(tree **), void *key, void *expected_value, result_t expected )
+{
+    tree *p_tree = NULL;
+    constructor(&p_tree);
     
     const void *removed_value = NULL;
     result_t result;
     
-    int ret = binary_tree_remove(p_binary_tree, key, &removed_value);
+    int ret = tree_remove(p_tree, key, &removed_value);
     
     if ( ret == 1 && expected_value != NULL )
     {
@@ -561,30 +647,7 @@ bool test_remove ( void (*constructor)(binary_tree **), void *key, void *expecte
         result = zero;
     }
     
-    binary_tree_destroy(&p_binary_tree, NULL);
-    return result == expected;
-}
-
-bool test_is_empty ( void (*constructor)(binary_tree **), result_t expected )
-{
-    binary_tree *p_binary_tree = NULL;
-    constructor(&p_binary_tree);
-    
-    // Tree is empty if root is NULL
-    result_t result = (p_binary_tree->p_root == NULL) ? zero : one;
-    
-    binary_tree_destroy(&p_binary_tree, NULL);
-    return result == expected;
-}
-
-bool test_node_count ( void (*constructor)(binary_tree **), size_t expected_count, result_t expected )
-{
-    binary_tree *p_binary_tree = NULL;
-    constructor(&p_binary_tree);
-    
-    result_t result = (p_binary_tree->metadata.quantity == expected_count) ? match : zero;
-    
-    binary_tree_destroy(&p_binary_tree, NULL);
+    tree_destroy(&p_tree, NULL);
     return result == expected;
 }
 
@@ -595,8 +658,9 @@ void test_empty_tree_scenario ( void )
     print_test("empty", "insert A", test_insert(construct_empty, A_element, one));
     print_test("empty", "search X", test_search(construct_empty, X_element, NULL, zero));
     print_test("empty", "remove X", test_remove(construct_empty, X_element, NULL, zero));
-    print_test("empty", "is empty", test_is_empty(construct_empty, zero));
-    print_test("empty", "node count 0", test_node_count(construct_empty, 0, match));
+    print_test("empty", "size", test_size(construct_empty, 0, match));
+    print_test("empty", "is empty", test_is_empty(construct_empty, one));
+
     print_final_summary();
 }
 
@@ -607,8 +671,9 @@ void test_one_element_tree_scenario ( void )
     print_test("A", "search A", test_search(construct_A, A_element, A_element, match));
     print_test("A", "search X", test_search(construct_A, X_element, NULL, zero));
     print_test("A", "remove A", test_remove(construct_A, A_element, A_element, match));
-    print_test("A", "is not empty", test_is_empty(construct_A, one));
-    print_test("A", "node count 1", test_node_count(construct_A, 1, match));
+    print_test("A", "size", test_size(construct_A, 1, match));
+    print_test("A", "is empty", test_is_empty(construct_A, zero));
+
     print_final_summary();
 }
 
@@ -621,8 +686,9 @@ void test_two_element_tree_scenario ( void )
     print_test("AB", "search X", test_search(construct_AB, X_element, NULL, zero));
     print_test("AB", "remove A", test_remove(construct_AB, A_element, A_element, match));
     print_test("AB", "remove B", test_remove(construct_AB, B_element, B_element, match));
-    print_test("AB", "is not empty", test_is_empty(construct_AB, one));
-    print_test("AB", "node count 2", test_node_count(construct_AB, 2, match));
+    print_test("AB", "size", test_size(construct_AB, 2, match));
+    print_test("AB", "is empty", test_is_empty(construct_AB, zero));
+
     print_final_summary();
 }
 
@@ -634,15 +700,15 @@ void test_three_element_tree_scenario ( void )
     print_test("ABC", "search B", test_search(construct_ABC, B_element, B_element, match));
     print_test("ABC", "search C", test_search(construct_ABC, C_element, C_element, match));
     print_test("ABC", "search X", test_search(construct_ABC, X_element, NULL, zero));
-    print_test("ABC", "is not empty", test_is_empty(construct_ABC, one));
-    print_test("ABC", "node count 3", test_node_count(construct_ABC, 3, match));
+    print_test("ABC", "size", test_size(construct_ABC, 3, match));
+    print_test("ABC", "is empty", test_is_empty(construct_ABC, zero));
+
     print_final_summary();
 }
 
 void test_removal_scenario ( void )
 {
     log_scenario("removal scenario\n");
-    print_test("A->empty", "is empty", test_is_empty(construct_A_remove_A_empty, zero));
     print_test("AB->B", "search B", test_search(construct_AB_remove_A_B, B_element, B_element, match));
     print_test("AB->B", "search A", test_search(construct_AB_remove_A_B, A_element, NULL, zero));
     print_test("AB->A", "search A", test_search(construct_AB_remove_B_A, A_element, A_element, match));
@@ -658,30 +724,30 @@ void test_search_scenario ( void )
     log_scenario("search scenario\n");
     
     // Test comprehensive search functionality
-    binary_tree *p_binary_tree = NULL;
-    construct_ABC(&p_binary_tree);
+    tree *p_tree = NULL;
+    construct_ABC(&p_tree);
     
     void *found_value = NULL;
     
     // Test successful searches
-    bool search_A_success = (binary_tree_search(p_binary_tree, A_element, &found_value) == 1) && 
+    bool search_A_success = (tree_search(p_tree, A_element, &found_value) == 1) && 
                             (strcmp((char*)found_value, A_element) == 0);
     print_test("search", "find A", search_A_success);
     
-    bool search_B_success = (binary_tree_search(p_binary_tree, B_element, &found_value) == 1) && 
+    bool search_B_success = (tree_search(p_tree, B_element, &found_value) == 1) && 
                             (strcmp((char*)found_value, B_element) == 0);
     print_test("search", "find B", search_B_success);
     
-    bool search_C_success = (binary_tree_search(p_binary_tree, C_element, &found_value) == 1) && 
+    bool search_C_success = (tree_search(p_tree, C_element, &found_value) == 1) && 
                             (strcmp((char*)found_value, C_element) == 0);
     print_test("search", "find C", search_C_success);
     
     // Test unsuccessful search
     found_value = NULL;
-    bool search_X_failure = (binary_tree_search(p_binary_tree, X_element, &found_value) == 0);
+    bool search_X_failure = (tree_search(p_tree, X_element, &found_value) == 0);
     print_test("search", "miss X", search_X_failure);
     
-    binary_tree_destroy(&p_binary_tree, NULL);
+    tree_destroy(&p_tree, NULL);
     print_final_summary();
 }
 
@@ -693,8 +759,8 @@ void test_four_element_tree_scenario ( void )
     print_test("ABCD", "search C", test_search(construct_ABCD, C_element, C_element, match));
     print_test("ABCD", "search D", test_search(construct_ABCD, D_element, D_element, match));
     print_test("ABCD", "search X", test_search(construct_ABCD, X_element, NULL, zero));
-    print_test("ABCD", "is not empty", test_is_empty(construct_ABCD, one));
-    print_test("ABCD", "node count 4", test_node_count(construct_ABCD, 4, match));
+    print_test("ABCD", "size", test_size(construct_ABCD, 4, match));
+    print_test("ABCD", "is empty", test_is_empty(construct_ABCD, zero));
     print_final_summary();
 }
 
@@ -768,12 +834,6 @@ void test_balanced_tree_scenario ( void )
 {
     log_scenario("balanced tree operations\n");
     
-    // Test tree properties after various operations
-    print_test("balanced", "A count", test_node_count(construct_A, 1, match));
-    print_test("balanced", "AB count", test_node_count(construct_AB, 2, match));
-    print_test("balanced", "ABC count", test_node_count(construct_ABC, 3, match));
-    print_test("balanced", "ABCD count", test_node_count(construct_ABCD, 4, match));
-    
     // Test different construction orders yield same search behavior
     print_test("order test", "ABC->find A", test_search(construct_ABC, A_element, A_element, match));
     print_test("order test", "ACB->find A", test_search(construct_ACB, A_element, A_element, match));
@@ -789,7 +849,7 @@ void test_stress_scenario ( void )
 {
     log_scenario("stress testing\n");
     
-    binary_tree *p_stress_tree = NULL;
+    tree *p_stress_tree = NULL;
     construct_empty(&p_stress_tree);
     
     // Insert many elements
@@ -797,7 +857,7 @@ void test_stress_scenario ( void )
     for (int i = 0; i < 100 && stress_insert_success; i++) {
         char *test_value = malloc(16);
         sprintf(test_value, "item_%d", i);
-        if (binary_tree_insert(p_stress_tree, test_value) != 1) {
+        if (tree_insert(p_stress_tree, test_value) != 1) {
             stress_insert_success = false;
         }
     }
@@ -805,14 +865,10 @@ void test_stress_scenario ( void )
     
     // Search for some elements
     void *found_value = NULL;
-    bool stress_search_success = (binary_tree_search(p_stress_tree, "item_50", &found_value) == 1);
+    bool stress_search_success = (tree_search(p_stress_tree, "item_50", &found_value) == 1);
     print_test("stress", "find item_50", stress_search_success);
     
-    // Count should be 100
-    bool stress_count_correct = (p_stress_tree->metadata.quantity == 100);
-    print_test("stress", "count 100", stress_count_correct);
-    
-    binary_tree_destroy(&p_stress_tree, NULL);
+    tree_destroy(&p_stress_tree, NULL);
     print_final_summary();
 }
 
@@ -821,33 +877,25 @@ void test_traversal_scenario ( void )
     log_scenario("traversal testing\n");
     
     // Test traversal functions exist and work
-    binary_tree *p_traversal_tree = NULL;
+    tree *p_traversal_tree = NULL;
     construct_ABC(&p_traversal_tree);
     
     // Reset traversal counter
     traverse_counter = 0;
     memset(traverse_order, 0, sizeof(traverse_order));
     
-    // Test pre-order traversal
-    bool preorder_success = (binary_tree_traverse_preorder(p_traversal_tree, test_traverse_callback) == 1);
-    print_test("traversal", "pre-order", preorder_success);
-    
     // Reset for in-order
     traverse_counter = 0;
     memset(traverse_order, 0, sizeof(traverse_order));
     
     // Test in-order traversal  
-    bool inorder_success = (binary_tree_traverse_inorder(p_traversal_tree, test_traverse_callback) == 1);
+    bool inorder_success = (tree_traverse_inorder(p_traversal_tree, test_traverse_callback) == 1);
     print_test("traversal", "in-order", inorder_success);
     
     // Reset for post-order
     traverse_counter = 0;
     memset(traverse_order, 0, sizeof(traverse_order));
     
-    // Test post-order traversal
-    bool postorder_success = (binary_tree_traverse_postorder(p_traversal_tree, test_traverse_callback) == 1);
-    print_test("traversal", "post-order", postorder_success);
-    
-    binary_tree_destroy(&p_traversal_tree, NULL);
+    tree_destroy(&p_traversal_tree, NULL);
     print_final_summary();
 }

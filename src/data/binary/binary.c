@@ -369,9 +369,6 @@ int binary_tree_allocate_node ( binary_tree *p_binary_tree, binary_tree_node **p
     // store the node pointer
     p_binary_tree_node->node_pointer = p_binary_tree->metadata.quantity;
 
-    // increment the node quantity
-    p_binary_tree->metadata.quantity++;
-
     // return a pointer to the caller
     *pp_binary_tree_node = p_binary_tree_node;
 
@@ -404,7 +401,7 @@ int binary_tree_allocate_node ( binary_tree *p_binary_tree, binary_tree_node **p
         {
             failed_to_allocate_node:
                 #ifndef NDEBUG
-                    printf("[tree] Call to function \"binary_tree_node_create\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[binary] Call to function \"binary_tree_node_create\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -507,6 +504,80 @@ int binary_tree_search ( binary_tree *p_binary_tree, const void *const p_key, vo
     }
 }
 
+bool binary_tree_is_empty ( binary_tree *p_binary_tree )
+{
+
+    // argument check
+    if ( NULL == p_binary_tree ) goto no_binary_tree;
+
+    // initialized data
+    bool ret = false;
+
+    // lock
+    mutex_lock(&p_binary_tree->_lock);
+
+    // is empty?
+    ret = ( 0 == p_binary_tree->metadata.quantity);
+
+    // unlock
+    mutex_unlock(&p_binary_tree->_lock);
+
+    // success
+    return ret;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_binary_tree:
+                #ifndef NDEBUG
+                    log_error("[binary] Null pointer provided for parameter \"p_binary_tree\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+size_t binary_tree_size ( binary_tree *p_binary_tree )
+{
+
+    // argument check
+    if ( NULL == p_binary_tree ) goto no_binary_tree;
+
+    // initialized data
+    size_t count = 0;
+
+    // lock
+    mutex_lock(&p_binary_tree->_lock);
+
+    // store the result
+    count = p_binary_tree->metadata.quantity;
+
+    // unlock
+    mutex_unlock(&p_binary_tree->_lock);
+
+    // success
+    return count;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_binary_tree:
+                #ifndef NDEBUG
+                    log_error("[binary] Null pointer provided for parameter \"p_binary_tree\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
 int binary_tree_insert ( binary_tree *p_binary_tree, const void *const p_value )
 {
 
@@ -577,6 +648,11 @@ int binary_tree_insert ( binary_tree *p_binary_tree, const void *const p_value )
         
     }
 
+    done:
+
+    // increment the size
+    p_binary_tree->metadata.quantity++;
+    
     // unlock
     mutex_unlock(&p_binary_tree->_lock);
 
@@ -599,11 +675,8 @@ int binary_tree_insert ( binary_tree *p_binary_tree, const void *const p_value )
         // store the node as the root of the tree
         p_binary_tree->p_root = p_node;
 
-        // unlock
-        mutex_unlock(&p_binary_tree->_lock);
-        
-        // success
-        return 1;
+        // done
+        goto done;
     }
 
     // error handling
@@ -706,17 +779,11 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
         binary_tree_node *p_child = (p_node->p_left) ? p_node->p_left : p_node->p_right;
 
         if (p_parent == NULL) 
-        {
             p_binary_tree->p_root = p_child;
-        } 
         else if (p_parent->p_left == p_node) 
-        {
             p_parent->p_left = p_child;
-        } 
         else 
-        {
             p_parent->p_right = p_child;
-        }
         
         // Nullify child pointers to prevent recursive destruction of moved child
         p_node->p_left = NULL;
@@ -737,19 +804,18 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
         p_node->p_value = p_successor->p_value;
 
         if (p_successor_parent->p_left == p_successor) 
-        {
             p_successor_parent->p_left = p_successor->p_right;
-        } 
         else 
-        {
             p_successor_parent->p_right = p_successor->p_right;
-        }
         
         // Nullify child pointers to prevent recursive destruction of moved child
         p_successor->p_left = NULL;
         p_successor->p_right = NULL;
         binary_tree_node_destroy(&p_successor, NULL);
     }
+
+    // decrement the size
+    p_binary_tree->metadata.quantity--;
 
     // unlock
     mutex_unlock(&p_binary_tree->_lock);

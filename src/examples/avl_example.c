@@ -203,7 +203,7 @@ int main ( int argc, const char *argv[] )
     {
 
         // remove multiples of 4
-        for (size_t i = 0; i < sizeof(_values)/sizeof(*_values); i += 4)
+        for (size_t i = 4; i < sizeof(_values)/sizeof(*_values); i += 4)
             avl_tree_remove(p_avl_tree, (void *)i, NULL);
 
         // checkpoint

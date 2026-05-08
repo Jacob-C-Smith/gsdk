@@ -108,7 +108,7 @@ int main ( int argc, const char *argv[] )
     {
 
         // iterate over each property ...
-        for (size_t i = 0; i < sizeof(_values) / sizeof(*_values); i++)
+        for (size_t i = 4; i < sizeof(_values) / sizeof(*_values); i++)
             
             // ... store the property in the tree
             binary_tree_insert(p_binary_tree, &_values[i]);

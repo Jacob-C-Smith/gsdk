@@ -90,6 +90,24 @@ int avl_tree_construct
  */
 int avl_tree_search ( avl_tree *const p_avl_tree, const void *const p_key, void **pp_value );
 
+/** !
+ * Is an avl tree empty?
+ * 
+ * @param p_avl_tree the avl tree
+ * 
+ * @return true if avl tree has no values else false
+ */
+bool avl_tree_is_empty ( avl_tree *p_avl_tree );
+
+/** !
+ * Get the size of an avl tree
+ * 
+ * @param p_avl_tree the avl tree
+ * 
+ * @return size of avl tree
+ */
+size_t avl_tree_size ( avl_tree *p_avl_tree );
+
 /// mutators
 /** !
  * Insert a property into an avl tree

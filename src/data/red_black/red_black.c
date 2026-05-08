@@ -201,9 +201,6 @@ int red_black_tree_allocate_node ( red_black_tree *p_red_black_tree, red_black_t
     // store the node pointer
     p_red_black_tree_node->node_pointer = p_red_black_tree->metadata.quantity;
 
-    // increment the node quantity
-    p_red_black_tree->metadata.quantity++;
-
     // return a pointer to the caller
     *pp_red_black_tree_node = p_red_black_tree_node;
 
@@ -339,6 +336,80 @@ int red_black_tree_search ( red_black_tree *p_red_black_tree, const void *const 
     }
 }
 
+bool red_black_tree_is_empty ( red_black_tree *p_red_black_tree )
+{
+
+    // argument check
+    if ( NULL == p_red_black_tree ) goto no_red_black_tree;
+
+    // initialized data
+    bool ret = false;
+
+    // lock
+    mutex_lock(&p_red_black_tree->_lock);
+
+    // is empty?
+    ret = ( 0 == p_red_black_tree->metadata.quantity);
+
+    // unlock
+    mutex_unlock(&p_red_black_tree->_lock);
+
+    // success
+    return ret;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_red_black_tree:
+                #ifndef NDEBUG
+                    log_error("[red_black] Null pointer provided for parameter \"p_red_black_tree\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+size_t red_black_tree_size ( red_black_tree *p_red_black_tree )
+{
+
+    // argument check
+    if ( NULL == p_red_black_tree ) goto no_red_black_tree;
+
+    // initialized data
+    size_t count = 0;
+
+    // lock
+    mutex_lock(&p_red_black_tree->_lock);
+
+    // store the result
+    count = p_red_black_tree->metadata.quantity;
+
+    // unlock
+    mutex_unlock(&p_red_black_tree->_lock);
+
+    // success
+    return count;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_red_black_tree:
+                #ifndef NDEBUG
+                    log_error("[red_black] Null pointer provided for parameter \"p_red_black_tree\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
 int red_black_tree_insert ( red_black_tree *p_red_black_tree, const void *const p_value )
 {
 
@@ -418,6 +489,9 @@ int red_black_tree_insert ( red_black_tree *p_red_black_tree, const void *const 
 
     // repair the red black tree
     red_black_tree_insert_fixup(p_red_black_tree, z);
+
+    // increment the node quantity
+    p_red_black_tree->metadata.quantity++;
 
     // unlock
     mutex_unlock(&p_red_black_tree->_lock);
@@ -600,6 +674,9 @@ int red_black_tree_remove ( red_black_tree *const p_red_black_tree, const void *
 
     // release the node
     red_black_tree_node_destroy(&z, NULL);
+
+    // increment the node quantity
+    p_red_black_tree->metadata.quantity--;
 
     // unlock
     mutex_unlock(&p_red_black_tree->_lock);

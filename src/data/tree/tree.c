@@ -25,6 +25,8 @@ tree _prototypes[TREE_QUANTITY] =
         .pfn_insert           = (fn_tree_insert *)binary_tree_insert, 
         .pfn_remove           = (fn_tree_remove *)binary_tree_remove, 
         .pfn_search           = (fn_tree_search *)binary_tree_search, 
+        .pfn_is_empty         = (fn_tree_is_empty *)binary_tree_is_empty,
+        .pfn_size             = (fn_tree_size *)binary_tree_size,
         .pfn_traverse_inorder = (fn_tree_traverse_inorder *)binary_tree_traverse_inorder, 
         .pfn_pack             = (fn_tree_pack *)binary_tree_pack, 
         .pfn_unpack           = (fn_tree_unpack *)binary_tree_unpack, 
@@ -39,6 +41,8 @@ tree _prototypes[TREE_QUANTITY] =
         .pfn_insert           = (fn_tree_insert *)avl_tree_insert, 
         .pfn_remove           = (fn_tree_remove *)avl_tree_remove, 
         .pfn_search           = (fn_tree_search *)avl_tree_search, 
+        .pfn_is_empty         = (fn_tree_is_empty *)avl_tree_is_empty,
+        .pfn_size             = (fn_tree_size *)avl_tree_size,
         .pfn_traverse_inorder = (fn_tree_traverse_inorder *)avl_tree_traverse_inorder, 
         .pfn_pack             = (fn_tree_pack *)avl_tree_pack, 
         .pfn_unpack           = (fn_tree_unpack *)avl_tree_unpack, 
@@ -53,6 +57,8 @@ tree _prototypes[TREE_QUANTITY] =
         .pfn_insert           = (fn_tree_insert *)red_black_tree_insert, 
         .pfn_remove           = (fn_tree_remove *)red_black_tree_remove, 
         .pfn_search           = (fn_tree_search *)red_black_tree_search, 
+        .pfn_is_empty         = (fn_tree_is_empty *)red_black_tree_is_empty,
+        .pfn_size             = (fn_tree_size *)red_black_tree_size,
         .pfn_traverse_inorder = (fn_tree_traverse_inorder *)red_black_tree_traverse_inorder, 
         .pfn_pack             = (fn_tree_pack *)red_black_tree_pack, 
         .pfn_unpack           = (fn_tree_unpack *)red_black_tree_unpack, 
@@ -172,6 +178,56 @@ int tree_search ( tree *p_tree, const void *const p_key, void **pp_value )
     
     // done
     return p_tree->pfn_search(p_tree->p_tree, p_key, pp_value);
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_tree:
+                #ifndef NDEBUG
+                    printf("[tree] Null pointer provided for parameter \"p_tree\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+bool tree_is_empty ( tree *p_tree )
+{
+
+    // argument check
+    if ( NULL == p_tree ) goto no_tree;
+    
+    // done
+    return p_tree->pfn_is_empty(p_tree->p_tree);
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_tree:
+                #ifndef NDEBUG
+                    printf("[tree] Null pointer provided for parameter \"p_tree\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+size_t tree_size ( tree *p_tree )
+{
+
+    // argument check
+    if ( NULL == p_tree ) goto no_tree;
+    
+    // done
+    return p_tree->pfn_size(p_tree->p_tree);
 
     // error handling
     {
@@ -472,17 +528,6 @@ int tree_destroy ( tree **const pp_tree, fn_allocator *pfn_allocator )
             no_tree:
                 #ifndef NDEBUG
                     printf("[tree] Null pointer provided for parameter \"pp_tree\" in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-        }
-
-        // Tree error
-        {
-            failed_to_free_nodes:
-                #ifndef NDEBUG
-                    printf("[tree] Failed to free tree nodes in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

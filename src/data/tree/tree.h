@@ -40,6 +40,8 @@ typedef struct tree_s tree;
 typedef int(fn_tree_insert)(void *const p_tree, const void *const p_value);
 typedef int(fn_tree_remove)(void *const p_tree, const void *const p_key, const void **const p_value);
 typedef int(fn_tree_search)(void *const p_tree, const void *const p_key, void **pp_value);
+typedef bool(fn_tree_is_empty)(void *const p_tree);
+typedef size_t(fn_tree_size)(void *const p_tree);
 typedef int(fn_tree_traverse_inorder)(void *const p_tree, fn_foreach *pfn_foreach);
 typedef int(fn_tree_pack)(void *p_buffer, void *p_tree, fn_pack *pfn_element);
 typedef int(fn_tree_unpack)(void **pp_tree, void  *p_buffer, fn_unpack *pfn_element, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor);
@@ -55,6 +57,8 @@ struct tree_s
     fn_tree_insert           *pfn_insert;
     fn_tree_remove           *pfn_remove;
     fn_tree_search           *pfn_search;
+    fn_tree_is_empty         *pfn_is_empty;
+    fn_tree_size             *pfn_size;
     fn_tree_traverse_inorder *pfn_traverse_inorder;
     fn_tree_pack             *pfn_pack;
     fn_tree_unpack           *pfn_unpack;
@@ -94,6 +98,24 @@ int tree_construct
  * @return 1 on success, 0 on error
  */
 int tree_search ( tree *const p_tree, const void *const p_key, void **pp_value );
+
+/** !
+ * Is a tree empty?
+ * 
+ * @param p_tree the tree
+ * 
+ * @return true if tree has no values else false
+ */
+bool tree_is_empty ( tree *p_tree );
+
+/** !
+ * Get the size of an tree
+ * 
+ * @param p_tree the tree
+ * 
+ * @return size of tree
+ */
+size_t tree_size ( tree *p_tree );
 
 /// mutators
 /** !

@@ -109,6 +109,24 @@ int binary_tree_construct_balanced
  */
 int binary_tree_search ( binary_tree *const p_binary_tree, const void *const p_key, void **pp_value );
 
+/** !
+ * Is a binary tree empty?
+ * 
+ * @param p_binary_tree the binary tree
+ * 
+ * @return true if binary tree has no values else false
+ */
+bool binary_tree_is_empty ( binary_tree *p_binary_tree );
+
+/** !
+ * Get the size of a binary tree
+ * 
+ * @param p_binary_tree the binary tree
+ * 
+ * @return size of binary tree
+ */
+size_t binary_tree_size ( binary_tree *p_binary_tree );
+
 /// mutators
 /** !
  * Insert a property into a binary tree
