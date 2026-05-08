@@ -94,13 +94,16 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>⭐ <a href="./documentation/md/data/array.md">
             <b>array</b>
         </a></li>
+        <li>⭐ <a href="./documentation/md/data/avl.md">
+            <b>avl</b>
+        </a></li>
         <li>⭐ <a href="./documentation/md/data/binary.md">
             <b>binary</b>
         </a></li>
         <li>⭐ <a href="./documentation/md/data/bitmap.md">
             <b>bitmap</b>
         </a></li>
-        <li>⭐ <a href="#">
+        <li>⭐ <a href="./documentation/md/data/cache.md">
             <b>cache</b>
         </a></li>
         <li>⭐ <a href="./documentation/md/data/circular_buffer.md">
@@ -115,11 +118,17 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>⭐ <a href="./documentation/md/data/queue.md">
             <b>queue</b>
         </a></li>
+        <li>⭐ <a href="./documentation/md/data/red_black.md">
+            <b>red black</b>
+        </a></li>
         <li>⭐ <a href="./documentation/md/data/set.md">
             <b>set</b>
         </a></li>
         <li>⭐ <a href="./documentation/md/data/stack.md">
             <b>stack</b>
+        </a></li>
+        <li>⭐ <a href="./documentation/md/data/tree.md">
+            <b>tree</b>
         </a></li>
         <li>⭐ <a href="./documentation/md/data/tuple.md">
             <b>tuple</b>
