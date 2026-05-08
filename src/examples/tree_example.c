@@ -97,7 +97,7 @@ int main ( int argc, const char *argv[] )
         // construct a tree
         tree_construct(
             &p_tree,                    // result
-            TREE_RED_BLACK,             // type
+            TREE_BINARY,                // type
             sizeof(number_and_string),  // size
 
             (fn_comparator *)  number_and_string_number_comparator,  // comparator
@@ -119,7 +119,7 @@ int main ( int argc, const char *argv[] )
             tree_insert(p_tree, &_values[i]);
 
         // checkpoint
-        checkpoint(p_tree, "after insert"),
+        checkpoint(p_tree, "after insert");
         putchar('\n');
     }
 
@@ -142,7 +142,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
     
-    // #6 - to binary
+    // #4 - to binary
     {
 
         // initialized data
@@ -165,7 +165,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
  
-    // #7 - hash 1
+    // #5 - hash 1
     {
         
         // hash the tree
@@ -179,11 +179,11 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #8 - remove
+    // #6 - remove
     {
 
-        // remove multiples of 4
-        for (size_t i = 4; i < sizeof(_values)/sizeof(*_values); i += 4)
+        // remove odd numbers
+        for (size_t i = 1; i <= sizeof(_values)/sizeof(*_values); i += 2)
             tree_remove(p_tree, (void *)i, NULL);
 
         // checkpoint
@@ -191,7 +191,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #9 - destroy
+    // #7 - destroy
     {
 
         // destroy the tree
@@ -202,7 +202,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #10 - from binary
+    // #8 - from binary
     {
         
         // initialized data
@@ -228,7 +228,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #11 - hash 2
+    // #9 - hash 2
     {
         
         // hash the tree
@@ -247,7 +247,7 @@ int main ( int argc, const char *argv[] )
         checkpoint(p_tree, "after hash 2");
     }
 
-    // #13 - destroy
+    // #10 - destroy
     {
 
         // destroy the tree
@@ -271,8 +271,10 @@ int checkpoint ( tree *p_tree, const char *p_event )
     // print the array
     if ( NULL == p_tree )
         log_info("#%d - Tree %s: NULL\n", step, p_event);
+    else if ( tree_is_empty(p_tree) )
+        log_info("#%d - Tree %s: empty\n", step, p_event);
     else
-        log_info("#%d - Tree %s:\n", step, p_event),
+        log_info("#%d - Tree (%d) %s:\n", step, tree_size(p_tree), p_event),
         
         putchar('('), putchar(' '),
         tree_traverse_inorder(p_tree, number_and_string_number_print),

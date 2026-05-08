@@ -1,6 +1,6 @@
 # [gsdk](../../../README.md) > [data](../data.md) > avl
 
-## Adelson-Velsky and Landis tree 
+## Specialized binary tree; Strictly balanced
 
  > 1 [Example](#example)
  >

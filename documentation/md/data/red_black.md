@@ -1,6 +1,6 @@
 # [gsdk](../../../README.md) > [data](../data.md) > red black
 
-## Red Black tree 
+## Specialized binary tree; Loosely balanced
 
  > 1 [Example](#example)
  >

@@ -96,6 +96,24 @@ int red_black_tree_construct
  */
 int red_black_tree_search ( red_black_tree *const p_red_black_tree, const void *const p_key, void **pp_value );
 
+/** !
+ * Is a red black tree empty?
+ * 
+ * @param p_red_black the red black tree
+ * 
+ * @return true if red black tree has no values else false
+ */
+bool red_black_tree_is_empty ( red_black_tree *p_red_black );
+
+/** !
+ * Get the size of a red black tree
+ * 
+ * @param p_red_black the red black tree
+ * 
+ * @return size of red black tree
+ */
+size_t red_black_tree_size ( red_black_tree *p_red_black );
+
 /// mutators
 /** !
  * Insert a value into a red black tree

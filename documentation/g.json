@@ -24,7 +24,7 @@
         "sha" : 
         {
             "name" : "sha",
-            "description" : "SHA-256 implementation",
+            "description" : "Secure Hash Algorithm implementations",
             "path": "src/core/sha",
             "markdown" : "md/core/sha.md",
             "tester" : "src/test/sha_test.c",
@@ -173,6 +173,16 @@
             "example": "src/examples/binary_example.c",
             "icon" : "resource/icon/binary.png"
         },
+        "avl" : 
+        {
+            "name": "avl",
+            "description": "Specialized binary tree; Strictly balanced",
+            "path": "src/data/avl",
+            "markdown": "md/data/avl.md",
+            "tester": "src/test/avl_test.c",
+            "example": "src/examples/avl_example.c",
+            "icon" : "resource/icon/avl.png"
+        },
         "bitmap" : 
         {
             "name": "bitmap",
@@ -253,6 +263,20 @@
             "example": "src/examples/queue_example.c",
             "icon": "resource/icon/queue.png"
         },
+        "red black" : 
+        {
+            "name": "red black",
+            "description": "Specialized binary tree; Loosely balanced",
+            "path": "src/data/red_black",
+            "markdown": "md/data/red_black.md",
+            "tester": "src/test/red_black_test.c",
+            "example": "src/examples/red_black_example.c",
+            "icon" : 
+            {
+                "dark": "resource/icon/red_black_dark.png", 
+                "light": "resource/icon/red_black_light.png"
+            }
+        },
         "set" : 
         {
             "name": "set",
@@ -272,6 +296,20 @@
             "tester": "src/test/stack_test.c",
             "example": "src/examples/stack_example.c",
             "icon": "resource/icon/stack.png"
+        },
+        "tree" : 
+        {
+            "name": "tree",
+            "description": "Abstract binary search tree",
+            "path": "src/data/binary",
+            "markdown": "md/data/tree.md",
+            "tester": "src/test/tree_test.c",
+            "example": "src/examples/tree_example.c",
+            "icon" : 
+            {
+                "dark": "resource/icon/tree_dark.png", 
+                "light": "resource/icon/tree_light.png"
+            }
         },
         "tuple" : 
         {

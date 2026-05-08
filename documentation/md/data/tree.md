@@ -1,130 +1,103 @@
 # [gsdk](../../../README.md) > [data](../data.md) > tree
-## Heierarchical structure of nodes
- > 1 [Download](#download)
+## Abstract binary search tree
+
+ > 1 [Example](#example)
  >
- > 2 [Build](#build)
+ > 2 [Tester](#tester)
  >
- > 3 [Example](#example)
+ > 3 [Definitions](#definitions)
  >
- >> 3.1 [Example output](#example-output)
- >
- > 4 [Tester](#tester)
- >
- > 5 [Definitions](#definitions)
- >
- >> 5.1 [Type definitions](#type-definitions)
+ >> 3.1 [Enumeration definitions](#enumeration-definitions)
+ >> 
+ >> 3.2 [Type definitions](#type-definitions)
  >>
- >> 5.2 [Function definitions](#function-definitions)
+ >> 3.3 [Function declarations](#function-declarations)
 
- ## Download
- To download tree, execute the following command
- ```bash
- $ git clone https://github.com/Jacob-C-Smith/tree
- ```
- ## Build
- To build on UNIX like machines, execute the following commands in the same directory
- ```bash
- $ cd tree
- $ cmake .
- $ make
- ```
-  This will build the example program, the tester program, and dynamic / shared libraries
-
-  To build tree for Windows machines, open the base directory in Visual Studio, and build your desired target(s)
  ## Example
  To run the example program, execute this command
  ```
- $ ./tree_example
+ $ ./build/examples/tree_example
  ```
- ### Example output
- ```
- TODO
- ```
- [Source](main.c)
-
-## Tester
- TODO: 
+ [Source](../../../src/examples/tree_example.c)
  
+ ## Tester
+ To run the tester program, execute this command
+ ```
+ $ ./build/tests/tree_test 
+ ```
+
  ## Definitions
- ### Binary tree 
- #### Type definitions
-```c
+ ### Enumeration definitions
+ ```c
+// enumeration definitions
+enum tree_type_e
+{
+    TREE_BINARY     = 0,
+    TREE_AVL        = 1,
+    TREE_RED_BLACK  = 2,
+    TREE_QUANTITY   = 3,
+};
+ ```
+
+ ### Type definitions
+ ```c
 // type definitions
-typedef struct binary_tree_s      binary_tree;
-typedef struct binary_tree_node_s binary_tree_node;
+typedef struct tree_s tree;
 
-typedef int (fn_binary_tree_serialize) (FILE *p_file, binary_tree_node *p_binary_tree_node);
-typedef int (fn_binary_tree_parse)     (FILE *p_file, binary_tree_node *p_binary_tree_node);
-typedef int (fn_binary_tree_traverse)  (void *p_key, void *p_value);
-```
+typedef int    (fn_tree_search)   ( void *const p_tree, const void *const p_key, void **pp_value);
+typedef bool   (fn_tree_is_empty) ( void *const p_tree );
+typedef size_t (fn_tree_size)     ( void *const p_tree );
 
-#### Function definitions
- ```c
-// allocators
-int binary_tree_create ( binary_tree **const pp_binary_tree );
+typedef int (fn_tree_insert) ( void *const p_tree, const void *const p_value);
+typedef int (fn_tree_remove) ( void *const p_tree, const void *const p_key, const void **const p_value);
 
-// constructors
-int binary_tree_construct ( binary_tree **const pp_binary_tree, fn_equality *pfn_is_equal, unsigned long long node_size );
+typedef int (fn_tree_traverse_inorder) ( void *const p_tree, fn_foreach *pfn_foreach );
 
-// accessors
-int binary_tree_search ( const binary_tree *const p_binary_tree, const void *const p_key, const void **const pp_value );
+typedef int    (fn_tree_pack)   ( void *p_buffer, void *p_tree, fn_pack *pfn_element );
+typedef int    (fn_tree_unpack) ( void **pp_tree, void  *p_buffer, fn_unpack *pfn_element, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor);
+typedef hash64 (fn_tree_hash)   ( void *const p_tree, fn_hash64 *pfn_hash64);
 
-// mutators
-int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_key, const void  *const p_value );
-int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_key, const void **const p_value );
-
-// Traversal
-int binary_tree_traverse_preorder  ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse );
-int binary_tree_traverse_inorder   ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse );
-int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse );
-
-// Parser
-int binary_tree_parse ( binary_tree **const pp_binary_tree, const char *p_file, fn_equality *pfn_is_equal, fn_binary_tree_parse *pfn_parse_node );
-
-// Serializer
-int binary_tree_serialize ( binary_tree *const p_binary_tree, const char *p_path, fn_binary_tree_serialize *pfn_serialize_node );
-
-// destructors
-int binary_tree_destroy ( binary_tree **const pp_binary_tree );
+typedef int (fn_tree_destroy) ( void **const pp_tree, fn_allocator *pfn_allocator);
  ```
 
- ### B tree
- #### Type definitions
- ```c
-typedef struct b_tree_s           b_tree;
-typedef struct b_tree_node_s      b_tree_node;
-typedef struct b_tree_metadata_s  b_tree_metadata;
+ ### Function declarations
+ ```c 
+// function declarations
+/// constructors
+int tree_construct 
+(
+    tree **const         pp_tree,
+    enum tree_type_e     _type,
+    unsigned long long   node_size,
+    fn_comparator       *pfn_comparator, 
+    fn_key_accessor     *pfn_key_accessor 
+);
 
-typedef int (fn_b_tree_serialize) (FILE *p_file, b_tree_node *p_b_tree_node);
-typedef int (fn_b_tree_parse)     (FILE *p_file, b_tree *p_b_tree, b_tree_node **pp_b_tree_node, unsigned long long node_pointer );
-typedef int (fn_b_tree_traverse)  (void *p_key, void *p_value);
- ```
- #### Function definitions
- ```c
-// allocators
-int b_tree_create ( b_tree **const pp_b_tree );
+/// accessors
+int    tree_search   ( tree *const p_tree, const void *const p_key, void **pp_value );
+bool   tree_is_empty ( tree *      p_tree );
+size_t tree_size     ( tree *      p_tree );
 
-// constructors
-int b_tree_construct ( b_tree **const pp_b_tree, const char *const path, fn_equality *pfn_is_equal, int degree, unsigned long long node_size );
+/// mutators
+int tree_insert ( tree *const p_tree, const void *const p_value );
+int tree_remove ( tree *const p_tree, const void *const p_key  , const void **const p_value );
 
-// accessors
-int b_tree_search ( const b_tree *const p_b_tree, const void *const p_key, const void **const pp_value );
+/// iterator
+int tree_traverse_inorder ( tree *const p_tree, fn_foreach *pfn_foreach );
 
-// mutators
-int b_tree_insert ( b_tree *const p_b_tree, const void *const p_key, const void *const p_value );
-int b_tree_remove ( b_tree *const p_b_tree, const void *const p_key, const void **const p_value );
+/// reflection
+int tree_pack ( void *p_buffer, tree *p_tree, fn_pack *pfn_element );
+int tree_unpack
+( 
+    tree **pp_tree, 
+    void  *p_buffer, 
+    
+    fn_unpack       *pfn_element, 
+    fn_comparator   *pfn_comparator, 
+    fn_key_accessor *pfn_key_accessor
+);
+hash64 tree_hash ( tree *const p_tree, fn_hash64 *pfn_hash64 );
 
-// Traversal
-int binary_tree_traverse_preorder  ( b_tree *const p_b_tree, fn_b_tree_traverse *pfn_traverse );
-int binary_tree_traverse_inorder   ( b_tree *const p_b_tree, fn_b_tree_traverse *pfn_traverse );
-int binary_tree_traverse_postorder ( b_tree *const p_b_tree, fn_b_tree_traverse *pfn_traverse );
-
-// Parser
-int b_tree_parse ( b_tree **const pp_b_tree, FILE *p_file, fn_equality *pfn_is_equal, fn_b_tree_parse *pfn_parse_node );
-
-// Serializer
-int b_tree_serialize ( b_tree *const p_b_tree, const char *p_path, fn_b_tree_serialize *pfn_serialize_node );
-
-// destructors
-int b_tree_destroy ( b_tree **const pp_b_tree );
+/// destructors
+int tree_destroy ( tree **const pp_tree, fn_allocator *pfn_allocator );
  ```

@@ -271,9 +271,6 @@ int avl_tree_allocate_node ( avl_tree *p_avl_tree, avl_tree_node **pp_avl_tree_n
     // store the node pointer
     p_avl_tree_node->node_pointer = p_avl_tree->metadata.quantity;
 
-    // increment the node quantity
-    p_avl_tree->metadata.quantity++;
-
     // return a pointer to the caller
     *pp_avl_tree_node = p_avl_tree_node;
 
@@ -317,7 +314,6 @@ int avl_tree_allocate_node ( avl_tree *p_avl_tree, avl_tree_node **pp_avl_tree_n
 
 int avl_tree_search ( avl_tree *p_avl_tree, const void *const p_key, void **pp_value )
 {
-
     // argument check
     if ( NULL == p_avl_tree ) goto no_avl_tree;
 
@@ -409,6 +405,80 @@ int avl_tree_search ( avl_tree *p_avl_tree, const void *const p_key, void **pp_v
     }
 }
 
+bool avl_tree_is_empty ( avl_tree *p_avl_tree )
+{
+
+    // argument check
+    if ( NULL == p_avl_tree ) goto no_avl_tree;
+
+    // initialized data
+    bool ret = false;
+
+    // lock
+    mutex_lock(&p_avl_tree->_lock);
+
+    // is empty?
+    ret = ( 0 == p_avl_tree->metadata.quantity);
+
+    // unlock
+    mutex_unlock(&p_avl_tree->_lock);
+
+    // success
+    return ret;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_avl_tree:
+                #ifndef NDEBUG
+                    log_error("[avl] Null pointer provided for parameter \"p_avl_tree\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+size_t avl_tree_size ( avl_tree *p_avl_tree )
+{
+
+    // argument check
+    if ( NULL == p_avl_tree ) goto no_avl_tree;
+
+    // initialized data
+    size_t count = 0;
+
+    // lock
+    mutex_lock(&p_avl_tree->_lock);
+
+    // store the result
+    count = p_avl_tree->metadata.quantity;
+
+    // unlock
+    mutex_unlock(&p_avl_tree->_lock);
+
+    // success
+    return count;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_avl_tree:
+                #ifndef NDEBUG
+                    log_error("[avl] Null pointer provided for parameter \"p_avl_tree\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
 int avl_tree_insert_recursive ( avl_tree *p_avl_tree, avl_tree_node **pp_node, const void *const p_value )
 {
 
@@ -472,6 +542,9 @@ int avl_tree_insert ( avl_tree *p_avl_tree, const void *const p_value )
 
     // recursively insert
     if ( 0 == avl_tree_insert_recursive(p_avl_tree, &p_avl_tree->p_root, p_value) ) goto failed_to_insert;
+
+    // increment the node quantity
+    p_avl_tree->metadata.quantity++;
 
     // unlock
     mutex_unlock(&p_avl_tree->_lock);
@@ -621,6 +694,9 @@ int avl_tree_remove ( avl_tree *const p_avl_tree, const void *const p_key, const
 
     // recursively remove
     if ( 0 == avl_tree_remove_recursive(p_avl_tree, &p_avl_tree->p_root, p_key, pp_value) ) goto failed_to_remove;
+
+    // decrement the node quantity
+    p_avl_tree->metadata.quantity--;
 
     // unlock
     mutex_unlock(&p_avl_tree->_lock);
