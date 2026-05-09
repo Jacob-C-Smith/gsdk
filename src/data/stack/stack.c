@@ -151,6 +151,25 @@ int stack_push ( stack *const p_stack, void *const p_value )
 	}
 }
 
+bool stack_is_empty ( stack *const p_stack )
+{
+
+    // argument check
+    if ( p_stack == (void *) 0 ) return true;
+
+    // lock
+    mutex_lock(&p_stack->_lock);
+
+    // initialized data
+    bool ret = ( p_stack->offset == 0 );
+
+    // unlock
+    mutex_unlock(&p_stack->_lock);
+
+    // success
+    return ret;
+}
+
 int stack_pop ( stack *const p_stack, void **const ret )
 {
 

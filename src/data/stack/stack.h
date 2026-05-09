@@ -67,6 +67,15 @@ int stack_pop ( stack *const p_stack, void **const ret );
 
 /// accessors
 /** !
+ *  Check if a stack is empty
+ *
+ * @param p_stack the stack
+ *
+ * @return true if stack is empty else false
+ */
+bool stack_is_empty ( stack *const p_stack );
+
+/** !
  * Peek the top of the stack
  * 
  * @param p_stack the stack

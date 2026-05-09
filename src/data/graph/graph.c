@@ -10,6 +10,13 @@
 #include <data/graph.h>
 
 #include <data/adjacency_matrix.h>
+#include <data/hash_table.h>
+#include <data/stack.h>
+#include <data/queue.h>
+
+// forward declarations
+static fn_hash64     graph_hash_pointer;
+static fn_comparator graph_equality_pointer;
 
 /// prototypes
 graph _prototypes[GRAPH_QUANTITY] = 
@@ -204,6 +211,386 @@ int graph_construct
 
                 // release the graph
                 p_graph = default_allocator(p_graph, 0);
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int graph_algorithm_bfs
+( 
+    graph      *p_graph, 
+    const void *p_start_key, 
+    fn_foreach *pfn_foreach
+)
+{
+
+    // argument check
+    if ( NULL ==     p_graph ) goto no_graph;
+    if ( NULL == p_start_key ) goto no_start_key;
+    if ( NULL == pfn_foreach ) goto no_foreach;
+    
+    // initialized data
+    queue      *p_queue        = NULL;
+    hash_table *p_visited      = NULL;
+    void       *p_start_vertex = NULL;
+    size_t      vertex_count   = graph_vertex_count(p_graph);
+
+    // search for the starting vertex
+    if ( 0 == graph_vertex_search(p_graph, p_start_key, &p_start_vertex) ) goto start_vertex_not_found;
+
+    // construct a queue
+    if ( 0 == queue_construct(&p_queue) ) goto failed_to_construct_queue;
+
+    // construct a hash table to track visited vertices
+    if ( 0 == hash_table_construct(&p_visited, vertex_count ? vertex_count * 2 + 1 : 8, COLLISION_RESOLUTION_DEFAULT, graph_equality_pointer, NULL, graph_hash_pointer) ) goto failed_to_construct_hash_table;
+
+    // enqueue the start vertex
+    if ( 0 == queue_enqueue(p_queue, p_start_vertex) ) goto failed_to_enqueue;
+
+    // traverse the graph
+    while ( false == queue_empty(p_queue) )
+    {
+        
+        // initialized data
+        void    *p_vertex         = NULL;
+        void    *p_key            = NULL;
+        void   **pp_neighbors     = NULL;
+        void    *p_visited_vertex = NULL;
+        size_t   neighbor_count   = 0;
+
+        // dequeue a vertex
+        if ( 0 == queue_dequeue(p_queue, &p_vertex) ) goto failed_to_dequeue;
+
+        // check if the vertex has been visited
+        if ( 1 == hash_table_search(p_visited, p_vertex, &p_visited_vertex) ) continue;
+
+        // mark the vertex as visited
+        if ( 0 == hash_table_insert(p_visited, p_vertex) ) goto failed_to_insert_visited;
+
+        // call the foreach function
+        pfn_foreach(p_vertex);
+
+        // get the key for the vertex
+        p_key = p_graph->pfn_key_accessor(p_vertex);
+
+        // get the neighbors of the vertex
+        if ( 0 == graph_neighbors_get(p_graph, p_key, &neighbor_count, &pp_neighbors) ) continue;
+
+        // enqueue the neighbors
+        for ( size_t i = 0; i < neighbor_count; i++ )
+        {
+            
+            // if the neighbor has not been visited ...
+            if ( 0 == hash_table_search(p_visited, pp_neighbors[i], &p_visited_vertex) )
+
+                // ... enqueue the neighbor 
+                if ( 0 == queue_enqueue(p_queue, pp_neighbors[i]) ) 
+                {
+                    
+                    // release the neighbors
+                    if ( pp_neighbors ) pp_neighbors = default_allocator(pp_neighbors, 0);
+
+                    // error
+                    goto failed_to_enqueue;
+                }
+        }
+
+        // release the neighbors
+        if ( pp_neighbors ) pp_neighbors = default_allocator(pp_neighbors, 0);
+    }
+
+    // destroy the queue
+    queue_destroy(&p_queue);
+
+    // destroy the hash table
+    hash_table_destroy(&p_visited, NULL);
+
+    // success
+    return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_graph:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"p_graph\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+            
+            no_start_key:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"p_start_key\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+            
+            no_foreach:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"pfn_foreach\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // graph errors
+        {
+            start_vertex_not_found:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to find starting vertex in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // queue errors
+        {
+            failed_to_construct_queue:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to construct queue in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            failed_to_enqueue:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to enqueue vertex in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // destroy the queue and hash table
+                if ( p_queue )   queue_destroy(&p_queue);
+                if ( p_visited ) hash_table_destroy(&p_visited, NULL);
+
+                // error
+                return 0;
+
+            failed_to_dequeue:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to dequeue vertex in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // destroy the queue and hash table
+                if ( p_queue )   queue_destroy(&p_queue);
+                if ( p_visited ) hash_table_destroy(&p_visited, NULL);
+
+                // error
+                return 0;
+        }
+
+        // hash table errors
+        {
+            failed_to_construct_hash_table:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to construct hash table in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // destroy the queue
+                if ( p_queue ) queue_destroy(&p_queue);
+
+                // error
+                return 0;
+
+            failed_to_insert_visited:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to insert visited vertex into hash table in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // destroy the queue and hash table
+                if ( p_queue )   queue_destroy(&p_queue);
+                if ( p_visited ) hash_table_destroy(&p_visited, NULL);
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int graph_algorithm_dfs 
+( 
+    graph      *p_graph, 
+    const void *p_start_key, 
+    fn_foreach *pfn_foreach
+)
+{
+
+    // argument check
+    if ( NULL ==     p_graph ) goto no_graph;
+    if ( NULL == p_start_key ) goto no_start_key;
+    if ( NULL == pfn_foreach ) goto no_foreach;
+    
+    // initialized data
+    stack      *p_stack        = NULL;
+    hash_table *p_visited      = NULL;
+    void       *p_start_vertex = NULL;
+    size_t      vertex_count   = graph_vertex_count(p_graph);
+
+    // search for the starting vertex
+    if ( 0 == graph_vertex_search(p_graph, p_start_key, &p_start_vertex) ) goto start_vertex_not_found;
+
+    // construct a stack
+    if ( 0 == stack_construct(&p_stack, vertex_count ? vertex_count : 8) ) goto failed_to_construct_stack;
+
+    // construct a hash table to track visited vertices
+    if ( 0 == hash_table_construct(&p_visited, vertex_count ? vertex_count * 2 + 1 : 8, COLLISION_RESOLUTION_DEFAULT, graph_equality_pointer, NULL, graph_hash_pointer) ) goto failed_to_construct_hash_table;
+
+    // push the start vertex
+    if ( 0 == stack_push(p_stack, p_start_vertex) ) goto failed_to_push;
+
+    // traverse the graph
+    while ( false == stack_is_empty(p_stack) )
+    {
+        
+        // initialized data
+        void    *p_vertex         = NULL;
+        void    *p_key            = NULL;
+        void   **pp_neighbors     = NULL;
+        void    *p_visited_vertex = NULL;
+        size_t   neighbor_count   = 0;
+
+        // pop a vertex
+        if ( 0 == stack_pop(p_stack, &p_vertex) ) continue;
+
+        // check if the vertex has been visited
+        if ( 1 == hash_table_search(p_visited, p_vertex, &p_visited_vertex) ) continue;
+
+        // mark the vertex as visited
+        if ( 0 == hash_table_insert(p_visited, p_vertex) ) goto failed_to_insert_visited;
+
+        // call the foreach function
+        pfn_foreach(p_vertex);
+
+        // get the key for the vertex
+        p_key = p_graph->pfn_key_accessor(p_vertex);
+
+        // get the neighbors of the vertex
+        if ( 0 == graph_neighbors_get(p_graph, p_key, &neighbor_count, &pp_neighbors) ) continue;
+
+        // push the neighbors
+        for ( size_t i = 0; i < neighbor_count; i++ )
+        {
+            
+            // if the neighbor has not been visited ...
+            if ( 0 == hash_table_search(p_visited, pp_neighbors[i], &p_visited_vertex) )
+
+                // ... push the neighbor
+                if ( 0 == stack_push(p_stack, pp_neighbors[i]) ) 
+                {
+                    
+                    // release the neighbors
+                    if ( pp_neighbors ) default_allocator(pp_neighbors, 0);
+
+                    // error
+                    goto failed_to_push;
+                }
+        }
+
+        // release the neighbors
+        if ( pp_neighbors ) default_allocator(pp_neighbors, 0);
+    }
+
+    // destroy the stack 
+    stack_destroy(&p_stack);
+
+    // destroy the hash table
+    hash_table_destroy(&p_visited, NULL);
+
+    // success
+    return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_graph:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"p_graph\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+            
+            no_start_key:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"p_start_key\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+            
+            no_foreach:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"pfn_foreach\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // graph errors
+        {
+            start_vertex_not_found:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to find starting vertex in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // stack errors
+        {
+            failed_to_construct_stack:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to construct stack in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            failed_to_push:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to push vertex in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // destroy the stack and hash table
+                if ( p_stack )   stack_destroy(&p_stack);
+                if ( p_visited ) hash_table_destroy(&p_visited, NULL);
+
+                // error
+                return 0;
+        }
+
+        // hash table errors
+        {
+            failed_to_construct_hash_table:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to construct hash table in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // destroy the stack
+                if ( p_stack ) stack_destroy(&p_stack);
+
+                // error
+                return 0;
+
+            failed_to_insert_visited:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to insert visited vertex into hash table in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // destroy the stack and hash table
+                if ( p_stack )   stack_destroy(&p_stack);
+                if ( p_visited ) hash_table_destroy(&p_visited, NULL);
 
                 // error
                 return 0;
@@ -792,4 +1179,21 @@ int graph_destroy
                 return 0;
         }
     }
+}
+
+static hash64 graph_hash_pointer ( const void *const k, unsigned long long l )
+{
+
+    // unused
+    (void) l;
+
+    // done
+    return (hash64) k;
+}
+
+static int graph_equality_pointer ( const void *p_a, const void *p_b )
+{
+
+    // done
+    return p_a == p_b ? 0 : 1;
 }
