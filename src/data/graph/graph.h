@@ -48,23 +48,23 @@ typedef struct graph_s graph;
 
 typedef double(fn_weight_accessor)(const void *p_edge);
 
-typedef size_t(fn_graph_vertex_count)(void *const p_graph);
-typedef int(fn_graph_vertex_search)(void *const p_graph, const void *p_key, void **pp_vertex);
-typedef int(fn_graph_vertex_add)(void *const p_graph, const void *p_vertex);
-typedef int(fn_graph_vertex_remove)(void *const p_graph, const void *p_key, void **pp_vertex, fn_allocator *pfn_allocator_vertex, fn_allocator *pfn_allocator_edge);
-typedef int(fn_graph_vertex_foreach)(void *const p_graph, fn_foreach *pfn_foreach);
-typedef int(fn_graph_vertex_degree)(void *const p_graph, const void *p_key, size_t *p_in_degree, size_t *p_out_degree);
-typedef int(fn_graph_neighbors_get)(void *const p_graph, const void *p_key, size_t *p_count, void ***ppp_neighbors);
+typedef size_t(fn_graph_vertex_count)(void *p_graph);
+typedef int(fn_graph_vertex_search)(void *p_graph, const void *p_key, void **pp_vertex);
+typedef int(fn_graph_vertex_add)(void *p_graph, const void *p_vertex);
+typedef int(fn_graph_vertex_remove)(void *p_graph, const void *p_key, void **pp_vertex, fn_allocator *pfn_allocator_vertex, fn_allocator *pfn_allocator_edge);
+typedef int(fn_graph_vertex_foreach)(void *p_graph, fn_foreach *pfn_foreach);
+typedef int(fn_graph_vertex_degree)(void *p_graph, const void *p_key, size_t *p_in_degree, size_t *p_out_degree);
+typedef int(fn_graph_neighbors_get)(void *p_graph, const void *p_key, size_t *p_count, void ***ppp_neighbors);
 
-typedef size_t(fn_graph_edge_count)(void *const p_graph);
-typedef int(fn_graph_edge_search)(void *const p_graph, const void *p_from, const void *p_to, void **pp_edge);
-typedef int(fn_graph_edge_add)(void *const p_graph, const void *p_from, const void *p_to, const void *p_edge);
-typedef int(fn_graph_edge_remove)(void *const p_graph, const void *p_from, const void *p_to, void **pp_edge, fn_allocator *pfn_allocator_edge);
-typedef int(fn_graph_edge_foreach)(void *const p_graph, fn_foreach *pfn_foreach);
+typedef size_t(fn_graph_edge_count)(void *p_graph);
+typedef int(fn_graph_edge_search)(void *p_graph, const void *p_from, const void *p_to, void **pp_edge);
+typedef int(fn_graph_edge_add)(void *p_graph, const void *p_from, const void *p_to, const void *p_edge);
+typedef int(fn_graph_edge_remove)(void *p_graph, const void *p_from, const void *p_to, void **pp_edge, fn_allocator *pfn_allocator_edge);
+typedef int(fn_graph_edge_foreach)(void *p_graph, fn_foreach *pfn_foreach);
 
 typedef int(fn_graph_pack)(void *p_buffer, void *p_graph, fn_pack *pfn_vertex, fn_pack *pfn_edge);
 typedef int(fn_graph_unpack)(void **pp_graph, void *p_buffer, fn_unpack *pfn_vertex, fn_unpack *pfn_edge, fn_key_accessor *pfn_key_accessor, fn_comparator *pfn_comparator);
-typedef hash64(fn_graph_hash)(void *const p_graph, fn_hash64 *pfn_hash64);
+typedef hash64(fn_graph_hash)(void *p_graph, fn_hash64 *pfn_hash64);
 
 typedef int(fn_graph_destroy)(void **const pp_graph, fn_allocator *pfn_allocator_vertex, fn_allocator *pfn_allocator_edge);
 

@@ -9,6 +9,8 @@
 // header file
 #include <data/graph.h>
 
+#include <data/adjacency_matrix.h>
+
 /// prototypes
 graph _prototypes[GRAPH_QUANTITY] = 
 {
@@ -17,25 +19,25 @@ graph _prototypes[GRAPH_QUANTITY] =
         .p_graph = NULL,
         ._type   = GRAPH_ADJACENCY_MATRIX,
 
-        .pfn_vertex_search  = NULL,
-        .pfn_vertex_add     = NULL,               
-        .pfn_vertex_remove  = NULL,                  
-        .pfn_vertex_count   = NULL,
-        .pfn_vertex_foreach = NULL,
-        .pfn_vertex_degree  = NULL,
-        .pfn_neighbors_get  = NULL,
+        .pfn_vertex_search  = (fn_graph_vertex_search *)  adjacency_matrix_vertex_search,
+        .pfn_vertex_add     = (fn_graph_vertex_add *)     adjacency_matrix_vertex_add,               
+        .pfn_vertex_remove  = (fn_graph_vertex_remove *)  adjacency_matrix_vertex_remove,                  
+        .pfn_vertex_count   = (fn_graph_vertex_count *)   adjacency_matrix_vertex_count,
+        .pfn_vertex_foreach = (fn_graph_vertex_foreach *) adjacency_matrix_vertex_foreach,
+        .pfn_vertex_degree  = (fn_graph_vertex_degree *)  adjacency_matrix_vertex_degree,
+        .pfn_neighbors_get  = (fn_graph_neighbors_get *)  adjacency_matrix_neighbors_get,
 
-        .pfn_edge_search    = NULL,
-        .pfn_edge_add       = NULL,             
-        .pfn_edge_remove    = NULL,                
-        .pfn_edge_count     = NULL,               
-        .pfn_edge_foreach   = NULL,
+        .pfn_edge_search  = (fn_graph_edge_search *)  adjacency_matrix_edge_search,
+        .pfn_edge_add     = (fn_graph_edge_add *)     adjacency_matrix_edge_add,             
+        .pfn_edge_remove  = (fn_graph_edge_remove *)  adjacency_matrix_edge_remove,                
+        .pfn_edge_count   = (fn_graph_edge_count *)   adjacency_matrix_edge_count,               
+        .pfn_edge_foreach = (fn_graph_edge_foreach *) adjacency_matrix_edge_foreach,
 
-        .pfn_pack           = NULL,         
-        .pfn_unpack         = NULL,
-        .pfn_hash           = NULL,
+        .pfn_pack   = (fn_graph_pack *)   adjacency_matrix_pack,         
+        .pfn_unpack = (fn_graph_unpack *) adjacency_matrix_unpack,
+        .pfn_hash   = (fn_graph_hash *)   adjacency_matrix_hash,
 
-        .pfn_destroy        = NULL,         
+        .pfn_destroy = (fn_graph_destroy *) adjacency_matrix_destroy,         
     },
     [GRAPH_ADJACENCY_LIST] = 
     {
@@ -121,6 +123,7 @@ int graph_construct
     switch (_storage_type)
     {
         case GRAPH_ADJACENCY_MATRIX:
+            result = adjacency_matrix_construct((adjacency_matrix **)&p_concrete_graph, _edge_type, vertex_size, edge_size, pfn_key_accessor, pfn_comparator);
             break;
         case GRAPH_ADJACENCY_LIST:
             break;
