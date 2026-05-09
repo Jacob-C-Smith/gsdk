@@ -132,6 +132,39 @@ int graph_construct
     fn_comparator   *pfn_comparator
 );
 
+/// traversal
+/** !
+ * Traverse each vertex in a graph using the breadth first search technique
+ * 
+ * @param p_graph     the graph
+ * @param p_start_key the key of the vertex to begin traversal
+ * @param pfn_foreach pointer to foreach function
+ * 
+ * @return 1 on success, 0 on error
+ */
+int graph_algorithm_bfs
+( 
+    graph      *p_graph, 
+    const void *p_start_key, 
+    fn_foreach *pfn_foreach
+);
+
+/** !
+ * Traverse each vertex in a graph using the depth first search technique
+ * 
+ * @param p_graph     the graph
+ * @param p_start_key the key of the vertex to begin traversal
+ * @param pfn_foreach pointer to foreach function
+ * 
+ * @return 1 on success, 0 on error
+ */
+int graph_algorithm_dfs 
+( 
+    graph      *p_graph, 
+    const void *p_start_key, 
+    fn_foreach *pfn_foreach
+);
+
 /// accessors
 /** !
  * Search for a vertex

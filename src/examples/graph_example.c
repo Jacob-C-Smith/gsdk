@@ -166,6 +166,36 @@ int main ( int argc, const char *argv[] )
         checkpoint(p_graph, "after insert edges"),
         putchar('\n');
     }
+        
+    // #4 - breadth first search
+    {
+
+        // print
+        log_info("BFS from SEA:\n");
+
+        // traverse the graph
+        graph_algorithm_bfs(p_graph, "SEA", airport_print),
+        putchar('\n');
+
+        // checkpoint
+        checkpoint(p_graph, "after bfs"),
+        putchar('\n');
+    }
+
+    // #5 - depth first search
+    {
+
+        // print
+        log_info("DFS from SEA:\n");
+
+        // traverse the graph
+        graph_algorithm_dfs(p_graph, "SEA", airport_print),
+        putchar('\n');
+
+        // checkpoint
+        checkpoint(p_graph, "after dfs"),
+        putchar('\n');
+    }
 
     // #4 - destroy
     {
@@ -194,10 +224,8 @@ int checkpoint ( graph *p_graph, const char *p_event )
     else
         log_info("#%d - Graph %s:\n", step, p_event),
         printf("Vertices (%zu)\n", graph_vertex_count(p_graph)),
-        graph_vertex_foreach(p_graph, airport_print),
-        printf("Edges (%zu)\n", graph_edge_count(p_graph)),
-        graph_edge_foreach(p_graph, flight_print);
-
+        printf("Edges (%zu)\n", graph_edge_count(p_graph));
+        
     // increment counter
     step++;
 
