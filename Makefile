@@ -33,7 +33,7 @@ ROOT_DIR          = $(shell pwd)
 
 # Core libraries
 CORE_LIBS = interfaces log sync pack rsa sha digital_signature hash socket ed25519 aead x25519 secure_socket
-DATA_LIBS = array bitmap cache circular_buffer dict double_queue binary red_black avl tree tuple priority_queue queue set stack hash_table adjacency_matrix graph
+DATA_LIBS = array bitmap cache circular_buffer dict double_queue binary red_black avl tree tuple priority_queue queue set stack hash_table adjacency_matrix adjacency_list graph
 REFLECTION_LIBS = base64 json
 PERFORMANCE_LIBS = parallel
 
@@ -150,11 +150,14 @@ $(BUILD_LIB_DIR)/stack.$(SHARED_EXT): $(wildcard $(SRC_DIR)/data/stack/*.c) | $(
 $(BUILD_LIB_DIR)/hash_table.$(SHARED_EXT): $(wildcard $(SRC_DIR)/data/hash_table/*.c) | $(BUILD_LIB_DIR)
 	$(CC) $(CFLAGS) $(SHARED_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
+$(BUILD_LIB_DIR)/adjacency_list.$(SHARED_EXT): $(wildcard $(SRC_DIR)/data/adjacency_list/*.c) | $(BUILD_LIB_DIR)
+	$(CC) $(CFLAGS) $(SHARED_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
+
 $(BUILD_LIB_DIR)/adjacency_matrix.$(SHARED_EXT): $(wildcard $(SRC_DIR)/data/adjacency_matrix/*.c) | $(BUILD_LIB_DIR)
 	$(CC) $(CFLAGS) $(SHARED_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
 $(BUILD_LIB_DIR)/graph.$(SHARED_EXT): $(wildcard $(SRC_DIR)/data/graph/*.c) | $(BUILD_LIB_DIR)
-	$(CC) $(CFLAGS) $(SHARED_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash_table.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/stack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/queue.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/adjacency_matrix.$(SHARED_EXT)
+	$(CC) $(CFLAGS) $(SHARED_FLAGS) $(RPATH_FLAGS) $(LDFLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash_table.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/stack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/queue.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/adjacency_matrix.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/adjacency_list.$(SHARED_EXT) 
 
 # Reflection
 $(BUILD_LIB_DIR)/base64.$(SHARED_EXT): $(wildcard $(SRC_DIR)/reflection/base64/*.c) | $(BUILD_LIB_DIR)
