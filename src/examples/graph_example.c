@@ -125,7 +125,7 @@ int main ( int argc, const char *argv[] )
         graph_construct
         (
             &p_graph,                        // result
-            GRAPH_ADJACENCY_LIST,            // storage type
+            GRAPH_EDGE_LIST,                 // storage type
             GRAPH_DIRECTED | GRAPH_WEIGHTED, // type
 
             sizeof(airport), // vertex size
