@@ -11,6 +11,7 @@
 
 #include <data/adjacency_matrix.h>
 #include <data/adjacency_list.h>
+#include <data/edge_list.h>
 #include <data/hash_table.h>
 #include <data/stack.h>
 #include <data/queue.h>
@@ -77,25 +78,25 @@ graph _prototypes[GRAPH_QUANTITY] =
         .p_graph = NULL,
         ._type   = GRAPH_EDGE_LIST,
 
-        .pfn_vertex_search  = NULL,
-        .pfn_vertex_add     = NULL,               
-        .pfn_vertex_remove  = NULL,                  
-        .pfn_vertex_count   = NULL,
-        .pfn_vertex_foreach = NULL,
-        .pfn_vertex_degree  = NULL,
-        .pfn_neighbors_get  = NULL,
+        .pfn_vertex_search  = (fn_graph_vertex_search *)  edge_list_vertex_search,
+        .pfn_vertex_add     = (fn_graph_vertex_add *)     edge_list_vertex_add,               
+        .pfn_vertex_remove  = (fn_graph_vertex_remove *)  edge_list_vertex_remove,                  
+        .pfn_vertex_count   = (fn_graph_vertex_count *)   edge_list_vertex_count,
+        .pfn_vertex_foreach = (fn_graph_vertex_foreach *) edge_list_vertex_foreach,
+        .pfn_vertex_degree  = (fn_graph_vertex_degree *)  edge_list_vertex_degree,
+        .pfn_neighbors_get  = (fn_graph_neighbors_get *)  edge_list_neighbors_get,
 
-        .pfn_edge_search    = NULL,
-        .pfn_edge_add       = NULL,             
-        .pfn_edge_remove    = NULL,                
-        .pfn_edge_count     = NULL,               
-        .pfn_edge_foreach   = NULL,
+        .pfn_edge_search    = (fn_graph_edge_search *)  edge_list_edge_search,
+        .pfn_edge_add       = (fn_graph_edge_add *)     edge_list_edge_add,             
+        .pfn_edge_remove    = (fn_graph_edge_remove *)  edge_list_edge_remove,                
+        .pfn_edge_count     = (fn_graph_edge_count *)   edge_list_edge_count,               
+        .pfn_edge_foreach   = (fn_graph_edge_foreach *) edge_list_edge_foreach,
 
-        .pfn_pack           = NULL,         
-        .pfn_unpack         = NULL,
-        .pfn_hash           = NULL,
+        .pfn_pack           = (fn_graph_pack *)   edge_list_pack,         
+        .pfn_unpack         = (fn_graph_unpack *) edge_list_unpack,
+        .pfn_hash           = (fn_graph_hash *)   edge_list_hash,
 
-        .pfn_destroy        = NULL,          
+        .pfn_destroy        = (fn_graph_destroy *) edge_list_destroy,          
     },
 };
 
@@ -137,6 +138,7 @@ int graph_construct
             result = adjacency_list_construct((adjacency_list **)&p_concrete_graph, _edge_type, vertex_size, edge_size, pfn_key_accessor, pfn_comparator);
             break;
         case GRAPH_EDGE_LIST:
+            result = edge_list_construct((edge_list **)&p_concrete_graph, _edge_type, vertex_size, edge_size, pfn_key_accessor, pfn_comparator);
             break;
         default: goto invalid_graph_type;
     }
