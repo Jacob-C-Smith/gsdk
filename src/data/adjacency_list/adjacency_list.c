@@ -44,6 +44,7 @@ struct adjacency_list_s
 typedef struct vertex_entry_s vertex_entry;
 typedef struct edge_entry_s   edge_entry;
 
+// function definitions
 static int vertex_index_get ( adjacency_list *p_adjacency_list, const void *p_key, vertex_entry **pp_entry )
 {
 
@@ -78,7 +79,6 @@ static int vertex_index_get ( adjacency_list *p_adjacency_list, const void *p_ke
     return -1;
 }
 
-// function definitions
 int adjacency_list_construct
 ( 
     adjacency_list **pp_adjacency_list,
@@ -150,6 +150,48 @@ int adjacency_list_construct
                     log_error("[adjacency list] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
                 #endif
                 
+                // error
+                return 0;
+        }
+    }
+}
+
+int adjacency_list_vertex_get 
+(
+    adjacency_list  *p_adjacency_list,
+    void           **p_p_vertices
+)
+{
+
+    // argument check
+    if ( NULL == p_adjacency_list ) goto no_adjacency_list;
+    if ( NULL ==     p_p_vertices ) goto no_vertices;
+
+    // iterate through each vertex
+    for ( size_t i = 0; i < p_adjacency_list->vertex_count; i++ )
+        p_p_vertices[i] = p_adjacency_list->pp_vertices[i]->p_vertex;
+
+    // success
+    return 1;
+
+    // error handling
+    {
+        
+        // argument check
+        {
+            no_adjacency_list:
+                #ifndef NDEBUG
+                    log_error("[adjacency list] Null pointer provided for parameter \"p_adjacency_list\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+            
+            no_vertices:
+                #ifndef NDEBUG
+                    log_error("[adjacency list] Null pointer provided for parameter \"p_p_vertices\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
                 // error
                 return 0;
         }

@@ -1,5 +1,5 @@
 /** !
- * Graph interface
+ * graph interface
  *
  * @file src/data/graph/graph.h 
  * 
@@ -43,12 +43,26 @@ enum graph_edge_type_e
 // forward declarations
 struct graph_s;
 
+// structure definitions
+struct graph_sssp_result_s 
+{
+    void   *p_vertex;  
+    double  distance;
+    void   *p_previous;
+};
+
 // type definitions
 typedef struct graph_s graph;
+typedef struct graph_sssp_result_s graph_sssp_result;
 
 typedef double(fn_weight_accessor)(const void *p_edge);
+typedef int (fn_graph_traversal)(graph *p_graph, const void *p_start_key, fn_foreach *pfn_foreach);
+typedef int (fn_graph_sssp)(graph *p_graph, const void *p_start_key, fn_weight_accessor *pfn_weight, graph_sssp_result **pp_results);
+typedef int (fn_graph_apsp)(graph *p_graph, fn_weight_accessor *pfn_weight, double ***ppp_matrix);
+typedef int (fn_graph_mst)(graph *p_graph, fn_weight_accessor *pfn_weight, graph **pp_mst);
 
 typedef size_t(fn_graph_vertex_count)(void *p_graph);
+typedef int(fn_graph_vertex_get)(void *p_graph, void **p_p_vertices);
 typedef int(fn_graph_vertex_search)(void *p_graph, const void *p_key, void **pp_vertex);
 typedef int(fn_graph_vertex_add)(void *p_graph, const void *p_vertex);
 typedef int(fn_graph_vertex_remove)(void *p_graph, const void *p_key, void **pp_vertex, fn_allocator *pfn_allocator_vertex, fn_allocator *pfn_allocator_edge);
@@ -83,6 +97,7 @@ struct graph_s
     fn_comparator   *pfn_comparator;
 
     fn_graph_vertex_search  *pfn_vertex_search;
+    fn_graph_vertex_get     *pfn_vertex_get;
     fn_graph_vertex_add     *pfn_vertex_add;
     fn_graph_vertex_remove  *pfn_vertex_remove;
     fn_graph_vertex_count   *pfn_vertex_count;
@@ -90,17 +105,17 @@ struct graph_s
     fn_graph_vertex_degree  *pfn_vertex_degree;
     fn_graph_neighbors_get  *pfn_neighbors_get;
 
-    fn_graph_edge_search    *pfn_edge_search;
-    fn_graph_edge_add       *pfn_edge_add;
-    fn_graph_edge_remove    *pfn_edge_remove;
-    fn_graph_edge_count     *pfn_edge_count;
-    fn_graph_edge_foreach   *pfn_edge_foreach;
+    fn_graph_edge_search  *pfn_edge_search;
+    fn_graph_edge_add     *pfn_edge_add;
+    fn_graph_edge_remove  *pfn_edge_remove;
+    fn_graph_edge_count   *pfn_edge_count;
+    fn_graph_edge_foreach *pfn_edge_foreach;
 
-    fn_graph_pack           *pfn_pack;
-    fn_graph_unpack         *pfn_unpack;
-    fn_graph_hash           *pfn_hash;
+    fn_graph_pack   *pfn_pack;
+    fn_graph_unpack *pfn_unpack;
+    fn_graph_hash   *pfn_hash;
 
-    fn_graph_destroy        *pfn_destroy;
+    fn_graph_destroy *pfn_destroy;
 };
 
 // function declarations
@@ -142,12 +157,7 @@ int graph_construct
  * 
  * @return 1 on success, 0 on error
  */
-int graph_algorithm_bfs
-( 
-    graph      *p_graph, 
-    const void *p_start_key, 
-    fn_foreach *pfn_foreach
-);
+fn_graph_traversal graph_algorithm_bfs;
 
 /** !
  * Traverse each vertex in a graph using the depth first search technique
@@ -158,14 +168,49 @@ int graph_algorithm_bfs
  * 
  * @return 1 on success, 0 on error
  */
-int graph_algorithm_dfs 
-( 
-    graph      *p_graph, 
-    const void *p_start_key, 
-    fn_foreach *pfn_foreach
-);
+fn_graph_traversal graph_algorithm_dfs;
+
+
+/// single source shortest path
+/** !
+ * Calculate SSSP with Dijkstra's algorithm
+ * 
+ * @param p_graph     the graph
+ * @param p_start_key the key of the starting node
+ * @param pfn_weight  pointer to weight accessor function
+ * @param pp_results  result
+ * 
+ * @return 1 on success, 0 on error
+ */
+fn_graph_sssp graph_algorithm_sssp_dijkstra;
+
+/** !
+ * Calculate SSSP with the Bellman-Ford algorithm
+ * 
+ * @param p_graph     the graph
+ * @param p_start_key the key of the starting node
+ * @param pfn_weight  pointer to weight accessor function
+ * @param pp_results  result
+ * 
+ * @return 1 on success, 0 on error
+ */
+fn_graph_sssp graph_algorithm_sssp_bellman_ford;
 
 /// accessors
+/** !
+ * Store all the vertices in a graph
+ * 
+ * @param p_graph      the graph
+ * @param p_p_vertices result
+ * 
+ * @return 1 on success, 0 on error
+ */
+int graph_vertex_get 
+( 
+    graph  *p_graph, 
+    void  **p_p_vertices 
+);
+
 /** !
  * Search for a vertex
  * 

@@ -174,6 +174,48 @@ int edge_list_construct
     }
 }
 
+int edge_list_vertex_get 
+(
+    edge_list  *p_edge_list,
+    void      **p_p_vertices
+)
+{
+
+    // argument check
+    if ( NULL ==  p_edge_list ) goto no_edge_list;
+    if ( NULL == p_p_vertices ) goto no_vertices;
+
+    // iterate through each vertex
+    for ( size_t i = 0; i < p_edge_list->vertices.count; i++ )
+        p_p_vertices[i] = p_edge_list->vertices.pp_vertices[i];
+
+    // success
+    return 1;
+
+    // error handling
+    {
+        
+        // argument check
+        {
+            no_edge_list:
+                #ifndef NDEBUG
+                    log_error("[edge list] Null pointer provided for parameter \"p_edge_list\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+            
+            no_vertices:
+                #ifndef NDEBUG
+                    log_error("[edge list] Null pointer provided for parameter \"p_p_vertices\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
 int edge_list_vertex_search 
 ( 
     edge_list   *p_edge_list, 

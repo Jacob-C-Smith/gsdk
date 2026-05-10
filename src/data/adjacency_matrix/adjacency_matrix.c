@@ -143,6 +143,47 @@ int adjacency_matrix_construct
     }
 }
 
+int adjacency_matrix_vertex_get 
+(
+    adjacency_matrix  *p_adjacency_matrix,
+    void             **p_p_vertices
+)
+{
+
+    // argument check
+    if ( NULL ==  p_adjacency_matrix ) goto no_adjacency_matrix;
+    if ( NULL == p_p_vertices ) goto no_vertices;
+
+    // iterate through each vertex
+    for ( size_t i = 0; i < p_adjacency_matrix->vertices.count; i++ )
+        p_p_vertices[i] = p_adjacency_matrix->vertices.pp_vertices[i];
+
+    // success
+    return 1;
+
+    // error handling
+    {
+        
+        // argument check
+        {
+            no_adjacency_matrix:
+                #ifndef NDEBUG
+                    log_error("[adjacency matrix] Null pointer provided for parameter \"p_adjacency_matrix\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+            
+            no_vertices:
+                #ifndef NDEBUG
+                    log_error("[adjacency matrix] Null pointer provided for parameter \"p_p_vertices\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
 
 int adjacency_matrix_vertex_search 
 ( 
