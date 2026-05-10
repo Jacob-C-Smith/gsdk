@@ -263,7 +263,59 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #4 - destroy
+    // #8 - floyd-warshall
+    {
+        
+        // initialized data
+        double **pp_matrix    = NULL;
+        size_t   vertex_count = graph_vertex_count(p_graph);
+
+        // print
+        log_info("floyd warshall:\n");
+
+        // calculate the shortest paths
+        graph_algorithm_apsp_floyd_warshall(p_graph, flight_weight_accessor, &pp_matrix);
+
+        // print the result
+        apsp_print(p_graph, pp_matrix);
+
+        // release the matrix
+        for (size_t i = 0; i < vertex_count; i++)
+            pp_matrix[i] = default_allocator(pp_matrix[i], 0);
+        pp_matrix = default_allocator(pp_matrix, 0);
+
+        // checkpoint
+        checkpoint(p_graph, "after floyd-warshall"),
+        putchar('\n');
+    }
+
+    // #9 - johnson
+    {
+        
+        // initialized data
+        double **pp_matrix    = NULL;
+        size_t   vertex_count = graph_vertex_count(p_graph);
+
+        // print
+        log_info("johnson:\n");
+
+        // calculate the shortest paths
+        graph_algorithm_apsp_johnson(p_graph, flight_weight_accessor, &pp_matrix);
+
+        // print the result
+        apsp_print(p_graph, pp_matrix);
+
+        // release the matrix
+        for (size_t i = 0; i < vertex_count; i++)
+            pp_matrix[i] = default_allocator(pp_matrix[i], 0);
+        pp_matrix = default_allocator(pp_matrix, 0);
+
+        // checkpoint
+        checkpoint(p_graph, "after johnson"),
+        putchar('\n');
+    }
+
+    // #10 - destroy
     {
 
         // destroy the graph
@@ -350,4 +402,45 @@ double flight_weight_accessor ( const void *p_edge )
 
     // return the distance
     return p_flight->distance;
+}
+
+void apsp_print ( graph *p_graph, double **pp_matrix )
+{
+
+    // initialized data
+    size_t   vertex_count = graph_vertex_count(p_graph);
+    void   **pp_vertices  = default_allocator(NULL, sizeof(void *) * vertex_count);
+
+    // store vertices
+    graph_vertex_get(p_graph, pp_vertices);
+    
+    // header row
+    printf("     ");
+    for ( size_t i = 0; i < vertex_count; i++ )
+        printf("%4s ", (char *)airport_key_accessor(pp_vertices[i]));
+    putchar('\n');
+
+    // print the matrix
+    for ( size_t i = 0; i < vertex_count; i++ )
+    {
+
+        // print the first column
+        printf("%3s: ", (char *)airport_key_accessor(pp_vertices[i]));
+
+        // print distances
+        for ( size_t j = 0; j < vertex_count; j++ )
+            if ( pp_matrix[i][j] == DBL_MAX )
+                printf(" INF ");
+            else
+                printf("%4.0f ", pp_matrix[i][j]);
+
+        // formatting
+        putchar('\n');
+    }
+
+    // release the vertex list
+    pp_vertices = default_allocator(pp_vertices, 0);
+
+    // done
+    return;
 }
