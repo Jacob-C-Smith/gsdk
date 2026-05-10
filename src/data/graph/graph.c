@@ -24,6 +24,25 @@ static fn_hash64       graph_hash_pointer;
 static fn_comparator   graph_equality_pointer;
 static fn_comparator   dijkstra_compare;
 static fn_key_accessor dijkstra_result_key_accessor;
+static fn_key_accessor vertex_index_key_accessor;
+static fn_comparator   johnson_compare;
+
+// structure definitions
+struct vertex_index_entry_s 
+{
+    void   *p_vertex;
+    size_t  index;
+};
+
+struct johnson_dijkstra_node_s 
+{
+    size_t index;
+    double distance;
+};
+
+// type definitions
+typedef struct vertex_index_entry_s    vertex_index_entry; 
+typedef struct johnson_dijkstra_node_s johnson_dijkstra_node; 
 
 /// prototypes
 graph _prototypes[GRAPH_QUANTITY] = 
@@ -672,7 +691,7 @@ int graph_algorithm_sssp_dijkstra
     p_p_vertices = default_allocator(p_p_vertices, 0);
     
     // construct a hash table to map vertices to their results
-    if ( 0 == hash_table_construct(&p_result_map, vertex_count * 2 + 1, LINEAR_PROBE, graph_equality_pointer, dijkstra_result_key_accessor, graph_hash_pointer) ) goto failed_to_construct_hash_table;
+    if ( 0 == hash_table_construct(&p_result_map, vertex_count * 2 + 1, COLLISION_RESOLUTION_DEFAULT, graph_equality_pointer, dijkstra_result_key_accessor, graph_hash_pointer) ) goto failed_to_construct_hash_table;
 
     // populate the result map and find the start result
     for ( size_t i = 0; i < vertex_count; i++ )
@@ -690,7 +709,7 @@ int graph_algorithm_sssp_dijkstra
     if ( 0 == priority_queue_construct(&p_priority_queue, edge_count + 1, dijkstra_compare) ) goto failed_to_construct_pq;
 
     // construct a hash table to track visited (finalized) vertices
-    if ( 0 == hash_table_construct(&p_visited, vertex_count * 2 + 1, LINEAR_PROBE, graph_equality_pointer, NULL, graph_hash_pointer) ) goto failed_to_construct_hash_table;
+    if ( 0 == hash_table_construct(&p_visited, vertex_count * 2 + 1, COLLISION_RESOLUTION_DEFAULT, graph_equality_pointer, NULL, graph_hash_pointer) ) goto failed_to_construct_hash_table;
 
     // enqueue the start vertex result
     priority_queue_enqueue(p_priority_queue, p_start_res);
@@ -948,7 +967,7 @@ int graph_algorithm_sssp_bellman_ford
     p_p_vertices = default_allocator(p_p_vertices, 0);
 
     // construct a hash table to map vertices to their results
-    if ( 0 == hash_table_construct(&p_result_map, vertex_count * 2 + 1, LINEAR_PROBE, graph_equality_pointer, dijkstra_result_key_accessor, graph_hash_pointer) ) goto failed_to_construct_hash_table;
+    if ( 0 == hash_table_construct(&p_result_map, vertex_count * 2 + 1, COLLISION_RESOLUTION_DEFAULT, graph_equality_pointer, dijkstra_result_key_accessor, graph_hash_pointer) ) goto failed_to_construct_hash_table;
 
     // populate the result map and find the start result
     for ( size_t i = 0; i < vertex_count; i++ )
@@ -1176,6 +1195,682 @@ int graph_algorithm_sssp_bellman_ford
                 // destroy the hash table
                 if ( p_result_map ) hash_table_destroy(&p_result_map, NULL);
                 if ( p_results )    default_allocator(p_results, 0);
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int graph_algorithm_apsp_floyd_warshall
+( 
+    graph                *p_graph, 
+    fn_weight_accessor   *pfn_weight, 
+    double             ***ppp_matrix 
+)
+{
+
+    // argument check
+    if ( NULL ==    p_graph ) goto no_graph;
+    if ( NULL == pfn_weight ) goto no_weight_accessor;
+    if ( NULL == ppp_matrix ) goto no_matrix;
+
+    // initialized data
+    size_t               vertex_count = -1;
+    void               **pp_vertices  = NULL;
+    double             **pp_matrix    = NULL;
+    hash_table          *p_index_map  = NULL;
+    vertex_index_entry  *p_entries    = NULL;
+
+    // type check
+    if ( !(p_graph->_edge_type & GRAPH_WEIGHTED) ) goto no_weighted_graph;
+    
+    // store the quantity of vertices
+    vertex_count = graph_vertex_count(p_graph);
+
+    // allocate memory for vertices
+    pp_vertices = default_allocator(NULL, sizeof(void *) * vertex_count);
+    if ( NULL == pp_vertices ) goto no_mem;
+
+    // collect all vertices
+    if ( 0 == graph_vertex_get(p_graph, pp_vertices) ) goto failed_to_get_vertices;
+
+    // allocate memory for the matrix
+    pp_matrix = default_allocator(NULL, sizeof(double *) * vertex_count);
+    if ( NULL == pp_matrix ) goto no_mem;
+
+    // allocate rows
+    for ( size_t i = 0; i < vertex_count; i++ )
+    {
+
+        // allocate a row
+        pp_matrix[i] = default_allocator(NULL, sizeof(double) * vertex_count);
+        if ( NULL == pp_matrix[i] ) goto no_mem;
+
+        // initialize the matrix
+        for ( size_t j = 0; j < vertex_count; j++ )
+            pp_matrix[i][j] = (i == j) ? 0.0 : DBL_MAX;
+    }
+
+    // allocate memory for entries
+    p_entries = default_allocator(NULL, sizeof(vertex_index_entry) * vertex_count);
+    if ( NULL == p_entries ) goto no_mem;
+
+    // construct a hash table to map vertices to indices
+    if ( 0 == hash_table_construct(&p_index_map, vertex_count * 2 + 1, COLLISION_RESOLUTION_DEFAULT, graph_equality_pointer, vertex_index_key_accessor, graph_hash_pointer) ) goto failed_to_construct_hash_table;
+
+    // populate the index map
+    for ( size_t i = 0; i < vertex_count; i++ )
+
+        // store the vertex
+        p_entries[i].p_vertex = pp_vertices[i],
+
+        // store the index
+        p_entries[i].index = i,
+
+        // populate the index map
+        hash_table_insert(p_index_map, &p_entries[i]);
+    
+
+    // populate the matrix with edge weights
+    for ( size_t i = 0; i < vertex_count; i++ )
+    {
+        
+        // initialized data
+        void    *u              = pp_vertices[i];
+        void    *u_key          = p_graph->pfn_key_accessor(u);
+        size_t   neighbor_count = 0;
+        void   **pp_neighbors   = NULL;
+
+        // get the neighboring vertices
+        if ( 0 == graph_neighbors_get(p_graph, u_key, &neighbor_count, &pp_neighbors) ) continue;
+
+        // for each neighbor ...
+        for ( size_t k = 0; k < neighbor_count; k++ )
+        {
+            
+            // initialized data
+            void               *v      = pp_neighbors[k];
+            void               *v_key  = p_graph->pfn_key_accessor(v);
+            void               *p_edge = NULL;
+            vertex_index_entry *v_ent  = NULL;
+
+            // find the edge between u and v
+            if ( 0 == graph_edge_search(p_graph, u_key, v_key, &p_edge) ) continue;
+
+            // find the index of the neighbor
+            if ( 0 == hash_table_search(p_index_map, v, (void **)&v_ent) ) continue;
+
+            // store the weight in the matrix
+            pp_matrix[i][v_ent->index] = pfn_weight(p_edge);
+        }
+
+        // release the neighbors
+        if ( pp_neighbors ) default_allocator(pp_neighbors, 0);
+    }
+
+    // run Floyd-Warshall
+    for ( size_t k = 0; k < vertex_count; k++ )
+        for ( size_t i = 0; i < vertex_count; i++ )
+            for ( size_t j = 0; j < vertex_count; j++ )
+                if ( pp_matrix[i][k] != DBL_MAX && pp_matrix[k][j] != DBL_MAX )
+                    if ( pp_matrix[i][k] + pp_matrix[k][j] < pp_matrix[i][j] )
+                        pp_matrix[i][j] = pp_matrix[i][k] + pp_matrix[k][j];
+
+    // cleanup
+    hash_table_destroy(&p_index_map, NULL);
+    default_allocator(p_entries, 0);
+    default_allocator(pp_vertices, 0);
+
+    // return the matrix to the caller
+    *ppp_matrix = pp_matrix;
+
+    // success
+    return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_graph:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"p_graph\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_weight_accessor:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"pfn_weight\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_matrix:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"ppp_matrix\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // graph errors
+        {
+            no_weighted_graph:
+                #ifndef NDEBUG
+                    printf("[graph] Graph is not weighted in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            failed_to_get_vertices:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to get vertices in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // cleanup
+                if ( pp_vertices ) default_allocator(pp_vertices, 0);
+
+                // error
+                return 0;
+        }
+
+        // standard library errors
+        {
+            no_mem:
+                #ifndef NDEBUG
+                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // hash table errors
+        {
+            failed_to_construct_hash_table:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to construct hash table in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // cleanup
+                if ( p_entries )   default_allocator(p_entries, 0);
+                if ( pp_vertices ) default_allocator(pp_vertices, 0);
+                if ( pp_matrix ) 
+                {
+                    for ( size_t i = 0; i < vertex_count; i++ )
+                        if ( pp_matrix[i] ) default_allocator(pp_matrix[i], 0);
+                    default_allocator(pp_matrix, 0);
+                }
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int graph_algorithm_apsp_johnson 
+( 
+    graph              *p_graph, 
+    fn_weight_accessor *pfn_weight, 
+    double           ***ppp_matrix 
+)
+{
+
+    // argument check
+    if ( NULL ==    p_graph ) goto no_graph;
+    if ( NULL == pfn_weight ) goto no_weight_accessor;
+    if ( NULL == ppp_matrix ) goto no_matrix;
+
+    // initialized data
+    size_t               vertex_count = -1;
+    size_t               edge_count   = -1;
+    void               **pp_vertices  = NULL;
+    double             **pp_matrix    = NULL;
+    hash_table          *p_index_map  = NULL;
+    vertex_index_entry  *p_entries    = NULL;
+    double              *h            = NULL;
+
+    // type check
+    if ( !(p_graph->_edge_type & GRAPH_WEIGHTED) ) goto no_weighted_graph;
+    
+    // store the quantity of vertices
+    vertex_count = graph_vertex_count(p_graph);
+
+    // store the quantity of edges
+    edge_count = graph_edge_count(p_graph);
+
+    // allocate memory for vertices
+    pp_vertices = default_allocator(NULL, sizeof(void *) * vertex_count);
+    if ( NULL == pp_vertices ) goto no_mem;
+
+    // collect all vertices
+    if ( 0 == graph_vertex_get(p_graph, pp_vertices) ) goto failed_to_get_vertices;
+
+    // allocate memory for entries
+    p_entries = default_allocator(NULL, sizeof(vertex_index_entry) * vertex_count);
+    if ( NULL == p_entries ) goto no_mem;
+
+    // construct a hash table to map vertices to indices
+    if ( 0 == hash_table_construct(&p_index_map, vertex_count * 2 + 1, LINEAR_PROBE, graph_equality_pointer, vertex_index_key_accessor, graph_hash_pointer) ) goto failed_to_construct_hash_table;
+
+    // iterate through each vertex
+    for ( size_t i = 0; i < vertex_count; i++ )
+
+        // store the vertex
+        p_entries[i].p_vertex = pp_vertices[i],
+
+        // store the index
+        p_entries[i].index = i,
+
+        // populate the index map
+        hash_table_insert(p_index_map, &p_entries[i]);
+    
+    // Step 1: Bellman-Ford from virtual source
+    h = default_allocator(NULL, sizeof(double) * vertex_count);
+    if ( NULL == h ) goto no_mem;
+
+    // initialize distances
+    for ( size_t i = 0; i < vertex_count; i++ ) 
+        h[i] = 0.0;
+
+    // bellman-ford
+    for ( size_t i = 0; i < vertex_count - 1; i++ )
+        for ( size_t j = 0; j < vertex_count; j++ )
+        {
+
+            // initialized data
+            void    *u              = pp_vertices[j];
+            void    *u_key          = p_graph->pfn_key_accessor(u);
+            size_t   neighbor_count = 0;
+            void   **pp_neighbors   = NULL;
+
+            // skip
+            if ( 0 == graph_neighbors_get(p_graph, u_key, &neighbor_count, &pp_neighbors) ) continue;
+
+            // iterate through each edge
+            for ( size_t k = 0; k < neighbor_count; k++ )
+            {
+
+                // initialized data
+                void               *v      = pp_neighbors[k];
+                void               *v_key  = p_graph->pfn_key_accessor(v);
+                void               *p_edge = NULL;
+                vertex_index_entry *v_ent  = NULL;
+
+                // skip
+                if ( 0 == graph_edge_search(p_graph, u_key, v_key, &p_edge) ) continue;
+
+                // skip
+                if ( 0 == hash_table_search(p_index_map, v, (void **)&v_ent) ) continue;
+
+                // relax
+                if ( h[j] + pfn_weight(p_edge) < h[v_ent->index] )
+                    h[v_ent->index] = h[j] + pfn_weight(p_edge);
+            }
+
+            // release neighbors
+            if ( pp_neighbors ) 
+                pp_neighbors = default_allocator(pp_neighbors, 0);
+        }
+    
+    // check for negative cycles
+    for ( size_t j = 0; j < vertex_count; j++ )
+    {
+
+        // initialized data
+        void    *u              = pp_vertices[j];
+        void    *u_key          = p_graph->pfn_key_accessor(u);
+        size_t   neighbor_count = 0;
+        void   **pp_neighbors   = NULL;
+
+        // skip
+        if ( 0 == graph_neighbors_get(p_graph, u_key, &neighbor_count, &pp_neighbors) ) continue;
+
+        // iterate through each edge
+        for ( size_t k = 0; k < neighbor_count; k++ )
+        {
+
+            // initialized data
+            void               *v      = pp_neighbors[k];
+            void               *v_key  = p_graph->pfn_key_accessor(v);
+            void               *p_edge = NULL;
+            vertex_index_entry *v_ent  = NULL;
+
+            // skip
+            if ( 0 == graph_edge_search(p_graph, u_key, v_key, &p_edge) ) continue;
+
+            // skip
+            if ( 0 == hash_table_search(p_index_map, v, (void **)&v_ent) ) continue;
+
+            // negative cycle?
+            if ( h[j] + pfn_weight(p_edge) < h[v_ent->index] )
+            {
+
+                // release neighbors
+                if ( pp_neighbors ) 
+                    pp_neighbors = default_allocator(pp_neighbors, 0);
+                
+                // bail
+                goto negative_cycle;
+            }
+        }
+
+        // release neighbors
+        if ( pp_neighbors ) 
+            pp_neighbors = default_allocator(pp_neighbors, 0);
+    }
+
+    // allocate a distances matrix
+    pp_matrix = default_allocator(NULL, sizeof(double *) * vertex_count);
+    if ( NULL == pp_matrix ) goto no_mem;
+
+    // iterate through each vertex
+    for ( size_t i = 0; i < vertex_count; i++ )
+    {
+
+        // initialized data
+        priority_queue        *p_pq         = NULL;
+        johnson_dijkstra_node *p_start_node = NULL;
+        hash_table            *p_visited    = NULL;
+
+        // allocate a row
+        pp_matrix[i] = default_allocator(NULL, sizeof(double) * vertex_count);
+        if ( NULL == pp_matrix[i] ) goto no_mem;
+
+        // initialize the distances
+        for ( size_t j = 0; j < vertex_count; j++ ) 
+            pp_matrix[i][j] = DBL_MAX;
+
+        // 0's along the diagonal
+        pp_matrix[i][i] = 0.0;
+
+        // construct a priority queue
+        if ( 0 == priority_queue_construct(&p_pq, edge_count + 1, johnson_compare) ) goto failed_to_construct_pq;
+
+        // allocate the starting node
+        p_start_node = default_allocator(NULL, sizeof(johnson_dijkstra_node));
+
+        // store the index
+        p_start_node->index = i;
+
+        // store the distance
+        p_start_node->distance = 0.0;
+
+        // enqueue the starting node
+        priority_queue_enqueue(p_pq, p_start_node);
+
+        // construct a hash table to track visited vertices
+        if ( 0 == hash_table_construct(&p_visited, vertex_count * 2 + 1, LINEAR_PROBE, graph_equality_pointer, NULL, graph_hash_pointer) ) 
+        {
+
+            // destroy the priority queue
+            priority_queue_destroy(&p_pq);
+
+            // bail
+            goto failed_to_construct_hash_table;
+        }
+
+        // run dijkstra
+        while ( false == priority_queue_empty(p_pq) )
+        {
+
+            // initialized data
+            johnson_dijkstra_node  *u_node         = NULL;
+            size_t                  u_idx          = -1; 
+            void                   *u              = NULL;
+            void                   *p_dummy        = NULL;
+            void                   *u_key          = NULL;
+            size_t                  neighbor_count = 0;
+            void                  **pp_neighbors   = NULL;
+
+            // dequeue u
+            priority_queue_dequeue(p_pq, (void **)&u_node);
+
+            // store the index of u
+            u_idx = u_node->index;
+
+            // store u
+            u = pp_vertices[u_idx];
+
+            // u has been visited ...
+            if ( 1 == hash_table_search(p_visited, u, &p_dummy) )
+            {
+
+                // skip
+                default_allocator(u_node, 0);
+                continue;
+            }
+
+            // mark u as visited
+            hash_table_insert(p_visited, u);
+
+            // store u's key
+            u_key = p_graph->pfn_key_accessor(u);
+
+            // get u's neighbors
+            if ( 1 == graph_neighbors_get(p_graph, u_key, &neighbor_count, &pp_neighbors) )
+            {
+
+                // iterate through each neighbor
+                for ( size_t k = 0; k < neighbor_count; k++ )
+                {
+
+                    // initialized data
+                    void               *v          = pp_neighbors[k];
+                    void               *v_key      = p_graph->pfn_key_accessor(v);
+                    void               *p_edge     = NULL;
+                    vertex_index_entry *v_ent      = NULL;
+                    size_t              v_idx      = -1;
+                    double              weight     = -1;
+                    double              hat_weight = -1;
+
+                    // skip
+                    if ( 0 == graph_edge_search(p_graph, u_key, v_key, &p_edge) ) continue;
+
+                    // skip
+                    if ( 0 == hash_table_search(p_index_map, v, (void **)&v_ent) ) continue;
+                    
+                    // store the index of v 
+                    v_idx = v_ent->index;
+
+                    // store the weight of the edge
+                    weight = pfn_weight(p_edge);
+
+                    // compute the new weight
+                    hat_weight = weight + h[u_idx] - h[v_idx];
+
+                    if ( pp_matrix[i][u_idx] + hat_weight < pp_matrix[i][v_idx] )
+                    {
+
+                        // initialized data
+                        johnson_dijkstra_node *v_node = NULL;
+
+                        // update distances
+                        pp_matrix[i][v_idx] = pp_matrix[i][u_idx] + hat_weight;
+
+                        // allocate a node 
+                        v_node = default_allocator(NULL, sizeof(johnson_dijkstra_node));
+
+                        // store the index
+                        v_node->index = v_idx;
+
+                        // store the distance
+                        v_node->distance = pp_matrix[i][v_idx];
+
+                        // enqueue the node
+                        priority_queue_enqueue(p_pq, v_node);
+                    }
+                }
+
+                // release neighbors
+                if ( pp_neighbors ) 
+                    pp_neighbors = default_allocator(pp_neighbors, 0);
+            }
+
+            // release u
+            u_node = default_allocator(u_node, 0);
+        }
+
+        // finalize distances for row i
+        for ( size_t j = 0; j < vertex_count; j++ )
+            if ( pp_matrix[i][j] != DBL_MAX )
+                pp_matrix[i][j] = pp_matrix[i][j] - h[i] + h[j];
+
+        // release the priority queue
+        priority_queue_destroy(&p_pq);
+
+        // release the visited map
+        hash_table_destroy(&p_visited, NULL);
+    }
+
+    // release the index map
+    hash_table_destroy(&p_index_map, NULL);
+
+    // release entries
+    p_entries = default_allocator(p_entries, 0);
+
+    // release the vertex list
+    pp_vertices = default_allocator(pp_vertices, 0);
+
+    // release the distances
+    h = default_allocator(h, 0);
+
+    // return the matrix to the caller
+    *ppp_matrix = pp_matrix;
+
+    // success
+    return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_graph:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"p_graph\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_weight_accessor:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"pfn_weight\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_matrix:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"ppp_matrix\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // standard library errors
+        {
+            no_mem:
+                #ifndef NDEBUG
+                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // graph errors
+        {
+            no_weighted_graph:
+                #ifndef NDEBUG
+                    printf("[graph] Graph is not weighted in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            failed_to_get_vertices:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to get vertices in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // cleanup
+                if ( pp_vertices ) default_allocator(pp_vertices, 0);
+
+                // error
+                return 0;
+
+            negative_cycle:
+                #ifndef NDEBUG
+                    printf("[graph] Negative weight cycle detected in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // cleanup
+                if ( p_entries )   default_allocator(p_entries, 0);
+                if ( pp_vertices ) default_allocator(pp_vertices, 0);
+                if ( h )           default_allocator(h, 0);
+                if ( p_index_map ) hash_table_destroy(&p_index_map, NULL);
+                if ( pp_matrix ) 
+                {
+                    for ( size_t i = 0; i < vertex_count; i++ )
+                        if ( pp_matrix[i] ) default_allocator(pp_matrix[i], 0);
+                    default_allocator(pp_matrix, 0);
+                }
+
+                // error
+                return 0;
+        }
+
+        // priority queue errors
+        {
+            failed_to_construct_pq:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to construct priority queue in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // cleanup
+                if ( p_entries )   default_allocator(p_entries, 0);
+                if ( pp_vertices ) default_allocator(pp_vertices, 0);
+                if ( h )           default_allocator(h, 0);
+                if ( p_index_map ) hash_table_destroy(&p_index_map, NULL);
+                if ( pp_matrix ) 
+                {
+                    for ( size_t i = 0; i < vertex_count; i++ )
+                        if ( pp_matrix[i] ) default_allocator(pp_matrix[i], 0);
+                    default_allocator(pp_matrix, 0);
+                }
+
+                // error
+                return 0;
+        }
+
+        // hash table errors
+        {
+            failed_to_construct_hash_table:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to construct hash table in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // cleanup
+                if ( p_entries )   default_allocator(p_entries, 0);
+                if ( pp_vertices ) default_allocator(pp_vertices, 0);
+                if ( h )           default_allocator(h, 0);
+                if ( p_index_map ) hash_table_destroy(&p_index_map, NULL);
+                if ( pp_matrix ) 
+                {
+                    for ( size_t i = 0; i < vertex_count; i++ )
+                        if ( pp_matrix[i] ) default_allocator(pp_matrix[i], 0);
+                    default_allocator(pp_matrix, 0);
+                }
 
                 // error
                 return 0;
@@ -1830,6 +2525,34 @@ static int dijkstra_compare ( const void *p_a, const void *p_b )
 static void *dijkstra_result_key_accessor ( const void *p_result )
 {
 
+    // initialized data
+    graph_sssp_result *p_sssp_result = (graph_sssp_result *)p_result;
+
     // done
-    return ((graph_sssp_result *)p_result)->p_vertex;
+    return p_sssp_result->p_vertex;
+}
+
+static void *vertex_index_key_accessor ( const void *p_entry )
+{
+
+    // initialized data
+    vertex_index_entry *p_vertex_index = (vertex_index_entry *)p_entry;
+
+    // done
+    return p_vertex_index->p_vertex;
+}
+
+static int johnson_compare ( const void *p_a, const void *p_b )
+{
+
+    // initialized data
+    const struct johnson_dijkstra_node_s *p_node_a = p_a;
+    const struct johnson_dijkstra_node_s *p_node_b = p_b;
+
+    // compare the distances
+    if ( p_node_a->distance < p_node_b->distance ) return 1;
+    if ( p_node_a->distance > p_node_b->distance ) return -1;
+
+    // equal
+    return 0;
 }

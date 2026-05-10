@@ -196,6 +196,29 @@ fn_graph_sssp graph_algorithm_sssp_dijkstra;
  */
 fn_graph_sssp graph_algorithm_sssp_bellman_ford;
 
+/// all pairs shortest path
+/** !
+ * Calculate APSP using the Floyd-Warshall algorithm
+ * 
+ * @param p_graph    the graph
+ * @param pfn_weight pointer to weight accessor function
+ * @param ppp_matrix result
+ * 
+ * @return 1 on success, 0 on error
+ */
+fn_graph_apsp graph_algorithm_apsp_floyd_warshall;
+
+/** !
+ * Calculate APSP using the Johnson algorithm
+ * 
+ * @param p_graph    the graph
+ * @param pfn_weight pointer to weight accessor function
+ * @param ppp_matrix result
+ * 
+ * @return 1 on success, 0 on error
+ */
+fn_graph_apsp graph_algorithm_apsp_johnson;
+
 /// accessors
 /** !
  * Store all the vertices in a graph
