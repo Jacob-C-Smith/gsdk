@@ -1,5 +1,5 @@
 /** !
- * Adjacency matrix interface
+ * adjacency matrix interface
  * 
  * @file src/data/adjacency_matrix/adjacency_matrix.h 
  * 
@@ -45,39 +45,45 @@ int adjacency_matrix_construct
 );
 
 /// accessors
+int adjacency_matrix_vertex_get 
+(
+    adjacency_matrix  *p_adjacency_matrix,
+    void             **p_p_vertices
+);
+
 int adjacency_matrix_vertex_search 
 ( 
-    adjacency_matrix *p_adjacency_matrix, 
-    const void *p_key, 
-    void **pp_vertex
+    adjacency_matrix  *p_adjacency_matrix, 
+    const void        *p_key, 
+    void             **pp_vertex
 );
 
 size_t adjacency_matrix_vertex_count ( adjacency_matrix *p_adjacency_matrix );
 
 int adjacency_matrix_edge_search 
 ( 
-    adjacency_matrix *p_adjacency_matrix, 
-    const void *p_from, 
-    const void *p_to, 
-    void **pp_edge
+    adjacency_matrix  *p_adjacency_matrix, 
+    const void        *p_from, 
+    const void        *p_to, 
+    void             **pp_edge
 );
 
 size_t adjacency_matrix_edge_count ( adjacency_matrix *p_adjacency_matrix );
 
 int adjacency_matrix_neighbors_get 
 ( 
-    adjacency_matrix *p_adjacency_matrix, 
-    const void *p_key, 
-    size_t *p_count, 
-    void ***ppp_neighbors
+    adjacency_matrix   *p_adjacency_matrix, 
+    const void         *p_key, 
+    size_t             *p_count, 
+    void             ***ppp_neighbors
 );
 
 int adjacency_matrix_vertex_degree
 ( 
     adjacency_matrix *p_adjacency_matrix, 
-    const void *p_key, 
-    size_t *p_in_degree, 
-    size_t *p_out_degree 
+    const void       *p_key, 
+    size_t           *p_in_degree, 
+    size_t           *p_out_degree 
 );
 
 /// mutators
@@ -89,9 +95,10 @@ int adjacency_matrix_vertex_add
 
 int adjacency_matrix_vertex_remove
 ( 
-    adjacency_matrix *p_adjacency_matrix, 
-    const void *p_key, 
-    void **pp_vertex, 
+    adjacency_matrix  *p_adjacency_matrix, 
+    const void        *p_key, 
+    void             **pp_vertex, 
+
     fn_allocator *pfn_allocator_vertex,
     fn_allocator *pfn_allocator_edge
 );
@@ -106,11 +113,11 @@ int adjacency_matrix_edge_add
 
 int adjacency_matrix_edge_remove 
 ( 
-    adjacency_matrix *p_adjacency_matrix, 
-    const void *p_from, 
-    const void *p_to, 
-    void **pp_edge,
-    fn_allocator *pfn_allocator_edge
+    adjacency_matrix  *p_adjacency_matrix, 
+    const void        *p_from, 
+    const void        *p_to, 
+    void             **pp_edge,
+    fn_allocator      *pfn_allocator_edge
 );
 
 /// iterators
@@ -129,7 +136,7 @@ int adjacency_matrix_edge_foreach
 /// reflection
 int adjacency_matrix_pack
 (
-    void *p_buffer, 
+    void             *p_buffer, 
     adjacency_matrix *p_adjacency_matrix,
 
     fn_pack *pfn_vertex,
@@ -139,7 +146,7 @@ int adjacency_matrix_pack
 int adjacency_matrix_unpack
 (
     adjacency_matrix **pp_adjacency_matrix,
-    void *p_buffer, 
+    void              *p_buffer, 
 
     fn_unpack *pfn_vertex,
     fn_unpack *pfn_edge,
@@ -151,7 +158,7 @@ int adjacency_matrix_unpack
 hash64 adjacency_matrix_hash
 (
     adjacency_matrix *p_adjacency_matrix,
-    fn_hash64 *pfn_hash64
+    fn_hash64        *pfn_hash64
 );
 
 /// destructors

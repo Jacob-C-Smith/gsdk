@@ -1,7 +1,7 @@
 /** !
- * Edge list interface
+ * edge list interface
  * 
- * @file include/data/edge_list.h 
+ * @file src/data/edge_list/edge_list.h 
  * 
  * @author Jacob Smith
  */
@@ -45,6 +45,12 @@ int edge_list_construct
 );
 
 /// accessors
+int edge_list_vertex_get 
+(
+    edge_list  *p_edge_list,
+    void      **p_p_vertices
+);
+
 int edge_list_vertex_search 
 ( 
     edge_list *p_edge_list, 

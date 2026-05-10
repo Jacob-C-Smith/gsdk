@@ -9,16 +9,21 @@
 // header file
 #include <data/graph.h>
 
+#include <float.h>
+
 #include <data/adjacency_matrix.h>
 #include <data/adjacency_list.h>
 #include <data/edge_list.h>
 #include <data/hash_table.h>
 #include <data/stack.h>
 #include <data/queue.h>
+#include <data/priority_queue.h>
 
 // forward declarations
-static fn_hash64     graph_hash_pointer;
-static fn_comparator graph_equality_pointer;
+static fn_hash64       graph_hash_pointer;
+static fn_comparator   graph_equality_pointer;
+static fn_comparator   dijkstra_compare;
+static fn_key_accessor dijkstra_result_key_accessor;
 
 /// prototypes
 graph _prototypes[GRAPH_QUANTITY] = 
@@ -28,6 +33,7 @@ graph _prototypes[GRAPH_QUANTITY] =
         .p_graph = NULL,
         ._type   = GRAPH_ADJACENCY_MATRIX,
 
+        .pfn_vertex_get     = (fn_graph_vertex_get *)     adjacency_matrix_vertex_get,
         .pfn_vertex_search  = (fn_graph_vertex_search *)  adjacency_matrix_vertex_search,
         .pfn_vertex_add     = (fn_graph_vertex_add *)     adjacency_matrix_vertex_add,               
         .pfn_vertex_remove  = (fn_graph_vertex_remove *)  adjacency_matrix_vertex_remove,                  
@@ -53,6 +59,7 @@ graph _prototypes[GRAPH_QUANTITY] =
         .p_graph = NULL,
         ._type   = GRAPH_ADJACENCY_LIST,
 
+        .pfn_vertex_get     = (fn_graph_vertex_get *)     adjacency_list_vertex_get,
         .pfn_vertex_search  = (fn_graph_vertex_search *)  adjacency_list_vertex_search,
         .pfn_vertex_add     = (fn_graph_vertex_add *)     adjacency_list_vertex_add,               
         .pfn_vertex_remove  = (fn_graph_vertex_remove *)  adjacency_list_vertex_remove,                  
@@ -61,23 +68,24 @@ graph _prototypes[GRAPH_QUANTITY] =
         .pfn_vertex_degree  = (fn_graph_vertex_degree *)  adjacency_list_vertex_degree,
         .pfn_neighbors_get  = (fn_graph_neighbors_get *)  adjacency_list_neighbors_get,
 
-        .pfn_edge_search    = (fn_graph_edge_search *)  adjacency_list_edge_search,
-        .pfn_edge_add       = (fn_graph_edge_add *)     adjacency_list_edge_add,             
-        .pfn_edge_remove    = (fn_graph_edge_remove *)  adjacency_list_edge_remove,                
-        .pfn_edge_count     = (fn_graph_edge_count *)   adjacency_list_edge_count,               
-        .pfn_edge_foreach   = (fn_graph_edge_foreach *) adjacency_list_edge_foreach,
+        .pfn_edge_search  = (fn_graph_edge_search *)  adjacency_list_edge_search,
+        .pfn_edge_add     = (fn_graph_edge_add *)     adjacency_list_edge_add,             
+        .pfn_edge_remove  = (fn_graph_edge_remove *)  adjacency_list_edge_remove,                
+        .pfn_edge_count   = (fn_graph_edge_count *)   adjacency_list_edge_count,               
+        .pfn_edge_foreach = (fn_graph_edge_foreach *) adjacency_list_edge_foreach,
 
-        .pfn_pack           = (fn_graph_pack *)   adjacency_list_pack,         
-        .pfn_unpack         = (fn_graph_unpack *) adjacency_list_unpack,
-        .pfn_hash           = (fn_graph_hash *)   adjacency_list_hash,
+        .pfn_pack   = (fn_graph_pack *)   adjacency_list_pack,         
+        .pfn_unpack = (fn_graph_unpack *) adjacency_list_unpack,
+        .pfn_hash   = (fn_graph_hash *)   adjacency_list_hash,
 
-        .pfn_destroy        = (fn_graph_destroy *) adjacency_list_destroy,          
+        .pfn_destroy = (fn_graph_destroy *) adjacency_list_destroy,          
     },
     [GRAPH_EDGE_LIST] = 
     {
         .p_graph = NULL,
         ._type   = GRAPH_EDGE_LIST,
 
+        .pfn_vertex_get     = (fn_graph_vertex_get *)     edge_list_vertex_get,
         .pfn_vertex_search  = (fn_graph_vertex_search *)  edge_list_vertex_search,
         .pfn_vertex_add     = (fn_graph_vertex_add *)     edge_list_vertex_add,               
         .pfn_vertex_remove  = (fn_graph_vertex_remove *)  edge_list_vertex_remove,                  
@@ -86,17 +94,17 @@ graph _prototypes[GRAPH_QUANTITY] =
         .pfn_vertex_degree  = (fn_graph_vertex_degree *)  edge_list_vertex_degree,
         .pfn_neighbors_get  = (fn_graph_neighbors_get *)  edge_list_neighbors_get,
 
-        .pfn_edge_search    = (fn_graph_edge_search *)  edge_list_edge_search,
-        .pfn_edge_add       = (fn_graph_edge_add *)     edge_list_edge_add,             
-        .pfn_edge_remove    = (fn_graph_edge_remove *)  edge_list_edge_remove,                
-        .pfn_edge_count     = (fn_graph_edge_count *)   edge_list_edge_count,               
-        .pfn_edge_foreach   = (fn_graph_edge_foreach *) edge_list_edge_foreach,
+        .pfn_edge_search  = (fn_graph_edge_search *)  edge_list_edge_search,
+        .pfn_edge_add     = (fn_graph_edge_add *)     edge_list_edge_add,             
+        .pfn_edge_remove  = (fn_graph_edge_remove *)  edge_list_edge_remove,                
+        .pfn_edge_count   = (fn_graph_edge_count *)   edge_list_edge_count,               
+        .pfn_edge_foreach = (fn_graph_edge_foreach *) edge_list_edge_foreach,
 
-        .pfn_pack           = (fn_graph_pack *)   edge_list_pack,         
-        .pfn_unpack         = (fn_graph_unpack *) edge_list_unpack,
-        .pfn_hash           = (fn_graph_hash *)   edge_list_hash,
+        .pfn_pack   = (fn_graph_pack *)   edge_list_pack,         
+        .pfn_unpack = (fn_graph_unpack *) edge_list_unpack,
+        .pfn_hash   = (fn_graph_hash *)   edge_list_hash,
 
-        .pfn_destroy        = (fn_graph_destroy *) edge_list_destroy,          
+        .pfn_destroy = (fn_graph_destroy *) edge_list_destroy,          
     },
 };
 
@@ -120,9 +128,9 @@ int graph_construct
     if ( NULL == pp_graph ) goto no_graph;
 
     // initialized data
-    graph *p_graph = NULL;
-    void *p_concrete_graph = NULL;
-    int   result = 0;
+    graph *p_graph          = NULL;
+    void  *p_concrete_graph = NULL;
+    int    result           = 0;
 
     // allocate memory for a graph
     p_graph = default_allocator(0, sizeof(graph));
@@ -595,6 +603,608 @@ int graph_algorithm_dfs
                 // destroy the stack and hash table
                 if ( p_stack )   stack_destroy(&p_stack);
                 if ( p_visited ) hash_table_destroy(&p_visited, NULL);
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int graph_algorithm_sssp_dijkstra 
+( 
+    graph              *p_graph, 
+    const void         *p_start_key, 
+    fn_weight_accessor *pfn_weight, 
+    graph_sssp_result **pp_results 
+)
+{
+
+    // argument check
+    if ( NULL ==     p_graph ) goto no_graph;
+    if ( NULL == p_start_key ) goto no_start_key;
+    if ( NULL ==  pfn_weight ) goto no_weight_accessor;
+    if ( NULL ==  pp_results ) goto no_results;
+
+    // initialized data
+    priority_queue     *p_priority_queue = NULL;
+    hash_table         *p_result_map     = NULL;
+    hash_table         *p_visited        = NULL;
+    graph_sssp_result  *p_results        = NULL;
+    void               *p_start_vertex   = NULL;
+    void              **p_p_vertices     = NULL;
+    graph_sssp_result  *p_start_res      = NULL;
+    size_t              vertex_count     = -1;
+    size_t              edge_count       = -1;
+
+    // type check
+    if ( !(p_graph->_edge_type & GRAPH_WEIGHTED) ) goto no_weighted_graph;
+    
+    // store the quantity of vertices
+    vertex_count = graph_vertex_count(p_graph);
+
+    // store the quantity of edges
+    edge_count = graph_edge_count(p_graph);
+
+    // search for the starting vertex
+    if ( 0 == graph_vertex_search(p_graph, p_start_key, &p_start_vertex) ) goto start_vertex_not_found;
+
+    // allocate memory for results
+    p_results = default_allocator(NULL, sizeof(graph_sssp_result) * vertex_count);
+    if ( NULL == p_results ) goto no_mem;
+
+    // allocate memory for vertices
+    p_p_vertices = default_allocator(NULL, sizeof(void *) * vertex_count);
+    if ( NULL == p_p_vertices ) goto no_mem;
+
+    // get the vertices
+    if ( 0 == graph_vertex_get(p_graph, p_p_vertices) ) goto failed_to_get_vertices;
+    
+    // initialize results
+    for (size_t i = 0; i < vertex_count; i++)
+        p_results[i] = (graph_sssp_result)
+        {
+            .p_vertex   = p_p_vertices[i],
+            .distance   = DBL_MAX,
+            .p_previous = NULL,
+        };
+
+    // release vertices
+    p_p_vertices = default_allocator(p_p_vertices, 0);
+    
+    // construct a hash table to map vertices to their results
+    if ( 0 == hash_table_construct(&p_result_map, vertex_count * 2 + 1, LINEAR_PROBE, graph_equality_pointer, dijkstra_result_key_accessor, graph_hash_pointer) ) goto failed_to_construct_hash_table;
+
+    // populate the result map and find the start result
+    for ( size_t i = 0; i < vertex_count; i++ )
+    {
+        hash_table_insert(p_result_map, &p_results[i]);
+        if ( p_results[i].p_vertex == p_start_vertex )
+            p_start_res = &p_results[i];
+    }
+
+    // set the start distance to 0
+    if ( p_start_res ) p_start_res->distance = 0.0;
+    else goto start_vertex_not_found;
+
+    // construct a priority queue
+    if ( 0 == priority_queue_construct(&p_priority_queue, edge_count + 1, dijkstra_compare) ) goto failed_to_construct_pq;
+
+    // construct a hash table to track visited (finalized) vertices
+    if ( 0 == hash_table_construct(&p_visited, vertex_count * 2 + 1, LINEAR_PROBE, graph_equality_pointer, NULL, graph_hash_pointer) ) goto failed_to_construct_hash_table;
+
+    // enqueue the start vertex result
+    priority_queue_enqueue(p_priority_queue, p_start_res);
+
+    // traverse the graph
+    while ( false == priority_queue_empty(p_priority_queue) )
+    {
+        
+        // initialized data
+        graph_sssp_result  *u_res          = NULL;
+        void               *u              = NULL;
+        void               *u_key          = NULL;
+        size_t              neighbor_count = 0;
+        void              **pp_neighbors   = NULL;
+        void               *p_dummy        = NULL;
+
+        // dequeue the vertex with the smallest distance
+        if ( 0 == priority_queue_dequeue(p_priority_queue, (void **)&u_res) ) break;
+
+        // store u
+        u = u_res->p_vertex;
+
+        // check if the vertex has already been finalized
+        if ( 1 == hash_table_search(p_visited, u, &p_dummy) ) continue;
+
+        // mark the vertex as finalized
+        hash_table_insert(p_visited, u);
+
+        // get the key for the vertex
+        u_key = p_graph->pfn_key_accessor(u);
+
+        // get the neighbors of the vertex
+        if ( 0 == graph_neighbors_get(p_graph, u_key, &neighbor_count, &pp_neighbors) ) continue;
+
+        // for each neighbor ...
+        for ( size_t i = 0; i < neighbor_count; i++ )
+        {
+            
+            // initialized data
+            void              *v      = pp_neighbors[i];
+            void              *v_key  = p_graph->pfn_key_accessor(v);
+            void              *p_edge = NULL;
+            graph_sssp_result *v_res  = NULL;
+            double             weight = 0.0;
+            double             alt    = 0.0;
+
+            // skip
+            if ( 1 == hash_table_search(p_visited, v, &p_dummy) ) continue;
+
+            // find the edge between u and v
+            if ( 0 == graph_edge_search(p_graph, u_key, v_key, &p_edge) ) continue;
+
+            // get the weight of the edge
+            weight = pfn_weight(p_edge);
+
+            // find the result entry for the neighbor
+            if ( 0 == hash_table_search(p_result_map, v, (void **)&v_res) ) continue;
+
+            // calculate the alternative distance
+            alt = u_res->distance + weight;
+
+            // if the alternative distance is smaller ...
+            if ( alt < v_res->distance )
+            {
+                
+                // ... update the neighbor's distance and previous vertex
+                v_res->distance   = alt;
+                v_res->p_previous = u;
+
+                // enqueue the neighbor
+                priority_queue_enqueue(p_priority_queue, v_res);
+            }
+        }
+
+        // release the neighbors
+        if ( pp_neighbors ) default_allocator(pp_neighbors, 0);
+    }
+
+    // destroy the priority queue and hash tables
+    priority_queue_destroy(&p_priority_queue);
+    hash_table_destroy(&p_result_map, NULL);
+    hash_table_destroy(&p_visited, NULL);
+
+    // return the results to the caller
+    *pp_results = p_results;
+
+    // success
+    return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_graph:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"p_graph\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_start_key:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"p_start_key\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_weight_accessor:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"pfn_weight\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_results:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"pp_results\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // graph errors
+        {
+            no_weighted_graph:
+                #ifndef NDEBUG
+                    printf("[graph] Graph is not weighted in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            start_vertex_not_found:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to find starting vertex in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+                
+            failed_to_get_vertices:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to get vertices in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // standard library errors
+        {
+            no_mem:
+                #ifndef NDEBUG
+                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // hash table errors
+        {
+            failed_to_construct_hash_table:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to construct hash table in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // destroy the priority queue and hash tables
+                if ( p_priority_queue ) priority_queue_destroy(&p_priority_queue);
+                if ( p_result_map )     hash_table_destroy(&p_result_map, NULL);
+                if ( p_visited )        hash_table_destroy(&p_visited, NULL);
+                if ( p_results )        default_allocator(p_results, 0);
+
+                // error
+                return 0;
+        }
+
+        // priority queue errors
+        {
+            failed_to_construct_pq:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to construct priority queue in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // destroy the priority queue and hash tables
+                if ( p_priority_queue ) priority_queue_destroy(&p_priority_queue);
+                if ( p_result_map )     hash_table_destroy(&p_result_map, NULL);
+                if ( p_visited )        hash_table_destroy(&p_visited, NULL);
+                if ( p_results )        default_allocator(p_results, 0);
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int graph_algorithm_sssp_bellman_ford 
+( 
+    graph              *p_graph, 
+    const void         *p_start_key, 
+    fn_weight_accessor *pfn_weight, 
+    graph_sssp_result **pp_results 
+)
+{
+
+    // argument check
+    if ( NULL == p_graph     ) goto no_graph;
+    if ( NULL == p_start_key ) goto no_start_key;
+    if ( NULL == pfn_weight  ) goto no_weight_accessor;
+    if ( NULL == pp_results  ) goto no_results;
+
+    // initialized data
+    hash_table         *p_result_map   = NULL;
+    graph_sssp_result  *p_results      = NULL;
+    void               *p_start_vertex = NULL;
+    graph_sssp_result  *p_start_res    = NULL;
+    void              **p_p_vertices   = NULL;
+    size_t              vertex_count   = -1;
+
+    // type check
+    if ( !(p_graph->_edge_type & GRAPH_WEIGHTED) ) goto no_weighted_graph;
+
+    // store the quantity of vertices
+    vertex_count = graph_vertex_count(p_graph);
+
+    // search for the starting vertex
+    if ( 0 == graph_vertex_search(p_graph, p_start_key, &p_start_vertex) ) goto start_vertex_not_found;
+
+    // allocate memory for results
+    p_results = default_allocator(NULL, sizeof(graph_sssp_result) * vertex_count);
+    if ( NULL == p_results ) goto no_mem;
+
+    // allocate memory for vertices
+    p_p_vertices = default_allocator(NULL, sizeof(void *) * vertex_count);
+    if ( NULL == p_p_vertices ) goto no_mem;
+
+    // get the vertices
+    if ( 0 == graph_vertex_get(p_graph, p_p_vertices) ) goto failed_to_get_vertices;
+    
+    // initialize results
+    for (size_t i = 0; i < vertex_count; i++)
+        p_results[i] = (graph_sssp_result)
+        {
+            .p_vertex   = p_p_vertices[i],
+            .distance   = DBL_MAX,
+            .p_previous = NULL,
+        };
+    
+    // release vertices
+    p_p_vertices = default_allocator(p_p_vertices, 0);
+
+    // construct a hash table to map vertices to their results
+    if ( 0 == hash_table_construct(&p_result_map, vertex_count * 2 + 1, LINEAR_PROBE, graph_equality_pointer, dijkstra_result_key_accessor, graph_hash_pointer) ) goto failed_to_construct_hash_table;
+
+    // populate the result map and find the start result
+    for ( size_t i = 0; i < vertex_count; i++ )
+    {
+        hash_table_insert(p_result_map, &p_results[i]);
+        if ( p_results[i].p_vertex == p_start_vertex )
+            p_start_res = &p_results[i];
+    }
+
+    // set the start distance to 0
+    if ( p_start_res ) p_start_res->distance = 0.0;
+    else goto start_vertex_not_found;
+
+    // relax edges |V| - 1 times
+    for ( size_t i = 0; i < vertex_count - 1; i++ )
+    {
+        
+        // iterate over all edges
+        for ( size_t j = 0; j < vertex_count; j++ )
+        {
+            
+            // initialized data
+            graph_sssp_result  *u_res          = &p_results[j];
+            void               *u              = u_res->p_vertex;
+            void               *u_key          = p_graph->pfn_key_accessor(u);
+            size_t              neighbor_count = 0;
+            void              **pp_neighbors   = NULL;
+
+            // skip if the distance is still infinity
+            if ( DBL_MAX == u_res->distance ) continue;
+
+            // get the neighbors of the vertex
+            if ( 0 == graph_neighbors_get(p_graph, u_key, &neighbor_count, &pp_neighbors) ) continue;
+
+            // for each neighbor ...
+            for ( size_t k = 0; k < neighbor_count; k++ )
+            {
+                
+                // initialized data
+                void              *v      = pp_neighbors[k];
+                void              *v_key  = p_graph->pfn_key_accessor(v);
+                void              *p_edge = NULL;
+                graph_sssp_result *v_res  = NULL;
+                double             weight = 0.0;
+
+                // find the edge between u and v
+                if ( 0 == graph_edge_search(p_graph, u_key, v_key, &p_edge) ) continue;
+
+                // store the weight of the edge
+                weight = pfn_weight(p_edge);
+
+                // find the result entry for the neighbor
+                if ( 0 == hash_table_search(p_result_map, v, (void **)&v_res) ) continue;
+
+                // relax the edge
+                if ( u_res->distance + weight < v_res->distance )
+                {
+                    v_res->distance   = u_res->distance + weight;
+                    v_res->p_previous = u;
+                }
+            }
+
+            // release the neighbors
+            if ( pp_neighbors ) default_allocator(pp_neighbors, 0);
+        }
+    }
+
+    // check for negative weight cycles
+    for ( size_t j = 0; j < vertex_count; j++ )
+    {
+        
+        // initialized data
+        graph_sssp_result  *u_res          = &p_results[j];
+        void               *u              = u_res->p_vertex;
+        void               *u_key          = p_graph->pfn_key_accessor(u);
+        size_t              neighbor_count = 0;
+        void              **pp_neighbors   = NULL;
+
+        // skip if the distance is still infinity
+        if ( u_res->distance == DBL_MAX ) continue;
+
+        // get the neighbors of the vertex
+        if ( 0 == graph_neighbors_get(p_graph, u_key, &neighbor_count, &pp_neighbors) ) continue;
+
+        // for each neighbor ...
+        for ( size_t k = 0; k < neighbor_count; k++ )
+        {
+            
+            // initialized data
+            void              *v      = pp_neighbors[k];
+            void              *v_key  = p_graph->pfn_key_accessor(v);
+            void              *p_edge = NULL;
+            graph_sssp_result *v_res  = NULL;
+            double             weight = 0.0;
+
+            // find the edge between u and v
+            if ( 0 == graph_edge_search(p_graph, u_key, v_key, &p_edge) ) continue;
+
+            // store the weight of the edge
+            weight = pfn_weight(p_edge);
+
+            // find the result entry for the neighbor
+            if ( 0 == hash_table_search(p_result_map, v, (void **)&v_res) ) continue;
+
+            // check for negative weight cycle
+            if ( u_res->distance + weight < v_res->distance )
+            {
+                
+                // release the neighbors
+                if ( pp_neighbors ) default_allocator(pp_neighbors, 0);
+
+                // negative cycle detected
+                goto negative_cycle;
+            }
+        }
+
+        // release the neighbors
+        if ( pp_neighbors ) default_allocator(pp_neighbors, 0);
+    }
+
+    // destroy the hash table
+    hash_table_destroy(&p_result_map, NULL);
+
+    // return the results to the caller
+    *pp_results = p_results;
+
+    // success
+    return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_graph:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"p_graph\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_start_key:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"p_start_key\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_weight_accessor:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"pfn_weight\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_results:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"pp_results\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // graph errors
+        {
+            start_vertex_not_found:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to find starting vertex in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_weighted_graph:
+                #ifndef NDEBUG
+                    printf("[graph] Graph is not weighted in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            negative_cycle:
+                #ifndef NDEBUG
+                    printf("[graph] Negative weight cycle detected in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // destroy the hash table
+                if ( p_result_map ) hash_table_destroy(&p_result_map, NULL);
+                if ( p_results )    default_allocator(p_results, 0);
+
+                // error
+                return 0;
+
+            failed_to_get_vertices:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to get vertices in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // standard library errors
+        {
+            no_mem:
+                #ifndef NDEBUG
+                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // hash table errors
+        {
+            failed_to_construct_hash_table:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to construct hash table in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // destroy the hash table
+                if ( p_result_map ) hash_table_destroy(&p_result_map, NULL);
+                if ( p_results )    default_allocator(p_results, 0);
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int graph_vertex_get 
+( 
+    graph  *p_graph, 
+    void  **p_p_vertices 
+)
+{
+
+    // argument check
+    if ( NULL == p_graph ) goto no_graph;
+    
+    // done
+    return p_graph->pfn_vertex_get(p_graph->p_graph, p_p_vertices);
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_graph:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"p_graph\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
 
                 // error
                 return 0;
@@ -1200,4 +1810,26 @@ static int graph_equality_pointer ( const void *p_a, const void *p_b )
 
     // done
     return p_a == p_b ? 0 : 1;
+}
+
+static int dijkstra_compare ( const void *p_a, const void *p_b )
+{
+
+    // initialized data
+    const graph_sssp_result *p_res_a = p_a;
+    const graph_sssp_result *p_res_b = p_b;
+
+    // compare the distances
+    if ( p_res_a->distance < p_res_b->distance ) return 1;
+    if ( p_res_a->distance > p_res_b->distance ) return -1;
+
+    // equal
+    return 0;
+}
+
+static void *dijkstra_result_key_accessor ( const void *p_result )
+{
+
+    // done
+    return ((graph_sssp_result *)p_result)->p_vertex;
 }

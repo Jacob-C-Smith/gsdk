@@ -197,6 +197,72 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
+    // #6 - dijkstra
+    {
+        
+        // initialized data
+        graph_sssp_result *p_results    = NULL;
+        size_t             vertex_count = graph_vertex_count(p_graph);
+
+        // print
+        log_info("Dijkstra from SEA:\n");
+
+        // calculate the shortest paths
+        graph_algorithm_sssp_dijkstra(p_graph, "SEA", flight_weight_accessor, &p_results);
+
+        // iterate over each result ...
+        for (size_t i = 0; i < vertex_count; i++)
+        {
+            
+            // initialized data
+            airport *p_airport  = p_results[i].p_vertex;
+            airport *p_previous = p_results[i].p_previous;
+
+            // print the result
+            printf("  %s: %lf (via %s)\n", p_airport->code, p_results[i].distance, p_previous ? (char *)airport_key_accessor(p_previous) : "START");
+        }
+
+        // release the results
+        default_allocator(p_results, 0);
+
+        // checkpoint
+        checkpoint(p_graph, "after dijkstra"),
+        putchar('\n');
+    }
+
+    // #7 - bellman-ford
+    {
+        
+        // initialized data
+        graph_sssp_result *p_results    = NULL;
+        size_t             vertex_count = graph_vertex_count(p_graph);
+
+        // print
+        log_info("Bellman-Ford from SEA:\n");
+
+        // calculate the shortest paths
+        graph_algorithm_sssp_bellman_ford(p_graph, "SEA", flight_weight_accessor, &p_results);
+
+        // iterate over each result ...
+        for (size_t i = 0; i < vertex_count; i++)
+        {
+            
+            // initialized data
+            airport *p_airport  = p_results[i].p_vertex;
+            airport *p_previous = p_results[i].p_previous;
+
+            // print the result
+            printf("  %s: %lf (via %s)\n", p_airport->code, p_results[i].distance, p_previous ? (char *)airport_key_accessor(p_previous) : "START");
+        }
+
+        // release the results
+        default_allocator(p_results, 0);
+
+        // checkpoint
+        checkpoint(p_graph, "after bellman-ford"),
+        putchar('\n');
+    }
+
     // #4 - destroy
     {
 
