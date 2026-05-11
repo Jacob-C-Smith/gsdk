@@ -19,14 +19,6 @@
 #include <data/queue.h>
 #include <data/priority_queue.h>
 
-// forward declarations
-static fn_hash64       graph_hash_pointer;
-static fn_comparator   graph_equality_pointer;
-static fn_comparator   dijkstra_compare;
-static fn_key_accessor dijkstra_result_key_accessor;
-static fn_key_accessor vertex_index_key_accessor;
-static fn_comparator   johnson_compare;
-
 // structure definitions
 struct vertex_index_entry_s 
 {
@@ -40,9 +32,40 @@ struct johnson_dijkstra_node_s
     double distance;
 };
 
+struct mst_edge_s 
+{
+    void *u;
+    void *v;
+    double weight;
+};
+
+struct union_find_s
+{
+    size_t *parent;
+    size_t *rank;
+};
+
+typedef struct mst_edge_s   mst_edge; 
+typedef struct union_find_s union_find;
+
 // type definitions
 typedef struct vertex_index_entry_s    vertex_index_entry; 
 typedef struct johnson_dijkstra_node_s johnson_dijkstra_node; 
+
+// forward declarations
+static fn_hash64       graph_hash_pointer;
+static fn_comparator   graph_equality_pointer;
+static fn_comparator   dijkstra_compare;
+static fn_key_accessor dijkstra_result_key_accessor;
+static fn_key_accessor vertex_index_key_accessor;
+static fn_comparator   johnson_compare;
+static fn_comparator   kruskal_edge_compare;
+static fn_comparator   prim_edge_compare;
+
+static int    union_find_construct ( union_find **pp_union_find, size_t n );
+static size_t union_find_find      ( union_find *p_union_find, size_t i );
+static void   union_find_union     ( union_find *p_union_find, size_t i, size_t j );
+static int    union_find_destroy   ( union_find **pp_union_find );
 
 /// prototypes
 graph _prototypes[GRAPH_QUANTITY] = 
@@ -1575,7 +1598,7 @@ int graph_algorithm_apsp_johnson
     {
 
         // initialized data
-        priority_queue        *p_pq         = NULL;
+        priority_queue        *p_priority_queue         = NULL;
         johnson_dijkstra_node *p_start_node = NULL;
         hash_table            *p_visited    = NULL;
 
@@ -1591,7 +1614,7 @@ int graph_algorithm_apsp_johnson
         pp_matrix[i][i] = 0.0;
 
         // construct a priority queue
-        if ( 0 == priority_queue_construct(&p_pq, edge_count + 1, johnson_compare) ) goto failed_to_construct_pq;
+        if ( 0 == priority_queue_construct(&p_priority_queue, edge_count + 1, johnson_compare) ) goto failed_to_construct_pq;
 
         // allocate the starting node
         p_start_node = default_allocator(NULL, sizeof(johnson_dijkstra_node));
@@ -1603,21 +1626,21 @@ int graph_algorithm_apsp_johnson
         p_start_node->distance = 0.0;
 
         // enqueue the starting node
-        priority_queue_enqueue(p_pq, p_start_node);
+        priority_queue_enqueue(p_priority_queue, p_start_node);
 
         // construct a hash table to track visited vertices
         if ( 0 == hash_table_construct(&p_visited, vertex_count * 2 + 1, LINEAR_PROBE, graph_equality_pointer, NULL, graph_hash_pointer) ) 
         {
 
             // destroy the priority queue
-            priority_queue_destroy(&p_pq);
+            priority_queue_destroy(&p_priority_queue);
 
             // bail
             goto failed_to_construct_hash_table;
         }
 
         // run dijkstra
-        while ( false == priority_queue_empty(p_pq) )
+        while ( false == priority_queue_empty(p_priority_queue) )
         {
 
             // initialized data
@@ -1630,7 +1653,7 @@ int graph_algorithm_apsp_johnson
             void                  **pp_neighbors   = NULL;
 
             // dequeue u
-            priority_queue_dequeue(p_pq, (void **)&u_node);
+            priority_queue_dequeue(p_priority_queue, (void **)&u_node);
 
             // store the index of u
             u_idx = u_node->index;
@@ -1704,7 +1727,7 @@ int graph_algorithm_apsp_johnson
                         v_node->distance = pp_matrix[i][v_idx];
 
                         // enqueue the node
-                        priority_queue_enqueue(p_pq, v_node);
+                        priority_queue_enqueue(p_priority_queue, v_node);
                     }
                 }
 
@@ -1723,7 +1746,7 @@ int graph_algorithm_apsp_johnson
                 pp_matrix[i][j] = pp_matrix[i][j] - h[i] + h[j];
 
         // release the priority queue
-        priority_queue_destroy(&p_pq);
+        priority_queue_destroy(&p_priority_queue);
 
         // release the visited map
         hash_table_destroy(&p_visited, NULL);
@@ -1870,6 +1893,611 @@ int graph_algorithm_apsp_johnson
                     for ( size_t i = 0; i < vertex_count; i++ )
                         if ( pp_matrix[i] ) default_allocator(pp_matrix[i], 0);
                     default_allocator(pp_matrix, 0);
+                }
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int graph_algorithm_mst_kruskal 
+( 
+    graph              *p_graph, 
+    fn_weight_accessor *pfn_weight, 
+    graph             **pp_mst 
+)
+{
+
+    // argument check
+    if ( NULL ==    p_graph ) goto no_graph;
+    if ( NULL == pfn_weight ) goto no_weight_accessor;
+    if ( NULL ==     pp_mst ) goto no_mst;
+
+    // initialized data
+    graph               *p_mst           = NULL;
+    size_t               vertex_count    = graph_vertex_count(p_graph);
+    size_t               edge_count      = graph_edge_count(p_graph);
+    void               **pp_vertices     = NULL;
+    mst_edge            *p_edges         = NULL;
+    size_t               collected_edges = 0;
+    union_find          *p_union_find    = NULL;
+    hash_table          *p_index_map     = NULL;
+    vertex_index_entry  *p_entries       = NULL;
+
+    // type check
+    if ( !(p_graph->_edge_type & GRAPH_WEIGHTED) ) goto no_weighted_graph;
+
+    // construct the MST graph
+    if ( 0 == graph_construct(&p_mst, p_graph->_type, p_graph->_edge_type, p_graph->vertex_size, p_graph->edge_size, p_graph->pfn_key_accessor, p_graph->pfn_comparator) ) goto failed_to_construct_mst;
+
+    // if the graph is empty ...
+    if ( 0 == vertex_count )
+    {
+
+        // ... return an empty graph
+        *pp_mst = p_mst;
+
+        // success
+        return 1;
+    }
+
+    // allocate memory for vertices
+    pp_vertices = default_allocator(NULL, sizeof(void *) * vertex_count);
+    if ( NULL == pp_vertices ) goto no_mem;
+
+    // collect all vertices
+    if ( 0 == graph_vertex_get(p_graph, pp_vertices) ) goto failed_to_get_vertices;
+
+    // populate the mst graph
+    for ( size_t i = 0; i < vertex_count; i++ )
+        graph_vertex_add(p_mst, pp_vertices[i]);
+
+    // allocate memory for entries
+    p_entries = default_allocator(NULL, sizeof(vertex_index_entry) * vertex_count);
+    if ( NULL == p_entries ) goto no_mem;
+
+    // construct a hash table to map vertices to indices
+    if ( 0 == hash_table_construct(&p_index_map, vertex_count * 2 + 1, COLLISION_RESOLUTION_DEFAULT, graph_equality_pointer, vertex_index_key_accessor, graph_hash_pointer) ) goto failed_to_construct_hash_table;
+
+    // populate the index map
+    for ( size_t i = 0; i < vertex_count; i++ )
+        p_entries[i].p_vertex = pp_vertices[i],
+        p_entries[i].index = i,
+        hash_table_insert(p_index_map, &p_entries[i]);
+
+    // allocate memory for edges
+    p_edges = default_allocator(NULL, sizeof(mst_edge) * edge_count * 2);
+    if ( NULL == p_edges ) goto no_mem;
+
+    // iterate through each vertex
+    for ( size_t i = 0; i < vertex_count; i++ )
+    {
+
+        // initialized data
+        void    *u              = pp_vertices[i];
+        void    *u_key          = p_graph->pfn_key_accessor(u);
+        size_t   neighbor_count = 0;
+        void   **pp_neighbors   = NULL;
+
+        // get neighbors
+        if ( 1 == graph_neighbors_get(p_graph, u_key, &neighbor_count, &pp_neighbors) )
+        {
+
+            // iterate through each neighbor
+            for ( size_t j = 0; j < neighbor_count; j++ )
+            {
+
+                // initialized data
+                void *v      = pp_neighbors[j];
+                void *v_key  = p_graph->pfn_key_accessor(v);
+                void *p_edge = NULL;
+
+                // undirected optimization
+                if ( !(p_graph->_edge_type & GRAPH_DIRECTED) )
+                    if ( p_graph->pfn_comparator(u_key, v_key) < 0 ) 
+                        continue;
+
+                // edge?
+                if ( 1 == graph_edge_search(p_graph, u_key, v_key, &p_edge) )
+
+                    // populate the edge struct
+                    p_edges[collected_edges] = (mst_edge)
+                    {
+                        .u      = u,
+                        .v      = v,
+                        .weight = pfn_weight(p_edge)
+                    },
+
+                    // increment edge counter
+                    collected_edges++;
+            }
+            
+            // release neighbors
+            if ( pp_neighbors ) 
+                default_allocator(pp_neighbors, 0);
+        }
+    }
+
+    // sort the edges by weight
+    qsort(p_edges, collected_edges, sizeof(mst_edge), kruskal_edge_compare);
+
+    // construct a union find
+    union_find_construct(&p_union_find, vertex_count);
+
+    // iterate over sorted edges
+    for ( size_t i = 0; i < collected_edges; i++ )
+    {
+
+        // initialized data
+        vertex_index_entry *u_ent = NULL;
+        vertex_index_entry *v_ent = NULL;
+
+        // lookup u
+        hash_table_search(p_index_map, p_edges[i].u, (void **)&u_ent);
+
+        // lookup v
+        hash_table_search(p_index_map, p_edges[i].v, (void **)&v_ent);
+
+        // different trees?
+        if ( union_find_find(p_union_find, u_ent->index) != union_find_find(p_union_find, v_ent->index) )
+        {
+
+            // initialized data
+            void *u_key  = p_graph->pfn_key_accessor(p_edges[i].u);
+            void *v_key  = p_graph->pfn_key_accessor(p_edges[i].v);
+            void *p_edge = NULL;
+
+            // store the edge
+            graph_edge_search(p_graph, u_key, v_key, &p_edge);
+
+            // add it to the mst
+            graph_edge_add(p_mst, u_key, v_key, p_edge);
+
+            // merge u and v
+            union_find_union(p_union_find, u_ent->index, v_ent->index);
+        }
+    }
+
+    // release the union find
+    union_find_destroy(&p_union_find);
+
+    // release the index map
+    hash_table_destroy(&p_index_map, NULL);
+
+    // release vertex index entries
+    default_allocator(p_entries, 0);
+
+    // release vertex list
+    default_allocator(pp_vertices, 0);
+
+    // release edge list
+    default_allocator(p_edges, 0);
+
+    // return an mst to the caller
+    *pp_mst = p_mst;
+
+    // success
+    return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_graph:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"p_graph\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_weight_accessor:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"pfn_weight\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_mst:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"pp_mst\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // graph errors
+        {
+            no_weighted_graph:
+                #ifndef NDEBUG
+                    printf("[graph] Graph is not weighted in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            failed_to_construct_mst:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to construct MST graph in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            failed_to_get_vertices:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to get vertices in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // standard library errors
+        {
+            no_mem:
+                #ifndef NDEBUG
+                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // cleanup
+                if ( p_mst )       graph_destroy(&p_mst, NULL, NULL);
+                if ( pp_vertices ) default_allocator(pp_vertices, 0);
+                if ( p_entries )   default_allocator(p_entries, 0);
+                if ( p_index_map ) hash_table_destroy(&p_index_map, NULL);
+                if ( p_edges )     default_allocator(p_edges, 0);
+
+                // error
+                return 0;
+        }
+
+        // hash table errors
+        {
+            failed_to_construct_hash_table:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to construct hash table in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // cleanup
+                if ( p_mst )       graph_destroy(&p_mst, NULL, NULL);
+                if ( pp_vertices ) default_allocator(pp_vertices, 0);
+                if ( p_entries )   default_allocator(p_entries, 0);
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int graph_algorithm_mst_prim
+( 
+    graph              *p_graph, 
+    fn_weight_accessor *pfn_weight, 
+    graph             **pp_mst 
+)
+{
+
+    // argument check
+    if ( NULL ==    p_graph ) goto no_graph;
+    if ( NULL == pfn_weight ) goto no_weight_accessor;
+    if ( NULL ==     pp_mst ) goto no_mst;
+
+    // initialized data
+    priority_queue  *p_priority_queue = NULL;
+    hash_table      *p_visited        = NULL;
+    graph           *p_mst            = NULL;
+    size_t           vertex_count     = graph_vertex_count(p_graph);
+    size_t           edge_count       = graph_edge_count(p_graph);
+    void           **pp_vertices      = NULL;
+    void            *p_start_vertex   = NULL;
+    void            *u_key            = NULL;  
+    size_t           neighbor_count   = 0;
+    void           **pp_neighbors     = NULL;
+    void            *p_mst_edge       = NULL;
+
+    // type check
+    if ( !(p_graph->_edge_type & GRAPH_WEIGHTED) ) goto no_weighted_graph;
+
+    // construct the mst graph
+    if ( 0 == graph_construct(&p_mst, p_graph->_type, p_graph->_edge_type, p_graph->vertex_size, p_graph->edge_size, p_graph->pfn_key_accessor, p_graph->pfn_comparator) ) goto failed_to_construct_mst;
+
+    // if the graph is empty ...
+    if ( 0 == vertex_count )
+    {
+
+        // ... return an empty graph
+        *pp_mst = p_mst;
+
+        // success
+        return 1;
+    }
+
+    // allocate memory for vertices
+    pp_vertices = default_allocator(NULL, sizeof(void *) * vertex_count);
+    if ( NULL == pp_vertices ) goto no_mem;
+
+    // collect all vertices
+    if ( 0 == graph_vertex_get(p_graph, pp_vertices) ) goto failed_to_get_vertices;
+
+    // populate the mst graph
+    for ( size_t i = 0; i < vertex_count; i++ )
+        graph_vertex_add(p_mst, pp_vertices[i]);
+
+    // pick a starting vertex
+    p_start_vertex = pp_vertices[0];
+
+    // construct a priority queue
+    if ( 0 == priority_queue_construct(&p_priority_queue, edge_count + 1, prim_edge_compare) ) goto failed_to_construct_pq;
+
+    // construct a hash table to track visited vertices
+    if ( 0 == hash_table_construct(&p_visited, vertex_count * 2 + 1, COLLISION_RESOLUTION_DEFAULT, graph_equality_pointer, NULL, graph_hash_pointer) ) goto failed_to_construct_hash_table;
+
+    // mark the start vertex as visited
+    hash_table_insert(p_visited, p_start_vertex);
+
+    // store the key of the starting vertex
+    u_key = p_graph->pfn_key_accessor(p_start_vertex);
+
+    // get neighbors of the starting vertex
+    if ( 1 == graph_neighbors_get(p_graph, u_key, &neighbor_count, &pp_neighbors) )
+    {
+
+        // iterate through each neighbor
+        for ( size_t i = 0; i < neighbor_count; i++ )
+        {
+
+            // initialized data
+            void     *v          = pp_neighbors[i];
+            void     *v_key      = p_graph->pfn_key_accessor(v);
+            void     *p_edge     = NULL;
+            mst_edge *p_mst_edge = default_allocator(NULL, sizeof(mst_edge));
+
+            // skip
+            if ( 0 == graph_edge_search(p_graph, u_key, v_key, &p_edge) ) 
+            {
+                p_mst_edge = default_allocator(p_mst_edge, 0);
+                continue;
+            }
+
+            // populate the mst edge
+            *p_mst_edge = (mst_edge)
+            {
+                .u      = p_start_vertex,
+                .v      = v,
+                .weight = pfn_weight(p_edge)
+            };
+
+            // enqueue the mst edge
+            priority_queue_enqueue(p_priority_queue, p_mst_edge);
+        }
+
+        // release neighbors
+        if ( pp_neighbors ) 
+            pp_neighbors = default_allocator(pp_neighbors, 0);
+    }
+
+    // traverse the graph
+    while ( false == priority_queue_empty(p_priority_queue) )
+    {
+        
+        // initialized data
+        mst_edge *p_mst_edge = NULL;
+        void     *v          = NULL;
+        void     *v_dummy    = NULL;
+
+        // dequeue the edge with the smallest weight
+        if ( 0 == priority_queue_dequeue(p_priority_queue, (void **)&p_mst_edge) ) break;
+
+        // store v
+        v = p_mst_edge->v;
+
+        // skip
+        if ( 1 == hash_table_search(p_visited, v, &v_dummy) )
+        {
+            p_mst_edge = default_allocator(p_mst_edge, 0);
+            continue;
+        }
+
+        // mark the vertex as visited
+        hash_table_insert(p_visited, v);
+
+        // add the edge to the MST graph
+        {
+
+            // initialized data
+            void *u_key  = p_graph->pfn_key_accessor(p_mst_edge->u);
+            void *v_key  = p_graph->pfn_key_accessor(v);
+            void *p_edge = NULL;
+
+            // store the edge
+            graph_edge_search(p_graph, u_key, v_key, &p_edge);
+
+            // add it to the mst
+            graph_edge_add(p_mst, u_key, v_key, p_edge);
+        }
+
+        // add neighbors to the priority queue
+        {
+
+            // initialized data
+            void    *v_key          = p_graph->pfn_key_accessor(v);
+            size_t   neighbor_count = 0;
+            void   **pp_neighbors   = NULL;
+
+            // store neighboring vertices
+            if ( 1 == graph_neighbors_get(p_graph, v_key, &neighbor_count, &pp_neighbors) )
+            {
+
+                // iterate through each neighbor
+                for ( size_t i = 0; i < neighbor_count; i++ )
+                {
+
+                    // initialized data
+                    void *w      = pp_neighbors[i];
+                    void *w_key  = p_graph->pfn_key_accessor(w);
+                    void *p_edge = NULL;
+                    
+                    // skip
+                    if ( 1 == hash_table_search(p_visited, w, &v_dummy) ) continue;
+
+                    // store the edge
+                    if ( 1 == graph_edge_search(p_graph, v_key, w_key, &p_edge) )
+                    {
+
+                        // initialized data
+                        mst_edge *p_new_me = default_allocator(NULL, sizeof(mst_edge));
+
+                        // populate the new mst edge
+                        *p_new_me = (mst_edge) 
+                        {   
+                            .u      = v,
+                            .v      = w,
+                            .weight = pfn_weight(p_edge),
+                        };
+
+                        // enqueue the new mst edge
+                        priority_queue_enqueue(p_priority_queue, p_new_me);
+                    }
+                }
+
+                // release the neighbors
+                if ( pp_neighbors ) 
+                    default_allocator(pp_neighbors, 0);
+            }
+        }
+
+        // release the mst edge
+        default_allocator(p_mst_edge, 0);
+    }
+
+    // drain the priority queue
+    while ( false == priority_queue_empty(p_priority_queue) )
+        if ( priority_queue_dequeue(p_priority_queue, &p_mst_edge) )
+            p_mst_edge = default_allocator(p_mst_edge, 0);
+
+    // release the priority queue 
+    priority_queue_destroy(&p_priority_queue);
+
+    // release the hash table
+    hash_table_destroy(&p_visited, NULL);
+
+    // release the vertices
+    pp_vertices = default_allocator(pp_vertices, 0);
+
+    // return a pointer to the caller
+    *pp_mst = p_mst;
+
+    // success
+    return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_graph:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"p_graph\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_weight_accessor:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"pfn_weight\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_mst:
+                #ifndef NDEBUG
+                    printf("[graph] Null pointer provided for parameter \"pp_mst\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // graph errors
+        {
+            no_weighted_graph:
+                #ifndef NDEBUG
+                    printf("[graph] Graph is not weighted in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            failed_to_construct_mst:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to construct MST graph in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            failed_to_get_vertices:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to get vertices in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // standard library errors
+        {
+            no_mem:
+                #ifndef NDEBUG
+                    printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // cleanup
+                if ( p_mst )       graph_destroy(&p_mst, NULL, NULL);
+                if ( pp_vertices ) default_allocator(pp_vertices, 0);
+
+                // error
+                return 0;
+        }
+
+        // priority queue errors
+        {
+            failed_to_construct_pq:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to construct priority queue in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // cleanup
+                if ( p_mst )       graph_destroy(&p_mst, NULL, NULL);
+                if ( pp_vertices ) default_allocator(pp_vertices, 0);
+
+                // error
+                return 0;
+        }
+
+        // hash table errors
+        {
+            failed_to_construct_hash_table:
+                #ifndef NDEBUG
+                    printf("[graph] Failed to construct hash table in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // cleanup
+                if ( p_mst )       graph_destroy(&p_mst, NULL, NULL);
+                if ( pp_vertices ) default_allocator(pp_vertices, 0);
+                if ( p_priority_queue ) 
+                {
+                    void *p_mst_edge = NULL;
+                    while ( false == priority_queue_empty(p_priority_queue) )
+                        if ( priority_queue_dequeue(p_priority_queue, &p_mst_edge) )
+                            default_allocator(p_mst_edge, 0);
+                    priority_queue_destroy(&p_priority_queue);
                 }
 
                 // error
@@ -2555,4 +3183,109 @@ static int johnson_compare ( const void *p_a, const void *p_b )
 
     // equal
     return 0;
+}
+
+static int kruskal_edge_compare ( const void *p_a, const void *p_b )
+{
+
+    // initialized data 
+    const mst_edge *p_edge_a = p_a;
+    const mst_edge *p_edge_b = p_b;
+
+    // compare the distances
+    if ( p_edge_a->weight < p_edge_b->weight ) return -1;
+    if ( p_edge_a->weight > p_edge_b->weight ) return  1;
+
+    // equal
+    return 0;
+}
+
+static int prim_edge_compare ( const void *p_a, const void *p_b )
+{
+
+    // initialized data 
+    const mst_edge *p_edge_a = p_a;
+    const mst_edge *p_edge_b = p_b;
+
+    // compare the distances
+    if ( p_edge_a->weight < p_edge_b->weight ) return  1;
+    if ( p_edge_a->weight > p_edge_b->weight ) return -1;
+
+    // equal
+    return 0;
+}
+
+static int union_find_construct ( union_find **pp_union_find, size_t n )
+{
+
+    // initialized data
+    union_find *p_union_find = default_allocator(NULL, sizeof(union_find));
+
+    // allocate memory for parents
+    p_union_find->parent = default_allocator(NULL, sizeof(size_t) * n);
+
+    // allocate memory for ranks
+    p_union_find->rank = default_allocator(NULL, sizeof(size_t) * n);
+
+    // iterate through each element
+    for ( size_t i = 0; i < n; i++ ) 
+        p_union_find->parent[i] = i,
+        p_union_find->rank[i] = 0;
+
+    // return a pointer to the caller 
+    *pp_union_find = p_union_find;
+
+    // success
+    return 1;
+}
+
+static size_t union_find_find ( union_find *p_union_find, size_t i )
+{
+
+    // base case 
+    if ( p_union_find->parent[i] == i ) return i;
+
+    // recurse
+    return p_union_find->parent[i] = union_find_find(p_union_find, p_union_find->parent[i]);
+}
+
+static void union_find_union ( union_find *p_union_find, size_t i, size_t j )
+{
+
+    // initialized data
+    size_t root_i = union_find_find(p_union_find, i);
+    size_t root_j = union_find_find(p_union_find, j);
+    
+    if ( root_i != root_j ) 
+    {
+        if ( p_union_find->rank[root_i] < p_union_find->rank[root_j] )
+            p_union_find->parent[root_i] = root_j;
+        else if ( p_union_find->rank[root_i] > p_union_find->rank[root_j] )
+            p_union_find->parent[root_j] = root_i;
+        else 
+            p_union_find->parent[root_i] = root_j,
+            p_union_find->rank[root_j]++;
+    }
+}
+
+static int union_find_destroy ( union_find **pp_union_find )
+{
+
+    // initialized data
+    union_find *p_union_find = *pp_union_find;
+
+    // no more pointer for caller
+    *pp_union_find = NULL;
+
+    // release the parents
+    p_union_find->parent = default_allocator(p_union_find->parent, 0);
+    
+    // release the ranks
+    p_union_find->rank = default_allocator(p_union_find->rank, 0);
+
+    // release the struct
+    default_allocator(p_union_find, 0);
+
+    // success
+    return 1;
 }

@@ -219,6 +219,29 @@ fn_graph_apsp graph_algorithm_apsp_floyd_warshall;
  */
 fn_graph_apsp graph_algorithm_apsp_johnson;
 
+/// minimum spanning tree
+/** !
+ * Construct a minimum spanning tree using the Kruskal algorithm
+ * 
+ * @param p_graph    the graph
+ * @param pfn_weight pointer to weight accessor function
+ * @param pp_mst     result
+ * 
+ * @return 1 on success, 0 on error
+ */
+fn_graph_mst graph_algorithm_mst_kruskal;
+
+/** !
+ * Construct a minimum spanning tree using the Prim algorithm
+ * 
+ * @param p_graph    the graph
+ * @param pfn_weight pointer to weight accessor function
+ * @param pp_mst     result
+ * 
+ * @return 1 on success, 0 on error
+ */
+fn_graph_mst graph_algorithm_mst_prim;
+
 /// accessors
 /** !
  * Store all the vertices in a graph

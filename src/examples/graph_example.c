@@ -167,7 +167,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
         
-    // #4 - breadth first search
+    // #4 - traversal > breadth first search
     {
 
         // print
@@ -182,7 +182,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #5 - depth first search
+    // #5 - traversal > depth first search
     {
 
         // print
@@ -197,7 +197,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #6 - dijkstra
+    // #6 - sssp > dijkstra
     {
         
         // initialized data
@@ -221,6 +221,7 @@ int main ( int argc, const char *argv[] )
             // print the result
             printf("  %s: %lf (via %s)\n", p_airport->code, p_results[i].distance, p_previous ? (char *)airport_key_accessor(p_previous) : "START");
         }
+        putchar('\n');
 
         // release the results
         default_allocator(p_results, 0);
@@ -230,7 +231,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #7 - bellman-ford
+    // #7 - sssp > bellman-ford
     {
         
         // initialized data
@@ -254,6 +255,7 @@ int main ( int argc, const char *argv[] )
             // print the result
             printf("  %s: %lf (via %s)\n", p_airport->code, p_results[i].distance, p_previous ? (char *)airport_key_accessor(p_previous) : "START");
         }
+        putchar('\n');
 
         // release the results
         default_allocator(p_results, 0);
@@ -263,7 +265,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #8 - floyd-warshall
+    // #8 - apsp > floyd-warshall
     {
         
         // initialized data
@@ -271,13 +273,14 @@ int main ( int argc, const char *argv[] )
         size_t   vertex_count = graph_vertex_count(p_graph);
 
         // print
-        log_info("floyd warshall:\n");
+        log_info("Floyd-Warshall:\n");
 
         // calculate the shortest paths
         graph_algorithm_apsp_floyd_warshall(p_graph, flight_weight_accessor, &pp_matrix);
 
         // print the result
-        apsp_print(p_graph, pp_matrix);
+        apsp_print(p_graph, pp_matrix),
+        putchar('\n');
 
         // release the matrix
         for (size_t i = 0; i < vertex_count; i++)
@@ -289,7 +292,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #9 - johnson
+    // #9 - apsp > johnson
     {
         
         // initialized data
@@ -297,13 +300,14 @@ int main ( int argc, const char *argv[] )
         size_t   vertex_count = graph_vertex_count(p_graph);
 
         // print
-        log_info("johnson:\n");
+        log_info("Johnson:\n");
 
         // calculate the shortest paths
         graph_algorithm_apsp_johnson(p_graph, flight_weight_accessor, &pp_matrix);
 
         // print the result
-        apsp_print(p_graph, pp_matrix);
+        apsp_print(p_graph, pp_matrix),
+        putchar('\n');
 
         // release the matrix
         for (size_t i = 0; i < vertex_count; i++)
@@ -316,6 +320,113 @@ int main ( int argc, const char *argv[] )
     }
 
     // #10 - destroy
+    {
+
+        // destroy the graph
+        graph_destroy(&p_graph, NULL, NULL);
+        
+        // checkpoint
+        checkpoint(p_graph, "after destroy"),
+        putchar('\n');
+    }
+
+    // #11 - construct
+    {
+        
+        // construct an undirected, weighted graph
+        graph_construct
+        (
+            &p_graph,                          // result
+            GRAPH_ADJACENCY_LIST,              // storage type
+            GRAPH_UNDIRECTED | GRAPH_WEIGHTED, // type
+
+            sizeof(airport), // vertex size
+            sizeof(flight),  // edge size
+
+            (fn_key_accessor *)airport_key_accessor, // key accessor
+            (fn_comparator *)airport_comparator      // comparator
+        );
+
+        // checkpoint
+        checkpoint(p_graph, "after construct"),
+        putchar('\n');
+    }
+
+    // #12 - insert vertices
+    {
+
+        // iterate over each vertex ...
+        for (size_t i = 0; i < sizeof(_vertices) / sizeof(*_vertices); i++)
+            
+            // ... store the vertex in the graph
+            graph_vertex_add(p_graph, &_vertices[i]);
+
+        // checkpoint
+        checkpoint(p_graph, "after insert vertices"),
+        putchar('\n');
+    }
+
+    // #13 - insert edges
+    {
+
+        // add flights
+        for (size_t i = 0; i < sizeof(_edges) / sizeof(*_edges); i++)
+            graph_edge_add(p_graph, _edges[i].from, _edges[i].to, &_edges[i]._flight);
+    
+        // checkpoint
+        checkpoint(p_graph, "after insert edges"),
+        putchar('\n');
+    }
+
+    // #14 - mst > kruskal
+    {
+
+        // initialized data
+        graph *p_mst = NULL;
+
+        // print
+        log_info("Kruskal:\n");
+
+        // calculate the MST
+        graph_algorithm_mst_kruskal(p_graph, flight_weight_accessor, &p_mst);
+
+        // print the MST
+        mst_print(p_graph, p_mst),
+        putchar('\n');
+
+        // release the MST
+        graph_destroy(&p_mst, NULL, NULL);
+
+        // checkpoint
+        checkpoint(p_graph, "after kruskal"),
+        putchar('\n');
+    }
+
+    // #15 - mst > prim
+    {
+
+        // initialized data
+        graph *p_mst = NULL;
+
+        // print
+        log_info("Prim:\n");
+
+        // calculate the MST
+        graph_algorithm_mst_prim(p_graph, flight_weight_accessor, &p_mst);
+
+        // print the MST
+        mst_print(p_graph, p_mst),
+        putchar('\n');
+
+        // release the MST
+        graph_destroy(&p_mst, NULL, NULL);
+
+        // checkpoint
+        checkpoint(p_graph, "after prim"),
+        putchar('\n');
+    }
+
+    // #16 - destroy
     {
 
         // destroy the graph
@@ -443,4 +554,49 @@ void apsp_print ( graph *p_graph, double **pp_matrix )
 
     // done
     return;
+}
+
+void mst_print ( graph *p_graph, graph *p_mst )
+{
+
+    // initialized data
+    size_t   vertex_count = graph_vertex_count(p_graph);
+    void   **pp_vertices  = default_allocator(NULL, sizeof(void *) * vertex_count);
+    double   total_weight = 0;
+
+    // store vertices
+    graph_vertex_get(p_graph, pp_vertices);
+
+    // iterate through all pairs of vertices
+    for ( size_t i = 0; i < vertex_count; i++ )
+        for ( size_t j = i + 1; j < vertex_count; j++ )
+        {
+
+            // initialized data
+            void *p_edge = NULL;
+
+            // edge?
+            if ( graph_edge_search(p_mst, airport_key_accessor(pp_vertices[i]), airport_key_accessor(pp_vertices[j]), &p_edge) )
+            {
+                
+                // initialized data
+                double w = flight_weight_accessor(p_edge);
+
+                // print the edge
+                printf("  %s - %s: %.0f\n", 
+                    (char *)airport_key_accessor(pp_vertices[i]),
+                    (char *)airport_key_accessor(pp_vertices[j]),
+                    w
+                );
+
+                // accumulate total weight
+                total_weight += w;
+            }
+        }
+    
+    // print the total weight
+    printf("  Total weight: %.0f\n", total_weight);
+
+    // release the vertex list
+    pp_vertices = default_allocator(pp_vertices, 0);
 }
