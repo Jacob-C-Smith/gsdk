@@ -133,17 +133,12 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>⭐ <a href="./documentation/md/data/tuple.md">
             <b>tuple</b>
         </a></li>
-        <li>🧪 <a href="./documentation/md/data/priority_queue.md">
-            priority queue
-        </a></li>
+        <li>🧪 <a href="./documentation/md/data/graph.md">adjacency list</a></li>
+        <li>🧪 <a href="./documentation/md/data/graph.md">adjacency matrix</a></li>
+        <li>🧪 <a href="./documentation/md/data/graph.md">edge list</a></li>
+        <li>🧪 <a href="./documentation/md/data/graph.md">graph</a></li>
         <li>🧪 <a href="./documentation/md/data/hash_table.md">hash table</a></li>
-        <!--<li>🧪 <a href="./documentation/md/data/node.md">node</a></li>-->
-        <!--<li>❓ <a href="#">adjacency list</a></li>-->
-        <!--<li>❓ <a href="#">adjacency matrix</a></li>-->
-        <!--<li>❓ <a href="./documentation/md/data/graph.md">graph</a></li>-->
-        <!--<li>❓ <a href="#">edge list</a></li>-->
-        <!--<li>❓ <a href="#">avl</a></li>-->
-        <!--<li>❓ <a href="#">red black</a></li>-->
+        <li>🧪 <a href="./documentation/md/data/priority_queue.md">priority queue</a></li>
     </ul>
 </details>
 
