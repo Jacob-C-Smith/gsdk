@@ -1,5 +1,5 @@
 # [gsdk](../../../README.md) > [data](../data.md) > graph
-## Model relations between objects using verticies and edges
+## Model relations using verticies and edges
 
  > 1 [Example](#example)
  >
