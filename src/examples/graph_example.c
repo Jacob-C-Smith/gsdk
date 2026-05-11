@@ -46,6 +46,10 @@ fn_comparator      airport_comparator;
 fn_foreach         airport_print;
 fn_foreach         flight_print;
 fn_weight_accessor flight_weight_accessor;
+fn_pack            airport_pack;
+fn_pack            flight_pack;
+fn_unpack          airport_unpack;
+fn_unpack          flight_unpack;
 
 // data
 /// working graph
@@ -166,7 +170,7 @@ int main ( int argc, const char *argv[] )
         checkpoint(p_graph, "after insert edges"),
         putchar('\n');
     }
-        
+
     // #4 - traversal > breadth first search
     {
 
@@ -197,7 +201,44 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #6 - sssp > dijkstra
+    // #6 - to binary
+    {
+
+        // initialized data
+        char buf[4096] = { 0 };
+        
+        // open a file for writing
+        p_f = fopen("resources/reflection/graph.bin", "wb");
+
+        // reflect the graph to a buffer
+        file_len = graph_pack(buf, p_graph, airport_pack, flight_pack),
+        
+        // write the buffer to a file
+        fwrite(buf, file_len, 1, p_f),
+
+        // close the file
+        fclose(p_f);
+
+        // checkpoint
+        checkpoint(p_graph, "after serialize"),
+        putchar('\n');
+    }
+
+    // #7 - hash 1
+    {
+
+        // compute the hash of the graph
+        h1 = graph_hash(p_graph, NULL);
+
+        // print the hash
+        printf("hash 1 -> 0x%llx\n", h1);
+
+        // checkpoint
+        checkpoint(p_graph, "after hash 1"),
+        putchar('\n');
+    }
+
+    // #8 - sssp > dijkstra
     {
         
         // initialized data
@@ -230,8 +271,70 @@ int main ( int argc, const char *argv[] )
         checkpoint(p_graph, "after dijkstra"),
         putchar('\n');
     }
+    
+    // #9 - destroy
+    {
 
-    // #7 - sssp > bellman-ford
+        // destroy the graph
+        graph_destroy(&p_graph, NULL, NULL);
+        
+        // checkpoint
+        checkpoint(p_graph, "after destroy"),
+        putchar('\n');
+    }
+
+    // #10 - from binary
+    {
+        
+        // initialized data
+        char buf[4096] = { 0 };
+        
+        // read a buffer from a file
+        p_f = fopen("resources/reflection/graph.bin", "rb"),
+        fread(buf, sizeof(char), file_len, p_f),
+        
+        // reflect a graph from the buffer
+        graph_unpack
+        (
+            &p_graph, 
+            buf,
+             
+            airport_unpack,
+            flight_unpack,
+
+            airport_key_accessor,
+            airport_comparator
+        ),
+
+        // close the file
+        fclose(p_f);
+
+        // checkpoint
+        checkpoint(p_graph, "after parse"),
+        putchar('\n');
+    }
+
+    // #11 - hash 2
+    {
+
+        // hash the array
+        h2 = graph_hash(p_graph, NULL);
+
+        // print the hash
+        printf("hash 2 -> 0x%llx\n", h2);
+
+        // error check
+        if ( h1 != h2 ) 
+
+            // abort
+            log_error("Error: hash 1 != hash 2\n"), exit(EXIT_FAILURE);
+
+        // checkpoint
+        checkpoint(p_graph, "after hash 2"),
+        putchar('\n');
+    }
+
+    // #12 - sssp > bellman-ford
     {
         
         // initialized data
@@ -265,7 +368,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #8 - apsp > floyd-warshall
+    // #13 - apsp > floyd-warshall
     {
         
         // initialized data
@@ -292,7 +395,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #9 - apsp > johnson
+    // #14 - apsp > johnson
     {
         
         // initialized data
@@ -319,7 +422,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #10 - destroy
+    // #15 - destroy
     {
 
         // destroy the graph
@@ -330,7 +433,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #11 - construct
+    // #16 - construct
     {
         
         // construct an undirected, weighted graph
@@ -352,7 +455,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #12 - insert vertices
+    // #17 - insert vertices
     {
 
         // iterate over each vertex ...
@@ -366,7 +469,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #13 - insert edges
+    // #18 - insert edges
     {
 
         // add flights
@@ -378,7 +481,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #14 - mst > kruskal
+    // #19 - mst > kruskal
     {
 
         // initialized data
@@ -402,7 +505,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #15 - mst > prim
+    // #20 - mst > prim
     {
 
         // initialized data
@@ -426,7 +529,7 @@ int main ( int argc, const char *argv[] )
         putchar('\n');
     }
 
-    // #16 - destroy
+    // #21 - destroy
     {
 
         // destroy the graph
@@ -492,6 +595,57 @@ void airport_print ( void *p_element )
     return;
 }
 
+int airport_pack ( void *p_buffer, const void *const p_value )
+{
+
+    // initialized data
+    char    *p         = p_buffer;
+    airport *p_airport = (airport *)p_value;
+
+    // pack the airport
+    p += pack_pack(p, "%2s", 
+        p_airport->code,
+        p_airport->city
+    );
+    
+    // success
+    return p - (char*)p_buffer;
+}
+
+int airport_unpack ( void *p_value, void *p_buffer )
+{
+
+    // initialized data
+    char     *p          = p_buffer;
+    airport **pp_airport = (airport **)p_value;
+    airport  *p_airport  = NULL;
+
+    char _code[4]  = { 0 };
+    char _city[32] = { 0 };
+
+    // unpack the airport
+    p += pack_unpack(p, "%2s", 
+        _code,
+        _city
+    );
+
+    // allocate memory for an airport
+    p_airport = default_allocator(0, sizeof(airport));
+
+    // copy the code 
+    strncpy(p_airport->code, _code, sizeof(p_airport->code));
+
+    // copy the city
+    strncpy(p_airport->city, _city, sizeof(p_airport->city));
+
+    // return a pointer to the caller
+    *pp_airport = p_airport;
+
+    // success
+    return p - (char*)p_buffer;
+}
+
+
 void flight_print ( void *p_element )
 {
 
@@ -514,6 +668,49 @@ double flight_weight_accessor ( const void *p_edge )
     // return the distance
     return p_flight->distance;
 }
+
+int flight_pack ( void *p_buffer, const void *const p_value )
+{
+
+    // initialized data
+    char   *p        = p_buffer;
+    flight *p_flight = (flight *)p_value;
+
+    // pack the flight
+    p += pack_pack(p, "%f64", 
+        p_flight->distance
+    );
+    
+    // success
+    return p - (char*)p_buffer;
+}
+
+int flight_unpack ( void *p_value, void *p_buffer )
+{
+
+    // initialized data
+    char    *p          = p_buffer;
+    flight **pp_flight = (flight **)p_value;
+    flight  *p_flight  = NULL;
+
+    double distance = -1.0;
+
+    // unpack the flight
+    p += pack_unpack(p, "%f64", &distance);
+
+    // allocate memory for a flight
+    p_flight = default_allocator(0, sizeof(flight));
+
+    // store the distance
+    p_flight->distance = distance;
+
+    // return a pointer to the caller
+    *pp_flight = p_flight;
+
+    // success
+    return p - (char*)p_buffer;
+}
+
 
 void apsp_print ( graph *p_graph, double **pp_matrix )
 {
