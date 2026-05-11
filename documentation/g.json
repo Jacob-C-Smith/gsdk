@@ -142,6 +142,26 @@
     },
     "data" :
     {
+        "adjacency list" : 
+        {
+            "name": "adjacency list",
+            "description": "Sparse graph representation",
+            "path": "src/data/adjacency_list",
+            "markdown": "md/data/graph.md",
+            "tester": "src/test/graph_test.c",
+            "example": "src/examples/graph_example.c",
+            "icon": "resource/icon/adjacency_list.png"
+        },
+        "adjacency matrix" : 
+        {
+            "name": "adjacency matrix",
+            "description": "Dense graph representation",
+            "path": "src/data/adjacency_matrix",
+            "markdown": "md/data/graph.md",
+            "tester": "src/test/graph_test.c",
+            "example": "src/examples/graph_example.c",
+            "icon": "resource/icon/adjacency_matrix.png"
+        },
         "array" : 
         {
             "name": "array",
@@ -232,6 +252,26 @@
             "tester": "src/test/double_queue_test.c",
             "example": "src/examples/double_queue_example.c",
             "icon": "resource/icon/double_queue.png"
+        },
+        "edge list" : 
+        {
+            "name": "edge list",
+            "description": "Collection of vertex pairs",
+            "path": "src/data/edge_list",
+            "markdown": "md/data/graph.md",
+            "tester": "src/test/graph_test.c",
+            "example": "src/examples/graph_example.c",
+            "icon": "resource/icon/edge_list.png"
+        },
+        "graph" : 
+        {
+            "name": "graph",
+            "description": "Model relations using verticies and edges",
+            "path": "src/data/graph",
+            "markdown": "md/data/graph.md",
+            "tester": "src/test/graph_test.c",
+            "example": "src/examples/graph_example.c",
+            "icon": "resource/icon/graph.png"
         },
         "hash table" : 
         {

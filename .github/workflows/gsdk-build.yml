@@ -891,6 +891,24 @@ jobs:
           chmod +x build/examples/json_example
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/examples/json_example ${{github.workspace}}/resources/reflection/json_example_1.json
+  
+  graph-example:
+    needs: [hash-test, log-example, hash-example, sync-example, hash-table-example, queue-test, queue-example, stack-test, stack-example, priority-queue-test, priority-queue-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run graph example
+        run: |
+          chmod +x build/examples/graph_example
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/examples/graph_example
 
   parallel-example:
     needs: [hash-test, sync-test, array-test, dict-test, json-test, log-example, hash-example, sync-example, array-example, dict-example, json-example]
