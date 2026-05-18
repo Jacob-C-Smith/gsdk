@@ -129,12 +129,39 @@ struct test_case_s
 };
 
 // function declarations
+/// test
+/** !
+ * Run a test suite
+ * 
+ * @param p_test_suite the test suite
+ * 
+ * @return 1 on success, 0 on error
+ */
 int test_suite_test ( test_suite *p_test_suite );
+
+/** !
+ * Run a test scenario
+ * 
+ * @param p_test_scenario the test scenario
+ * @param p_test_suite    the test suite
+ * 
+ * @return 1 on success, 0 on error
+ */
 int test_scenario_test 
 ( 
     test_scenario *p_test_scenario, 
     test_suite    *p_test_suite
 );
+
+/** !
+ * Run a test case
+ * 
+ * @param p_test_case     the test case
+ * @param p_test_scenario the test scenario
+ * @param p_test_suite    the test suite
+ * 
+ * @return 1 on success, 0 on error
+ */
 int test_case_test 
 ( 
     test_case     *p_test_case, 

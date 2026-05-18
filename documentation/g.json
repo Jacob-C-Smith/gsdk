@@ -126,6 +126,19 @@
             "example": "src/examples/sync_example.c",
             "icon": "resource/icon/sync.png"
         },
+        "test" : 
+        {
+            "name": "test",
+            "description": "Code for verifying code",
+            "path": "src/core/test",
+            "markdown": "md/core/test.md",
+            "example": "src/test/hash_table_test.c",
+            "icon" : 
+            {
+                "light" : "resource/icon/test_light.png",
+                "dark" : "resource/icon/test_dark.png"
+            }
+        },
         "x25519" : 
         {
             "name": "x25519",
