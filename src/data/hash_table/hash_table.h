@@ -79,6 +79,24 @@ int hash_table_construct
 int hash_table_search ( hash_table *const p_hash_table, void *p_key, void **pp_value );
 
 /** !
+ * Is a hash table empty?
+ * 
+ * @param p_hash_table the hash table
+ * 
+ * @return true if array has no contents else false
+ */
+bool hash_table_is_empty ( hash_table *p_hash_table );
+
+/** !
+ * Get the size of a hash table
+ * 
+ * @param p_hash_table the hash table
+ * 
+ * @return size of hash table
+ */
+size_t hash_table_size ( hash_table *p_hash_table );
+
+/** !
  * Get the load factor of a hash table
  * 
  * @param p_hash_table the hash table

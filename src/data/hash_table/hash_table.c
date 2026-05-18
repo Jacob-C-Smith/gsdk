@@ -185,7 +185,6 @@ int hash_table_search ( hash_table *const p_hash_table, void *p_key, void **pp_v
     if ( NULL == p_hash_table ) goto no_hash_table;
     if ( NULL ==        p_key ) goto no_key;
 
-
     // initialized data
     size_t i = 0, q = 0, z = 0;
 
@@ -273,6 +272,80 @@ int hash_table_search ( hash_table *const p_hash_table, void *p_key, void **pp_v
             no_key:
                 #ifndef NDEBUG
                     log_error("[hash table] Null pointer provided for parameter \"p_key\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+bool hash_table_is_empty ( hash_table *p_hash_table )
+{
+
+    // argument check
+    if ( NULL == p_hash_table ) goto no_hash_table;
+
+    // initialized data
+    bool result = 0;
+
+    // lock
+    mutex_lock(&p_hash_table->_lock);
+
+    // store the result
+    result = ( 0 == p_hash_table->properties.logical );
+
+    // unlock
+    mutex_unlock(&p_hash_table->_lock);
+
+    // done
+    return result;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_hash_table:
+                #ifndef NDEBUG
+                    log_error("[hash table] Null pointer provided for parameter \"p_hash_table\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+size_t hash_table_size ( hash_table *p_hash_table )
+{
+
+    // argument check
+    if ( NULL == p_hash_table ) goto no_hash_table;
+
+    // initialized data
+    size_t result = 0;
+
+    // lock
+    mutex_lock(&p_hash_table->_lock);
+
+    // store the result
+    result = p_hash_table->properties.logical;
+
+    // unlock
+    mutex_unlock(&p_hash_table->_lock);
+
+    // done
+    return result;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_hash_table:
+                #ifndef NDEBUG
+                    log_error("[hash table] Null pointer provided for parameter \"p_hash_table\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -464,6 +537,9 @@ int hash_table_remove ( hash_table *const p_hash_table, void *p_key, void **pp_v
             // try again
             continue;
         }
+        
+        // end of probe sequence?
+        else if ( NULL == p_hash_table->properties.pp_data[z] ) break;
 
         // hit? 
         else if 
@@ -482,7 +558,8 @@ int hash_table_remove ( hash_table *const p_hash_table, void *p_key, void **pp_v
             p_hash_table->properties.pp_data[z] = TOMBSTONE;
 
             // return a pointer to the caller
-            *pp_value = p_value;
+            if ( pp_value )
+                *pp_value = p_value;
 
             // decrement the quantity of logical values
             p_hash_table->properties.logical--;
@@ -493,9 +570,6 @@ int hash_table_remove ( hash_table *const p_hash_table, void *p_key, void **pp_v
             // success
             return 1;        
         } 
-        
-        // end of probe sequence
-        else if ( NULL == p_hash_table->properties.pp_data[z] ) break;
 
         // increment the counter
         i++;

@@ -25,24 +25,24 @@
     { \
         .p_name = (_name), \
         .pfn_test_case = (_test_fn), \
-        .p_parameters = (void *)(uintptr_t)(_params), \
+        .p_parameters = (void *)(size_t)(_params), \
         .result = (_expected) \
     }
 
-#define TEST_MATCH(_name, _test_fn, _params, _match_fn, _expected) \
+#define TEST_MATCH(_name, _test_fn, _params, _match_fn) \
     { \
         .p_name = (_name), \
         .pfn_test_case = (_test_fn), \
-        .p_parameters = (void *)(uintptr_t)(_params), \
+        .p_parameters = (void *)(size_t)(_params), \
         .pfn_results_match = (_match_fn), \
-        .result = (_expected) \
+        .result = (TEST_RESULT_MATCH) \
     }
 
 #define TEST_CASE_ENV(_name, _test_fn, _params, _env, _expected) \
     { \
         .p_name = (_name), \
         .pfn_test_case = (_test_fn), \
-        .p_parameters = (void *)(uintptr_t)(_params), \
+        .p_parameters = (void *)(size_t)(_params), \
         .p_environment = (void *)(_env), \
         .result = (_expected) \
     }
