@@ -51,6 +51,9 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>⭐ <a href="./documentation/md/core/sync.md"><b>
             sync
         </b></a></li>
+        <li>⭐ <a href="./documentation/md/core/test.md"><b>
+            test
+        </b></a></li>
         <li>⭐ <a href="./documentation/md/core/log.md"><b>
             log
         </b></a></li>
