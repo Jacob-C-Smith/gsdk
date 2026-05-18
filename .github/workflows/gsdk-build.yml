@@ -243,6 +243,24 @@ jobs:
           chmod +x build/tests/double_queue_test
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/tests/double_queue_test
+  
+  hash-table-test:
+    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run hash table test
+        run: |
+          chmod +x build/tests/hash_table_test
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/tests/hash_table_test
 
   queue-test:
     needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
@@ -749,7 +767,7 @@ jobs:
           ./build/examples/double_queue_example
   
   hash-table-example:
-    needs: [hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
+    needs: [hash-test, pack-test, sync-test, hash-table-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
