@@ -53,7 +53,7 @@ int checkpoint ( hash_table *p_hash_table, const char *p_event );
 fn_foreach      color_print;
 fn_foreach      accumulate_accesses;
 fn_fori         color_slot_print;
-fn_equality     color_equality;
+fn_comparator   color_comparator;
 fn_hash64       color_hash_key;
 fn_hash64       color_hash;
 fn_key_accessor color_key_accessor;
@@ -107,7 +107,7 @@ int main ( int argc, const char* argv[] )
             7,
             COLLISION_RESOLUTION_DEFAULT,
             
-            color_equality, 
+            color_comparator, 
             color_key_accessor, 
             color_hash_key
         );
@@ -237,7 +237,7 @@ int main ( int argc, const char* argv[] )
             buf,
             color_unpack,
 
-            color_equality,
+            color_comparator,
             color_key_accessor,
             color_hash_key
         ),
@@ -317,7 +317,7 @@ int checkpoint ( hash_table *p_hash_table, const char *p_event )
     return 1;
 }
 
-int color_equality ( const void *const p_a, const void *const p_b )
+int color_comparator ( const void *const p_a, const void *const p_b )
 {
 
     // done

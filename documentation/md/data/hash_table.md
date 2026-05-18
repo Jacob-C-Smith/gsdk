@@ -54,7 +54,7 @@ int hash_table_construct
     size_t size, 
     enum collision_resolution_e _type,
     
-    fn_equality     *pfn_equality, 
+    fn_comparator   *pfn_comparator, 
     fn_key_accessor *pfn_key_accessor, 
     fn_hash64       *pfn_hash
 );
@@ -79,7 +79,7 @@ int hash_table_unpack
     void *p_buffer,
     fn_unpack *pfn_element,
 
-    fn_equality     *pfn_equality,
+    fn_comparator   *pfn_comparator,
     fn_key_accessor *pfn_key_get,
     fn_hash64       *pfn_hash_function
 );
