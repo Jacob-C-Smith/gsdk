@@ -202,7 +202,7 @@ int construct_empty ( void **pp_result )
 { 
 
     // ... -> [ ]
-    return hash_table_construct((hash_table **)pp_result, 3, LINEAR_PROBE, (fn_equality *) strcmp, NULL, NULL);
+    return hash_table_construct((hash_table **)pp_result, 3, LINEAR_PROBE, (fn_comparator *) strcmp, NULL, NULL);
 }
 
 int construct_empty_insertA_A ( void **pp_result ) 
@@ -552,6 +552,7 @@ bool is_empty_results_match ( test_scenario *p_scenario, test_case *p_case, void
     
     // unused
     (void) p_scenario;
+    (void) p_case;
     (void) p_subject;
 
     // initialized data
@@ -564,7 +565,7 @@ bool is_empty_results_match ( test_scenario *p_scenario, test_case *p_case, void
         i++;
 
     // done
-    return p_result == result;
+    return p_result == (void *)result;
 }
 
 bool size_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
@@ -572,6 +573,7 @@ bool size_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_
     
     // unused
     (void) p_scenario;
+    (void) p_case;
     (void) p_subject;
 
     // initialized data
@@ -582,7 +584,7 @@ bool size_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_
         i++;
 
     // done
-    return p_result == i;
+    return p_result == (void *)i;
 }
 
 void *destruct_hash_table ( void *p_pointer, unsigned long long size )

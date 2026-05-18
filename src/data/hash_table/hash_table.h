@@ -49,7 +49,7 @@ typedef struct hash_table_s hash_table;
  * @param pp_hash_table    result
  * @param size             the quantity of elements that the hash table can contain
  * 
- * @param pfn_equality     pointer to equality function IF not null ELSE default
+ * @param pfn_comparator   pointer to comparator function IF not null ELSE default
  * @param pfn_key_accessor pointer to key accessor function IF not null ELSE default
  * @param pfn_hash         pointer to hash function IF not null ELSE default
  * 
@@ -61,7 +61,7 @@ int hash_table_construct
     size_t size, 
     enum collision_resolution_e _type,
     
-    fn_equality     *pfn_equality, 
+    fn_comparator   *pfn_comparator, 
     fn_key_accessor *pfn_key_accessor, 
     fn_hash64       *pfn_hash
 );
@@ -167,7 +167,7 @@ int hash_table_pack ( void *p_buffer, hash_table *p_hash_table, fn_pack *pfn_ele
  * @param p_buffer      the buffer
  * @param pfn_elemenet  pointer to unpack function IF not null ELSE default
  * 
- * @param pfn_equality     pointer to equality function IF not null ELSE default
+ * @param pfn_comparator   pointer to comparator function IF not null ELSE default
  * @param pfn_key_accessor pointer to key accessor function IF not null ELSE default
  * @param pfn_hash         pointer to hash function IF not null ELSE default
  * 
@@ -179,7 +179,7 @@ int hash_table_unpack
     void *p_buffer,
     fn_unpack *pfn_element,
 
-    fn_equality     *pfn_equality,
+    fn_comparator   *pfn_comparator,
     fn_key_accessor *pfn_key_get,
     fn_hash64       *pfn_hash_function
 );

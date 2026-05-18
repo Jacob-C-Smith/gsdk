@@ -17,7 +17,7 @@ struct hash_table_s
 
     mutex _lock;
 
-    fn_equality     *pfn_equality;
+    fn_comparator   *pfn_comparator;
     fn_key_accessor *pfn_key_get;
     fn_hash64       *pfn_hash_function;
     fn_table_hash   *pfn_table_hash;
@@ -101,7 +101,7 @@ int hash_table_construct
     size_t             size,
     enum collision_resolution_e _type,
     
-    fn_equality       *pfn_equality,
+    fn_comparator     *pfn_comparator,
     fn_key_accessor   *pfn_key_get,
     fn_hash64         *pfn_hash_function
 )
@@ -129,7 +129,7 @@ int hash_table_construct
             .max      = size,
         },
 
-        .pfn_equality      = pfn_equality      ? pfn_equality      : default_equality,
+        .pfn_comparator    = pfn_comparator    ? pfn_comparator    : default_comparator,
         .pfn_hash_function = pfn_hash_function ? pfn_hash_function : default_hash,
         .pfn_key_get       = pfn_key_get       ? pfn_key_get       : default_key_accessor,
         .pfn_table_hash    = _pfn_table_hash[_type],
@@ -218,7 +218,7 @@ int hash_table_search ( hash_table *const p_hash_table, void *p_key, void **pp_v
 
             // ... and the property is what the caller asked for ...
             if ( 
-                p_hash_table->pfn_equality(
+                p_hash_table->pfn_comparator(
                     p_hash_table->pfn_key_get(p_hash_table->properties.pp_data[z]),
                     p_key
                 ) == 0
@@ -453,7 +453,7 @@ int hash_table_insert ( hash_table *const p_hash_table, void *p_property )
         // ... if duplicate ...
         else if 
         (
-            p_hash_table->pfn_equality(
+            p_hash_table->pfn_comparator(
                 p_hash_table->pfn_key_get(p_hash_table->properties.pp_data[z]),
                 p_property_key
             ) == 0
@@ -544,7 +544,7 @@ int hash_table_remove ( hash_table *const p_hash_table, void *p_key, void **pp_v
         // hit? 
         else if 
         (
-            p_hash_table->pfn_equality(
+            p_hash_table->pfn_comparator(
                 p_hash_table->pfn_key_get(p_hash_table->properties.pp_data[z]),
                 p_key
             ) == 0
@@ -778,7 +778,7 @@ int hash_table_unpack
     void *p_buffer,
     fn_unpack *pfn_element,
 
-    fn_equality     *pfn_equality,
+    fn_comparator   *pfn_comparator,
     fn_key_accessor *pfn_key_get,
     fn_hash64       *pfn_hash_function
 )
@@ -815,7 +815,7 @@ int hash_table_unpack
         max,
         _type,
         
-        pfn_equality,
+        pfn_comparator,
         pfn_key_get,
         pfn_hash_function
     );
