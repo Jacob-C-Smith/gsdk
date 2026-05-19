@@ -38,7 +38,7 @@
         .result = (TEST_RESULT_MATCH) \
     }
 
-#define TEST_CASE_ENV(_name, _test_fn, _params, _env, _expected) \
+#define TEST_ENV(_name, _test_fn, _params, _env, _expected) \
     { \
         .p_name = (_name), \
         .pfn_test_case = (_test_fn), \

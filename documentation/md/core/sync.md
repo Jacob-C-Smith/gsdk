@@ -1,6 +1,6 @@
 # [gsdk](../../../README.md) > [core](../core.md) > sync
 
-## Cross platform synchronization primatives and high precision timestamps
+## Abstractions for concurrency
 
  > 1 [Example](#example)
  >

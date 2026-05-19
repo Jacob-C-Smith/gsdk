@@ -118,6 +118,24 @@ jobs:
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/tests/pack_test
   
+  stream-test:
+    needs: [build, log-example, sync-test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run stream test
+        run: |
+          chmod +x build/tests/stream_test
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/tests/stream_test
+  
   array-test:
     needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
     runs-on: ubuntu-latest
@@ -441,6 +459,24 @@ jobs:
           chmod +x build/examples/sha_example
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/examples/sha_example
+  
+  stream-example:
+    needs: [stream-test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run stream example
+        run: |
+          chmod +x build/examples/stream_example
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/examples/stream_example
 
   rsa-example:
     needs: [log-example]

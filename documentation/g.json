@@ -1,6 +1,96 @@
 {
     "core" :
     {
+        "hash" : 
+        {
+            "name" : "hash",
+            "description" : "Abstractions for hashing",
+            "path": "src/core/hash",
+            "markdown" : "md/core/hash.md",
+            "tester" : "src/test/hash_test.c",
+            "example" : "src/examples/hash_example.c",
+            "icon": "resource/icon/hash.png"
+        },
+        "interfaces" : 
+        {
+            "name": "interfaces",
+            "description": "Abstractions for abstractions",
+            "path": "src/core/interfaces",
+            "markdown": "md/core/interfaces.md",
+            "example": "src/examples/interfaces_example.c",
+            "icon": 
+            {
+                "light" : "resource/icon/interface_light.png",
+                "dark" : "resource/icon/interface_dark.png"
+            }
+        },
+        "log" : 
+        {
+            "name": "log",
+            "description": "Abstractions for logging",
+            "path": "src/core/log",
+            "markdown": "md/core/log.md",
+            "example": "src/examples/log_example.c",
+            "icon" : 
+            {
+                "light" : "resource/icon/log_light.png",
+                "dark" : "resource/icon/log_dark.png"
+            }
+        },
+        "pack" : 
+        {
+            "name": "pack",
+            "description": "Abstractions for reflection",
+            "path": "src/core/pack",
+            "markdown": "md/core/pack.md",
+            "tester": "src/test/pack_test.c",
+            "example": "src/examples/pack_example.c",
+            "icon": "resource/icon/pack.png"
+        },
+        "socket" : 
+        {
+            "name": "socket",
+            "description": "Abstractions for networking",
+            "path": "src/core/socket",
+            "markdown": "md/core/socket.md",
+            "example": "src/examples/time_server.c",
+            "icon": "resource/icon/socket.png"
+        },
+        "stream" : 
+        {
+            "name": "stream",
+            "description": "Abstractions for I/O",
+            "path": "src/core/stream",
+            "markdown": "md/core/stream.md",
+            "example": "src/examples/stream_example.c",
+            "tester": "src/test/stream_test.c",
+            "icon": "resource/icon/stream.png"
+        },
+        "sync" : 
+        {
+            "name": "sync",
+            "description": "Abstractions for concurrency",
+            "path": "src/core/sync",
+            "markdown": "md/core/sync.md",
+            "example": "src/examples/sync_example.c",
+            "icon": "resource/icon/sync.png"
+        },
+        "test" : 
+        {
+            "name": "test",
+            "description": "Abstractions for testing",
+            "path": "src/core/test",
+            "markdown": "md/core/test.md",
+            "example": "src/test/hash_table_test.c",
+            "icon" : 
+            {
+                "light" : "resource/icon/test_light.png",
+                "dark" : "resource/icon/test_dark.png"
+            }
+        }
+    },
+    "crypto" :
+    {
         "aead" : 
         {
             "name" : "aead",
@@ -10,16 +100,6 @@
             "tester" : "src/test/aead_test.c",
             "example" : "src/examples/aead_example.c",
             "icon": "resource/icon/aead.png"
-        },
-        "hash" : 
-        {
-            "name" : "hash",
-            "description" : "Functions for hashing data",
-            "path": "src/core/hash",
-            "markdown" : "md/core/hash.md",
-            "tester" : "src/test/hash_test.c",
-            "example" : "src/examples/hash_example.c",
-            "icon": "resource/icon/hash.png"
         },
         "sha" : 
         {
@@ -44,42 +124,6 @@
                 "light" : "resource/icon/digital_signature_light.png",
                 "dark" : "resource/icon/digital_signature_dark.png"
             }
-        },
-        "interfaces" : 
-        {
-            "name": "interfaces",
-            "description": "Abstractions for abstractions",
-            "path": "src/core/interfaces",
-            "markdown": "md/core/interfaces.md",
-            "example": "src/examples/interfaces_example.c",
-            "icon": 
-            {
-                "light" : "resource/icon/interface_light.png",
-                "dark" : "resource/icon/interface_dark.png"
-            }
-        },
-        "log" : 
-        {
-            "name": "log",
-            "description": "Log errors, warnings, and information with pretty printing",
-            "path": "src/core/log",
-            "markdown": "md/core/log.md",
-            "example": "src/examples/log_example.c",
-            "icon" : 
-            {
-                "light" : "resource/icon/log_light.png",
-                "dark" : "resource/icon/log_dark.png"
-            }
-        },
-        "pack" : 
-        {
-            "name": "pack",
-            "description": "Composable reflection",
-            "path": "src/core/pack",
-            "markdown": "md/core/pack.md",
-            "tester": "src/test/pack_test.c",
-            "example": "src/examples/pack_example.c",
-            "icon": "resource/icon/pack.png"
         },
         "ed25519" : 
         {
@@ -107,37 +151,6 @@
             "markdown": "md/core/secure_socket.md",
             "example": "src/examples/secure_time_server.c",
             "icon": "resource/icon/secure_socket.png"
-        },
-        "socket" : 
-        {
-            "name": "socket",
-            "description": "Cross platform networking primatives",
-            "path": "src/core/socket",
-            "markdown": "md/core/socket.md",
-            "example": "src/examples/time_server.c",
-            "icon": "resource/icon/socket.png"
-        },
-        "sync" : 
-        {
-            "name": "sync",
-            "description": "Cross platform synchronization primitives and high-precision timing",
-            "path": "src/core/sync",
-            "markdown": "md/core/sync.md",
-            "example": "src/examples/sync_example.c",
-            "icon": "resource/icon/sync.png"
-        },
-        "test" : 
-        {
-            "name": "test",
-            "description": "Code for verifying code",
-            "path": "src/core/test",
-            "markdown": "md/core/test.md",
-            "example": "src/test/hash_table_test.c",
-            "icon" : 
-            {
-                "light" : "resource/icon/test_light.png",
-                "dark" : "resource/icon/test_dark.png"
-            }
         },
         "x25519" : 
         {

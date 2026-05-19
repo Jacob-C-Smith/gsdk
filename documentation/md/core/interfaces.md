@@ -1,6 +1,6 @@
 # [gsdk](../../../README.md) > [core](../core.md) > interfaces
 
-## interfaces and fallback implementations
+## Abstractions for abstractions
 
  > 1 [Explanation](#explanation)
  >
