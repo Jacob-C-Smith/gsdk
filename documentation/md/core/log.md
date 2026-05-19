@@ -1,6 +1,6 @@
 # [gsdk](../../../README.md) > [core](../core.md) > log
 
-## Log errors, warnings, and information with pretty printing
+## Abstractions for logging
   
  > 1 [Example](#example)
  >

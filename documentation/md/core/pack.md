@@ -1,6 +1,6 @@
 # [gsdk](../../../README.md) > [core](../core.md) > pack
 
-## Pack and unpack binary data
+## Abstractions for reflection
 
  > 0 [Motivation](#motivation)
  >

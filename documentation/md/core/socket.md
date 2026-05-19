@@ -1,7 +1,7 @@
 # [gsdk](../../../README.md) > [core](../core.md) > socket
 
-## Cross platform networking primatives
- 
+## Abstractions for networking
+
  > 1 [Examples](#examples)
  >
  >> 1.1 [TCP](#tcp)
