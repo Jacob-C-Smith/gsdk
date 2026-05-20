@@ -10,8 +10,10 @@
 /// core
 #include <core/log.h>
 #include <core/sync.h>
-#include <core/ed25519.h>
-#include <core/ed25519_test.h>
+
+/// crypto
+#include <crypto/ed25519.h>
+#include <crypto/ed25519_test.h>
 
 // enumeration definitions
 enum result_e

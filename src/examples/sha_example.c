@@ -13,9 +13,12 @@
 #include <limits.h>
 #include <time.h>
 
-// core
+// gsdk
+/// core
 #include <core/log.h>
-#include <core/sha.h>
+
+/// crypto
+#include <crypto/sha.h>
 
 // forward declarations
 /// logs

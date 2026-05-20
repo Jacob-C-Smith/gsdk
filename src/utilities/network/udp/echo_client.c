@@ -1,7 +1,7 @@
 /** !
  * Echo Client
  *
- * @file src/utilities/echo_client.c
+ * @file src/utilities/network/udp/echo_client.c
  *
  * @author Jacob Smith
  */
@@ -12,7 +12,7 @@
 #include <string.h>
 
 // gsdk
-// core
+/// core
 #include <core/log.h>
 #include <core/socket.h>
 #include <core/udp.h>

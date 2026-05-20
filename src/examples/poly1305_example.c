@@ -13,7 +13,9 @@
 // gsdk
 /// core
 #include <core/log.h>
-#include <core/poly1305.h>
+
+/// crypto
+#include <crypto/poly1305.h>
 
 // preprocessor definitions
 #define BYTES_PER_ROW 16

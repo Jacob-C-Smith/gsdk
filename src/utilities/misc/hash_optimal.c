@@ -1,7 +1,7 @@
 /** !
  * A tool for creating optimally small hash tables without collisions
  * 
- * @file hash_optimizer.c
+ * @file src/utilities/misc/hash_optimal.c
  * 
  * @author Jacob Smith
  */
@@ -10,10 +10,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// core
+// gsdk
+/// core
 #include <core/log.h>
 #include <core/hash.h>
-#include <core/sha.h>
+
+/// crypto
+#include <crypto/sha.h>
 
 // preprocessor definitions
 // #define HASH_TABLE_OPTIMIZER_DISPLAY_MODE

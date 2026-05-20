@@ -1,7 +1,7 @@
 /** !
  * Time Server
  *
- * @file src/utilities/time_server.c
+ * @file src/utilities/network/tcp/time_server.c
  *
  * @author Jacob Smith
  */
@@ -13,7 +13,7 @@
 #include <stdbool.h>
 
 // gsdk
-// core
+/// core
 #include <core/log.h>
 #include <core/pack.h>
 #include <core/socket.h>

@@ -14,7 +14,9 @@
 // gsdk
 /// core
 #include <core/log.h>
-#include <core/x25519.h>
+
+/// crypto
+#include <crypto/x25519.h>
 
 // preprocessor definitions
 #define RED "\033[91m"
