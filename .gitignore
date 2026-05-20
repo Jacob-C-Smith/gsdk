@@ -5,3 +5,5 @@ build/*
 src/utilities/__pycache__/
 **/.DS_Store
 output/valgrind/*
+test.bin
+test_stream.bin

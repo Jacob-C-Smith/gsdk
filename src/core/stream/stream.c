@@ -13,28 +13,34 @@
 /// read
 fn_stream_read stream_read_buffer;
 fn_stream_read stream_read_file;
+fn_stream_read stream_read_socket_tcp;
 
 /// write
 fn_stream_write stream_write_buffer;
 fn_stream_write stream_write_dynamic_buffer;
 fn_stream_write stream_write_file;
+fn_stream_write stream_write_socket_tcp;
 
 /// size
 fn_stream_size stream_size_buffer;
 fn_stream_size stream_size_file;
+fn_stream_size stream_size_socket_tcp;
 
 /// flush
 fn_stream_flush stream_flush_buffer;
 fn_stream_flush stream_flush_file;
+fn_stream_flush stream_flush_socket_tcp;
 
 /// seek
 fn_stream_seek stream_seek_buffer;
 fn_stream_seek stream_seek_file;
+fn_stream_seek stream_seek_socket_tcp;
 
 /// close
 fn_stream_close stream_close_buffer;
 fn_stream_close stream_close_dynamic_buffer;
 fn_stream_close stream_close_file;
+fn_stream_close stream_close_socket_tcp;
 
 // function definitions
 int stream_from_path
@@ -335,6 +341,75 @@ int stream_from_dynamic_buffer ( stream **pp_stream )
         .pfn_flush = stream_flush_buffer,
         .pfn_seek  = stream_seek_buffer,
         .pfn_close = stream_close_dynamic_buffer,
+    };
+
+    // construct a lock
+    mutex_create(&p_stream->_lock);
+
+    // return a pointer to the caller
+    *pp_stream = p_stream;
+
+    // success
+    return 1;
+
+    // error handling
+    {
+        
+        // argument errors
+        {
+            no_stream:
+                #ifndef NDEBUG
+                    log_error("[stream] Null pointer provided for parameter \"pp_stream\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // standard library errors
+        {
+            no_mem:
+                #ifndef NDEBUG
+                    log_error("[interfaces] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int stream_from_tcp_socket 
+( 
+    stream     **pp_stream, 
+    socket_tcp    _socket 
+)
+{
+
+    // argument check
+    if ( NULL == pp_stream ) goto no_stream;
+
+    // initialized data
+    stream *p_stream = NULL;
+
+    // allocate memory for a stream
+    p_stream = default_allocator(0, sizeof(stream));
+    if ( NULL == p_stream ) goto no_mem;
+
+    // populate the stream structure
+    *p_stream = (stream)
+    {
+        .p_data    = (void *)(size_t)_socket,
+        .type      = STREAM_TYPE_BUFFER,
+        .size      = -1,
+        .cursor    = 0,
+
+        .pfn_read  = stream_read_socket_tcp,
+        .pfn_write = stream_write_socket_tcp,
+        .pfn_size  = stream_size_socket_tcp,
+        .pfn_flush = stream_flush_socket_tcp,
+        .pfn_seek  = stream_seek_socket_tcp,
+        .pfn_close = stream_close_socket_tcp,
     };
 
     // construct a lock
@@ -792,7 +867,7 @@ int stream_size ( stream *p_stream )
     if ( NULL == p_stream ) goto no_stream;
 
     // initialized data
-    int result = -1;
+    int result = 0;
 
     // lock
     mutex_lock(&p_stream->_lock);
@@ -1136,4 +1211,74 @@ int stream_size_buffer ( stream *p_stream )
     
     // success
     return p_stream->size;
+}
+
+int stream_read_socket_tcp ( stream *p_stream, void *p_data, size_t size ) 
+{ 
+
+    // initialized data
+    socket_tcp _socket = (socket_tcp)(size_t)p_stream->p_data;
+    int bytes_read = socket_tcp_receive(_socket, p_data, size);
+
+    // update cursor
+    if ( bytes_read > 0 ) p_stream->cursor += bytes_read;
+
+    // success
+    return bytes_read; 
+}
+
+int stream_write_socket_tcp ( stream *p_stream, void *p_data, size_t size ) 
+{ 
+
+    // initialized data
+    socket_tcp _socket = (socket_tcp)(size_t)p_stream->p_data;
+    int bytes_written = socket_tcp_send(_socket, p_data, size);
+
+    // update cursor
+    if ( bytes_written > 0 ) p_stream->cursor += bytes_written;
+
+    // success
+    return bytes_written; 
+}
+
+int stream_size_socket_tcp ( stream *p_stream ) 
+{ 
+
+    // unused
+    (void) p_stream;
+
+    // success
+    return -1;
+}
+
+int stream_flush_socket_tcp ( stream *p_stream ) 
+{ 
+
+    // unused
+    (void) p_stream;
+    
+    // success
+    return 1;
+}
+
+int stream_seek_socket_tcp ( stream *p_stream, long offset, enum stream_seek_e whence )
+{
+
+    // unused
+    (void) p_stream;
+    (void) offset;
+    (void) whence;
+
+    // error
+    return 0;
+}
+
+int stream_close_socket_tcp ( stream *p_stream )
+{
+
+    // unused
+    (void) p_stream;
+
+    // success
+    return 1;
 }
