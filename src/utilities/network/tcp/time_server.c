@@ -15,10 +15,11 @@
 // gsdk
 // core
 #include <core/log.h>
-#include <core/socket.h>
-#include <core/tcp.h>
 #include <core/pack.h>
+#include <core/socket.h>
+#include <core/stream.h>
 #include <core/sync.h> 
+#include <core/tcp.h>
 
 int connection_callback ( socket_tcp socket, socket_ip_address ip, socket_port port, void *const p_parameter )
 {
@@ -28,14 +29,18 @@ int connection_callback ( socket_tcp socket, socket_ip_address ip, socket_port p
     (void) p_parameter;
     
     // initialized data
-    char _buf[1024] = { 0 };
     struct tm* ptr = NULL;
     time_t lt = 0;
+    stream *p_stream = NULL;
+    char _buf[1024] = { 0 };
     size_t len = 0;
 
     // logs
     printf("Accepted connection from "), 
     socket_ip_address_print(ip);
+
+    // construct a stream 
+    stream_from_tcp_socket(&p_stream, socket);
 
     // store the current time
     lt = time(NULL);
@@ -47,7 +52,10 @@ int connection_callback ( socket_tcp socket, socket_ip_address ip, socket_port p
     len = pack_pack(_buf, "%s", asctime(ptr));
 
     // send the localized time to the client
-    socket_tcp_send(socket, _buf, len);
+    stream_write(p_stream, _buf, len);
+
+    // destroy the stream
+    stream_destroy(&p_stream);
 
     // clean up
     socket_tcp_destroy(&socket); 

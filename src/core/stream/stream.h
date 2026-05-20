@@ -17,10 +17,12 @@
 
 // gsdk
 /// core
-#include <core/log.h>
 #include <core/hash.h>
-#include <core/sync.h>
 #include <core/interfaces.h>
+#include <core/log.h>
+#include <core/sync.h>
+#include <core/tcp.h>
+#include <core/udp.h>
 
 // enumeration definitions
 enum stream_type_e
@@ -121,6 +123,20 @@ int stream_from_buffer
  * @return 1 on success, 0 on error
  */
 int stream_from_dynamic_buffer ( stream **pp_stream );
+
+/** !
+ * Construct a stream from a TCP socket
+ * 
+ * @param pp_stream result
+ * @param _socket   the TCP socket
+ * 
+ * @return 1 on success, 0 on error
+ */
+int stream_from_tcp_socket 
+( 
+    stream    **pp_stream, 
+    socket_tcp   _socket 
+);
 
 /// read
 /** !

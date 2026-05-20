@@ -65,7 +65,7 @@ int socket_tcp_listen ( socket_tcp _socket_tcp, fn_socket_tcp_accept pfn_tcp_acc
  * 
  * @sa socket_tcp_send
  * 
- * @return 1 on success, 0 on error
+ * @return bytes read success, 0 on error
  */
 int socket_tcp_receive ( socket_tcp _socket_tcp, void *const p_buffer, size_t buffer_len );
 
