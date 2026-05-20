@@ -1,7 +1,7 @@
 /** !
  * Secure Time Client
  *
- * @file src/utilities/secure_time_client.c
+ * @file src/utilities/network/secure/secure_time_client.c
  *
  * @author Jacob Smith
  */
@@ -12,12 +12,14 @@
 #include <string.h>
 
 // gsdk
-// core
+/// core
 #include <core/log.h>
 #include <core/socket.h>
-#include <core/secure_socket.h>
 #include <core/tcp.h>
 #include <core/pack.h>
+
+/// crypto
+#include <crypto/secure_socket.h>
 
 // entry point
 int main ( int argc, const char *argv[] )

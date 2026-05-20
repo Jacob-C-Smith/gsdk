@@ -16,7 +16,9 @@
 // gsdk
 /// core
 #include <core/log.h>
-#include <core/rsa.h>
+
+/// crypto
+#include <crypto/rsa.h>
 
 // preprocessor definitions
 #define RED "\033[91m"

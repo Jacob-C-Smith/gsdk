@@ -1,7 +1,7 @@
 /** ! 
  * RSA public/private key generator
  * 
- * @file src/utilities/rsa_keygen.c
+ * @file src/utilities/crypto/rsa_keygen.c
  * 
  * @author Jacob Smith
  */
@@ -13,14 +13,17 @@
 #include <limits.h>
 #include <time.h>
 
-// core
+// gsdk
+/// core
 #include <core/log.h>
-#include <core/rsa.h>
 
-// data
+/// crypto
+#include <crypto/rsa.h>
+
+/// data
 #include <data/dict.h>
 
-// reflection
+/// reflection
 #include <reflection/base64.h>
 #include <reflection/json.h>
 

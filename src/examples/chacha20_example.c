@@ -13,7 +13,9 @@
 // gsdk
 /// core
 #include <core/log.h>
-#include <core/chacha20.h>
+
+/// crypto
+#include <crypto/chacha20.h>
 
 // preprocessor definitions
 #define BYTES_PER_ROW 32

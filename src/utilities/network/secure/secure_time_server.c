@@ -1,7 +1,7 @@
 /** !
  * Time Server
  *
- * @file src/utilities/time_server.c
+ * @file src/utilities/network/secure/time_server.c
  *
  * @author Jacob Smith
  */
@@ -13,13 +13,15 @@
 #include <stdbool.h>
 
 // gsdk
-// core
+/// core
 #include <core/log.h>
 #include <core/socket.h>
-#include <core/secure_socket.h>
 #include <core/tcp.h>
 #include <core/pack.h>
 #include <core/sync.h> 
+
+/// crypto
+#include <crypto/secure_socket.h>
 
 int connection_callback ( secure_socket *p_secure_socket, socket_ip_address ip_address, socket_port port, void *const p_parameter )
 {

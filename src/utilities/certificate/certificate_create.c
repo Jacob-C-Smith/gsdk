@@ -1,7 +1,7 @@
 /** ! 
  * Certificate constructor
  * 
- * @file src/utilities/certificate_create.c
+ * @file src/utilities/certificate/certificate_create.c
  * 
  * @author Jacob Smith
  */
@@ -16,9 +16,11 @@
 // gsdk
 /// core
 #include <core/log.h>
-#include <core/sha.h>
-#include <core/ed25519.h>
-#include <core/certificate.h>
+
+/// crypto
+#include <crypto/sha.h>
+#include <crypto/ed25519.h>
+#include <crypto/certificate.h>
 
 // forward declarations
 /** !

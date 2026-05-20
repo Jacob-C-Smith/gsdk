@@ -1,7 +1,7 @@
 /** !
  * Time Client
  *
- * @file src/utilities/time_client.c
+ * @file src/utilities/network/tcp/time_client.c
  *
  * @author Jacob Smith
  */
@@ -12,7 +12,7 @@
 #include <string.h>
 
 // gsdk
-// core
+/// core
 #include <core/log.h>
 #include <core/pack.h>
 #include <core/socket.h>

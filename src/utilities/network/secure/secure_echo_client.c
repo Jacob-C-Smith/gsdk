@@ -1,7 +1,7 @@
 /** !
  * Secure Echo Client
  *
- * @file src/utilities/secure_echo_client.c
+ * @file src/utilities/network/secure/secure_echo_client.c
  *
  * @author Jacob Smith
  */
@@ -15,9 +15,11 @@
 /// core
 #include <core/log.h>
 #include <core/socket.h>
-#include <core/secure_socket.h>
 #include <core/tcp.h>
 #include <core/pack.h>
+
+/// crypto
+#include <crypto/secure_socket.h>
 
 // entry point
 int main ( int argc, const char *argv[] )

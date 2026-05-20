@@ -1,7 +1,7 @@
 /** ! 
  * Digital Signature Algorithm Example
  * 
- * @file src/utilities/digital_verify.c
+ * @file src/utilities/crypto/digital_verify.c
  * 
  * @author Jacob Smith
  */
@@ -11,9 +11,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-// core
+// gsdk
+/// core
 #include <core/log.h>
-#include <core/digital_signature.h>
+
+/// crypto
+#include <crypto/digital_signature.h>
 
 // forward declarations
 /// logs

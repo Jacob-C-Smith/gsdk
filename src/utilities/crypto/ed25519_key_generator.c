@@ -1,7 +1,7 @@
 /** ! 
  * Ed25519 key generator
  * 
- * @file src/utilities/ed25519_key_generator.c
+ * @file src/utilities/crypto/ed25519_key_generator.c
  * 
  * @author Jacob Smith
  */
@@ -16,7 +16,9 @@
 // gsdk
 /// core
 #include <core/log.h>
-#include <core/ed25519.h>
+
+/// crypto
+#include <crypto/ed25519.h>
 
 // forward declarations
 /** !

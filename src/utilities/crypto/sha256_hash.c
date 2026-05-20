@@ -1,7 +1,7 @@
 /** ! 
  * SHA256 utility
  * 
- * @file src/utilities/sha256_hash.c
+ * @file src/utilities/crypto/sha256_hash.c
  * 
  * @author Jacob Smith
  */
@@ -12,7 +12,9 @@
 // gsdk
 /// core
 #include <core/log.h>
-#include <core/sha.h>
+
+/// crypto
+#include <crypto/sha.h>
 
 // entry point
 int main ( int argc, const char *argv[] )

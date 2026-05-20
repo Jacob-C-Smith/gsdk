@@ -6,10 +6,13 @@
  * @author Jacob Smith
  */
 
-// core
+// gsdk
+/// core
 #include <core/log.h>
 #include <core/sync.h>
-#include <core/sha.h>
+
+/// crypto
+#include <crypto/sha.h>
 
 // enumeration definitions
 enum result_e

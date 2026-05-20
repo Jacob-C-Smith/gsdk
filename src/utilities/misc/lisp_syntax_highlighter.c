@@ -1,7 +1,7 @@
 /** !
  * Lisp syntax highlighter
  * 
- * @file lisp_syntax_highlighter.c
+ * @file src/utilities/misc/lisp_syntax_highlighter.c
  * 
  * @author Jacob Smith
  */

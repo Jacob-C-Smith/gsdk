@@ -13,9 +13,11 @@
 // gsdk
 /// core
 #include <core/log.h>
-#include <core/chacha20.h>
-#include <core/poly1305.h>
-#include <core/aead.h>
+
+/// crypto
+#include <crypto/chacha20.h>
+#include <crypto/poly1305.h>
+#include <crypto/aead.h>
 
 // preprocessor definitions
 #define BYTES_PER_ROW 32
