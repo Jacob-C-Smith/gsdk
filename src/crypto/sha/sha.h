@@ -156,42 +156,42 @@ hash64 sha512_hash64 ( const void *const k, unsigned long long l );
 
 /// pack
 /** !
- * Pack a SHA256 hash into a buffer
+ * Pack a SHA256 hash into a stream
  * 
- * @param p_buffer the buffer to pack into
- * @param _hash    the SHA256 hash to pack
+ * @param p_stream the stream 
+ * @param _hash    the SHA256 hash 
  * 
  * @return the number of bytes packed, or 0 on error
  */
-int sha256_pack ( void *p_buffer, sha256_hash _hash );
+int sha256_pack ( stream *p_stream, sha256_hash _hash );
 
 /** !
- * Pack a SHA512 hash into a buffer
+ * Pack a SHA512 hash into a stream
  * 
- * @param p_buffer the buffer to pack into
- * @param _hash    the SHA512 hash to pack
+ * @param p_stream the stream
+ * @param _hash    the SHA512 hash 
  * 
  * @return the number of bytes packed, or 0 on error
  */
-int sha512_pack ( void *p_buffer, sha512_hash _hash );
+int sha512_pack ( stream *p_stream, sha512_hash _hash );
 
 /// unpack
 /** !
- * Unpack a SHA256 hash from a buffer
+ * Unpack a SHA256 hash from a stream
  * 
- * @param p_buffer      the buffer to unpack from
  * @param p_sha256_hash the SHA256 hash to unpack
+ * @param p_stream      the stream to unpack from
  * 
  * @return the number of bytes unpacked, or 0 on error
  */
-int sha256_unpack ( sha256_hash *p_sha256_hash, void *p_buffer );
+int sha256_unpack ( sha256_hash *p_sha256_hash, stream *p_stream );
 
 /** !
- * Unpack a SHA512 hash from a buffer
+ * Unpack a SHA512 hash from a stream
  * 
- * @param p_buffer      the buffer to unpack from
  * @param p_sha512_hash the SHA512 hash to unpack
+ * @param p_stream      the stream to unpack from
  * 
  * @return the number of bytes unpacked, or 0 on error
  */
-int sha512_unpack ( sha512_hash *p_sha512_hash, void *p_buffer );
+int sha512_unpack ( sha512_hash *p_sha512_hash, stream *p_stream );

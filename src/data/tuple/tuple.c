@@ -423,35 +423,35 @@ int tuple_fori ( tuple *p_tuple, fn_fori *pfn_fori )
     }
 }
 
-int tuple_pack ( void *p_buffer, tuple *p_tuple, fn_pack *pfn_element )
+int tuple_pack ( stream *p_stream, tuple *p_tuple, fn_pack *pfn_element )
 {
     
     // argument check
-    if ( NULL ==    p_buffer ) goto no_buffer;
+    if ( NULL ==    p_stream ) goto no_stream;
     if ( NULL ==     p_tuple ) goto no_tuple;
     if ( NULL == pfn_element ) goto no_pack;
 
     // initialized data 
-    char *p = p_buffer;
+    size_t written = 0;
 
     // pack the length
-    p += pack_pack(p, "%i64", p_tuple->element_count);
+    written += pack_pack(p_stream, "%i64", p_tuple->element_count);
 
     // iterate through the tuple
     for (size_t i = 0; i < p_tuple->element_count; i++)
-        p += pfn_element(p, p_tuple->_p_elements[i]);
+        written += pfn_element(p_stream, p_tuple->_p_elements[i]);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
         
         // argument errors
         {
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[tuple] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[tuple] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -476,21 +476,21 @@ int tuple_pack ( void *p_buffer, tuple *p_tuple, fn_pack *pfn_element )
     }
 }
 
-int tuple_unpack ( tuple **pp_tuple, void *p_buffer, fn_unpack *pfn_element )
+int tuple_unpack ( tuple **pp_tuple, stream *p_stream, fn_unpack *pfn_element )
 {
     
     // argument check
     if ( NULL ==    pp_tuple ) goto no_tuple;
-    if ( NULL ==    p_buffer ) goto no_buffer;
+    if ( NULL ==    p_stream ) goto no_stream;
     if ( NULL == pfn_element ) goto no_unpack;
 
     // initialized data
     tuple  *p_tuple = NULL;
-    char   *p       = p_buffer;
+    size_t  written = 0;
     size_t  len     = 0;
 
     // unpack the length
-    p += pack_unpack(p, "%i64", &len);
+    written += pack_unpack(p_stream, "%i64", &len);
 
     // construct a tuple
     if ( 0 == tuple_construct(&p_tuple, len) ) goto failed_to_construct_tuple;
@@ -503,7 +503,7 @@ int tuple_unpack ( tuple **pp_tuple, void *p_buffer, fn_unpack *pfn_element )
         void *p_element = NULL;
 
         // unpack the element
-        p += pfn_element(&p_element, p);
+        written += pfn_element(&p_element, p_stream);
 
         // add the element to the tuple
         p_tuple->_p_elements[i] = p_element;
@@ -513,7 +513,7 @@ int tuple_unpack ( tuple **pp_tuple, void *p_buffer, fn_unpack *pfn_element )
     *pp_tuple = p_tuple;
 
     // success
-    return p - (char *)p_buffer;
+    return written;
     
     // error handling
     {
@@ -528,9 +528,9 @@ int tuple_unpack ( tuple **pp_tuple, void *p_buffer, fn_unpack *pfn_element )
                 // error
                 return 0;
 
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    printf("[tuple] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[tuple] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

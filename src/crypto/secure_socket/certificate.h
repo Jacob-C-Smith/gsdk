@@ -127,22 +127,22 @@ int certificate_chain_verify ( certificate **pp_chain, size_t count, certificate
 /** !
  * Pack a certificate into a buffer
  * 
- * @param p_buffer      the buffer
+ * @param p_stream      the stream
  * @param p_certificate the certificate
  * 
  * @return bytes written on success, 0 on error
  */
-int certificate_pack ( void *p_buffer, certificate *p_certificate );
+int certificate_pack ( stream *p_stream, certificate *p_certificate );
 
 /** !
  * Unpack a buffer into a certificate
  * 
  * @param pp_certificate result
- * @param p_buffer       the buffer
+ * @param p_stream       the stream
  * 
  * @return bytes read on success, 0 on error
  */
-int certificate_unpack ( certificate **pp_certificate, void *p_buffer );
+int certificate_unpack ( certificate **pp_certificate, stream *p_stream );
 
 /// destructor
 /** !

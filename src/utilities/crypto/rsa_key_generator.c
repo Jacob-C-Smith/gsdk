@@ -16,6 +16,7 @@
 // gsdk
 /// core
 #include <core/log.h>
+#include <core/stream.h>
 
 /// crypto
 #include <crypto/rsa.h>
@@ -58,35 +59,20 @@ int main ( int argc, const char *argv[] )
     {
 
         // initialized data
-        FILE          *p_public_key_f            = fopen("resources/core/public.key"   , "wb"),
-                      *p_private_key_f           = fopen("resources/core/private.key"  , "wb");
-        size_t         public_key_length         = 0,
-                       private_key_length        = 0;
-        unsigned char  _public_key_buffer [1024] = { 0 },
-                       _private_key_buffer[1024] = { 0 };
+        stream *p_public_key_stream  = NULL;
+        stream *p_private_key_stream = NULL;
 
-        // error check
-        if ( NULL == p_public_key_f  ) goto failed_to_open_public_key;
-        if ( NULL == p_private_key_f ) goto failed_to_open_private_key;
+        // open the files
+        if ( 0 == stream_from_path(&p_public_key_stream, "resources/core/public.key") ) goto failed_to_open_public_key;
+        if ( 0 == stream_from_path(&p_private_key_stream, "resources/core/private.key") ) goto failed_to_open_private_key;
         
         // pack the keys
-        public_key_length  = public_key_pack(_public_key_buffer, p_public_key),
-        private_key_length = private_key_pack(_private_key_buffer, p_private_key);
+        if ( 0 == public_key_pack(p_public_key_stream, p_public_key) ) goto failed_to_serialize_public_key;
+        if ( 0 == private_key_pack(p_private_key_stream, p_private_key) ) goto failed_to_serialize_private_key;
         
-        // write the public and private keys to files
-        {
-            // error check
-            if ( 0 == public_key_length  ) goto failed_to_serialize_public_key;
-            if ( 0 == private_key_length ) goto failed_to_serialize_private_key;
-
-            // write the keys
-            fwrite(_public_key_buffer, public_key_length, 1, p_public_key_f),
-            fwrite(_private_key_buffer, private_key_length, 1, p_private_key_f);
-
-            // clean up
-            fclose(p_public_key_f),
-            fclose(p_private_key_f);
-        }
+        // clean up
+        stream_destroy(&p_public_key_stream);
+        stream_destroy(&p_private_key_stream);
     } 
 
     // success

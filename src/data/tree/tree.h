@@ -43,8 +43,8 @@ typedef int(fn_tree_search)(void *const p_tree, const void *const p_key, void **
 typedef bool(fn_tree_is_empty)(void *const p_tree);
 typedef size_t(fn_tree_size)(void *const p_tree);
 typedef int(fn_tree_traverse_inorder)(void *const p_tree, fn_foreach *pfn_foreach);
-typedef int(fn_tree_pack)(void *p_buffer, void *p_tree, fn_pack *pfn_element);
-typedef int(fn_tree_unpack)(void **pp_tree, void  *p_buffer, fn_unpack *pfn_element, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor);
+typedef int(fn_tree_pack)(stream *p_stream, void *p_tree, fn_pack *pfn_element);
+typedef int(fn_tree_unpack)(void **pp_tree, stream *p_stream, fn_unpack *pfn_element, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor);
 typedef int(fn_tree_destroy)(void **const pp_tree, fn_allocator *pfn_allocator);
 typedef hash64(fn_tree_hash)(void *const p_tree, fn_hash64 *pfn_hash64);
 
@@ -152,31 +152,31 @@ int tree_traverse_inorder ( tree *const p_tree, fn_foreach *pfn_foreach );
 
 /// reflection
 /** !
- * Pack a tree into a buffer
+ * Pack a tree into a stream
  * 
- * @param p_buffer    the buffer
+ * @param p_stream    the stream
  * @param p_tree      the tree
  * @param pfn_element pointer to pack function IF not null ELSE default
  * 
- * @return 1 on success, 0 on error
+ * @return bytes written on success, 0 on error
  */
-int tree_pack ( void *p_buffer, tree *p_tree, fn_pack *pfn_element );
+int tree_pack ( stream *p_stream, tree *p_tree, fn_pack *pfn_element );
 
 /** !
- * Unpack a tree into a buffer
+ * Unpack a stream into a tree
  * 
  * @param pp_tree          result
- * @param p_buffer         the buffer
+ * @param p_stream         the stream
  * @param pfn_element      pointer to unpack function IF not null ELSE default
  * @param pfn_comparator   function for testing equality of elements in set IF parameter is not null ELSE default
  * @param pfn_key_accessor function for accessing the key of a value IF parameter is not null ELSE default
  * 
- * @return 1 on success, 0 on error
+ * @return bytes read on success, 0 on error
  */
 int tree_unpack
 ( 
     tree **pp_tree, 
-    void  *p_buffer, 
+    stream *p_stream, 
     
     fn_unpack       *pfn_element, 
     fn_comparator   *pfn_comparator, 

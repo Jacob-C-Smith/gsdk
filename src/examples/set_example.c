@@ -16,6 +16,7 @@
 #include <core/sync.h>
 #include <core/hash.h>
 #include <core/pack.h>
+#include <core/stream.h>
 
 // data
 #include <data/set.h>
@@ -44,8 +45,8 @@ int     string_compare ( const void *const p_a, const void *const p_b );
 void   *string_upper_case ( void *p_value );
 void   *string_lower_case ( void *p_value );
 hash64  string_hash ( const void *const string, unsigned long long unused );
-int     string_pack ( void *p_buffer, const void *const p_value );
-int     string_unpack ( void *const p_value, void *p_buffer );
+int     string_pack ( stream *p_stream, const void *const p_value );
+int     string_unpack ( void *const p_value, stream *p_stream );
  
 // data
 /// immutable planet strings
@@ -173,19 +174,16 @@ int main ( int argc, const char* argv[] )
     {
 
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
         // Open a file for writing
-        p_f = fopen("resources/reflection/set.bin", "wb");
+        stream_from_path(&p_stream, "resources/reflection/set.bin");
 
         // reflect the set to a buffer
-        file_len = set_pack(buf, p_difference, string_pack),
+        set_pack(p_stream, p_difference, string_pack);
         
-        // write the buffer to a file
-        fwrite(buf, file_len, 1, p_f),
-
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint(p_difference, "A Δ B", "after serialize");
@@ -263,14 +261,15 @@ int main ( int argc, const char* argv[] )
     {
         
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
         // read a buffer from a file
-        p_f = fopen("resources/reflection/set.bin", "rb"),
-        fread(buf, sizeof(char), file_len, p_f),
+        stream_from_path(&p_stream, "resources/reflection/set.bin");
         
         // reflect an array from the buffer
-        set_unpack(&p_difference, buf, string_unpack, string_compare),
+        set_unpack(&p_difference, p_stream, string_unpack, string_compare);
+
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint(p_difference, "A Δ B", "after parse");
@@ -450,16 +449,31 @@ hash64 string_hash ( const void *const string, unsigned long long unused )
     return hash_crc64(string, strlen(string));
 }
 
-int string_pack ( void *p_buffer, const void *const p_value )
+int string_pack ( stream *p_stream, const void *const p_value )
 {
 
     // done
-    return pack_pack(p_buffer, "%s", p_value);
+    return pack_pack(p_stream, "%s", p_value);
 }
 
-int string_unpack ( void *const p_value, void *p_buffer )
+int string_unpack ( void *const p_value, stream *p_stream )
 {
 
+    // initialized data
+    char       **pp_value        = (char **) p_value;
+    int          result          = 0;
+    char        *p_string        = NULL;
+    const char   _string  [1024] = { 0 };
+
+    // unpack the buffer
+    result = pack_unpack(p_stream, "%s", &_string);
+
+    // duplicate the string
+    p_string = strdup(_string);
+
+    // return a pointer to the caller
+    *pp_value = p_string;
+
     // done
-    return pack_unpack(p_buffer, "%s", p_value);
+    return result;
 }

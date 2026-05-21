@@ -17,6 +17,7 @@
 #include <core/socket.h>
 #include <core/tcp.h>
 #include <core/pack.h>
+#include <core/stream.h>
 
 /// crypto
 #include <crypto/secure_socket.h>
@@ -38,32 +39,23 @@ int main ( int argc, const char *argv[] )
     char _out[1024] = { 0 };
     certificate *p_root = NULL;
     certificate *p_intermediate = NULL;
-    FILE *p_f = NULL;
+    stream *p_stream = NULL;
 
     // load certificates
     {
         
-        // initialized data
-        char _buffer[1024] = { 0 };
-
         // load the root
         {
-            p_f = fopen("root.cer", "rb");
-            if ( NULL == p_f ) goto failed_to_open_file;
-
-            fread(_buffer, 1, sizeof(_buffer), p_f);
-            certificate_unpack(&p_root, _buffer);
-            fclose(p_f);
+            if ( 0 == stream_from_path(&p_stream, "root.cer") ) goto failed_to_open_file;
+            certificate_unpack(&p_root, p_stream);
+            stream_destroy(&p_stream);
         }
 
         // load the intermediate
         {
-            p_f = fopen("inter.cer", "rb");
-            if ( NULL == p_f ) goto failed_to_open_file;
-
-            fread(_buffer, 1, sizeof(_buffer), p_f);
-            certificate_unpack(&p_intermediate, _buffer);
-            fclose(p_f);
+            if ( 0 == stream_from_path(&p_stream, "inter.cer") ) goto failed_to_open_file;
+            certificate_unpack(&p_intermediate, p_stream);
+            stream_destroy(&p_stream);
         }
     }
 
@@ -97,7 +89,9 @@ int main ( int argc, const char *argv[] )
         _out[strlen(_out) - 1] = '\0';
 
         // pack the string into a buffer
-        len = pack_pack(_msg, "%s", &_out);
+        stream_from_buffer(&p_stream, _msg, 1024);
+        len = pack_pack(p_stream, "%s", &_out);
+        stream_destroy(&p_stream);
 
         // send the message 
         secure_socket_send(p_secure_socket, _msg, len);
@@ -106,7 +100,9 @@ int main ( int argc, const char *argv[] )
         len = secure_socket_receive(p_secure_socket, &_in, 1024);
 
         // unpack the string
-        pack_unpack(&_in, "%s", &_msg);
+        stream_from_buffer(&p_stream, _in, len);
+        pack_unpack(p_stream, "%s", &_msg);
+        stream_destroy(&p_stream);
 
         // print the message
         log_info("> %s\n", &_msg);

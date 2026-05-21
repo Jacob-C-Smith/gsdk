@@ -48,11 +48,8 @@ int connection_callback ( socket_tcp socket, socket_ip_address ip, socket_port p
     // compute the localized time
     ptr = localtime(&lt);
 
-    // pack the time string into a buffer
-    len = pack_pack(_buf, "%s", asctime(ptr));
-
-    // send the localized time to the client
-    stream_write(p_stream, _buf, len);
+    // pack the time string into the stream
+    len = pack_pack(p_stream, "%s", asctime(ptr));
 
     // destroy the stream
     stream_destroy(&p_stream);

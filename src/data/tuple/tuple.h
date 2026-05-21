@@ -124,26 +124,26 @@ int tuple_fori ( tuple *p_tuple, fn_fori *pfn_fori );
 
 /// reflection
 /** !
- * Pack a tuple into a buffer
+ * Pack a tuple into a stream
  *
+ * @param p_stream    the stream
  * @param p_tuple     the tuple
- * @param p_buffer    the buffer
  * @param pfn_element the packing function for each element
  *
- * @return 1 on success, 0 on error
+ * @return bytes written on success, 0 on error
  */
-int tuple_pack ( void *p_buffer, tuple *p_tuple, fn_pack *pfn_element );
+int tuple_pack ( stream *p_stream, tuple *p_tuple, fn_pack *pfn_element );
 
 /** !
- * Unpack a buffer into a tuple
+ * Unpack a stream into a tuple
  *
  * @param pp_tuple    the tuple
- * @param p_buffer    the buffer
+ * @param p_stream    the stream
  * @param pfn_element the unpacking function for each element
  *
- * @return 1 on success, 0 on error
+ * @return bytes read on success, 0 on error
  */
-int tuple_unpack ( tuple **pp_tuple, void *p_buffer, fn_unpack *pfn_element );
+int tuple_unpack ( tuple **pp_tuple, stream *p_stream, fn_unpack *pfn_element );
 
 /// hash
 /** !

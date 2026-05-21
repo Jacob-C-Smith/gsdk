@@ -165,26 +165,26 @@ int double_queue_fori ( double_queue *const p_double_queue, fn_fori *pfn_fori );
 
 /// reflection
 /** !
- * Pack a double ended queue into a buffer
+ * Pack a double ended queue into a stream
  * 
- * @param p_buffer       result
+ * @param p_stream       the stream
  * @param p_double_queue the double ended queue
  * @param pfn_elemenet   pointer to pack function IF not null ELSE default
  * 
- * @return 1 on success, 0 on error
+ * @return bytes written on success, 0 on error
  */
-int double_queue_pack ( void *p_buffer, double_queue *p_double_queue, fn_pack *pfn_element );
+int double_queue_pack ( stream *p_stream, double_queue *p_double_queue, fn_pack *pfn_element );
 
 /** !
- * Unpack a buffer into a double ended queue
+ * Unpack a stream into a double ended queue
  * 
  * @param pp_double_queue result
- * @param p_buffer        the buffer
+ * @param p_stream        the stream
  * @param pfn_elemenet    pointer to unpack function IF not null ELSE default
  * 
- * @return 1 on success, 0 on error
+ * @return bytes read on success, 0 on error
  */
-int double_queue_unpack ( double_queue **pp_double_queue, void *p_buffer, fn_unpack *pfn_element );
+int double_queue_unpack ( double_queue **pp_double_queue, stream *p_stream, fn_unpack *pfn_element );
 
 /// hash
 /** !

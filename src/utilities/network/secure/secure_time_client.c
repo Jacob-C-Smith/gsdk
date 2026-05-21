@@ -17,6 +17,7 @@
 #include <core/socket.h>
 #include <core/tcp.h>
 #include <core/pack.h>
+#include <core/stream.h>
 
 /// crypto
 #include <crypto/secure_socket.h>
@@ -36,32 +37,23 @@ int main ( int argc, const char *argv[] )
     char _time[26] = { 0 };
     certificate *p_root = NULL;
     certificate *p_intermediate = NULL;
-    FILE *p_f = NULL;
+    stream *p_stream = NULL;
 
     // load certificates
     {
         
-        // initialized data
-        char _buffer[1024] = { 0 };
-
         // load the root
         {
-            p_f = fopen("root.cer", "rb");
-            if ( NULL == p_f ) goto failed_to_open_file;
-
-            fread(_buffer, 1, sizeof(_buffer), p_f);
-            certificate_unpack(&p_root, _buffer);
-            fclose(p_f);
+            if ( 0 == stream_from_path(&p_stream, "root.cer") ) goto failed_to_open_file;
+            certificate_unpack(&p_root, p_stream);
+            stream_destroy(&p_stream);
         }
 
         // load the intermediate
         {
-            p_f = fopen("inter.cer", "rb");
-            if ( NULL == p_f ) goto failed_to_open_file;
-
-            fread(_buffer, 1, sizeof(_buffer), p_f);
-            certificate_unpack(&p_intermediate, _buffer);
-            fclose(p_f);
+            if ( 0 == stream_from_path(&p_stream, "inter.cer") ) goto failed_to_open_file;
+            certificate_unpack(&p_intermediate, p_stream);
+            stream_destroy(&p_stream);
         }
     }
 
@@ -81,10 +73,13 @@ int main ( int argc, const char *argv[] )
     if ( 0 == certificate_destroy(&p_intermediate) ) goto failed_to_destroy_certificate;
 
     // receive message
-    if ( 0 == secure_socket_receive(p_secure_socket, &_buf, 1024) ) goto failed_to_receive;
+    size_t len = secure_socket_receive(p_secure_socket, &_buf, 1024);
+    if ( 0 == len ) goto failed_to_receive;
     
     // unpack the time string
-    pack_unpack(_buf, "%s", &_time);
+    stream_from_buffer(&p_stream, _buf, len);
+    pack_unpack(p_stream, "%s", &_time);
+    stream_destroy(&p_stream);
 
     // print the message
     log_info("%s", _time);

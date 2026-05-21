@@ -140,27 +140,27 @@ int set_foreach_i ( set *const p_set, void (*function)(void *const value, size_t
 
 /// reflection
 /** !
- * Pack a set into a buffer
+ * Pack a set into a stream
  * 
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param p_set        the set
  * @param pfn_elemenet pointer to pack function IF not null ELSE default
  * 
- * @return 1 on success, 0 on error
+ * @return bytes written on success, 0 on error
  */
-int set_pack ( void *p_buffer, set *p_set, fn_pack *pfn_element );
+int set_pack ( stream *p_stream, set *p_set, fn_pack *pfn_element );
 
 /** !
- * Unpack a buffer into a set
+ * Unpack a stream into a set
  * 
  * @param pp_set       result
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param pfn_elemenet pointer to unpack function IF not null ELSE default
  * @param pfn_equality function for testing equality of elements in set IF parameter is not null ELSE default
  * 
- * @return 1 on success, 0 on error
+ * @return bytes read on success, 0 on error
  */
-int set_unpack ( set **pp_set, void *p_buffer, fn_unpack *pfn_element, fn_equality *pfn_equality );
+int set_unpack ( set **pp_set, stream *p_stream, fn_unpack *pfn_element, fn_equality *pfn_equality );
 
 /// hash
 /** !

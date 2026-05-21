@@ -309,28 +309,24 @@ int key_pair_from_files
     // initialized data
     public_key   *p_public_key         = default_allocator(0, sizeof(public_key));
     private_key  *p_private_key        = default_allocator(0, sizeof(private_key));
-    size_t        public_key_size      = file_load(p_public_key_path, 0, true),
-                  private_key_size     = file_load(p_private_key_path, 0, true);
-    void         *p_public_key_buffer  = default_allocator(0, public_key_size),
-                 *p_private_key_buffer = default_allocator(0, private_key_size);
+    stream       *p_public_key_stream  = NULL;
+    stream       *p_private_key_stream = NULL;
 
     // error check
-    if ( NULL == p_public_key         ) goto no_mem;
-    if ( NULL == p_private_key        ) goto no_mem;
-    if ( NULL == p_public_key_buffer  ) goto no_mem;
-    if ( NULL == p_private_key_buffer ) goto no_mem;
+    if ( NULL == p_public_key  ) goto no_mem;
+    if ( NULL == p_private_key ) goto no_mem;
     
-    // Load the public and private keys
-    if ( 0 == file_load(p_public_key_path , p_public_key_buffer , true) ) goto failed_to_load_public_key;
-    if ( 0 == file_load(p_private_key_path, p_private_key_buffer, true) ) goto failed_to_load_private_key;
+    // open the streams
+    if ( 0 == stream_from_path(&p_public_key_stream, p_public_key_path) ) goto failed_to_load_public_key;
+    if ( 0 == stream_from_path(&p_private_key_stream, p_private_key_path) ) goto failed_to_load_private_key;
 
     // Construct the public key
-    if ( 0 == public_key_unpack(p_public_key, p_public_key_buffer)    ) goto failed_to_parse_public_key;
-    if ( 0 == private_key_unpack(p_private_key, p_private_key_buffer) ) goto failed_to_parse_private_key;
+    if ( 0 == public_key_unpack(p_public_key, p_public_key_stream) ) goto failed_to_parse_public_key;
+    if ( 0 == private_key_unpack(p_private_key, p_private_key_stream) ) goto failed_to_parse_private_key;
 
-    // Release buffers
-    p_public_key_buffer  = default_allocator(p_public_key_buffer, 0),
-    p_private_key_buffer = default_allocator(p_private_key_buffer, 0);
+    // Release streams
+    stream_destroy(&p_public_key_stream);
+    stream_destroy(&p_private_key_stream);
 
     // return pointers to the caller
     *pp_public_key  = p_public_key,
@@ -625,17 +621,16 @@ int print_private_key ( private_key *p_private_key )
     return 1;
 }
 
-int public_key_pack ( void *p_buffer, public_key *p_public_key )
+int public_key_pack ( stream *p_stream, public_key *p_public_key )
 {
     
     // initialized data
-    char               *p   = p_buffer;
-    unsigned long long *p_a = (unsigned long long *) &p_public_key->a;
-    unsigned long long *p_n = (unsigned long long *) &p_public_key->n;
+    size_t              written = 0;
+    unsigned long long *p_a     = (unsigned long long *) &p_public_key->a;
+    unsigned long long *p_n     = (unsigned long long *) &p_public_key->n;
 
     // pack n
-    p += pack_pack(
-        p, "%s%32i64",
+    written += pack_pack(p_stream, "%s%32i64",
         "n",
         p_n[0] , p_n[1] , p_n[2] , p_n[3],
         p_n[4] , p_n[5] , p_n[6] , p_n[7],
@@ -648,8 +643,7 @@ int public_key_pack ( void *p_buffer, public_key *p_public_key )
     );
 
     // pack a
-    p += pack_pack(
-        p, "%s%32i64",
+    written += pack_pack(p_stream, "%s%32i64",
         "a",
         p_a[0] , p_a[1] , p_a[2] , p_a[3],
         p_a[4] , p_a[5] , p_a[6] , p_a[7],
@@ -662,21 +656,20 @@ int public_key_pack ( void *p_buffer, public_key *p_public_key )
     );
 
     // success
-    return p - (char*) p_buffer;
+    return written;
 }
 
-int private_key_pack ( void *p_buffer, private_key *p_private_key )
+int private_key_pack ( stream *p_stream, private_key *p_private_key )
 {
     
     // initialized data
-    char               *p   = p_buffer;
-    unsigned long long *p_p = (unsigned long long *) &p_private_key->p;
-    unsigned long long *p_q = (unsigned long long *) &p_private_key->q;
-    unsigned long long *p_b = (unsigned long long *) &p_private_key->b;
+    size_t              written = 0;
+    unsigned long long *p_p     = (unsigned long long *) &p_private_key->p;
+    unsigned long long *p_q     = (unsigned long long *) &p_private_key->q;
+    unsigned long long *p_b     = (unsigned long long *) &p_private_key->b;
 
     // pack p
-    p += pack_pack(
-        p, "%s%32i64",
+    written += pack_pack(p_stream, "%s%32i64",
         "p",
         p_p[0] , p_p[1] , p_p[2] , p_p[3],
         p_p[4] , p_p[5] , p_p[6] , p_p[7],
@@ -689,8 +682,7 @@ int private_key_pack ( void *p_buffer, private_key *p_private_key )
     );
 
     // pack q
-    p += pack_pack(
-        p, "%s%32i64",
+    written += pack_pack(p_stream, "%s%32i64",
         "q",
         p_q[0] , p_q[1] , p_q[2] , p_q[3],
         p_q[4] , p_q[5] , p_q[6] , p_q[7],
@@ -703,8 +695,7 @@ int private_key_pack ( void *p_buffer, private_key *p_private_key )
     );
 
     // pack b
-    p += pack_pack(
-        p, "%s%32i64",
+    written += pack_pack(p_stream, "%s%32i64",
         "b",
         p_b[0] , p_b[1] , p_b[2] , p_b[3],
         p_b[4] , p_b[5] , p_b[6] , p_b[7],
@@ -717,21 +708,21 @@ int private_key_pack ( void *p_buffer, private_key *p_private_key )
     );
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 }
 
-int public_key_unpack ( public_key *p_public_key, void *p_buffer )
+int public_key_unpack ( public_key *p_public_key, stream *p_stream )
 {
  
     // initialized data
-    char               *p   = p_buffer;
-    unsigned long long *p_a = (unsigned long long *) &p_public_key->a;
-    unsigned long long *p_n = (unsigned long long *) &p_public_key->n;
+    size_t              written = 0;
+    unsigned long long *p_a     = (unsigned long long *) &p_public_key->a;
+    unsigned long long *p_n     = (unsigned long long *) &p_public_key->n;
     char buf[64] = { 0 };
 
     // unpack n
-    p += pack_unpack(
-        p, "%s%32i64",
+    written += pack_unpack(
+        p_stream, "%s%32i64",
         buf,
         &p_n[0] , &p_n[1] , &p_n[2] , &p_n[3],
         &p_n[4] , &p_n[5] , &p_n[6] , &p_n[7],
@@ -747,8 +738,8 @@ int public_key_unpack ( public_key *p_public_key, void *p_buffer )
     if ( 0 != strncmp("n", buf, 2) ) goto no_public_n;
 
     // unpack a
-    p += pack_unpack(
-        p, "%s%32i64",
+    written += pack_unpack(
+        p_stream, "%s%32i64",
         buf,
         &p_a[0] , &p_a[1] , &p_a[2] , &p_a[3],
         &p_a[4] , &p_a[5] , &p_a[6] , &p_a[7],
@@ -764,7 +755,7 @@ int public_key_unpack ( public_key *p_public_key, void *p_buffer )
     if ( 0 != strncmp("a", buf, 2) ) goto no_public_a;
 
     // success
-    return 1;
+    return written;
 
     // error handling
     {
@@ -790,19 +781,19 @@ int public_key_unpack ( public_key *p_public_key, void *p_buffer )
     }
 }
 
-int private_key_unpack ( private_key *p_private_key, void *p_buffer )
+int private_key_unpack ( private_key *p_private_key, stream *p_stream )
 {
  
     // initialized data
-    char          *p                 = p_buffer;
-    unsigned long long *p_p          = (unsigned long long *) &p_private_key->p;
-    unsigned long long *p_q          = (unsigned long long *) &p_private_key->q;
-    unsigned long long *p_b          = (unsigned long long *) &p_private_key->b;
+    size_t              written = 0;
+    unsigned long long *p_p     = (unsigned long long *) &p_private_key->p;
+    unsigned long long *p_q     = (unsigned long long *) &p_private_key->q;
+    unsigned long long *p_b     = (unsigned long long *) &p_private_key->b;
     char buf[64] = { 0 };
 
     // unpack p
-    p += pack_unpack(
-        p, "%s%32i64",
+    written += pack_unpack(
+        p_stream, "%s%32i64",
         buf,
         &p_p[0] , &p_p[1] , &p_p[2] , &p_p[3],
         &p_p[4] , &p_p[5] , &p_p[6] , &p_p[7],
@@ -818,8 +809,8 @@ int private_key_unpack ( private_key *p_private_key, void *p_buffer )
     if ( 0 != strncmp("p", buf, 2) ) goto no_private_p;
 
     // unpack q
-    p += pack_unpack(
-        p, "%s%32i64",
+    written += pack_unpack(
+        p_stream, "%s%32i64",
         buf,
         &p_q[0] , &p_q[1] , &p_q[2] , &p_q[3],
         &p_q[4] , &p_q[5] , &p_q[6] , &p_q[7],
@@ -835,8 +826,8 @@ int private_key_unpack ( private_key *p_private_key, void *p_buffer )
     if ( 0 != strncmp("q", buf, 2) ) goto no_private_q;
 
     // unpack b
-    p += pack_unpack(
-        p, "%s%32i64",
+    written += pack_unpack(
+        p_stream, "%s%32i64",
         buf,
         &p_b[0] , &p_b[1] , &p_b[2] , &p_b[3],
         &p_b[4] , &p_b[5] , &p_b[6] , &p_b[7],
@@ -852,7 +843,7 @@ int private_key_unpack ( private_key *p_private_key, void *p_buffer )
     if ( 0 != strncmp("b", buf, 2) ) goto no_private_b;
 
     // success
-    return 1;
+    return written;
 
     // error handling
     {

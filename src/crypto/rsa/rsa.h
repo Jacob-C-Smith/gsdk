@@ -18,10 +18,11 @@
 
 // gsdk
 /// core
-#include <core/log.h>
 #include <core/hash.h>
 #include <core/interfaces.h>
+#include <core/log.h>
 #include <core/pack.h>
+#include <core/stream.h>
 
 /// crypto
 #include <crypto/sha.h>
@@ -115,42 +116,42 @@ int print_private_key ( private_key *p_private_key );
 /** !
  * Pack a public key into a buffer
  * 
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param p_public_key the public key 
  * 
  * @return 1 on success, 0 on error
  */
-int public_key_pack ( void *p_buffer, public_key *p_public_key );
+int public_key_pack ( stream *p_stream, public_key *p_public_key );
 
 /** !
- * Unpack a buffer into a public key
+ * Unpack a stream into a public key
  * 
  * @param p_public_key result
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * 
  * @return 1 on success, 0 on error
  */
-int public_key_unpack ( public_key *p_public_key, void *p_buffer );
+int public_key_unpack ( public_key *p_public_key, stream *p_stream );
 
 /** !
- * Pack a private key into a buffer
+ * Pack a private key into a stream
  * 
- * @param p_buffer      the buffer
+ * @param p_stream      the stream
  * @param p_private_key the private key 
  * 
  * @return 1 on success, 0 on error
  */
-int private_key_pack ( void *p_buffer, private_key *p_private_key );
+int private_key_pack ( stream *p_stream, private_key *p_private_key );
 
 /** !
- * Unpack a buffer into a private key
+ * Unpack a stream into a private key
  * 
  * @param p_private_key result
- * @param p_buffer      the buffer
+ * @param p_stream      the stream
  * 
  * @return 1 on success, 0 on error
  */
-int private_key_unpack ( private_key *p_private_key, void *p_buffer );
+int private_key_unpack ( private_key *p_private_key, stream *p_stream );
 
 /** ! 
  * Encrypt a block

@@ -644,44 +644,44 @@ int cache_for_each ( cache *p_cache, fn_foreach pfn_foreach )
     }
 }
 
-int cache_pack ( void *p_buffer, cache *p_cache, fn_pack *pfn_element )
+int cache_pack ( stream *p_stream, cache *p_cache, fn_pack *pfn_element )
 {
     
     // argument check
-    if ( NULL ==    p_buffer ) goto no_buffer;
+    if ( NULL ==    p_stream ) goto no_stream;
     if ( NULL ==     p_cache ) goto no_cache;
     if ( NULL == pfn_element ) goto no_pack;
 
     // initialized data 
-    char *p = p_buffer;
+    size_t written = 0;
 
     // lock
     mutex_lock(&p_cache->_lock);
 
     // pack the length
-    p += pack_pack(p, "%2i64", 
+    written += pack_pack(p_stream, "%2i64", 
         p_cache->properties.count,
         p_cache->properties.max
     );
 
     // iterate through the cache
     for (size_t i = p_cache->properties.count; i-- > 0; )
-        p += pfn_element(p, p_cache->properties.pp_data[i]);
+        written += pfn_element(p_stream, p_cache->properties.pp_data[i]);
     
     // unlock
     mutex_unlock(&p_cache->_lock);
     
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
         
         // argument errors
         {
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[cache] Null pointer provided for \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[cache] Null pointer provided for \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -709,7 +709,7 @@ int cache_pack ( void *p_buffer, cache *p_cache, fn_pack *pfn_element )
 int cache_unpack
 (
     cache **pp_cache,
-    void *p_buffer,
+    stream *p_stream,
     fn_unpack *pfn_element,
 
     fn_equality      *pfn_equality,
@@ -720,17 +720,17 @@ int cache_unpack
     
     // argument check    
     if ( NULL ==    pp_cache ) goto no_cache;
-    if ( NULL ==    p_buffer ) goto no_buffer;
+    if ( NULL ==    p_stream ) goto no_stream;
     if ( NULL == pfn_element ) goto no_unpack;
 
     // initialized data
     cache  *p_cache = NULL;
-    char   *p       = p_buffer;
+    size_t  written = 0;
     size_t  count   = 0;
     size_t  max     = 0;
 
     // unpack the length
-    p += pack_unpack(p, "%2i64",
+    written += pack_unpack(p_stream, "%2i64",
         &count,
         &max
     );
@@ -746,7 +746,7 @@ int cache_unpack
 		void *p_element = NULL;
 
 		// call the unpack function
-		p += pfn_element(&p_element, p);
+		written += pfn_element(&p_element, p_stream);
         
         // Add the element to the cache
         cache_insert(p_cache, p_element, NULL);
@@ -756,7 +756,7 @@ int cache_unpack
     *pp_cache = p_cache;
 
     // success
-    return 1;
+    return written;
     
     // error handling
     {
@@ -771,9 +771,9 @@ int cache_unpack
                 // error
                 return 0;
 
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[cache] Null pointer provided for \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[cache] Null pointer provided for \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

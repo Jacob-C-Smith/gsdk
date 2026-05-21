@@ -180,21 +180,21 @@ int red_black_tree_forcontext ( red_black_tree *const p_red_black_tree, fn_forco
 
 /// reflection
 /** !
- * Pack a red black tree into a buffer
+ * Pack a red black tree into a stream
  * 
- * @param p_buffer         the buffer
+ * @param p_stream         the stream
  * @param p_red_black_tree the red black tree
  * @param pfn_element      pointer to pack function IF not null ELSE default
  * 
  * @return 1 on success, 0 on error
  */
-int red_black_tree_pack ( void *p_buffer, red_black_tree *p_red_black_tree, fn_pack *pfn_element );
+int red_black_tree_pack ( stream *p_stream, red_black_tree *p_red_black_tree, fn_pack *pfn_element );
 
 /** !
- * Unpack a red black tree into a buffer
+ * Unpack a red black tree from a stream
  * 
  * @param pp_red_black_tree result
- * @param p_buffer          the buffer
+ * @param p_stream          the stream
  * @param pfn_element       pointer to unpack function IF not null ELSE default
  * @param pfn_comparator    function for testing equality of elements in set IF parameter is not null ELSE default
  * @param pfn_key_accessor  function for accessing the key of a value IF parameter is not null ELSE default
@@ -204,7 +204,7 @@ int red_black_tree_pack ( void *p_buffer, red_black_tree *p_red_black_tree, fn_p
 int red_black_tree_unpack
 ( 
     red_black_tree **pp_red_black_tree, 
-    void *p_buffer, 
+    stream          *p_stream, 
     
     fn_unpack       *pfn_element, 
     fn_comparator   *pfn_comparator, 

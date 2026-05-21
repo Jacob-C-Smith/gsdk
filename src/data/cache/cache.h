@@ -149,33 +149,33 @@ int cache_for_each ( cache *p_cache, fn_foreach pfn_foreach );
 
 /// reflection
 /** !
- * Pack a cache into a buffer
+ * Pack a cache into a stream
  * 
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param p_cache      the cache
  * @param pfn_elemenet pointer to pack function IF not null ELSE default
  * 
- * @return 1 on success, 0 on error
+ * @return bytes written on success, 0 on error
  */
-int cache_pack ( void *p_buffer, cache *p_cache, fn_pack *pfn_element );
+int cache_pack ( stream *p_stream, cache *p_cache, fn_pack *pfn_element );
 
 /** !
- * Unpack a buffer into a cache
+ * Unpack a stream into a cache
  * 
  * @param pp_cache     result
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param pfn_elemenet pointer to unpack function IF not null ELSE default
  * 
  * @param pfn_equality  pointer to equality function IF NOT NULL ELSE default
  * @param pfn_key_get   pointer to key accessor function IF NOT NULL ELSE default
  * @param pfn_allocator pointer to allocator function IF NOT NULL ELSE default
  *  
- * @return 1 on success, 0 on error
+ * @return bytes read on success, 0 on error
  */
 int cache_unpack
 (
     cache **pp_cache,
-    void *p_buffer,
+    stream *p_stream,
     fn_unpack *pfn_element,
 
     fn_equality      *pfn_equality,

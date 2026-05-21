@@ -464,6 +464,11 @@ int aes_iv_construct ( char *p_iv )
     return 1;
 }
 
+// gsdk
+/// core
+#include <core/log.h>
+#include <core/stream.h>
+
 // entry point
 int main ( int argc, const char *argv[] )
 {
@@ -483,9 +488,10 @@ int main ( int argc, const char *argv[] )
 
         // Write the binary to a file
         {
-            FILE *f = fopen("resources/core/aes.enc", "wb");
-            fwrite(message, 1, 32, f);
-            fclose(f);
+            stream *p_stream = NULL;
+            stream_from_path(&p_stream, "resources/core/aes.enc");
+            stream_write(p_stream, message, 32);
+            stream_destroy(&p_stream);
         }
     }
 
@@ -496,9 +502,10 @@ int main ( int argc, const char *argv[] )
 
         // Write the binary to a file
         {
-            FILE *f = fopen("resources/core/aes_cbc.enc", "wb");
-            fwrite(output, 1, sizeof(output), f);
-            fclose(f);
+            stream *p_stream = NULL;
+            stream_from_path(&p_stream, "resources/core/aes_cbc.enc");
+            stream_write(p_stream, output, sizeof(output));
+            stream_destroy(&p_stream);
         }
     }
 

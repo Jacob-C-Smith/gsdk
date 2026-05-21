@@ -106,81 +106,81 @@ int x25519_shared_secret_print (  x25519_shared_secret *p_shared_secret );
 /** !
  * Pack a public key into a buffer
  * 
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param p_public_key the public key 
  * 
  * @return 1 on success, 0 on error
  */
-int x25519_public_key_pack ( void *p_buffer, x25519_public_key *p_public_key );
+int x25519_public_key_pack ( stream *p_stream, x25519_public_key *p_public_key );
 
 /** !
  * Unpack a buffer into a public key
  * 
  * @param p_public_key result
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * 
  * @return 1 on success, 0 on error
  */
-int x25519_public_key_unpack ( x25519_public_key *p_public_key, void *p_buffer );
+int x25519_public_key_unpack ( x25519_public_key *p_public_key, stream *p_stream );
 
 /** !
  * Pack a private key into a buffer
  * 
- * @param p_buffer      the buffer
+ * @param p_stream      the stream
  * @param p_private_key the private key 
  * 
  * @return 1 on success, 0 on error
  */
-int x25519_private_key_pack ( void *p_buffer, x25519_private_key *p_private_key );
+int x25519_private_key_pack ( stream *p_stream, x25519_private_key *p_private_key );
 
 /** !
  * Unpack a buffer into a private key
  * 
  * @param p_private_key result
- * @param p_buffer      the buffer
+ * @param p_stream      the stream
  * 
  * @return 1 on success, 0 on error
  */
-int x25519_private_key_unpack ( x25519_private_key *p_private_key, void *p_buffer );
+int x25519_private_key_unpack ( x25519_private_key *p_private_key, stream *p_stream );
 
 /** !
  * Pack an x25519 key pair into a buffer
  * 
- * @param p_buffer      the buffer
+ * @param p_stream      the stream
  * @param p_public_key  the public key 
  * @param p_private_key the private key 
  * 
  * @return 1 on success, 0 on error
  */
-int x25519_key_pair_pack ( void *p_buffer, x25519_public_key *p_public_key, x25519_private_key *p_private_key );
+int x25519_key_pair_pack ( stream *p_stream, x25519_public_key *p_public_key, x25519_private_key *p_private_key );
 
 /** !
  * Unpack a buffer into an x25519 key pair
  * 
  * @param p_public_key  result
  * @param p_private_key result
- * @param p_buffer      the buffer
+ * @param p_stream      the stream
  * 
  * @return 1 on success, 0 on error
  */
-int x25519_key_pair_unpack ( x25519_public_key *p_public_key, x25519_private_key *p_private_key, void *p_buffer );
+int x25519_key_pair_unpack ( x25519_public_key *p_public_key, x25519_private_key *p_private_key, stream *p_stream );
 
 /** !
  * Pack a shared secret key into a buffer
  * 
- * @param p_buffer        the buffer
+ * @param p_stream        the stream
  * @param p_shared_secret the shared secret 
  * 
  * @return 1 on success, 0 on error
  */
-int x25519_shared_secret_pack ( void *p_buffer, x25519_shared_secret *p_shared_secret );
+int x25519_shared_secret_pack ( stream *p_stream, x25519_shared_secret *p_shared_secret );
 
 /** !
  * Unpack a buffer into a shared secret
  * 
  * @param p_shared_secret result
- * @param p_buffer        the buffer
+ * @param p_stream        the stream
  * 
  * @return 1 on success, 0 on error
  */
-int x25519_shared_secret_unpack ( x25519_shared_secret *p_shared_secret, void *p_buffer );
+int x25519_shared_secret_unpack ( x25519_shared_secret *p_shared_secret, stream *p_stream );

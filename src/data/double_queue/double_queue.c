@@ -773,16 +773,17 @@ int double_queue_fori ( double_queue *const p_double_queue, fn_fori *pfn_fori )
 	}
 }
 
-int double_queue_pack ( void *p_buffer, double_queue *p_double_queue, fn_pack *pfn_element )
+int double_queue_pack ( stream *p_stream, double_queue *p_double_queue, fn_pack *pfn_element )
 {
 
 	// argument check
     if ( NULL == p_double_queue ) goto no_double_queue;
+    if ( NULL ==       p_stream ) goto no_stream;
     if ( NULL ==    pfn_element ) goto no_pack;
 
     // initialized data 
-    char *p = p_buffer;
 	double_queue_node *p_iter = NULL;
+    size_t             written = 0;
 
     // lock
     mutex_lock(&p_double_queue->_lock);
@@ -791,14 +792,14 @@ int double_queue_pack ( void *p_buffer, double_queue *p_double_queue, fn_pack *p
 	p_iter = p_double_queue->front;
 
 	// pack the length of the double ended queue
-	p += pack_pack(p, "%i64", p_double_queue->size);
+	written += pack_pack(p_stream, "%i64", p_double_queue->size);
 
 	// walk the double ended queue
 	while ( p_iter )
 	{
 
 		// call the pack function
-		p += pfn_element(p, p_iter->content);
+		written += pfn_element(p_stream, p_iter->content);
 
 		// step
 		p_iter = p_iter->next;
@@ -808,7 +809,7 @@ int double_queue_pack ( void *p_buffer, double_queue *p_double_queue, fn_pack *p
     mutex_unlock(&p_double_queue->_lock);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -823,6 +824,14 @@ int double_queue_pack ( void *p_buffer, double_queue *p_double_queue, fn_pack *p
                 // error
                 return 0;
 			
+            no_stream:
+                #ifndef NDEBUG
+                    log_error("[double queue] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
 			no_pack:
 				#ifndef NDEBUG
                     log_error("[double queue] Null pointer provided for parameter \"pfn_pack\" in call to function \"%s\"\n", __FUNCTION__);
@@ -834,21 +843,21 @@ int double_queue_pack ( void *p_buffer, double_queue *p_double_queue, fn_pack *p
     }
 }
 
-int double_queue_unpack ( double_queue **pp_double_queue, void *p_buffer, fn_unpack *pfn_element )
+int double_queue_unpack ( double_queue **pp_double_queue, stream *p_stream, fn_unpack *pfn_element )
 {
 	
 	// argument check
     if ( NULL == pp_double_queue ) goto no_double_queue;
-	if ( NULL ==        p_buffer ) goto no_buffer;
+	if ( NULL ==        p_stream ) goto no_stream;
     if ( NULL ==     pfn_element ) goto no_unpack;
 
     // initialized data 
 	double_queue *p_double_queue = NULL;
-    char         *p      = p_buffer;
+    size_t        written = 0;
 	size_t        size   = 0;
 
 	// unpack the size of the double ended queue
-	p += pack_unpack(p, "%i64", &size);
+	written += pack_unpack(p_stream, "%i64", &size);
 
 	// construct a double ended queue
 	if ( 0 == double_queue_construct(&p_double_queue) ) goto failed_to_construct_double_queue;
@@ -861,7 +870,7 @@ int double_queue_unpack ( double_queue **pp_double_queue, void *p_buffer, fn_unp
 		void *p_element = NULL;
 
 		// call the foreach function
-		p += pfn_element(&p_element, p);
+		written += pfn_element(&p_element, p_stream);
 
 		// add the element to the double ended queue
 		double_queue_front_add(p_double_queue, p_element);
@@ -871,7 +880,7 @@ int double_queue_unpack ( double_queue **pp_double_queue, void *p_buffer, fn_unp
 	*pp_double_queue = p_double_queue;
 
     // success
-	return p - (char *)p_buffer;
+	return written;
 
     // error handling
     {
@@ -886,9 +895,9 @@ int double_queue_unpack ( double_queue **pp_double_queue, void *p_buffer, fn_unp
                 // error
                 return 0;
 
-			no_buffer:
+			no_stream:
                 #ifndef NDEBUG
-                    log_error("[double queue] Null pointer provided for \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[double queue] Null pointer provided for \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

@@ -135,7 +135,7 @@ int adjacency_list_edge_foreach
 /// reflection
 int adjacency_list_pack
 (
-    void           *p_buffer, 
+    stream         *p_stream, 
     adjacency_list *p_adjacency_list,
 
     fn_pack *pfn_vertex,
@@ -145,7 +145,7 @@ int adjacency_list_pack
 int adjacency_list_unpack
 (
     adjacency_list **pp_adjacency_list,
-    void            *p_buffer, 
+    stream          *p_stream, 
 
     fn_unpack *pfn_vertex,
     fn_unpack *pfn_edge,

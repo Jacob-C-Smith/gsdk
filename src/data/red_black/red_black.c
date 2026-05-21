@@ -84,26 +84,26 @@ int red_black_tree_node_traverse_postorder ( red_black_tree_node *p_red_black_tr
 int red_black_tree_node_forcontext ( red_black_tree_node *p_red_black_tree_node, fn_forcontext *pfn_forcontext, void *p_context );
 
 /** ! 
- * Pack a red black tree node into a buffer
+ * Pack a red black tree node into a stream
  * 
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param p_node       the node
  * @param pfn_elemenet pointer to pack function IF not null ELSE default
  * 
  * @return bytes written on success, 0 on error
  */
-int red_black_tree_node_pack ( void *p_buffer, red_black_tree_node *p_node, fn_pack *pfn_element );
+int red_black_tree_node_pack ( stream *p_stream, red_black_tree_node *p_node, fn_pack *pfn_element );
 
 /** ! 
- * Unpack a red black tree node from a buffer
+ * Unpack a red black tree node from a stream
  * 
  * @param pp_node      result
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param pfn_elemenet pointer to unpack function IF not null ELSE default
  * 
  * @return bytes read on success, 0 on error
  */
-int red_black_tree_node_unpack ( red_black_tree_node **pp_node, void *p_buffer, fn_unpack *pfn_element );
+int red_black_tree_node_unpack ( red_black_tree_node **pp_node, stream *p_stream, fn_unpack *pfn_element );
 
 /** !
  * Destroy and deallocate a red black tree node
@@ -962,7 +962,7 @@ int red_black_tree_forcontext ( red_black_tree *const p_red_black_tree, fn_forco
     }
 }
 
-int red_black_tree_pack ( void *p_buffer, red_black_tree *p_red_black_tree, fn_pack *pfn_element )
+int red_black_tree_pack ( stream *p_stream, red_black_tree *p_red_black_tree, fn_pack *pfn_element )
 {
     
     // argument check
@@ -970,25 +970,25 @@ int red_black_tree_pack ( void *p_buffer, red_black_tree *p_red_black_tree, fn_p
     if ( NULL ==      pfn_element ) goto no_pack;
 
     // initialized data 
-    char *p = p_buffer;
-
+    size_t written = 0;
+    
     // lock
     mutex_lock(&p_red_black_tree->_lock);
 
     // pack the metadata
-    p += pack_pack(p, "%2i64", 
+    written += pack_pack(p_stream, "%2i64", 
         p_red_black_tree->metadata.quantity,
         p_red_black_tree->metadata.size
     );
 
     // pack the tree
-    p += red_black_tree_node_pack(p, p_red_black_tree->p_root, pfn_element);
+    written += red_black_tree_node_pack(p_stream, p_red_black_tree->p_root, pfn_element);
 
     // unlock
     mutex_unlock(&p_red_black_tree->_lock);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -1018,7 +1018,7 @@ int red_black_tree_pack ( void *p_buffer, red_black_tree *p_red_black_tree, fn_p
 int red_black_tree_unpack
 ( 
     red_black_tree **pp_red_black_tree, 
-    void *p_buffer, 
+    stream          *p_stream, 
     
     fn_unpack       *pfn_element, 
     fn_comparator   *pfn_comparator, 
@@ -1032,12 +1032,12 @@ int red_black_tree_unpack
 
     // initialized data 
     red_black_tree *p_red_black_tree = NULL;
-    char        *p             = p_buffer;
-    size_t       quantity      = 0, 
-                 size          = 0;
+    size_t       read     = 0;
+    size_t       quantity = 0, 
+                 size     = 0;
 
     // unpack the metadata
-    p += pack_unpack(p, "%2i64", 
+    read += pack_unpack(p_stream, "%2i64", 
         &quantity,
         &size
     );
@@ -1046,7 +1046,7 @@ int red_black_tree_unpack
     red_black_tree_construct(&p_red_black_tree, size, pfn_comparator, pfn_key_accessor);
 
     // recursively unpack from the root
-    p += red_black_tree_node_unpack(&p_red_black_tree->p_root, p, pfn_element);
+    read += red_black_tree_node_unpack(&p_red_black_tree->p_root, p_stream, pfn_element);
 
     // store the quantity of nodes
     p_red_black_tree->metadata.quantity = quantity;
@@ -1055,7 +1055,7 @@ int red_black_tree_unpack
     *pp_red_black_tree = p_red_black_tree;
     
     // success
-    return p - (char *)p_buffer;
+    return read;
 
     // error handling
     {
@@ -1230,39 +1230,39 @@ int red_black_tree_node_create ( red_black_tree_node **pp_red_black_tree_node )
     }
 }
 
-int red_black_tree_node_pack ( void *p_buffer, red_black_tree_node *p_node, fn_pack *pfn_element )
+int red_black_tree_node_pack ( stream *p_stream, red_black_tree_node *p_node, fn_pack *pfn_element )
 {
 
     // initialized data
-    char *p = p_buffer;
+    size_t written = 0;
     int color = (int)p_node->color;
 
     // pack the value
-    p += pfn_element(p, p_node->p_value);
+    written += pfn_element(p_stream, p_node->p_value);
 
     // pack the color, left, and right children
-    p += pack_pack(p, "%i32%2i64", 
+    written += pack_pack(p_stream, "%i32%2i64", 
         color,
         p_node->p_left  ? p_node->p_left->node_pointer  : eight_bytes_of_f,
         p_node->p_right ? p_node->p_right->node_pointer : eight_bytes_of_f
     );
 
     // pack the left node
-    if ( p_node->p_left ) p += red_black_tree_node_pack(p, p_node->p_left, pfn_element);
+    if ( p_node->p_left ) written += red_black_tree_node_pack(p_stream, p_node->p_left, pfn_element);
 
     // pack the right node
-    if ( p_node->p_right ) p += red_black_tree_node_pack(p, p_node->p_right, pfn_element);
+    if ( p_node->p_right ) written += red_black_tree_node_pack(p_stream, p_node->p_right, pfn_element);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 }
 
-int red_black_tree_node_unpack ( red_black_tree_node **pp_node, void *p_buffer, fn_unpack *pfn_element )
+int red_black_tree_node_unpack ( red_black_tree_node **pp_node, stream *p_stream, fn_unpack *pfn_element )
 {
     
     // initialized data
     red_black_tree_node *p_node = NULL;
-    char                *p      = p_buffer;
+    size_t read = 0;
     unsigned long long l = 0, r = 0;
     int color = 0;
 
@@ -1270,10 +1270,10 @@ int red_black_tree_node_unpack ( red_black_tree_node **pp_node, void *p_buffer, 
     red_black_tree_node_create(&p_node);
     
     // unpack the value
-    p += pfn_element(&p_node->p_value, p);
+    read += pfn_element(&p_node->p_value, p_stream);
 
     // unpack the color, left, and right children
-    p += pack_unpack(p, "%i32%2i64", &color, &l, &r);
+    read += pack_unpack(p_stream, "%i32%2i64", &color, &l, &r);
     
     // store the color
     p_node->color = (enum red_black_tree_node_color_e)color;
@@ -1282,7 +1282,7 @@ int red_black_tree_node_unpack ( red_black_tree_node **pp_node, void *p_buffer, 
     if ( l != eight_bytes_of_f ) 
 
         // unpack the left node
-        p += red_black_tree_node_unpack(&p_node->p_left, p, pfn_element),
+        read += red_black_tree_node_unpack(&p_node->p_left, p_stream, pfn_element),
 
         // store the left node pointer
         p_node->p_left->node_pointer = l,
@@ -1294,7 +1294,7 @@ int red_black_tree_node_unpack ( red_black_tree_node **pp_node, void *p_buffer, 
     if ( r != eight_bytes_of_f ) 
 
         // unpack the right node
-        p += red_black_tree_node_unpack(&p_node->p_right, p, pfn_element),
+        read += red_black_tree_node_unpack(&p_node->p_right, p_stream, pfn_element),
 
         // store the right node pointer
         p_node->p_right->node_pointer = r,
@@ -1306,7 +1306,7 @@ int red_black_tree_node_unpack ( red_black_tree_node **pp_node, void *p_buffer, 
     *pp_node = p_node;
 
     // success
-    return p - (char *)p_buffer;
+    return read;
 }
 
 hash64 red_black_tree_node_hash ( red_black_tree_node *p_node, fn_hash64 *pfn_hash64 )

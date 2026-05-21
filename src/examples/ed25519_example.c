@@ -14,6 +14,7 @@
 // gsdk
 /// core
 #include <core/log.h>
+#include <core/stream.h>
 
 /// crypto
 #include <crypto/ed25519.h>
@@ -90,19 +91,16 @@ int main ( int argc, const char *argv[] )
     {
 
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
-        // open a file for writing
-        p_f = fopen("resources/reflection/ed25519_signature.bin", "wb");
+        // open a stream
+        stream_from_path(&p_stream, "resources/reflection/ed25519_signature.bin");
 
-        // reflect the public key to a buffer
-        file_len = ed25519_signature_pack(buf, &_signature),
-        
-        // write the buffer to a file
-        fwrite(buf, file_len, 1, p_f),
+        // reflect the public key to a stream
+        ed25519_signature_pack(p_stream, &_signature),
 
-        // close the file
-        fclose(p_f);
+        // close the stream
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint("after signature serialize");
@@ -174,19 +172,16 @@ int main ( int argc, const char *argv[] )
     {
 
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
-        // open a file for writing
-        p_f = fopen("resources/reflection/ed25519.bin", "wb");
+        // open a stream
+        stream_from_path(&p_stream, "resources/reflection/ed25519.bin");
 
-        // reflect the public key to a buffer
-        file_len = ed25519_key_pair_pack(buf, &_public_key, &_private_key),
+        // reflect the public key to a stream
+        ed25519_key_pair_pack(p_stream, &_public_key, &_private_key),
         
-        // write the buffer to a file
-        fwrite(buf, file_len, 1, p_f),
-
-        // close the file
-        fclose(p_f);
+        // close the stream
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint("after keypair serialize");
@@ -212,17 +207,16 @@ int main ( int argc, const char *argv[] )
     {
         
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
-        // read a buffer from a file
-        p_f = fopen("resources/reflection/ed25519.bin", "rb");
-        fread(buf, sizeof(char), file_len, p_f),
+        // open a stream
+        stream_from_path(&p_stream, "resources/reflection/ed25519.bin");
         
         // reflect an ed25519 key pair from the buffer
-        ed25519_key_pair_unpack(&_public_key, &_private_key, buf),
+        ed25519_key_pair_unpack(&_public_key, &_private_key, p_stream);
 
-        // close the file
-        fclose(p_f);
+        // close the stream
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint("after keypair parse");
@@ -232,17 +226,16 @@ int main ( int argc, const char *argv[] )
     {
         
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
-        // read a buffer from a file
-        p_f = fopen("resources/reflection/ed25519_signature.bin", "rb");
-        fread(buf, sizeof(char), file_len, p_f),
+        // open a stream
+        stream_from_path(&p_stream, "resources/reflection/ed25519_signature.bin");
         
-        // reflect an ed25519 key pair from the buffer
-        ed25519_signature_unpack(&_signature, buf),
+        // reflect an ed25519 signature from the buffer
+        ed25519_signature_unpack(&_signature, p_stream);
 
-        // close the file
-        fclose(p_f);
+        // close the stream
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint("after signature parse");

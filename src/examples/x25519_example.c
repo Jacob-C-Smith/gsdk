@@ -14,6 +14,7 @@
 // gsdk
 /// core
 #include <core/log.h>
+#include <core/stream.h>
 
 /// crypto
 #include <crypto/x25519.h>
@@ -109,29 +110,25 @@ int main ( int argc, const char *argv[] )
     {
 
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
         // open a file for writing
-        p_f = fopen("resources/reflection/x25519_alice.bin", "wb");
-        p_g = fopen("resources/reflection/x25519_bob.bin", "wb");
+        stream_from_path(&p_stream, "resources/reflection/x25519_alice.bin");
 
         // reflect alices public key to a buffer
-        file_len = x25519_key_pair_pack(buf, &_alice_public_key, &_alice_private_key);
+        x25519_key_pair_pack(p_stream, &_alice_public_key, &_alice_private_key);
         
-        // write the buffer to a file
-        fwrite(buf, file_len, 1, p_f),
-
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
+
+        // open a file for writing
+        stream_from_path(&p_stream, "resources/reflection/x25519_bob.bin");
 
         // reflect bobs public key to a buffer
-        file_len = x25519_key_pair_pack(buf, &_bob_public_key, &_bob_private_key);
-
-        // write the buffer to a file
-        fwrite(buf, file_len, 1, p_g),
+        x25519_key_pair_pack(p_stream, &_bob_public_key, &_bob_private_key);
 
         // close the file
-        fclose(p_g);
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint("after serializing keypairs");
@@ -141,19 +138,16 @@ int main ( int argc, const char *argv[] )
     {
 
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
         // open a file for writing
-        p_f = fopen("resources/reflection/x25519_shared_secret.bin", "wb");
+        stream_from_path(&p_stream, "resources/reflection/x25519_shared_secret.bin");
  
         // reflect the shared secret to a buffer
-        file_len = x25519_shared_secret_pack(buf, &_alice_shared_secret);
-
-        // write the buffer to a file
-        fwrite(buf, file_len, 1, p_f),
+        x25519_shared_secret_pack(p_stream, &_alice_shared_secret);
 
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint("after serializing shared secret");
@@ -182,21 +176,25 @@ int main ( int argc, const char *argv[] )
     {
         
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
 
-        // read a buffer from a file
-        p_f = fopen("resources/reflection/x25519_alice.bin", "rb");
-        p_g = fopen("resources/reflection/x25519_bob.bin", "rb");
+        // open a file for reading
+        stream_from_path(&p_stream, "resources/reflection/x25519_alice.bin");
 
         // reflect alices key pair from the buffer
-        fread(buf, sizeof(char), sizeof(x25519_public_key) + sizeof(x25519_private_key), p_f),
-        x25519_key_pair_unpack(&_alice_public_key, &_alice_private_key, buf), 
-        fclose(p_f);
+        x25519_key_pair_unpack(&_alice_public_key, &_alice_private_key, p_stream); 
+        
+        // close the file
+        stream_destroy(&p_stream);
+
+        // open a file for reading
+        stream_from_path(&p_stream, "resources/reflection/x25519_bob.bin");
 
         // reflect bobs key pair from the buffer        
-        fread(buf, sizeof(char), sizeof(x25519_public_key) + sizeof(x25519_private_key), p_g),
-        x25519_key_pair_unpack(&_bob_public_key, &_bob_private_key, buf), 
-        fclose(p_g);
+        x25519_key_pair_unpack(&_bob_public_key, &_bob_private_key, p_stream); 
+
+        // close the file
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint("after parsing keypairs");
@@ -206,17 +204,16 @@ int main ( int argc, const char *argv[] )
     {
         
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
 
-        // read a buffer from a file
-        p_f = fopen("resources/reflection/x25519_shared_secret.bin", "rb");
-        fread(buf, sizeof(char), sizeof(x25519_shared_secret), p_f),
+        // open a file for reading
+        stream_from_path(&p_stream, "resources/reflection/x25519_shared_secret.bin");
 
         // reflect the shared secret from the buffer
-        x25519_shared_secret_unpack(&_alice_shared_secret, buf),
+        x25519_shared_secret_unpack(&_alice_shared_secret, p_stream);
 
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint("after parsing alice's secret");

@@ -18,27 +18,32 @@
 #include <ctype.h>
 #include <limits.h>
 
+// gsdk
+/// core
+#include <core/log.h>
+#include <core/stream.h>
+
 // function declarations
 /// pack
 /** !
- * Pack data into a buffer
+ * Pack data into a stream
  * 
- * @param p_buffer the buffer
+ * @param p_stream the stream
  * @param format   format string
  * @param ...      variadic arguments
  * 
  * @return bytes written on success, 0 on error
  */
-size_t pack_pack ( void *p_buffer, const char *restrict format, ... );
+size_t pack_pack ( stream *p_stream, const char *restrict format, ... );
 
 /// unpack
 /** !
- * Unpack data from a buffer
+ * Unpack data from a stream
  * 
- * @param p_buffer the buffer
+ * @param p_stream the stream
  * @param format   format string
  * @param ...      variadic arguments
  * 
  * @return quantity of matched fields on success, 0 on error
  */
-size_t pack_unpack ( void *p_buffer, const char *restrict format, ... );
+size_t pack_unpack ( stream *p_stream, const char *restrict format, ... );

@@ -193,31 +193,31 @@ int binary_tree_forcontext ( binary_tree *const p_binary_tree, fn_forcontext *pf
 
 /// reflection
 /** !
- * Pack a binary tree into a buffer
+ * Pack a binary tree into a stream
  * 
- * @param p_buffer      the buffer
+ * @param p_stream      the stream
  * @param p_binary_tree the binary tree
  * @param pfn_element   pointer to pack function IF not null ELSE default
  * 
- * @return 1 on success, 0 on error
+ * @return bytes written on success, 0 on error
  */
-int binary_tree_pack ( void *p_buffer, binary_tree *p_binary_tree, fn_pack *pfn_element );
+int binary_tree_pack ( stream *p_stream, binary_tree *p_binary_tree, fn_pack *pfn_element );
 
 /** !
- * Unpack a binary tree into a buffer
+ * Unpack a stream into a binary tree
  * 
  * @param pp_binary_tree   result
- * @param p_buffer         the buffer
+ * @param p_stream         the stream
  * @param pfn_element      pointer to unpack function IF not null ELSE default
  * @param pfn_comparator   function for testing equality of elements in set IF parameter is not null ELSE default
  * @param pfn_key_accessor function for accessing the key of a value IF parameter is not null ELSE default
  * 
- * @return 1 on success, 0 on error
+ * @return bytes read on success, 0 on error
  */
 int binary_tree_unpack
 ( 
     binary_tree **pp_binary_tree, 
-    void *p_buffer, 
+    stream *p_stream, 
     
     fn_unpack       *pfn_element, 
     fn_comparator   *pfn_comparator, 

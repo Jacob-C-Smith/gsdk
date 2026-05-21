@@ -10,12 +10,12 @@
 #include <core/pack.h>
 
 // function definitions
-size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
+size_t pack_pack ( stream *p_stream, const char *restrict format, ... )
 {
 
     // argument check
-    if ( p_buffer == (void *) 0 ) goto no_buffer; 
-    if ( format   == (void *) 0 ) goto no_format; 
+    if ( NULL == p_stream ) goto no_stream; 
+    if ( NULL ==   format ) goto no_format; 
 
     // initialized data
     va_list list;
@@ -147,10 +147,10 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
             char c = va_arg(list, int);
 
             // store the value
-            *((char *)p_buffer) = c;
+            stream_write(p_stream, &c, sizeof(char));
             
-            // update the buffer and written byte counter
-            p_buffer += sizeof(char), written += sizeof(char);
+            // update the written byte counter
+            written += sizeof(char);
         }
 
         // reset the format specifier length
@@ -175,10 +175,10 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
             short s = va_arg(list, int);
 
             // store the value
-            *((short *)p_buffer) = s;
+            stream_write(p_stream, &s, sizeof(short));
             
-            // update the buffer and written byte counter
-            p_buffer += sizeof(short), written += sizeof(short);
+            // update the written byte counter
+            written += sizeof(short);
         }
 
         // reset the format specifier length
@@ -203,10 +203,10 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
             int l = va_arg(list, int);
 
             // store the value
-            *((int *)p_buffer) = l;
+            stream_write(p_stream, &l, sizeof(int));
             
-            // update the buffer and written byte counter
-            p_buffer += sizeof(int), written += sizeof(int);
+            // update the written byte counter
+            written += sizeof(int);
         }
 
         // reset the format specifier length
@@ -231,10 +231,10 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
             long l = va_arg(list, long);
 
             // store the value
-            *((long *)p_buffer) = l;
+            stream_write(p_stream, &l, sizeof(long));
             
-            // update the buffer and written byte counter
-            p_buffer += sizeof(long), written += sizeof(long);
+            // update the written byte counter
+            written += sizeof(long);
         }
 
         // reset the format specifier length
@@ -259,10 +259,10 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
             float f = va_arg(list, double);
 
             // store the value
-            *((float *)p_buffer) = f;
+            stream_write(p_stream, &f, sizeof(float));
             
-            // update the buffer and written byte counter
-            p_buffer += sizeof(float), written += sizeof(float);
+            // update the written byte counter
+            written += sizeof(float);
         }
 
         // reset the format specifier length
@@ -287,10 +287,10 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
             double d = va_arg(list, double);
 
             // store the value
-            *((double *)p_buffer) = d;
+            stream_write(p_stream, &d, sizeof(double));
             
-            // update the buffer and written byte counter
-            p_buffer += sizeof(double), written += sizeof(double);
+            // update the written byte counter
+            written += sizeof(double);
         }
 
         // reset the format specifier length
@@ -319,16 +319,16 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
             if ( len > USHRT_MAX - 1 ) return 0;
 
             // store the length
-            *((unsigned short *)p_buffer) = (unsigned short) len;
+            stream_write(p_stream, &len, sizeof(unsigned short));
 
-            // update the buffer and written byte counter
-            p_buffer += sizeof(unsigned short), written += sizeof(unsigned short);
+            // update the written byte counter
+            written += sizeof(unsigned short);
             
             // store the value
-            memcpy(p_buffer, s, len);
+            stream_write(p_stream, s, len);
 
-            // update the buffer and written byte counter
-            p_buffer += len, written += len;
+            // update the written byte counter
+            written += len;
         }
 
         // reset the format specifier length
@@ -343,9 +343,9 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
 
         // argument errors
         {
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG 
-                    printf("[pack] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[pack] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -362,12 +362,12 @@ size_t pack_pack ( void *p_buffer, const char *restrict format, ... )
     }
 }
 
-size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
+size_t pack_unpack ( stream *p_stream, const char *restrict format, ... )
 {
 
     // argument check
-    if ( p_buffer == (void *) 0 ) goto no_buffer; 
-    if ( format   == (void *) 0 ) goto no_format; 
+    if ( NULL == p_stream ) goto no_stream; 
+    if ( NULL ==   format ) goto no_format; 
 
     // initialized data
     va_list list;
@@ -497,10 +497,10 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
             char *c = va_arg(list, void *);
 
             // store the value
-            *c = *(char *)p_buffer;
+            stream_read(p_stream, c, sizeof(char));
             
-            // update the buffer and written byte counter
-            p_buffer += sizeof(char), written += sizeof(char);
+            // update written byte counter
+            written += sizeof(char);
         }
 
         // reset the format specifier length
@@ -525,10 +525,10 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
             short *s = va_arg(list, void *);
 
             // store the value
-            *s = *(short *)p_buffer;
+            stream_read(p_stream, s, sizeof(short));
             
-            // update the buffer and written byte counter
-            p_buffer += sizeof(short), written += sizeof(short);
+            // update the written byte counter
+            written += sizeof(short);
         }
 
         // reset the format specifier length
@@ -553,10 +553,10 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
             int *l = va_arg(list, void *);
 
             // store the value
-            *l = *(int *)p_buffer;
+            stream_read(p_stream, l, sizeof(int));
             
-            // update the buffer and written byte counter
-            p_buffer += sizeof(int), written += sizeof(int);
+            // update the written byte counter
+            written += sizeof(int);
         }
 
         // reset the format specifier length
@@ -581,10 +581,10 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
             long *l = va_arg(list, void *);
 
             // store the value
-            *l = *(long *)p_buffer;
+            stream_read(p_stream, l, sizeof(long));
             
-            // update the buffer and written byte counter
-            p_buffer += sizeof(long), written += sizeof(long);
+            // update the written byte counter
+            written += sizeof(long);
         }
 
         // reset the format specifier length
@@ -609,10 +609,10 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
             float *f = va_arg(list, void *);
 
             // store the value
-            *f = *(float *)p_buffer;
+            stream_read(p_stream, f, sizeof(float));
             
-            // update the buffer and written byte counter
-            p_buffer += sizeof(float), written += sizeof(float);
+            // update the written byte counter
+            written += sizeof(float);
         }
 
         // reset the format specifier length
@@ -637,10 +637,10 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
             double *d = va_arg(list, void *);
 
             // store the value
-            *d = *(double *)p_buffer;
+            stream_read(p_stream, d, sizeof(double));
             
-            // update the buffer and written byte counter
-            p_buffer += sizeof(double), written += sizeof(double);
+            // update the written byte counter
+            written += sizeof(double);
         }
 
         // reset the format specifier length
@@ -663,13 +663,13 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
 
             // initialized data
             char *s = va_arg(list, void *);
-            size_t len = *((unsigned short *)p_buffer);
+            size_t len = 0;
 
             // store the value
-            memcpy(s, p_buffer + 2, len);
+            stream_read(p_stream, &len, sizeof(unsigned short)),
+            stream_read(p_stream, s, len);
 
-            // update the buffer and written byte counter
-            p_buffer += ( len + 2 ),
+            // update the written byte counter
             written  += ( len + 2 );
         }
 
@@ -685,9 +685,9 @@ size_t pack_unpack ( void *p_buffer, const char *restrict format, ... )
 
         // argument errors
         {
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG 
-                    printf("[pack] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[pack] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

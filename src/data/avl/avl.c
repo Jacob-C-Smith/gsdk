@@ -86,24 +86,24 @@ int avl_tree_node_forcontext ( avl_tree_node *p_avl_tree_node, fn_forcontext *pf
 /** ! 
  * Pack an avl tree node into a buffer
  * 
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param p_node       the node
  * @param pfn_elemenet pointer to pack function IF not null ELSE default
  * 
  * @return bytes written on success, 0 on error
  */
-int avl_tree_node_pack ( void *p_buffer, avl_tree_node *p_node, fn_pack *pfn_element );
+int avl_tree_node_pack ( stream *p_stream, avl_tree_node *p_node, fn_pack *pfn_element );
 
 /** ! 
  * Unpack an avl tree node from a buffer
  * 
  * @param pp_node      result
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param pfn_elemenet pointer to unpack function IF not null ELSE default
  * 
  * @return bytes read on success, 0 on error
  */
-int avl_tree_node_unpack ( avl_tree_node **pp_node, void *p_buffer, fn_unpack *pfn_element );
+int avl_tree_node_unpack ( avl_tree_node **pp_node, stream *p_stream, fn_unpack *pfn_element );
 
 /** !
  * Destroy and deallocate an avl tree node
@@ -974,34 +974,34 @@ int avl_tree_forcontext ( avl_tree *const p_avl_tree, fn_forcontext *pfn_forcont
     }
 }
 
-int avl_tree_pack ( void *p_buffer, avl_tree *p_avl_tree, fn_pack *pfn_element )
+int avl_tree_pack ( stream *p_stream, avl_tree *p_avl_tree, fn_pack *pfn_element )
 {
     
     // argument check
-    if ( NULL ==    p_buffer ) goto no_buffer;
+    if ( NULL ==    p_stream ) goto no_stream;
     if ( NULL ==  p_avl_tree ) goto no_avl_tree;
     if ( NULL == pfn_element ) goto no_pack;
 
     // initialized data 
-    char *p = p_buffer;
+    size_t written = 0;
 
     // lock
     mutex_lock(&p_avl_tree->_lock);
 
     // pack the metadata
-    p += pack_pack(p, "%2i64", 
+    written += pack_pack(p_stream, "%2i64", 
         p_avl_tree->metadata.quantity,
         p_avl_tree->metadata.size
     );
 
     // pack the tree
-    p += avl_tree_node_pack(p, p_avl_tree->p_root, pfn_element);
+    written += avl_tree_node_pack(p_stream, p_avl_tree->p_root, pfn_element);
 
     // unlock
     mutex_unlock(&p_avl_tree->_lock);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -1009,9 +1009,9 @@ int avl_tree_pack ( void *p_buffer, avl_tree *p_avl_tree, fn_pack *pfn_element )
         // argument errors
         {
 
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[avl] Null pointer provided for \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[avl] Null pointer provided for \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -1039,7 +1039,7 @@ int avl_tree_pack ( void *p_buffer, avl_tree *p_avl_tree, fn_pack *pfn_element )
 int avl_tree_unpack
 ( 
     avl_tree **pp_avl_tree, 
-    void      *p_buffer, 
+    stream    *p_stream, 
     
     fn_unpack       *pfn_element, 
     fn_comparator   *pfn_comparator, 
@@ -1049,16 +1049,17 @@ int avl_tree_unpack
     
     // argument check
     if ( NULL == pp_avl_tree ) goto no_avl_tree;
+    if ( NULL ==    p_stream ) goto no_stream;
     if ( NULL == pfn_element ) goto no_unpack;
 
     // initialized data 
     avl_tree *p_avl_tree    = NULL;
-    char     *p             = p_buffer;
+    size_t    read          = 0;
     size_t    quantity      = 0, 
               size          = 0;
 
     // unpack the metadata
-    p += pack_unpack(p, "%2i64", 
+    read += pack_unpack(p_stream, "%2i64", 
         &quantity,
         &size
     );
@@ -1067,7 +1068,7 @@ int avl_tree_unpack
     avl_tree_construct(&p_avl_tree, size, pfn_comparator, pfn_key_accessor);
 
     // recursively unpack from the root
-    p += avl_tree_node_unpack(&p_avl_tree->p_root, p, pfn_element);
+    read += avl_tree_node_unpack(&p_avl_tree->p_root, p_stream, pfn_element);
 
     // store the quantity of nodes
     p_avl_tree->metadata.quantity = quantity;
@@ -1076,7 +1077,7 @@ int avl_tree_unpack
     *pp_avl_tree = p_avl_tree;
     
     // success
-    return p - (char *)p_buffer;
+    return read;
 
     // error handling
     {
@@ -1091,6 +1092,14 @@ int avl_tree_unpack
                 // error
                 return 0;
             
+            no_stream:
+                #ifndef NDEBUG
+                    log_error("[avl] Null pointer provided for \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
             no_unpack:
                 #ifndef NDEBUG
                     log_error("[avl] Null pointer provided for parameter \"pfn_element\" in call to function \"%s\"\n", __FUNCTION__);
@@ -1254,38 +1263,38 @@ int avl_tree_node_create ( avl_tree_node **pp_avl_tree_node )
     }
 }
 
-int avl_tree_node_pack ( void *p_buffer, avl_tree_node *p_node, fn_pack *pfn_element )
+int avl_tree_node_pack ( stream *p_stream, avl_tree_node *p_node, fn_pack *pfn_element )
 {
 
     // initialized data 
-    char *p = p_buffer;
-
+    size_t written = 0;
+    
     // pack the parent value
-    p += pfn_element(p, p_node->p_value),
+    written += pfn_element(p_stream, p_node->p_value),
 
     // pack the node pointer
-    p += pack_pack(p, "%i32%2i64", 
+    written += pack_pack(p_stream, "%i32%2i64", 
         p_node->height,
         p_node->p_left  ? p_node->p_left->node_pointer  : eight_bytes_of_f,
         p_node->p_right ? p_node->p_right->node_pointer : eight_bytes_of_f
     );
 
     // left
-    if ( p_node->p_left ) p += avl_tree_node_pack(p, p_node->p_left, pfn_element);
+    if ( p_node->p_left ) written += avl_tree_node_pack(p_stream, p_node->p_left, pfn_element);
 
     // right
-    if ( p_node->p_right ) p += avl_tree_node_pack(p, p_node->p_right, pfn_element);
+    if ( p_node->p_right ) written += avl_tree_node_pack(p_stream, p_node->p_right, pfn_element);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 }
 
-int avl_tree_node_unpack ( avl_tree_node **pp_node, void *p_buffer, fn_unpack *pfn_element )
+int avl_tree_node_unpack ( avl_tree_node **pp_node, stream *p_stream, fn_unpack *pfn_element )
 {
 
     // initialized data 
     avl_tree_node      *p_node   = NULL;
-    char               *p        = p_buffer;
+    size_t              read     = 0;
     unsigned long long  l        = 0, 
                         r        = 0;
     int                 h        = 0;
@@ -1294,29 +1303,29 @@ int avl_tree_node_unpack ( avl_tree_node **pp_node, void *p_buffer, fn_unpack *p
     avl_tree_node_create(&p_node);
     
     // unpack the parent value
-    p += pfn_element(&p_node->p_value, p);
+    read += pfn_element(&p_node->p_value, p_stream);
 
     // unpack the node pointer
-    p += pack_unpack(p, "%i32%2i64", &h, &l, &r);
+    read += pack_unpack(p_stream, "%i32%2i64", &h, &l, &r);
 
     // set the height
     p_node->height = h;
 
     // left
     if ( l != eight_bytes_of_f ) 
-        p += avl_tree_node_unpack(&p_node->p_left, p, pfn_element),
+        read += avl_tree_node_unpack(&p_node->p_left, p_stream, pfn_element),
         p_node->p_left->node_pointer = l;
 
     // right
     if ( r != eight_bytes_of_f ) 
-        p += avl_tree_node_unpack(&p_node->p_right, p, pfn_element),
+        read += avl_tree_node_unpack(&p_node->p_right, p_stream, pfn_element),
         p_node->p_right->node_pointer = r;
 
     // return a pointer to the caller
     *pp_node = p_node;
     
     // success
-    return p - (char *)p_buffer;
+    return read;
 }
 
 hash64 avl_tree_node_hash ( avl_tree_node *p_node, fn_hash64 *pfn_hash64 )

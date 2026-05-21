@@ -329,25 +329,25 @@ int tree_traverse_inorder ( tree *const p_tree, fn_foreach *pfn_foreach )
     }
 }
 
-int tree_pack ( void *p_buffer, tree *p_tree, fn_pack *pfn_element )
+int tree_pack ( stream *p_stream, tree *p_tree, fn_pack *pfn_element )
 {
     
     // argument check
-    if ( NULL ==    p_buffer ) goto no_buffer;
+    if ( NULL ==    p_stream ) goto no_stream;
     if ( NULL ==      p_tree ) goto no_tree;
     if ( NULL == pfn_element ) goto no_pack;
 
     // initialized data 
-    char *p = p_buffer;
+    size_t written = 0;
 
     // pack the type
-    p += pack_pack(p, "%i32", (int)p_tree->_type);
+    written += pack_pack(p_stream, "%i32", (int)p_tree->_type);
 
     // pack the tree
-    p += p_tree->pfn_pack(p, p_tree->p_tree, pfn_element);
+    written += p_tree->pfn_pack(p_stream, p_tree->p_tree, pfn_element);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -355,9 +355,9 @@ int tree_pack ( void *p_buffer, tree *p_tree, fn_pack *pfn_element )
         // argument errors
         {
 
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[tree] Null pointer provided for \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[tree] Null pointer provided for \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -385,7 +385,7 @@ int tree_pack ( void *p_buffer, tree *p_tree, fn_pack *pfn_element )
 int tree_unpack
 ( 
     tree **pp_tree, 
-    void  *p_buffer, 
+    stream *p_stream, 
     
     fn_unpack       *pfn_element, 
     fn_comparator   *pfn_comparator, 
@@ -399,7 +399,7 @@ int tree_unpack
 
     // initialized data 
     tree *p_tree           = NULL;
-    char *p                = p_buffer;
+    size_t written         = 0;
     enum tree_type_e _type = -1;
 
     // allocate memory for a tree
@@ -407,7 +407,7 @@ int tree_unpack
     if ( NULL == p_tree ) goto failed_to_allocate_tree;
 
     // unpack the type
-    p += pack_unpack(p, "%i32", &_type);
+    written += pack_unpack(p_stream, "%i32", &_type);
 
     // validate the type
     if ( _type < 0 || _type >= TREE_QUANTITY ) goto invalid_tree_type;
@@ -416,13 +416,13 @@ int tree_unpack
     memcpy(p_tree, &_prototypes[_type], sizeof(tree));
 
     // construct a tree
-    p += _prototypes[_type].pfn_unpack(&p_tree->p_tree, p, pfn_element, pfn_comparator, pfn_key_accessor);
+    written += _prototypes[_type].pfn_unpack(&p_tree->p_tree, p_stream, pfn_element, pfn_comparator, pfn_key_accessor);
 
     // return a pointer to the caller
     *pp_tree = p_tree;
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {

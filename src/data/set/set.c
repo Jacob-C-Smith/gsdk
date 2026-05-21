@@ -762,31 +762,32 @@ int set_foreach_i ( set *const p_set, void (*const function)(void *const value, 
     }
 }
 
-int set_pack ( void *p_buffer, set *p_set, fn_pack *pfn_element )
+int set_pack ( stream *p_stream, set *p_set, fn_pack *pfn_element )
 {
     
     // argument check
-    if ( p_set     == (void *) 0 ) goto no_set;
-    if ( pfn_element == (void *) 0 ) return 0;
+    if ( p_stream      == (void *) 0 ) return 0;
+    if ( p_set         == (void *) 0 ) goto no_set;
+    if ( pfn_element   == (void *) 0 ) return 0;
 
     // initialized data 
-    char *p = p_buffer;
+    size_t written = 0;
 
     // lock
     mutex_lock(&p_set->_lock);
 
     // pack the length
-    p += pack_pack(p, "%i64", p_set->count);
+    written += pack_pack(p_stream, "%i64", p_set->count);
 
     // iterate through the set
     for (size_t i = 0; i < p_set->count; i++)
-        p += pfn_element(p, p_set->elements[i]);
+        written += pfn_element(p_stream, p_set->elements[i]);
 
     // unlock
     mutex_unlock(&p_set->_lock);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -804,20 +805,21 @@ int set_pack ( void *p_buffer, set *p_set, fn_pack *pfn_element )
     }
 }
 
-int set_unpack ( set **pp_set, void *p_buffer, fn_unpack *pfn_element, fn_equality *pfn_equality )
+int set_unpack ( set **pp_set, stream *p_stream, fn_unpack *pfn_element, fn_equality *pfn_equality )
 {
     
     // argument check
-    if ( pp_set    == (void *) 0 ) goto no_set;
+    if ( pp_set      == (void *) 0 ) goto no_set;
+    if ( p_stream    == (void *) 0 ) return 0;
     if ( pfn_element == (void *) 0 ) return 0;
 
     // initialized data
     set *p_set = NULL;
-    char *p = p_buffer;
+    size_t written = 0;
     size_t len = 0;
 
     // unpack the length
-    p += pack_unpack(p, "%i64", &len);
+    written += pack_unpack(p_stream, "%i64", &len);
 
     // construct a set
     set_construct(&p_set, len, pfn_equality);
@@ -826,19 +828,11 @@ int set_unpack ( set **pp_set, void *p_buffer, fn_unpack *pfn_element, fn_equali
     {
         
         // initialized data
-        char _result[1024] = { 0 };
         void *p_element = NULL;
-        size_t len_result = pfn_element(_result, p);
-
-        // advance the buffer
-        p += len_result;
-
-        // allocate memory for the element
-        p_element = default_allocator(0, len_result),
-
-        // copy the memory
-        memcpy(p_element, _result, len_result),
         
+        // unpack the element
+        written += pfn_element(&p_element, p_stream);
+
         // add the element to the set
         set_add(p_set, p_element);
     }
@@ -847,7 +841,7 @@ int set_unpack ( set **pp_set, void *p_buffer, fn_unpack *pfn_element, fn_equali
     *pp_set = p_set;
 
     // success
-    return 1;
+    return written;
     
     // error handling
     {

@@ -16,6 +16,7 @@
 // gsdk
 /// core
 #include <core/log.h>
+#include <core/stream.h>
 
 /// crypto
 #include <crypto/sha.h>
@@ -54,13 +55,11 @@ int main ( int argc, const char *argv[] )
 {
     
     // initialized data
-    FILE                *p_f           = NULL;
+    stream              *p_stream      = NULL;
     ed25519_public_key   public_key    = { 0 };
     ed25519_private_key  private_key   = { 0 };
     certificate         *p_certificate = NULL;
     sha256_hash          _h            = { 0 };
-    char                 _buffer[160]  = { 0 };
-    size_t               len           = 0;
 
     // parse command line arguments
     parse_command_line_arguments(argc, argv);
@@ -68,21 +67,14 @@ int main ( int argc, const char *argv[] )
     // load a key pair from file
     {
 
-        // initialized data
-        char _buffer[64] = { 0 };
-
         // open the key file
-        p_f = fopen(p_key_file, "rb");
-        if ( NULL == p_f ) goto failed_to_open_file;
-
-        // read the key pair
-        fread(_buffer, 1, sizeof(_buffer), p_f);
+        if ( 0 == stream_from_path(&p_stream, p_key_file) ) goto failed_to_open_file;
 
         // unpack the key pair
-        ed25519_key_pair_unpack(&public_key, &private_key, _buffer);
+        ed25519_key_pair_unpack(&public_key, &private_key, p_stream);
 
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
     }
     
     // fingerprint the issuer
@@ -101,23 +93,17 @@ int main ( int argc, const char *argv[] )
 
         // initialized data
         certificate *p_issuer          = NULL;
-        FILE        *p_issuer_f        = NULL;
-        char         _issuer_buf[1024] = { 0 };
         const char  *p_issuer_subject  = NULL;
         sha256_state s                 = { 0 };
 
         // open the issuer certificate
-        p_issuer_f = fopen(p_issuer_filename, "rb");
-        if ( NULL == p_issuer_f ) goto failed_to_open_file;
-
-        // read the issuer certificate
-        fread(_issuer_buf, 1, sizeof(_issuer_buf), p_issuer_f);
+        if ( 0 == stream_from_path(&p_stream, p_issuer_filename) ) goto failed_to_open_file;
 
         // construct the certificate
-        certificate_unpack(&p_issuer, _issuer_buf);
+        certificate_unpack(&p_issuer, p_stream);
 
         // close the file
-        fclose(p_issuer_f);
+        stream_destroy(&p_stream);
 
         // get the issuer's subject
         certificate_get_subject(p_issuer, &p_issuer_subject);
@@ -146,17 +132,13 @@ int main ( int argc, const char *argv[] )
     certificate_print(p_certificate);
 
     // open the file
-    p_f = fopen(p_output_filename, "wb");
-    if ( NULL == p_f ) goto failed_to_open_file;
+    if ( 0 == stream_from_path(&p_stream, p_output_filename) ) goto failed_to_open_file;
 
     // pack the certificate
-    len = certificate_pack(_buffer, p_certificate);
-
-    // write the certificate to the file
-    fwrite(_buffer, 1, len, p_f);
+    certificate_pack(p_stream, p_certificate);
 
     // close the file
-    fclose(p_f);
+    stream_destroy(&p_stream);
 
     // destroy the certificate
     certificate_destroy(&p_certificate);

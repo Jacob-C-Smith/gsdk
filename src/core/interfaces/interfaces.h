@@ -15,6 +15,7 @@
 
 // type definitions
 typedef unsigned long long hash64;
+typedef struct stream_s stream;
 
 /// allocator
 typedef void *(fn_allocator) ( void *p_pointer, unsigned long long size );
@@ -32,8 +33,8 @@ typedef void  (fn_forcontext) ( void *p_element, void *p_context );
 typedef void *(fn_map)        ( void *p_element );
 
 /// reflection
-typedef int    (fn_pack)   ( void              *p_buffer, const void *const   p_value );
-typedef int    (fn_unpack) ( void              *p_value , void               *p_buffer );
+typedef int    (fn_pack)   ( stream            *p_stream, const void *const   p_value );
+typedef int    (fn_unpack) ( void              *p_value , stream             *p_stream );
 typedef hash64 (fn_hash64) ( const void *const  k       , unsigned long long  l );
 
 // function declarations   

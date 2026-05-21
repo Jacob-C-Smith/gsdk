@@ -168,7 +168,12 @@ int aead_encrypt
     offset += len + text_pad;
 
     // pack the aad
-    pack_pack(p_data + offset, "%i64%i64", (unsigned long long)aad_len, (unsigned long long)len);
+    {
+        stream *p_stream = NULL;
+        stream_from_buffer(&p_stream, p_data + offset, 16);
+        pack_pack(p_stream, "%i64%i64", (unsigned long long)aad_len, (unsigned long long)len);
+        stream_destroy(&p_stream);
+    }
 
     // compute the poly1305 message authentication code 
     poly1305_mac(p_data, data_len, tag, _one_time_key);
@@ -289,7 +294,12 @@ int aead_decrypt
     offset += len + text_pad;
 
     // pack the aad
-    pack_pack(p_data + offset, "%i64%i64", (unsigned long long)aad_len, (unsigned long long)len);
+    {
+        stream *p_stream = NULL;
+        stream_from_buffer(&p_stream, p_data + offset, 16);
+        pack_pack(p_stream, "%i64%i64", (unsigned long long)aad_len, (unsigned long long)len);
+        stream_destroy(&p_stream);
+    }
 
     // compute the poly1305 message authentication code 
     poly1305_mac(p_data, data_len, computed_tag, _one_time_key);

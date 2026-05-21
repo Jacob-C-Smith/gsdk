@@ -121,21 +121,21 @@ int dict_foreach ( dict *const p_dict, fn_foreach *pfn_foreach );
 
 /// reflection
 /** !
- * Pack a dictionary into a buffer
+ * Pack a dictionary into a stream
  * 
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param p_dict       the dictionary
  * @param pfn_elemenet pointer to pack function 
  * 
  * @return bytes written on success, 0 on error
  */
-int dict_pack ( void *p_buffer, dict *const p_dict, fn_pack *pfn_element );
+int dict_pack ( stream *p_stream, dict *const p_dict, fn_pack *pfn_element );
 
 /** !
- * Unpack a buffer into a dictionary
+ * Unpack a stream into a dictionary
  * 
  * @param pp_dict      result
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param pfn_elemenet pointer to unpack function
  * 
  * @param pfn_allocator    pointer to allocator function IF NOT NULL ELSE unused
@@ -147,7 +147,7 @@ int dict_pack ( void *p_buffer, dict *const p_dict, fn_pack *pfn_element );
 int dict_unpack
 (
     dict **const pp_dict,
-    void *p_buffer,
+    stream *p_stream,
     fn_unpack *pfn_element,
 
     fn_allocator    *pfn_allocator,

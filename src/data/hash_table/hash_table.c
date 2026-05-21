@@ -708,24 +708,25 @@ int hash_table_fori ( hash_table *p_hash_table, fn_fori *pfn_fori )
     }
 }
 
-int hash_table_pack ( void *p_buffer, hash_table *p_hash_table, fn_pack *pfn_element )
+int hash_table_pack ( stream *p_stream, hash_table *p_hash_table, fn_pack *pfn_element )
 {
     // argument check
     if ( NULL == p_hash_table ) goto no_hash_table;
+    if ( NULL ==     p_stream ) return 0;
     if ( NULL ==  pfn_element ) return 0;
 
     // initialized data 
-    char *p = p_buffer;
+    size_t written = 0;
 
     // lock
     mutex_lock(&p_hash_table->_lock);
 
     // pack the type
     // NOTE: Yes, using 4 bytes for the type is wasteful. But it keeps reads aligned
-    p += pack_pack(p, "%i32", p_hash_table->_type);
+    written += pack_pack(p_stream, "%i32", p_hash_table->_type);
 
     // pack the max, physical, and logical sizes
-    p += pack_pack(p, "%3i64", 
+    written += pack_pack(p_stream, "%3i64", 
         p_hash_table->properties.max,
         p_hash_table->properties.physical,
         p_hash_table->properties.logical
@@ -739,22 +740,22 @@ int hash_table_pack ( void *p_buffer, hash_table *p_hash_table, fn_pack *pfn_ele
         if ( NULL == p_hash_table->properties.pp_data[i] ) continue;
 
         // pack the index
-        p += pack_pack(p, "%i64", i);
+        written += pack_pack(p_stream, "%i64", i);
 
         // pack the tombstone
         if ( TOMBSTONE == p_hash_table->properties.pp_data[i] )
-            p += pack_pack(p, "%i64", TOMBSTONE);
+            written += pack_pack(p_stream, "%i64", TOMBSTONE);
         
         // pack the element
         else
-            p += pfn_element(p, p_hash_table->properties.pp_data[i]);
+            written += pfn_element(p_stream, p_hash_table->properties.pp_data[i]);
     }
 
     // unlock
     mutex_unlock(&p_hash_table->_lock);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -775,7 +776,7 @@ int hash_table_pack ( void *p_buffer, hash_table *p_hash_table, fn_pack *pfn_ele
 int hash_table_unpack
 ( 
     hash_table **pp_hash_table,
-    void *p_buffer,
+    stream *p_stream,
     fn_unpack *pfn_element,
 
     fn_comparator   *pfn_comparator,
@@ -786,12 +787,12 @@ int hash_table_unpack
 	
 	// argument check
     if ( NULL == pp_hash_table ) goto no_hash_table;
-	if ( NULL ==      p_buffer ) goto no_buffer;
+	if ( NULL ==      p_stream ) goto no_stream;
     if ( NULL ==   pfn_element ) goto no_unpack;
 
     // initialized data 
 	hash_table *p_hash_table = NULL;
-    char       *p            = p_buffer;
+    size_t      written      = 0;
 	size_t      max          = 0;
     size_t      physical     = 0;
 	size_t      logical      = 0;
@@ -800,10 +801,10 @@ int hash_table_unpack
     enum collision_resolution_e _type = 0;
 
     // unpack the type
-    p += pack_unpack(p, "%i32", &_type);
+    written += pack_unpack(p_stream, "%i32", &_type);
 
     // unpack the size of the hash table
-	p += pack_unpack(p, "%3i64", 
+	written += pack_unpack(p_stream, "%3i64", 
         &max,
         &physical,
         &logical
@@ -832,16 +833,20 @@ int hash_table_unpack
         size_t index = 0;
 
         // unpack the index
-        p += pack_unpack(p, "%i64", &index);
+        written += pack_unpack(p_stream, "%i64", &index);
+
+        // check for tombstone by peeking
+        size_t maybe_tombstone = 0;
+        stream_peek(p_stream, &maybe_tombstone, sizeof(size_t));
 
         // tombstone 
-        if ( TOMBSTONE == *(void **)p )
+        if ( TOMBSTONE == (void *)maybe_tombstone )
             p_element = TOMBSTONE,
-            p += sizeof(TOMBSTONE);
+            written += pack_unpack(p_stream, "%i64", &maybe_tombstone); // Advance the cursor
 
         // call the unpack function
         else 
-            p += pfn_element(&p_element, p);
+            written += pfn_element(&p_element, p_stream);
 
 		// add the element to the hash table
 		p_hash_table->properties.pp_data[index] = p_element;
@@ -855,7 +860,7 @@ int hash_table_unpack
 	*pp_hash_table = p_hash_table;
 
     // success
-	return p - (char *)p_buffer;
+	return written;
 
     // error handling
     {
@@ -870,9 +875,9 @@ int hash_table_unpack
                 // error
                 return 0;
 
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[hash table] Null pointer provided for \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[hash table] Null pointer provided for \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

@@ -135,7 +135,7 @@ int edge_list_edge_foreach
 /// reflection
 int edge_list_pack
 (
-    void *p_buffer, 
+    stream    *p_stream, 
     edge_list *p_edge_list,
 
     fn_pack *pfn_vertex,
@@ -145,7 +145,7 @@ int edge_list_pack
 int edge_list_unpack
 (
     edge_list **pp_edge_list,
-    void *p_buffer, 
+    stream     *p_stream, 
 
     fn_unpack *pfn_vertex,
     fn_unpack *pfn_edge,

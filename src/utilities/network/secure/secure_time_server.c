@@ -18,6 +18,7 @@
 #include <core/socket.h>
 #include <core/tcp.h>
 #include <core/pack.h>
+#include <core/stream.h>
 #include <core/sync.h> 
 
 /// crypto
@@ -35,6 +36,7 @@ int connection_callback ( secure_socket *p_secure_socket, socket_ip_address ip_a
     struct tm* ptr = NULL;
     time_t lt = 0;
     size_t len = 0;
+    stream *p_stream = NULL;
 
     // logs
     printf("Accepted connection from "), 
@@ -47,7 +49,9 @@ int connection_callback ( secure_socket *p_secure_socket, socket_ip_address ip_a
     ptr = localtime(&lt);
 
     // pack the time string into a buffer
-    len = pack_pack(_buf, "%s", asctime(ptr));
+    stream_from_buffer(&p_stream, _buf, 1024);
+    len = pack_pack(p_stream, "%s", asctime(ptr));
+    stream_destroy(&p_stream);
 
     // send the localized time to the client
     secure_socket_send(p_secure_socket, _buf, len);
@@ -74,59 +78,41 @@ int main ( int argc, const char *argv[] )
     certificate *p_leaf = NULL;
     ed25519_public_key public_key = { 0 };
     ed25519_private_key private_key = { 0 };
-    FILE *p_f = NULL;
+    stream *p_stream = NULL;
 
     // load certificates
     {
         
-        // initialized data
-        char _buffer[160] = { 0 };
-
         // load the root
         {
-            p_f = fopen("root.cer", "rb");
-            if ( NULL == p_f ) goto failed_to_open_file;
-
-            fread(_buffer, 1, sizeof(_buffer), p_f);
-            certificate_unpack(&p_root, _buffer);
-            fclose(p_f);
+            if ( 0 == stream_from_path(&p_stream, "root.cer") ) goto failed_to_open_file;
+            certificate_unpack(&p_root, p_stream);
+            stream_destroy(&p_stream);
         }
 
         // load the intermediate
         {
-            p_f = fopen("inter.cer", "rb");
-            if ( NULL == p_f ) goto failed_to_open_file;
-
-            fread(_buffer, 1, sizeof(_buffer), p_f);
-            certificate_unpack(&p_intermediate, _buffer);
-            fclose(p_f);
+            if ( 0 == stream_from_path(&p_stream, "inter.cer") ) goto failed_to_open_file;
+            certificate_unpack(&p_intermediate, p_stream);
+            stream_destroy(&p_stream);
         }
 
         // load the leaf
         {
-            p_f = fopen("leaf.cer", "rb");
-            if ( NULL == p_f ) goto failed_to_open_file;
-
-            fread(_buffer, 1, sizeof(_buffer), p_f);
-            certificate_unpack(&p_leaf, _buffer);
-            fclose(p_f);
+            if ( 0 == stream_from_path(&p_stream, "leaf.cer") ) goto failed_to_open_file;
+            certificate_unpack(&p_leaf, p_stream);
+            stream_destroy(&p_stream);
         }
     }
 
     // load keys
     {
 
-        // initialized data
-        char _buffer[64] = { 0 };
-
         // load the keys
         {
-            p_f = fopen("leaf.key", "rb");
-            if ( NULL == p_f ) goto failed_to_open_file;
-
-            fread(_buffer, 1, sizeof(_buffer), p_f);
-            ed25519_key_pair_unpack(&public_key, &private_key, _buffer);
-            fclose(p_f);
+            if ( 0 == stream_from_path(&p_stream, "leaf.key") ) goto failed_to_open_file;
+            ed25519_key_pair_unpack(&public_key, &private_key, p_stream);
+            stream_destroy(&p_stream);
         }
     }
 

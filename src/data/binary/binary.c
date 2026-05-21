@@ -105,22 +105,22 @@ int binary_tree_node_traverse_postorder ( binary_tree_node *p_binary_tree_node, 
 int binary_tree_node_forcontext ( binary_tree_node *p_binary_tree_node, fn_forcontext *pfn_forcontext, void *p_context );
 
 /** ! 
- * Pack a binary tree node into a buffer
+ * Pack a binary tree node into a stream
  * 
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param p_node       the node
  * @param pfn_elemenet pointer to pack function IF not null ELSE default
  */
-int binary_tree_node_pack ( void *p_buffer, binary_tree_node *p_node, fn_pack *pfn_element );
+int binary_tree_node_pack ( stream *p_stream, binary_tree_node *p_node, fn_pack *pfn_element );
 
 /** ! 
- * Unpack a binary tree node from a buffer
+ * Unpack a binary tree node from a stream
  * 
  * @param pp_node      result
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param pfn_elemenet pointer to unpack function IF not null ELSE default
  */
-int binary_tree_node_unpack ( binary_tree_node **pp_node, void *p_buffer, fn_unpack *pfn_element );
+int binary_tree_node_unpack ( binary_tree_node **pp_node, stream *p_stream, fn_unpack *pfn_element );
 
 /** !
  * Destroy and deallocate a binary tree node
@@ -1079,33 +1079,34 @@ int binary_tree_forcontext ( binary_tree *const p_binary_tree, fn_forcontext *pf
     }
 }
 
-int binary_tree_pack ( void *p_buffer, binary_tree *p_binary_tree, fn_pack *pfn_element )
+int binary_tree_pack ( stream *p_stream, binary_tree *p_binary_tree, fn_pack *pfn_element )
 {
     
     // argument check
     if ( NULL == p_binary_tree ) goto no_binary_tree;
+    if ( NULL ==      p_stream ) return 0;
     if ( NULL ==   pfn_element ) return 0;
 
     // initialized data 
-    char *p = p_buffer;
+    size_t written = 0;
 
     // lock
     mutex_lock(&p_binary_tree->_lock);
 
     // pack the metadata
-    p += pack_pack(p, "%2i64", 
+    written += pack_pack(p_stream, "%2i64", 
         p_binary_tree->metadata.quantity,
         p_binary_tree->metadata.size
     );
 
     // pack the tree
-    p += binary_tree_node_pack(p, p_binary_tree->p_root, pfn_element);
+    written += binary_tree_node_pack(p_stream, p_binary_tree->p_root, pfn_element);
 
     // unlock
     mutex_unlock(&p_binary_tree->_lock);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -1126,7 +1127,7 @@ int binary_tree_pack ( void *p_buffer, binary_tree *p_binary_tree, fn_pack *pfn_
 int binary_tree_unpack
 ( 
     binary_tree **pp_binary_tree, 
-    void *p_buffer, 
+    stream *p_stream, 
     
     fn_unpack       *pfn_element, 
     fn_comparator   *pfn_comparator, 
@@ -1136,16 +1137,17 @@ int binary_tree_unpack
     
     // argument check
     if ( NULL == pp_binary_tree ) goto no_binary_tree;
+    if ( NULL ==       p_stream ) return 0;
     if ( NULL ==    pfn_element ) return 0;
 
     // initialized data 
     binary_tree *p_binary_tree = NULL;
-    char        *p             = p_buffer;
+    size_t       written       = 0;
     size_t       quantity      = 0, 
                  size          = 0;
 
     // unpack the metadata
-    p += pack_unpack(p, "%2i64", 
+    written += pack_unpack(p_stream, "%2i64", 
         &quantity,
         &size
     );
@@ -1154,7 +1156,7 @@ int binary_tree_unpack
     binary_tree_construct(&p_binary_tree, size, pfn_comparator, pfn_key_accessor);
 
     // recursively unpack from the root
-    p += binary_tree_node_unpack(&p_binary_tree->p_root, p, pfn_element);
+    written += binary_tree_node_unpack(&p_binary_tree->p_root, p_stream, pfn_element);
 
     // store the quantity of nodes
     p_binary_tree->metadata.quantity = quantity;
@@ -1163,7 +1165,7 @@ int binary_tree_unpack
     *pp_binary_tree = p_binary_tree;
     
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -1330,63 +1332,63 @@ int binary_tree_node_create ( binary_tree_node **pp_binary_tree_node )
     }
 }
 
-int binary_tree_node_pack ( void *p_buffer, binary_tree_node *p_node, fn_pack *pfn_element )
+int binary_tree_node_pack ( stream *p_stream, binary_tree_node *p_node, fn_pack *pfn_element )
 {
 
     // initialized data 
-    char *p = p_buffer;
+    size_t written = 0;
 
     // pack the parent value
-    p += pfn_element(p, p_node->p_value),
+    written += pfn_element(p_stream, p_node->p_value);
 
     // pack the node pointer
-    p += pack_pack(p, "%2i64", 
+    written += pack_pack(p_stream, "%2i64", 
         p_node->p_left  ? p_node->p_left->node_pointer  : eight_bytes_of_f,
         p_node->p_right ? p_node->p_right->node_pointer : eight_bytes_of_f
     );
 
     // left
-    if ( p_node->p_left ) p += binary_tree_node_pack(p, p_node->p_left, pfn_element);
+    if ( p_node->p_left ) written += binary_tree_node_pack(p_stream, p_node->p_left, pfn_element);
 
     // right
-    if ( p_node->p_right ) p += binary_tree_node_pack(p, p_node->p_right, pfn_element);
+    if ( p_node->p_right ) written += binary_tree_node_pack(p_stream, p_node->p_right, pfn_element);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 }
 
-int binary_tree_node_unpack ( binary_tree_node **pp_node, void *p_buffer, fn_unpack *pfn_element )
+int binary_tree_node_unpack ( binary_tree_node **pp_node, stream *p_stream, fn_unpack *pfn_element )
 {
 
     // initialized data 
     binary_tree_node *p_node   = NULL;
-    char             *p        = p_buffer;
+    size_t written = 0;
     unsigned long long l = 0, r = 0;
 
     // construct a binary tree node
     binary_tree_node_create(&p_node);
     
     // unpack the parent value
-    p += pfn_element(&p_node->p_value, p);
+    written += pfn_element(&p_node->p_value, p_stream);
 
     // unpack the node pointer
-    p += pack_unpack(p, "%2i64", &l, &r);
+    written += pack_unpack(p_stream, "%2i64", &l, &r);
 
     // left
     if ( l != eight_bytes_of_f ) 
-        p += binary_tree_node_unpack(&p_node->p_left, p, pfn_element),
+        written += binary_tree_node_unpack(&p_node->p_left, p_stream, pfn_element),
         p_node->p_left->node_pointer = l;
 
     // right
     if ( r != eight_bytes_of_f ) 
-        p += binary_tree_node_unpack(&p_node->p_right, p, pfn_element),
+        written += binary_tree_node_unpack(&p_node->p_right, p_stream, pfn_element),
         p_node->p_right->node_pointer = r;
 
     // return a pointer to the caller
     *pp_node = p_node;
     
     // success
-    return p - (char *)p_buffer;
+    return written;
 }
 
 hash64 binary_tree_node_hash ( binary_tree_node *p_node, fn_hash64 *pfn_hash64 )

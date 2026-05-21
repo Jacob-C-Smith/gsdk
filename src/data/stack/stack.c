@@ -330,36 +330,37 @@ int stack_fori ( stack *p_stack, fn_fori *pfn_fori )
     }
 }
 
-int stack_pack ( void *p_buffer, stack *p_stack, fn_pack *pfn_element )
+int stack_pack ( stream *p_stream, stack *p_stack, fn_pack *pfn_element )
 {
     
     // argument check
     if ( p_stack     == (void *) 0 ) goto no_stack;
+    if ( p_stream    == (void *) 0 ) return 0;
     if ( pfn_element == (void *) 0 ) return 0;
 
     // initialized data 
-    char *p = p_buffer;
+    size_t written = 0;
 	
     // lock
     mutex_lock(&p_stack->_lock);
 
     // pack the size
-    p += pack_pack(p, "%i64", p_stack->size);
+    written += pack_pack(p_stream, "%i64", p_stack->size);
 
     // pack the offset
-    p += pack_pack(p, "%i64", p_stack->offset);
+    written += pack_pack(p_stream, "%i64", p_stack->offset);
 
     // iterate through the stack
     for (size_t i = 0; i < p_stack->offset; i++)
 
 		// pack the element
-        p += pfn_element(p, p_stack->_p_data[i]);
+        written += pfn_element(p_stream, p_stack->_p_data[i]);
 
     // unlock
     mutex_unlock(&p_stack->_lock);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -377,24 +378,25 @@ int stack_pack ( void *p_buffer, stack *p_stack, fn_pack *pfn_element )
     }
 }
 
-int stack_unpack ( stack **pp_stack, void *p_buffer, fn_unpack *pfn_element )
+int stack_unpack ( stack **pp_stack, stream *p_stream, fn_unpack *pfn_element )
 {
     
     // argument check
     if ( pp_stack    == (void *) 0 ) goto no_stack;
+    if ( p_stream    == (void *) 0 ) return 0;
     if ( pfn_element == (void *) 0 ) return 0;
 
     // initialized data
     stack *p_stack = NULL;
-    char *p = p_buffer;
+    size_t written = 0;
     size_t size = 0;
     size_t off = 0;
 
     // unpack the size
-    p += pack_unpack(p, "%i64", &size);
+    written += pack_unpack(p_stream, "%i64", &size);
 
     // unpack the offset
-    p += pack_unpack(p, "%i64", &off);
+    written += pack_unpack(p_stream, "%i64", &off);
 
     // construct a stack
     stack_construct(&p_stack, size);
@@ -404,18 +406,10 @@ int stack_unpack ( stack **pp_stack, void *p_buffer, fn_unpack *pfn_element )
     {
         
         // initialized data
-        char _result[1024] = { 0 };
         void *p_element = NULL;
-        size_t len_result = pfn_element(_result, p);
 
-        // advance the buffer
-        p += len_result;
-
-        // allocate memory for the element
-        p_element = default_allocator(0, len_result),
-
-        // copy the memory
-        memcpy(p_element, _result, len_result),
+        // unpack the element
+        written += pfn_element(&p_element, p_stream);
         
         // add the element to the stack
         stack_push(p_stack, p_element);
@@ -425,7 +419,7 @@ int stack_unpack ( stack **pp_stack, void *p_buffer, fn_unpack *pfn_element )
     *pp_stack = p_stack;
 
     // success
-    return 1;
+    return written;
     
     // error handling
     {

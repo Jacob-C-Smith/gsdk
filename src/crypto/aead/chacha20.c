@@ -96,8 +96,14 @@ int chacha20_setup ( chacha20 *p_chacha20 )
     // argument check
     if ( NULL == p_chacha20 ) goto no_chacha20;
 
+    // initialized data
+    stream *p_stream = NULL;
+
+    // construct the stream
+    stream_from_buffer(&p_stream, &p_chacha20->state, sizeof(chacha20_state));
+
     // set up the state
-    pack_pack(&p_chacha20->state, "%4i32%8i32%i32%3i32",
+    pack_pack(p_stream, "%4i32%8i32%i32%3i32",
 
         // "expand 32-byte k"
         0x61707865, 0x3320646e, 0x79622d32, 0x6b206574,
@@ -112,6 +118,9 @@ int chacha20_setup ( chacha20 *p_chacha20 )
         // the nonce
         p_chacha20->nonce[0], p_chacha20->nonce[1], p_chacha20->nonce[2]
     );
+
+    // destroy the stream
+    stream_destroy(&p_stream);
 
     // debug
     #ifdef CHACHA20_DEBUG
