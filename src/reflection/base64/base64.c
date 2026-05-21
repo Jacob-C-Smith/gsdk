@@ -1,5 +1,5 @@
 /** !
- * base64 module implementation
+ * base64 implementation
  * 
  * @file src/reflection/base64/base64.c 
  * 
@@ -8,6 +8,41 @@
 
 // header
 #include <reflection/base64.h>
+
+// structure definitions
+struct base64_stream_s
+{
+    void  *p_buffer;
+    size_t size;
+    size_t cursor;
+    size_t read_cursor;
+    unsigned char remainder[4];
+    size_t remainder_len;
+};
+
+// type definitions
+typedef struct base64_stream_s base64_stream;
+
+// forward declarations
+/// read
+fn_stream_read base64_stream_read;
+
+/// write
+fn_stream_write base64_stream_encode_write;
+fn_stream_write base64_stream_decode_write;
+
+/// size
+fn_stream_size base64_stream_size;
+
+/// flush
+fn_stream_flush base64_stream_encode_flush;
+fn_stream_flush base64_stream_decode_flush;
+
+/// seek
+fn_stream_seek base64_stream_seek;
+
+/// close
+fn_stream_close base64_stream_close;
 
 // data
 static const char base_64_encoding_characters[] = 
@@ -40,6 +75,174 @@ static const char base_64_decoding_characters[] =
     0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x30, 
     0x31, 0x32, 0x33, 0x00, 0x00, 0x00, 0x00, 0x00  
 };
+
+int base64_encode_stream_create ( stream **pp_stream )
+{
+
+    // argument check
+    if ( NULL == pp_stream ) goto no_stream;
+
+    // initialized data
+    stream        *p_stream        = NULL;
+    base64_stream *p_base64_stream = NULL;
+    void          *p_buffer        = NULL;
+    
+    // allocate memory for a stream
+    p_stream = default_allocator(NULL, sizeof(stream));
+    if ( NULL == p_stream ) goto no_mem;
+
+    // allocate memory for a base64 stream 
+    p_base64_stream = default_allocator(NULL, sizeof(base64_stream));
+    if ( NULL == p_base64_stream ) goto no_mem;
+
+    // allocate memory for a buffer
+    p_buffer = default_allocator(NULL, 1024);
+    if ( NULL == p_buffer ) goto no_mem;
+
+    // populate the base64 stream 
+    *p_base64_stream = (base64_stream)
+    {
+        .p_buffer      = p_buffer,
+        .size          = 1024,
+        .cursor        = 0,
+        .read_cursor   = 0,
+        .remainder_len = 0,
+    };
+
+    // populate the stream structure
+    *p_stream = (stream)
+    {
+        .p_data    = p_base64_stream,
+        .type      = STREAM_TYPE_ENCODER,
+        .size      = 0,
+        .cursor    = 0,
+        .pfn_read  = base64_stream_read,
+        .pfn_write = base64_stream_encode_write,
+        .pfn_size  = base64_stream_size,
+        .pfn_flush = base64_stream_encode_flush,
+        .pfn_seek  = base64_stream_seek,
+        .pfn_close = base64_stream_close,
+    };
+
+    // construct a lock
+    mutex_create(&p_stream->_lock);
+
+    // return a pointer to the caller
+    *pp_stream = p_stream;
+
+    // success
+    return 1;
+
+    // error handling
+    {
+        
+        // argument errors
+        {
+            no_stream:
+                #ifndef NDEBUG
+                    log_error("[base64] Null pointer provided for parameter \"pp_stream\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // standard library errors
+        {
+            no_mem:
+                #ifndef NDEBUG
+                    log_error("[base64] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int base64_decode_stream_create ( stream **pp_stream )
+{
+
+    // argument check
+    if ( NULL == pp_stream ) goto no_stream;
+
+    // initialized data
+    stream        *p_stream        = NULL;
+    base64_stream *p_base64_stream = NULL;
+    void          *p_buffer        = NULL;
+
+    // allocate memory for a stream
+    p_stream = default_allocator(NULL, sizeof(stream));
+    if ( NULL == p_stream ) goto no_mem;
+
+    // allocate memory for a base64 stream 
+    p_base64_stream = default_allocator(NULL, sizeof(base64_stream));
+    if ( NULL == p_base64_stream ) goto no_mem;
+
+    // allocate memory for a buffer
+    p_buffer = default_allocator(NULL, 1024);
+    if ( NULL == p_buffer ) goto no_mem;
+
+    // populate the base64 stream 
+    *p_base64_stream = (base64_stream)
+    {
+        .p_buffer      = p_buffer,
+        .size          = 1024,
+        .cursor        = 0,
+        .read_cursor   = 0,
+        .remainder_len = 0,
+    };
+
+    // populate the stream structure
+    *p_stream = (stream)
+    {
+        .p_data    = p_base64_stream,
+        .type      = STREAM_TYPE_DECODER,
+        .size      = 0,
+        .cursor    = 0,
+        .pfn_read  = base64_stream_read,
+        .pfn_write = base64_stream_decode_write,
+        .pfn_size  = base64_stream_size,
+        .pfn_flush = base64_stream_decode_flush,
+        .pfn_seek  = base64_stream_seek,
+        .pfn_close = base64_stream_close,
+    };
+
+    // construct a lock
+    mutex_create(&p_stream->_lock);
+
+    // return a pointer to the caller
+    *pp_stream = p_stream;
+
+    // success
+    return 1;
+
+    // error handling
+    {
+        
+        // argument errors
+        {
+            no_stream:
+                #ifndef NDEBUG
+                    log_error("[base64] Null pointer provided for parameter \"pp_stream\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // standard library errors
+        {
+            no_mem:
+                #ifndef NDEBUG
+                    log_error("[base64] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
 
 int base64_encode ( char *const p_output, const void *const p_data, size_t len )
 {
@@ -145,4 +348,336 @@ int base64_decode ( void *const p_output, const char *const p_data, size_t len )
                 return 0;
         }
     }
+}
+
+int base64_stream_read ( stream *p_stream, void *p_data, size_t size )
+{
+
+    // initialized data
+    base64_stream *p_base64_stream = p_stream->p_data;
+    size_t         available       = p_base64_stream->cursor - p_base64_stream->read_cursor;
+    size_t         to_read         = ( available < size ) ? available : size;
+
+    // error check
+    if ( 0 == to_read ) return 0;
+
+    // copy
+    memcpy
+    (
+        p_data, 
+        (char *) p_base64_stream->p_buffer + p_base64_stream->read_cursor, 
+        to_read
+    );
+
+    // update read cursor
+    p_base64_stream->read_cursor += to_read;
+
+    // update stream cursor
+    p_stream->cursor = p_base64_stream->read_cursor;
+
+    // success
+    return (int) to_read;
+}
+
+int base64_stream_encode_write ( stream *p_stream, void *p_data, size_t size )
+{
+
+    // initialized data
+    base64_stream *p_base64_stream = p_stream->p_data;
+    size_t         total_len       = p_base64_stream->remainder_len + size;
+    size_t         blocks          = total_len / 3;
+    size_t         to_encode       = blocks * 3;
+    size_t         encoded_len     = blocks * 4;
+
+    // edge case
+    if ( 0 == blocks )
+    {
+
+        // copy
+        memcpy
+        (
+            p_base64_stream->remainder + p_base64_stream->remainder_len, 
+            p_data, 
+            size
+        );
+
+        // update remainder length
+        p_base64_stream->remainder_len += size;
+
+        // success
+        return (int) size;
+    }
+
+    // grow the buffer
+    if ( p_base64_stream->cursor + encoded_len > p_base64_stream->size )
+    {
+
+        // initialized data
+        size_t new_size = 
+        ( p_base64_stream->size * 2 > p_base64_stream->cursor + encoded_len ) 
+            ? ( p_base64_stream->size * 2 ) 
+            : ( p_base64_stream->cursor + encoded_len );
+
+        // resize the buffer
+        p_base64_stream->p_buffer = default_allocator(p_base64_stream->p_buffer, new_size);
+        if ( NULL == p_base64_stream->p_buffer ) return 0;
+
+        // update the size
+        p_base64_stream->size = new_size;
+    }
+
+    // encode
+    {
+
+        // initialized data
+        unsigned char *p_src = default_allocator(NULL, to_encode);
+
+        // error check
+        if ( NULL == p_src ) return 0;
+
+        // copy remainder
+        memcpy(p_src, p_base64_stream->remainder, p_base64_stream->remainder_len);
+
+        // copy data
+        memcpy(p_src + p_base64_stream->remainder_len, p_data, to_encode - p_base64_stream->remainder_len);
+
+        // encode
+        base64_encode
+        (
+            (char *) p_base64_stream->p_buffer + p_base64_stream->cursor, 
+            p_src, 
+            to_encode
+        );
+
+        // release the source buffer
+        p_src = default_allocator(p_src, 0);
+    }
+
+    // update the cursors
+    p_base64_stream->cursor += encoded_len,
+    p_stream->size = p_base64_stream->cursor;
+
+    // update remainder
+    {
+
+        // initialized data
+        size_t consumed = to_encode - p_base64_stream->remainder_len;
+
+        // store the remainder
+        p_base64_stream->remainder_len = size - consumed;
+
+        // copy
+        memcpy
+        (
+            p_base64_stream->remainder, 
+            (char *) p_data + consumed, 
+            p_base64_stream->remainder_len
+        );
+    }
+
+    // success
+    return (int) size;
+}
+
+int base64_stream_decode_write ( stream *p_stream, void *p_data, size_t size )
+{
+
+    // initialized data
+    base64_stream *p_base64_stream    = p_stream->p_data;
+    size_t         total_len          = p_base64_stream->remainder_len + size;
+    size_t         blocks             = total_len / 4;
+    size_t         to_decode          = blocks * 4;
+    size_t         decoded_len        = blocks * 3; 
+    size_t         actual_decoded_len = 0;
+
+    // edge case
+    if ( 0 == blocks )
+    {
+
+        // copy
+        memcpy
+        (
+            p_base64_stream->remainder + p_base64_stream->remainder_len, 
+            p_data, 
+            size
+        );
+
+        // update the remainder 
+        p_base64_stream->remainder_len += size;
+
+        // success
+        return (int) size;
+    }
+
+    // resize the buffer
+    if ( p_base64_stream->cursor + decoded_len > p_base64_stream->size )
+    {
+
+        // initialized data
+        size_t new_size = ( p_base64_stream->size * 2 > p_base64_stream->cursor + decoded_len ) 
+            ? ( p_base64_stream->size * 2 ) 
+            : ( p_base64_stream->cursor + decoded_len );
+
+        // resize the buffer
+        p_base64_stream->p_buffer = default_allocator(p_base64_stream->p_buffer, new_size);
+        if ( NULL == p_base64_stream->p_buffer ) return 0;
+
+        // store the new size
+        p_base64_stream->size = new_size;
+    }
+
+    // decode
+    {
+
+        // initialized data
+        char *p_src = default_allocator(NULL, to_decode + 1);
+
+        // error check
+        if ( NULL == p_src ) return 0;
+
+        // copy remainder
+        memcpy
+        (
+            p_src, 
+            p_base64_stream->remainder, 
+            p_base64_stream->remainder_len
+        );
+
+        // copy data
+        memcpy
+        (
+            p_src + p_base64_stream->remainder_len, 
+            p_data, 
+            to_decode - p_base64_stream->remainder_len
+        );
+
+        // store a null terminator 
+        p_src[to_decode] = '\0';
+
+        // store the actual decoded length
+        actual_decoded_len = decoded_len;
+
+        // pad
+        if ( p_src[to_decode - 1] == '=' ) actual_decoded_len--;
+        if ( p_src[to_decode - 2] == '=' ) actual_decoded_len--;
+
+        // decode
+        base64_decode((unsigned char *) p_base64_stream->p_buffer + p_base64_stream->cursor, p_src, to_decode);
+
+        // release the source buffer
+        p_src = default_allocator(p_src, 0);
+
+        // update cursors
+        p_base64_stream->cursor += actual_decoded_len;
+    }
+
+    // update the size of the stream
+    p_stream->size = p_base64_stream->cursor;
+
+    // update remainder
+    {
+
+        // initialized data
+        size_t consumed = to_decode - p_base64_stream->remainder_len;
+
+        // store the remainder
+        p_base64_stream->remainder_len = size - consumed;
+
+        // copy
+        memcpy
+        (
+            p_base64_stream->remainder, 
+            (char *) p_data + consumed, 
+            p_base64_stream->remainder_len
+        );
+    }
+
+    // success
+    return (int) size;
+}
+
+int base64_stream_size ( stream *p_stream )
+{
+
+    // initialized data
+    base64_stream *p_base64_stream = p_stream->p_data;
+
+    // success
+    return (int) (p_base64_stream->cursor - p_base64_stream->read_cursor);
+}
+
+int base64_stream_encode_flush ( stream *p_stream )
+{
+
+    // initialized data
+    base64_stream *p_base64_stream = p_stream->p_data;
+
+    // error check
+    if ( 0 == p_base64_stream->remainder_len ) return 1;
+
+    // resize the buffer
+    if ( p_base64_stream->cursor + 4 > p_base64_stream->size )
+    {
+
+        // resize the buffer
+        p_base64_stream->p_buffer = default_allocator(p_base64_stream->p_buffer, p_base64_stream->size + 4);
+        if ( NULL == p_base64_stream->p_buffer ) return 0;
+
+        // update the size
+        p_base64_stream->size += 4;
+    }
+
+    // encode the remainder
+    base64_encode
+    (
+        (char *) p_base64_stream->p_buffer + p_base64_stream->cursor, 
+        p_base64_stream->remainder, 
+        p_base64_stream->remainder_len
+    );
+
+    // update cursors
+    p_base64_stream->cursor += 4,
+    p_stream->size = p_base64_stream->cursor,
+    p_base64_stream->remainder_len = 0;
+
+    // success
+    return 1;
+}
+
+int base64_stream_decode_flush ( stream *p_stream )
+{
+
+    // unused
+    (void) p_stream;
+
+    // success
+    return 1;
+}
+
+int base64_stream_seek ( stream *p_stream, long offset, enum stream_seek_e whence )
+{
+
+    // unused
+    (void) p_stream;
+    (void) offset;
+    (void) whence;
+
+    // error
+    return 0;
+}
+
+int base64_stream_close ( stream *p_stream )
+{
+
+    // initialized data
+    base64_stream *p_base64_stream = p_stream->p_data;
+
+    // release the buffer
+    p_base64_stream->p_buffer = default_allocator(p_base64_stream->p_buffer, 0);
+
+    // release the base64 stream
+    p_base64_stream = default_allocator(p_base64_stream, 0);
+
+    // success
+    return 1;
 }

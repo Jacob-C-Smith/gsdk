@@ -71,6 +71,15 @@ void print_final_summary ( void );
 void print_test ( const char *scenario_name, const char *test_name, bool passed );
 
 /** !
+ * Test base64 streams
+ * 
+ * @param name the name of the test
+ * 
+ * @return void
+ */
+void test_stream ( char *name );
+
+/** !
  * Test base64 decoding
  * 
  * @param name the name of the test
@@ -224,6 +233,76 @@ void run_tests ( void )
     log_info("decode tests took: ");
     print_time_pretty ( (double)(decode_t1-decode_t0)/(double)timer_seconds_divisor() );
     log_info(" to test\n");
+
+    //////////////////////
+    // Test the streams //
+    //////////////////////
+
+    // Test the base64 streams
+    test_stream("stream");
+
+    // done
+    return;
+}
+
+void test_stream ( char *name )
+{
+
+    // Formatting
+    log_scenario("%s\n", name);
+
+    // Test encoding/decoding via streams
+    {
+        stream *p_encode_stream = NULL;
+        stream *p_decode_stream = NULL;
+        char   *p_text          = "Hello, World!";
+        char    encoded[256]    = { 0 };
+        char    decoded[256]    = { 0 };
+
+        base64_encode_stream_create(&p_encode_stream);
+        base64_decode_stream_create(&p_decode_stream);
+
+        stream_write(p_encode_stream, p_text, strlen(p_text));
+        stream_flush(p_encode_stream);
+        stream_read(p_encode_stream, encoded, stream_size(p_encode_stream));
+
+        print_test(name, "encode", strcmp(encoded, "SGVsbG8sIFdvcmxkIQ==") == 0);
+
+        stream_write(p_decode_stream, encoded, strlen(encoded));
+        stream_read(p_decode_stream, decoded, stream_size(p_decode_stream));
+
+        print_test(name, "decode", strcmp(decoded, p_text) == 0);
+
+        stream_destroy(&p_encode_stream);
+        stream_destroy(&p_decode_stream);
+    }
+
+    // Test partial writes
+    {
+        stream *p_encode_stream = NULL;
+        char    encoded[256]    = { 0 };
+
+        base64_encode_stream_create(&p_encode_stream);
+
+        stream_write(p_encode_stream, "a", 1);
+        stream_write(p_encode_stream, "b", 1);
+        stream_write(p_encode_stream, "c", 1);
+        stream_read(p_encode_stream, encoded, stream_size(p_encode_stream));
+
+        print_test(name, "partial write (no flush)", strcmp(encoded, "YWJj") == 0);
+
+        stream_write(p_encode_stream, "d", 1);
+        stream_flush(p_encode_stream);
+        memset(encoded, 0, 256);
+        stream_read(p_encode_stream, encoded, stream_size(p_encode_stream));
+
+        print_test(name, "partial write (flush)", strcmp(encoded, "ZA==") == 0);
+
+        stream_destroy(&p_encode_stream);
+    }
+
+    // Print the summary of this test
+    print_final_summary();
 
     // done
     return;
