@@ -1,7 +1,7 @@
 /** !
- * base64 module interface
+ * base64 interface
  * 
- * @file include/reflection/base64.h 
+ * @file src/reflection/base64/base64.h 
  * 
  * @author Jacob Smith 
  */
@@ -13,12 +13,23 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-// core
+// gsdk
+/// core
 #include <core/log.h>
 #include <core/sync.h>
+#include <core/stream.h>
 
 // function declarations
 /// encode
+/** !
+ * Construct a base64 encoder stream
+ * 
+ * @param pp_stream result
+ * 
+ * @return 1 on success, 0 on error
+ */
+int base64_encode_stream_create ( stream **pp_stream );
+
 /** !
  * Encode len bytes of p_data, and store in p_output
  * 
@@ -31,6 +42,15 @@
 int base64_encode ( char *const p_output, const void *const p_data, size_t len );
 
 /// decode
+/** !
+ * Construct a base64 decoder stream
+ * 
+ * @param pp_stream result
+ * 
+ * @return 1 on success, 0 on error
+ */
+int base64_decode_stream_create ( stream **pp_stream );
+
 /** !
  * Decode len bytes of p_data, and store in p_output
  * 

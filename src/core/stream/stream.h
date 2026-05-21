@@ -30,7 +30,9 @@ enum stream_type_e
     STREAM_TYPE_FILE           = 0,
     STREAM_TYPE_BUFFER         = 1,
     STREAM_TYPE_DYNAMIC_BUFFER = 2,
-    STREAM_TYPE_QUANTITY       = 3
+    STREAM_TYPE_ENCODER        = 3,
+    STREAM_TYPE_DECODER        = 4,
+    STREAM_TYPE_QUANTITY       = 5
 };
 
 enum stream_seek_e
