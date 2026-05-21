@@ -17,6 +17,7 @@
 #include <core/sync.h>
 #include <core/pack.h>
 #include <core/hash.h>
+#include <core/stream.h>
 #include <core/interfaces.h>
 
 /// data
@@ -138,19 +139,16 @@ int main ( int argc, const char* argv[] )
     {
 
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
         // open a file for writing
-        p_f = fopen("resources/reflection/double_queue.bin", "wb");
+        stream_from_path(&p_stream, "resources/reflection/double_queue.bin");
 
         // reflect the double ended queue to a buffer
-        file_len = double_queue_pack(buf, p_double_queue, string_pack),
+        double_queue_pack(p_stream, p_double_queue, string_pack);
         
-        // write the buffer to a file
-        fwrite(buf, file_len, 1, p_f),
-
         // close the file
-        fclose(p_f),
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint(p_double_queue, "after serialize");
@@ -216,15 +214,15 @@ int main ( int argc, const char* argv[] )
     {
 
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
         // read a buffer from a file
-        p_f = fopen("resources/reflection/double_queue.bin", "rb"),
-        fread(buf, file_len, 1, p_f),
-        fclose(p_f);
+        stream_from_path(&p_stream, "resources/reflection/double_queue.bin");
 
         // reflect a double ended queue from the buffer
-        double_queue_unpack(&p_double_queue, buf, string_unpack),
+        double_queue_unpack(&p_double_queue, p_stream, string_unpack);
+
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint(p_double_queue, "after parse");
@@ -353,14 +351,14 @@ int string_compare ( const void *const p_a, const void *const p_b )
     return strcmp(a, b);
 }
 
-int string_pack ( void *p_buffer, const void *const p_value )
+int string_pack ( stream *p_stream, const void *const p_value )
 {
 
     // done
-    return pack_pack(p_buffer, "%s", p_value);
+    return pack_pack(p_stream, "%s", p_value);
 }
 
-int string_unpack ( void *const p_value, void *p_buffer )
+int string_unpack ( void *const p_value, stream *p_stream )
 {
 
     // initialized data
@@ -370,7 +368,7 @@ int string_unpack ( void *const p_value, void *p_buffer )
     const char   _string  [1024] = { 0 };
 
     // unpack the buffer
-    result = pack_unpack(p_buffer, "%s", &_string);
+    result = pack_unpack(p_stream, "%s", &_string);
 
     // duplicate the string
     p_string = strdup(_string);

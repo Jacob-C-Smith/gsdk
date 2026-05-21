@@ -15,6 +15,7 @@
 // gsdk
 /// core
 #include <core/log.h>
+#include <core/stream.h>
 
 /// data
 #include <data/graph.h>
@@ -46,10 +47,10 @@ fn_comparator      airport_comparator;
 fn_foreach         airport_print;
 fn_foreach         flight_print;
 fn_weight_accessor flight_weight_accessor;
-fn_pack            airport_pack;
-fn_pack            flight_pack;
-fn_unpack          airport_unpack;
-fn_unpack          flight_unpack;
+int airport_pack ( stream *p_stream, const void *const p_value );
+int flight_pack ( stream *p_stream, const void *const p_value );
+int airport_unpack ( void *p_value, stream *p_stream );
+int flight_unpack ( void *p_value, stream *p_stream );
 
 // data
 /// working graph
@@ -205,19 +206,16 @@ int main ( int argc, const char *argv[] )
     {
 
         // initialized data
-        char buf[4096] = { 0 };
+        stream *p_stream = NULL;
         
         // open a file for writing
-        p_f = fopen("resources/reflection/graph.bin", "wb");
+        stream_from_path(&p_stream, "resources/reflection/graph.bin");
 
         // reflect the graph to a buffer
-        file_len = graph_pack(buf, p_graph, airport_pack, flight_pack),
+        graph_pack(p_stream, p_graph, airport_pack, flight_pack);
         
-        // write the buffer to a file
-        fwrite(buf, file_len, 1, p_f),
-
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint(p_graph, "after serialize"),
@@ -287,27 +285,26 @@ int main ( int argc, const char *argv[] )
     {
         
         // initialized data
-        char buf[4096] = { 0 };
+        stream *p_stream = NULL;
         
         // read a buffer from a file
-        p_f = fopen("resources/reflection/graph.bin", "rb"),
-        fread(buf, sizeof(char), file_len, p_f),
+        stream_from_path(&p_stream, "resources/reflection/graph.bin");
         
         // reflect a graph from the buffer
         graph_unpack
         (
             &p_graph, 
-            buf,
+            p_stream,
              
             airport_unpack,
             flight_unpack,
 
             airport_key_accessor,
             airport_comparator
-        ),
+        );
 
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint(p_graph, "after parse"),
@@ -595,36 +592,36 @@ void airport_print ( void *p_element )
     return;
 }
 
-int airport_pack ( void *p_buffer, const void *const p_value )
+int airport_pack ( stream *p_stream, const void *const p_value )
 {
 
     // initialized data
-    char    *p         = p_buffer;
     airport *p_airport = (airport *)p_value;
+    int written = 0;
 
     // pack the airport
-    p += pack_pack(p, "%2s", 
+    written += pack_pack(p_stream, "%2s", 
         p_airport->code,
         p_airport->city
     );
     
     // success
-    return p - (char*)p_buffer;
+    return written;
 }
 
-int airport_unpack ( void *p_value, void *p_buffer )
+int airport_unpack ( void *p_value, stream *p_stream )
 {
 
     // initialized data
-    char     *p          = p_buffer;
     airport **pp_airport = (airport **)p_value;
     airport  *p_airport  = NULL;
+    int written = 0;
 
     char _code[4]  = { 0 };
     char _city[32] = { 0 };
 
     // unpack the airport
-    p += pack_unpack(p, "%2s", 
+    written += pack_unpack(p_stream, "%2s", 
         _code,
         _city
     );
@@ -642,9 +639,8 @@ int airport_unpack ( void *p_value, void *p_buffer )
     *pp_airport = p_airport;
 
     // success
-    return p - (char*)p_buffer;
+    return written;
 }
-
 
 void flight_print ( void *p_element )
 {
@@ -669,34 +665,34 @@ double flight_weight_accessor ( const void *p_edge )
     return p_flight->distance;
 }
 
-int flight_pack ( void *p_buffer, const void *const p_value )
+int flight_pack ( stream *p_stream, const void *const p_value )
 {
 
     // initialized data
-    char   *p        = p_buffer;
     flight *p_flight = (flight *)p_value;
+    int written = 0;
 
     // pack the flight
-    p += pack_pack(p, "%f64", 
+    written += pack_pack(p_stream, "%f64", 
         p_flight->distance
     );
     
     // success
-    return p - (char*)p_buffer;
+    return written;
 }
 
-int flight_unpack ( void *p_value, void *p_buffer )
+int flight_unpack ( void *p_value, stream *p_stream )
 {
 
     // initialized data
-    char    *p          = p_buffer;
     flight **pp_flight = (flight **)p_value;
     flight  *p_flight  = NULL;
+    int written = 0;
 
     double distance = -1.0;
 
     // unpack the flight
-    p += pack_unpack(p, "%f64", &distance);
+    written += pack_unpack(p_stream, "%f64", &distance);
 
     // allocate memory for a flight
     p_flight = default_allocator(0, sizeof(flight));
@@ -708,7 +704,7 @@ int flight_unpack ( void *p_value, void *p_buffer )
     *pp_flight = p_flight;
 
     // success
-    return p - (char*)p_buffer;
+    return written;
 }
 
 

@@ -1142,7 +1142,7 @@ int edge_list_edge_foreach
 
 int edge_list_pack
 (
-    void *p_buffer, 
+    stream    *p_stream, 
     edge_list *p_edge_list,
 
     fn_pack *pfn_vertex,
@@ -1151,30 +1151,30 @@ int edge_list_pack
 {
 
     // argument check
-    if ( NULL ==   p_buffer ) goto no_buffer;
+    if ( NULL ==    p_stream ) goto no_stream;
     if ( NULL == p_edge_list ) goto no_edge_list;
     if ( NULL == pfn_vertex ) goto no_vertex_pack;
     if ( NULL ==   pfn_edge ) goto no_edge_pack;
 
     // initialized data 
-    char *p = p_buffer;
+    size_t written = 0;
 
     // pack the metadata
-    p += pack_pack(p, "%i32%2i64", 
+    written += pack_pack(p_stream, "%i32%2i64", 
         p_edge_list->_type,
         p_edge_list->vertex_size,
         p_edge_list->edge_size
     );
 
     // pack the vertex quantity
-    p += pack_pack(p, "%i64", p_edge_list->vertices.count);
+    written += pack_pack(p_stream, "%i64", p_edge_list->vertices.count);
 
     // pack the vertices
     for ( size_t i = 0; i < p_edge_list->vertices.count; i++ )
-        p += pfn_vertex(p, p_edge_list->vertices.pp_vertices[i]);
+        written += pfn_vertex(p_stream, p_edge_list->vertices.pp_vertices[i]);
 
     // pack the edge quantity
-    p += pack_pack(p, "%i64", p_edge_list->edges.count);
+    written += pack_pack(p_stream, "%i64", p_edge_list->edges.count);
 
     // pack the edges
     for ( size_t i = 0; i < p_edge_list->edges.count; i++ )
@@ -1194,23 +1194,23 @@ int edge_list_pack
         }
 
         // pack the indices
-        p += pack_pack(p, "%2i64", (size_t)from_idx, (size_t)to_idx);
+        written += pack_pack(p_stream, "%2i64", (size_t)from_idx, (size_t)to_idx);
 
         // pack the edge data
-        p += pfn_edge(p, p_edge->p_data);
+        written += pfn_edge(p_stream, p_edge->p_data);
     }
     
     // success
-    return (int)(p - (char *)p_buffer);
+    return written;
 
     // error handling
     {
 
         // argument errors
         {
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[edge list] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[edge list] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -1246,7 +1246,7 @@ int edge_list_pack
 int edge_list_unpack
 (
     edge_list **pp_edge_list,
-    void *p_buffer, 
+    stream     *p_stream, 
 
     fn_unpack *pfn_vertex,
     fn_unpack *pfn_edge,
@@ -1258,14 +1258,14 @@ int edge_list_unpack
 
     // argument check
     if ( NULL ==     pp_edge_list ) goto no_edge_list;
-    if ( NULL ==         p_buffer ) goto no_buffer;
+    if ( NULL ==         p_stream ) goto no_stream;
     if ( NULL ==       pfn_vertex ) goto no_vertex_unpack;
     if ( NULL ==         pfn_edge ) goto no_edge_unpack;
     if ( NULL == pfn_key_accessor ) goto no_key_accessor;
     if ( NULL ==   pfn_comparator ) goto no_comparator;
 
     // initialized data 
-    char                   *p            = p_buffer;
+    size_t                  written      = 0;
     edge_list              *p_edge_list  = NULL;
     enum graph_edge_type_e  _type        = 0;
     size_t                  vertex_size  = 0;
@@ -1274,7 +1274,7 @@ int edge_list_unpack
     size_t                  edge_count   = 0;
 
     // unpack the metadata
-    p += pack_unpack(p, "%i32%2i64", 
+    written += pack_unpack(p_stream, "%i32%2i64", 
         &_type,
         &vertex_size,
         &edge_size
@@ -1294,7 +1294,7 @@ int edge_list_unpack
     ) ) goto failed_to_construct;
 
     // unpack the vertex quantity
-    p += pack_unpack(p, "%i64", &vertex_count);
+    written += pack_unpack(p_stream, "%i64", &vertex_count);
 
     // unpack all vertices
     for ( size_t i = 0; i < vertex_count; i++ )
@@ -1304,14 +1304,14 @@ int edge_list_unpack
         void *p_vertex = NULL;
 
         // unpack the vertex
-        p += pfn_vertex(&p_vertex, p);
+        written += pfn_vertex(&p_vertex, p_stream);
 
         // add the vertex
         edge_list_vertex_add(p_edge_list, p_vertex);
     }
 
     // unpack the edge quantity
-    p += pack_unpack(p, "%i64", &edge_count);
+    written += pack_unpack(p_stream, "%i64", &edge_count);
 
     // unpack edges
     for ( size_t i = 0; i < edge_count; i++ )
@@ -1325,10 +1325,10 @@ int edge_list_unpack
         void   *v           = NULL;
 
         // unpack indices
-        p += pack_unpack(p, "%2i64", &from_idx, &to_idx);
+        written += pack_unpack(p_stream, "%2i64", &from_idx, &to_idx);
 
         // unpack the edge data
-        p += pfn_edge(&p_edge_data, p);
+        written += pfn_edge(&p_edge_data, p_stream);
 
         // store the vertices
         u = p_edge_list->vertices.pp_vertices[from_idx];
@@ -1348,7 +1348,7 @@ int edge_list_unpack
     *pp_edge_list = p_edge_list;
 
     // success
-    return (int)(p - (char *)p_buffer);
+    return written;
 
     // error handling
     {
@@ -1363,9 +1363,9 @@ int edge_list_unpack
                 // error
                 return 0;
 
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[edge list] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[edge list] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

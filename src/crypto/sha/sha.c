@@ -713,18 +713,17 @@ int sha512_print ( sha512_hash _hash )
     return 1;
 }
 
-int sha256_pack ( void *p_buffer, sha256_hash _hash )
+int sha256_pack ( stream *p_stream, sha256_hash _hash )
 {
     
     // argument check
-    if ( NULL == p_buffer ) goto no_buffer;
+    if ( NULL == p_stream ) goto no_stream;
 
     // initialized data
-    char *p = p_buffer;
+    size_t written = 0;
     
     // pack the hash
-    p += pack_pack(
-        p, "%32i8",
+    written += pack_pack(p_stream, "%32i8",
         _hash[0] , _hash[1] , _hash[2] , _hash[3],
         _hash[4] , _hash[5] , _hash[6] , _hash[7],
         _hash[8] , _hash[9] , _hash[10], _hash[11],
@@ -736,16 +735,16 @@ int sha256_pack ( void *p_buffer, sha256_hash _hash )
     );
 
     // success
-    return p - (char*) p_buffer;
+    return written;
 
     // error check
     {
         
         // argument errors
         {
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[sha] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[sha] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -754,18 +753,17 @@ int sha256_pack ( void *p_buffer, sha256_hash _hash )
     }
 }
 
-int sha512_pack ( void *p_buffer, sha512_hash _hash )
+int sha512_pack ( stream *p_stream, sha512_hash _hash )
 {
     
     // argument check
-    if ( NULL == p_buffer ) goto no_buffer;
+    if ( NULL == p_stream ) goto no_buffer;
 
     // initialized data
-    char *p = p_buffer;
+    size_t written = 0;
     
     // pack the hash
-    p += pack_pack(
-        p, "%64i8",
+    written += pack_pack(p_stream, "%64i8",
         _hash[0] , _hash[1] , _hash[2] , _hash[3],
         _hash[4] , _hash[5] , _hash[6] , _hash[7],
         _hash[8] , _hash[9] , _hash[10], _hash[11],
@@ -785,7 +783,7 @@ int sha512_pack ( void *p_buffer, sha512_hash _hash )
     );
 
     // success
-    return p - (char*) p_buffer;
+    return written;
 
     // error check
     {
@@ -803,20 +801,20 @@ int sha512_pack ( void *p_buffer, sha512_hash _hash )
     }
 }
 
-int sha256_unpack ( sha256_hash *p_hash, void *p_buffer )
+int sha256_unpack ( sha256_hash *p_hash, stream *p_stream )
 {
 
     // argument check
     if ( NULL ==   p_hash ) goto no_hash;
-    if ( NULL == p_buffer ) goto no_buffer;
+    if ( NULL == p_stream ) goto no_stream;
  
     // initialized data
-    char *p   = p_buffer;
+    size_t written = 0;
     char *p_h = (char*) p_hash;
     
     // unpack the hash
-    p += pack_unpack(
-        p, "%32i8",
+    written += pack_unpack(
+        p_stream, "%32i8",
         &p_h[0] , &p_h[1] , &p_h[2] , &p_h[3],
         &p_h[4] , &p_h[5] , &p_h[6] , &p_h[7],
         &p_h[8] , &p_h[9] , &p_h[10], &p_h[11],
@@ -828,7 +826,7 @@ int sha256_unpack ( sha256_hash *p_hash, void *p_buffer )
     );
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -843,9 +841,9 @@ int sha256_unpack ( sha256_hash *p_hash, void *p_buffer )
                 // error
                 return 0;
 
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[sha] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[sha] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -854,20 +852,20 @@ int sha256_unpack ( sha256_hash *p_hash, void *p_buffer )
     }
 }
 
-int sha512_unpack ( sha512_hash *p_hash, void *p_buffer )
+int sha512_unpack ( sha512_hash *p_hash, stream *p_stream )
 {
 
     // argument check
     if ( NULL ==   p_hash ) goto no_hash;
-    if ( NULL == p_buffer ) goto no_buffer;
+    if ( NULL == p_stream ) goto no_stream;
  
     // initialized data
-    char *p       = p_buffer;
+    size_t written = 0;
     char *p_h = (char*) p_hash;
 
     // unpack the hash
-    p += pack_unpack(
-        p, "%64i8",
+    written += pack_unpack(
+        p_stream, "%64i8",
         &p_h[0] , &p_h[1] , &p_h[2] , &p_h[3],
         &p_h[4] , &p_h[5] , &p_h[6] , &p_h[7],
         &p_h[8] , &p_h[9] , &p_h[10], &p_h[11],
@@ -888,7 +886,7 @@ int sha512_unpack ( sha512_hash *p_hash, void *p_buffer )
 
     
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -903,9 +901,9 @@ int sha512_unpack ( sha512_hash *p_hash, void *p_buffer )
                 // error
                 return 0;
 
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[sha] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[sha] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

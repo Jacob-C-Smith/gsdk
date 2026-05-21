@@ -16,6 +16,7 @@
 // gsdk
 /// core
 #include <core/log.h>
+#include <core/stream.h>
 
 /// crypto
 #include <crypto/sha.h>
@@ -54,7 +55,7 @@ int main ( int argc, const char *argv[] )
     // initialized data
     certificate  *p_root       = NULL;
     certificate **pp_chain     = NULL;
-    char          _buffer[160] = { 0 };
+    stream       *p_stream     = NULL;
 
     // parse command line arguments
     parse_command_line_arguments(argc, argv);
@@ -62,18 +63,14 @@ int main ( int argc, const char *argv[] )
     // load the root certificate
     {
 
-        // initialized data
-        FILE *p_f = fopen(p_root_filename, "rb");
-        if ( NULL == p_f ) goto failed_to_open_file;
-
-        // read the trust root
-        fread(_buffer, 1, sizeof(_buffer), p_f);
+        // open the file
+        if ( 0 == stream_from_path(&p_stream, p_root_filename) ) goto failed_to_open_file;
 
         // construct the trust root
-        certificate_unpack(&p_root, _buffer);
+        certificate_unpack(&p_root, p_stream);
 
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
     }
 
     // load the certificate chain
@@ -83,18 +80,14 @@ int main ( int argc, const char *argv[] )
     for (size_t i = 0; i < chain_count; i++)
     {
         
-        // initialized data
-        FILE *p_f = fopen(pp_chain_filenames[i], "rb");
-        if ( NULL == p_f ) goto failed_to_open_file;
-
-        // read the certificate
-        fread(_buffer, 1, sizeof(_buffer), p_f);
+        // open the file
+        if ( 0 == stream_from_path(&p_stream, pp_chain_filenames[i]) ) goto failed_to_open_file;
 
         // construct the certificate
-        certificate_unpack(&pp_chain[i], _buffer);
+        certificate_unpack(&pp_chain[i], p_stream);
 
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
     }
 
     // verify the chain

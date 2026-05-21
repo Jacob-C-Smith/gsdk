@@ -17,6 +17,7 @@
 #include <core/sync.h>
 #include <core/hash.h>
 #include <core/pack.h>
+#include <core/stream.h>
 #include <core/interfaces.h>
 
 /// data
@@ -163,19 +164,16 @@ int main ( int argc, const char* argv[] )
     {
 
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
         // open a file for writing
-        p_f = fopen("resources/reflection/dict.bin", "wb");
+        stream_from_path(&p_stream, "resources/reflection/dict.bin");
 
         // reflect the dictionary to a buffer
-        file_len = dict_pack(buf, p_dict, person_pack),
+        dict_pack(p_stream, p_dict, person_pack);
         
-        // write the buffer to a file
-        fwrite(buf, file_len, 1, p_f),
-
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint(p_dict, "after serialize");
@@ -225,28 +223,27 @@ int main ( int argc, const char* argv[] )
 
     // #10 - from binary
     {
-        
+
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
         // read a buffer from a file
-        p_f = fopen("resources/reflection/dict.bin", "rb"),
-        fread(buf, sizeof(char), file_len, p_f),
-        
+        stream_from_path(&p_stream, "resources/reflection/dict.bin");
+
         // reflect a dictionary from the buffer
         dict_unpack
         (
             &p_dict,
-            buf,
+            p_stream,
             
             person_unpack,
             NULL,
             person_key_accessor,
             person_hash_key
-        ),
+        );
 
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint(p_dict, "after parse");
@@ -357,38 +354,38 @@ hash64 person_hash ( const void *const k, unsigned long long l )
     return hash_crc64(p_person, sizeof(person));
 }
 
-int person_pack ( void *p_buffer, const void *const p_value )
+int person_pack ( stream *p_stream, const void *const p_value )
 {
 
     // initialized data
-    char   *p        = p_buffer;
     person *p_person = (person *)p_value;
+    int written = 0;
 
     // pack the person
-    p += pack_pack(p, "%2s%i8", 
+    written += pack_pack(p_stream, "%2s%i8", 
         p_person->_name,
         p_person->_hair_color,
         p_person->glasses
     );
     
     // success
-    return p - (char*)p_buffer;
+    return written;
 }
 
-int person_unpack ( void *p_value, void *p_buffer )
+int person_unpack ( void *p_value, stream *p_stream )
 {
 
     // initialized data
-    char   *p        = p_buffer;
     person **pp_person = (person **)p_value;
     person  *p_person  = NULL;
+    int written = 0;
 
     char _name       [16] = { 0 };
     char _hair_color [16] = { 0 };
     bool glasses          = false;
 
     // unpack the person
-    p += pack_unpack(p, "%2s%i8", 
+    written += pack_unpack(p_stream, "%2s%i8", 
         _name,
         _hair_color,
         &glasses
@@ -410,5 +407,5 @@ int person_unpack ( void *p_value, void *p_buffer )
     *pp_person = p_person;
 
     // success
-    return p - (char*)p_buffer;
+    return written;
 }

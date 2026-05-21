@@ -76,8 +76,8 @@ typedef int(fn_graph_edge_add)(void *p_graph, const void *p_from, const void *p_
 typedef int(fn_graph_edge_remove)(void *p_graph, const void *p_from, const void *p_to, void **pp_edge, fn_allocator *pfn_allocator_edge);
 typedef int(fn_graph_edge_foreach)(void *p_graph, fn_foreach *pfn_foreach);
 
-typedef int(fn_graph_pack)(void *p_buffer, void *p_graph, fn_pack *pfn_vertex, fn_pack *pfn_edge);
-typedef int(fn_graph_unpack)(void **pp_graph, void *p_buffer, fn_unpack *pfn_vertex, fn_unpack *pfn_edge, fn_key_accessor *pfn_key_accessor, fn_comparator *pfn_comparator);
+typedef int(fn_graph_pack)(stream *p_stream, void *p_graph, fn_pack *pfn_vertex, fn_pack *pfn_edge);
+typedef int(fn_graph_unpack)(void **pp_graph, stream *p_stream, fn_unpack *pfn_vertex, fn_unpack *pfn_edge, fn_key_accessor *pfn_key_accessor, fn_comparator *pfn_comparator);
 typedef hash64(fn_graph_hash)(void *p_graph, fn_hash64 *pfn_hash64);
 
 typedef int(fn_graph_destroy)(void **const pp_graph, fn_allocator *pfn_allocator_vertex, fn_allocator *pfn_allocator_edge);
@@ -449,9 +449,9 @@ int graph_edge_foreach
 
 /// reflection
 /** !
- * Pack a graph into a buffer
+ * Pack a graph into a stream
  * 
- * @param p_buffer   the buffer
+ * @param p_stream   the stream
  * @param p_graph    the graph
  * @param pfn_vertex pointer to pack function IF not null ELSE default
  * @param pfn_edge   pointer to pack function IF not null ELSE default
@@ -460,7 +460,7 @@ int graph_edge_foreach
  */
 int graph_pack
 (
-    void *p_buffer, 
+    stream *p_stream, 
     graph *p_graph,
 
     fn_pack *pfn_vertex,
@@ -468,10 +468,10 @@ int graph_pack
 );
 
 /** !
- * Unpack a buffer into a graph
+ * Unpack a stream into a graph
  * 
  * @param pp_graph         result
- * @param p_buffer         the buffer
+ * @param p_stream         the stream
  * @param pfn_vertex       pointer to unpack function IF not null ELSE default
  * @param pfn_edge         pointer to unpack function IF not null ELSE default
  * @param pfn_key_accessor pointer to vertex key accessor function
@@ -482,7 +482,7 @@ int graph_pack
 int graph_unpack
 (
     graph **pp_graph,
-    void *p_buffer, 
+    stream *p_stream, 
 
     fn_unpack *pfn_vertex,
     fn_unpack *pfn_edge,

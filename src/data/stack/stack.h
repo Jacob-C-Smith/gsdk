@@ -100,26 +100,26 @@ int stack_fori ( stack *const p_stack, fn_fori *pfn_fori );
 
 /// reflection
 /** !
- * Pack a stack into a buffer
+ * Pack a stack into a stream
  * 
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param p_stack      the stack
  * @param pfn_elemenet pointer to pack function IF not null ELSE default
  * 
- * @return 1 on success, 0 on error
+ * @return bytes written on success, 0 on error
  */
-int stack_pack ( void *p_buffer, stack *p_stack, fn_pack *pfn_element );
+int stack_pack ( stream *p_stream, stack *p_stack, fn_pack *pfn_element );
 
 /** !
- * Unpack a buffer into a stack
+ * Unpack a stream into a stack
  * 
  * @param pp_stack     result
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param pfn_elemenet pointer to unpack function IF not null ELSE default
  * 
- * @return 1 on success, 0 on error
+ * @return bytes read on success, 0 on error
  */
-int stack_unpack ( stack **pp_stack, void *p_buffer, fn_unpack *pfn_element );
+int stack_unpack ( stack **pp_stack, stream *p_stream, fn_unpack *pfn_element );
 
 /// hash
 /** !

@@ -176,19 +176,19 @@ int avl_tree_forcontext ( avl_tree *const p_avl_tree, fn_forcontext *pfn_forcont
 /** !
  * Pack an avl tree into a buffer
  * 
- * @param p_buffer    the buffer
+ * @param p_stream    the stream
  * @param p_avl_tree  the avl tree
  * @param pfn_element pointer to pack function IF not null ELSE default
  * 
  * @return 1 on success, 0 on error
  */
-int avl_tree_pack ( void *p_buffer, avl_tree *p_avl_tree, fn_pack *pfn_element );
+int avl_tree_pack ( stream *p_stream, avl_tree *p_avl_tree, fn_pack *pfn_element );
 
 /** !
  * Unpack an avl tree into a buffer
  * 
  * @param pp_avl_tree      result
- * @param p_buffer         the buffer
+ * @param p_stream         the stream
  * @param pfn_element      pointer to unpack function IF not null ELSE default
  * @param pfn_comparator   function for testing equality of elements in set IF parameter is not null ELSE default
  * @param pfn_key_accessor function for accessing the key of a value IF parameter is not null ELSE default
@@ -198,7 +198,7 @@ int avl_tree_pack ( void *p_buffer, avl_tree *p_avl_tree, fn_pack *pfn_element )
 int avl_tree_unpack
 ( 
     avl_tree **pp_avl_tree, 
-    void      *p_buffer, 
+    stream    *p_stream, 
     
     fn_unpack       *pfn_element, 
     fn_comparator   *pfn_comparator, 

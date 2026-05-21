@@ -514,21 +514,19 @@ int x25519_shared_secret_print ( x25519_shared_secret *p_shared_secret )
     }
 }
 
-int x25519_public_key_pack ( void *p_buffer, x25519_public_key *p_public_key )
+int x25519_public_key_pack ( stream *p_stream, x25519_public_key *p_public_key )
 {
 
     // argument check
-    if ( NULL ==     p_buffer ) goto no_buffer;
+    if ( NULL ==     p_stream ) goto no_stream;
     if ( NULL == p_public_key ) goto no_public_key;
 
     // initialized data
-    char          *p   = p_buffer;
-    unsigned char *p_p = (unsigned char *) p_public_key;
+    size_t         written = 0;
+    unsigned char *p_p     = (unsigned char *) p_public_key;
 
     // pack the public key
-    p += pack_pack(
-        p, "%32i8",
-
+    written += pack_pack(p_stream, "%32i8",
         p_p[0] , p_p[1] , p_p[2] , p_p[3],
         p_p[4] , p_p[5] , p_p[6] , p_p[7],
         p_p[8] , p_p[9] , p_p[10], p_p[11],
@@ -540,16 +538,16 @@ int x25519_public_key_pack ( void *p_buffer, x25519_public_key *p_public_key )
     );
 
     // success
-    return p - (char *)p_buffer;    
+    return written;
 
     // error handling
     {
 
         // argument errors
         {
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[x25519] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[x25519] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -566,20 +564,19 @@ int x25519_public_key_pack ( void *p_buffer, x25519_public_key *p_public_key )
     }
 }
 
-int x25519_public_key_unpack ( x25519_public_key *p_public_key, void *p_buffer )
+int x25519_public_key_unpack ( x25519_public_key *p_public_key, stream *p_stream )
 {
 
     // argument check
     if ( NULL == p_public_key ) goto no_public_key;
-    if ( NULL ==     p_buffer ) goto no_buffer;
+    if ( NULL ==     p_stream ) goto no_stream;
 
     // initialized data
-    char          *p   = p_buffer;
-    unsigned char *p_p = (unsigned char *) p_public_key;
+    size_t         written = 0;
+    unsigned char *p_p     = (unsigned char *) p_public_key;
 
     // unpack the public key
-    p += pack_unpack(
-        p, "%32i8",
+    written += pack_unpack(p_stream, "%32i8",
         &p_p[0] , &p_p[1] , &p_p[2] , &p_p[3],
         &p_p[4] , &p_p[5] , &p_p[6] , &p_p[7],
         &p_p[8] , &p_p[9] , &p_p[10], &p_p[11],
@@ -591,7 +588,7 @@ int x25519_public_key_unpack ( x25519_public_key *p_public_key, void *p_buffer )
     );
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -606,9 +603,9 @@ int x25519_public_key_unpack ( x25519_public_key *p_public_key, void *p_buffer )
                 // error
                 return 0;
 
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[x25519] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[x25519] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -617,21 +614,19 @@ int x25519_public_key_unpack ( x25519_public_key *p_public_key, void *p_buffer )
     }
 }
 
-int x25519_private_key_pack ( void *p_buffer, x25519_private_key *p_private_key )
+int x25519_private_key_pack ( stream *p_stream, x25519_private_key *p_private_key )
 {
 
     // argument check
-    if ( NULL ==      p_buffer ) goto no_buffer;
+    if ( NULL ==      p_stream ) goto no_stream;
     if ( NULL == p_private_key ) goto no_private_key;
 
     // initialized data
-    char          *p   = p_buffer;
-    unsigned char *p_p = (unsigned char *) p_private_key;
+    size_t         written = 0;
+    unsigned char *p_p     = (unsigned char *) p_private_key;
 
     // pack the private key
-    p += pack_pack(
-        p, "%32i8",
-
+    written += pack_pack(p_stream, "%32i8",
         p_p[0] , p_p[1] , p_p[2] , p_p[3],
         p_p[4] , p_p[5] , p_p[6] , p_p[7],
         p_p[8] , p_p[9] , p_p[10], p_p[11],
@@ -643,16 +638,16 @@ int x25519_private_key_pack ( void *p_buffer, x25519_private_key *p_private_key 
     );
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
 
         // argument errors
         {
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[x25519] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[x25519] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -669,20 +664,19 @@ int x25519_private_key_pack ( void *p_buffer, x25519_private_key *p_private_key 
     }
 }
 
-int x25519_private_key_unpack ( x25519_private_key *p_private_key, void *p_buffer )
+int x25519_private_key_unpack ( x25519_private_key *p_private_key, stream *p_stream )
 {
 
     // argument check
     if ( NULL == p_private_key ) goto no_private_key;
-    if ( NULL ==      p_buffer ) goto no_buffer;
+    if ( NULL ==      p_stream ) goto no_stream;
 
     // initialized data
-    char          *p   = p_buffer;
-    unsigned char *p_p = (unsigned char *) p_private_key;
+    size_t         written = 0;
+    unsigned char *p_p     = (unsigned char *) p_private_key;
 
     // unpack the private key
-    p += pack_unpack(
-        p, "%32i8",
+    written += pack_unpack(p_stream, "%32i8",
         &p_p[0] , &p_p[1] , &p_p[2] , &p_p[3],
         &p_p[4] , &p_p[5] , &p_p[6] , &p_p[7],
         &p_p[8] , &p_p[9] , &p_p[10], &p_p[11],
@@ -694,7 +688,7 @@ int x25519_private_key_unpack ( x25519_private_key *p_private_key, void *p_buffe
     );
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -709,9 +703,9 @@ int x25519_private_key_unpack ( x25519_private_key *p_private_key, void *p_buffe
                 // error
                 return 0;
 
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[x25519] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[x25519] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -720,34 +714,34 @@ int x25519_private_key_unpack ( x25519_private_key *p_private_key, void *p_buffe
     }
 }
 
-int x25519_key_pair_pack ( void *p_buffer, x25519_public_key *p_public_key, x25519_private_key *p_private_key )
+int x25519_key_pair_pack ( stream *p_stream, x25519_public_key *p_public_key, x25519_private_key *p_private_key )
 {
 
     // argument check
-    if ( NULL ==     p_buffer ) goto no_buffer;
+    if ( NULL ==      p_stream ) goto no_stream;
     if ( NULL ==  p_public_key ) goto no_public_key;
     if ( NULL == p_private_key ) goto no_private_key;
 
     // initialized data
-    char *p = p_buffer;
+    size_t written = 0;
 
     // pack the public key
-    p += x25519_public_key_pack(p, p_public_key),
+    written += x25519_public_key_pack(p_stream, p_public_key),
 
     // pack the private key
-    p += x25519_private_key_pack(p, p_private_key);
+    written += x25519_private_key_pack(p_stream, p_private_key);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
 
         // argument errors
         {
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[x25519] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[x25519] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -772,25 +766,25 @@ int x25519_key_pair_pack ( void *p_buffer, x25519_public_key *p_public_key, x255
     }
 }
 
-int x25519_key_pair_unpack ( x25519_public_key *p_public_key, x25519_private_key *p_private_key, void *p_buffer )
+int x25519_key_pair_unpack ( x25519_public_key *p_public_key, x25519_private_key *p_private_key, stream *p_stream )
 {
 
     // argument check
     if ( NULL ==  p_public_key ) goto no_public_key;
     if ( NULL == p_private_key ) goto no_private_key;
-    if ( NULL ==      p_buffer ) goto no_buffer;
+    if ( NULL ==      p_stream ) goto no_stream;
 
     // initialized data
-    char *p = p_buffer;
-
+    size_t written = 0;
+    
     // pack the public key
-    p += x25519_public_key_unpack(p_public_key, p),
+    written += x25519_public_key_unpack(p_public_key, p_stream),
 
     // pack the private key
-    p += x25519_private_key_unpack(p_private_key, p);
+    written += x25519_private_key_unpack(p_private_key, p_stream);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -813,9 +807,9 @@ int x25519_key_pair_unpack ( x25519_public_key *p_public_key, x25519_private_key
                 // error
                 return 0;
 
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[x25519] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[x25519] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -824,21 +818,19 @@ int x25519_key_pair_unpack ( x25519_public_key *p_public_key, x25519_private_key
     }
 }
 
-int x25519_shared_secret_pack ( void *p_buffer, x25519_shared_secret *p_shared_secret )
+int x25519_shared_secret_pack ( stream *p_stream, x25519_shared_secret *p_shared_secret )
 {
 
     // argument check
-    if ( NULL ==        p_buffer ) goto no_buffer;
+    if ( NULL ==        p_stream ) goto no_stream;
     if ( NULL == p_shared_secret ) goto no_shared_secret;
 
     // initialized data
-    char          *p   = p_buffer;
-    unsigned char *p_p = (unsigned char *) p_shared_secret;
+    size_t         written = 0;
+    unsigned char *p_p     = (unsigned char *) p_shared_secret;
 
     // pack the shared secret
-    p += pack_pack(
-        p, "%32i8",
-
+    written += pack_pack(p_stream, "%32i8",
         p_p[0] , p_p[1] , p_p[2] , p_p[3],
         p_p[4] , p_p[5] , p_p[6] , p_p[7],
         p_p[8] , p_p[9] , p_p[10], p_p[11],
@@ -850,16 +842,16 @@ int x25519_shared_secret_pack ( void *p_buffer, x25519_shared_secret *p_shared_s
     );
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
 
         // argument errors
         {
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[x25519] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[x25519] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -876,20 +868,19 @@ int x25519_shared_secret_pack ( void *p_buffer, x25519_shared_secret *p_shared_s
     }
 }
 
-int x25519_shared_secret_unpack ( x25519_shared_secret *p_shared_secret, void *p_buffer )
+int x25519_shared_secret_unpack ( x25519_shared_secret *p_shared_secret, stream *p_stream )
 {
 
     // argument check
     if ( NULL == p_shared_secret ) goto no_shared_secret;
-    if ( NULL ==        p_buffer ) goto no_buffer;
+    if ( NULL ==        p_stream ) goto no_stream;
 
     // initialized data
-    char          *p   = p_buffer;
-    unsigned char *p_p = (unsigned char *) p_shared_secret;
+    size_t         written = 0;
+    unsigned char *p_p     = (unsigned char *) p_shared_secret;
 
     // unpack the shared secret
-    p += pack_unpack(
-        p, "%32i8",
+    written += pack_unpack(p_stream, "%32i8",
         &p_p[0] , &p_p[1] , &p_p[2] , &p_p[3],
         &p_p[4] , &p_p[5] , &p_p[6] , &p_p[7],
         &p_p[8] , &p_p[9] , &p_p[10], &p_p[11],
@@ -901,7 +892,7 @@ int x25519_shared_secret_unpack ( x25519_shared_secret *p_shared_secret, void *p
     );
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -916,9 +907,9 @@ int x25519_shared_secret_unpack ( x25519_shared_secret *p_shared_secret, void *p
                 // error
                 return 0;
 
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[x25519] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[x25519] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

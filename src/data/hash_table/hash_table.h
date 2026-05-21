@@ -150,21 +150,21 @@ int hash_table_fori ( hash_table *p_hash_table, fn_fori *pfn_fori );
 
 /// reflection
 /** !
- * Pack a hash table into a buffer
+ * Pack a hash table into a stream
  * 
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param p_hash_table the hash table
  * @param pfn_elemenet pointer to pack function IF not null ELSE default
  * 
  * @return bytes written on success, 0 on error
  */
-int hash_table_pack ( void *p_buffer, hash_table *p_hash_table, fn_pack *pfn_element );
+int hash_table_pack ( stream *p_stream, hash_table *p_hash_table, fn_pack *pfn_element );
 
 /** !
- * Unpack a buffer into a hash table
+ * Unpack a stream into a hash table
  * 
  * @param pp_hash_table result
- * @param p_buffer      the buffer
+ * @param p_stream      the stream
  * @param pfn_elemenet  pointer to unpack function IF not null ELSE default
  * 
  * @param pfn_comparator   pointer to comparator function IF not null ELSE default
@@ -176,7 +176,7 @@ int hash_table_pack ( void *p_buffer, hash_table *p_hash_table, fn_pack *pfn_ele
 int hash_table_unpack
 ( 
     hash_table **pp_hash_table,
-    void *p_buffer,
+    stream *p_stream,
     fn_unpack *pfn_element,
 
     fn_comparator   *pfn_comparator,

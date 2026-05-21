@@ -582,15 +582,16 @@ int circular_buffer_foreach ( circular_buffer *p_circular_buffer, fn_foreach *pf
 	}
 }
 
-int circular_buffer_pack ( void *p_buffer, circular_buffer *p_circular_buffer, fn_pack *pfn_element )
+int circular_buffer_pack ( stream *p_stream, circular_buffer *p_circular_buffer, fn_pack *pfn_element )
 {
 	
 	// argument check
     if ( NULL == p_circular_buffer ) goto no_circular_buffer;
+    if ( NULL ==          p_stream ) return 0;
     if ( NULL ==       pfn_element ) return 0;
 
     // initialized data 
-    char   *p    = p_buffer;
+	size_t  written = 0;
 	size_t  size = 0;
 	size_t  i    = 0;
 	bool    f    = 0;
@@ -606,17 +607,17 @@ int circular_buffer_pack ( void *p_buffer, circular_buffer *p_circular_buffer, f
 		   ( p_circular_buffer->write + p_circular_buffer->length - p_circular_buffer->read ) % p_circular_buffer->length;
 
 	// pack the length of the circular buffer
-	p += pack_pack(p, "%i64", p_circular_buffer->length),
+	written += pack_pack(p_stream, "%i64", p_circular_buffer->length);
 
-	// pack the length of the circular buffer
-	p += pack_pack(p, "%i64", size);
+	// pack the size of the circular buffer
+	written += pack_pack(p_stream, "%i64", size);
 
 	// iterate over each element
 	while ( f || i != p_circular_buffer->write )
 	{
 
 		// call the foreach function
-		p += pfn_element(p, p_circular_buffer->_p_data[i]);
+		written += pfn_element(p_stream, p_circular_buffer->_p_data[i]);
 
 		// update the index
 		i = ( i + 1 ) % p_circular_buffer->length;
@@ -629,7 +630,7 @@ int circular_buffer_pack ( void *p_buffer, circular_buffer *p_circular_buffer, f
     mutex_unlock(&p_circular_buffer->_lock);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -647,25 +648,25 @@ int circular_buffer_pack ( void *p_buffer, circular_buffer *p_circular_buffer, f
     }
 }
 
-int circular_buffer_unpack ( circular_buffer **pp_circular_buffer, void *p_buffer, fn_unpack *pfn_element )
+int circular_buffer_unpack ( circular_buffer **pp_circular_buffer, stream *p_stream, fn_unpack *pfn_element )
 {
 	
 	// argument check
     if ( NULL == pp_circular_buffer ) goto no_circular_buffer;
-	if ( NULL ==           p_buffer ) return 0;
+	if ( NULL ==           p_stream ) return 0;
     if ( NULL ==        pfn_element ) return 0;
 
     // initialized data 
 	circular_buffer *p_circular_buffer = NULL;
-    char   *p      = p_buffer;
+    size_t  written = 0;
 	size_t  length = 0;
 	size_t  size   = 0;
 
 	// unpack the length of the circular buffer
-	p += pack_unpack(p, "%i64", &length);
+	written += pack_unpack(p_stream, "%i64", &length);
 
 	// unpack the size of the circular buffer
-	p += pack_unpack(p, "%i64", &size);
+	written += pack_unpack(p_stream, "%i64", &size);
 
 	// construct a circular buffer
 	if ( circular_buffer_construct(&p_circular_buffer, length) == 0 ) goto failed_to_construct_circular_buffer;
@@ -678,7 +679,7 @@ int circular_buffer_unpack ( circular_buffer **pp_circular_buffer, void *p_buffe
 		void *p_element = NULL;
 
 		// call the foreach function
-		p += pfn_element(&p_element, p);
+		written += pfn_element(&p_element, p_stream);
 
 		// add the element to the circular buffer
 		circular_buffer_push(p_circular_buffer, p_element);
@@ -688,7 +689,7 @@ int circular_buffer_unpack ( circular_buffer **pp_circular_buffer, void *p_buffe
 	*pp_circular_buffer = p_circular_buffer;
 
     // success
-	return p - (char *)p_buffer;
+	return written;
 
     // error handling
     {

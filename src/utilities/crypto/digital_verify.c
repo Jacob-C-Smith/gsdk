@@ -14,6 +14,7 @@
 // gsdk
 /// core
 #include <core/log.h>
+#include <core/stream.h>
 
 /// crypto
 #include <crypto/digital_signature.h>
@@ -49,12 +50,13 @@ void parse_command_line_arguments ( int argc, const char *argv[] );
 
 // data
 /// paths
-char *private_key_path = NULL,
-     *public_key_path  = NULL,
-     *signature_path = NULL;
-FILE *input_file       = NULL,
-     *signature_file   = NULL;
-char  _buffer[256]     = { 0 };
+char   *private_key_path = NULL,
+       *public_key_path  = NULL,
+       *signature_path   = NULL,
+       *input_path       = NULL;
+stream *input_stream     = NULL,
+       *signature_stream = NULL;
+char    _buffer[256]     = { 0 };
 
 // entry point
 int main ( int argc, const char *argv[] )
@@ -72,16 +74,23 @@ int main ( int argc, const char *argv[] )
         )
     ) goto failed_to_load_key_pair;
 
+    // open the input stream
+    if ( input_path ) stream_from_path(&input_stream, input_path);
+    else stream_from_file(&input_stream, stdin);
+
     // read the message
-    size_t message_len = fread(_buffer, sizeof(char), sizeof(_buffer), input_file);
+    size_t message_len = stream_read(input_stream, _buffer, sizeof(_buffer));
     if ( message_len == 0 ) goto failed_to_read_message;
 
     // allocate memory for the signature
     p_signature = default_allocator(0, sizeof(_buffer));
     if ( p_signature == NULL ) goto failed_to_allocate_signature;
 
+    // open the signature stream
+    if ( 0 == stream_from_path(&signature_stream, signature_path) ) goto failed_to_read_signature;
+
     // read the signature
-    if ( 0 == fread(p_signature, sizeof(char), sizeof(_buffer), signature_file) ) goto failed_to_read_signature;
+    if ( 0 == stream_read(signature_stream, p_signature, sizeof(_buffer)) ) goto failed_to_read_signature;
 
     // verify the signature
     int verification_result = digital_signature_verify(
@@ -101,9 +110,9 @@ int main ( int argc, const char *argv[] )
         printf("Signature is invalid.\n");
     }
 
-    // close the files
-    fclose(input_file);
-    fclose(signature_file);
+    // close the streams
+    stream_destroy(&input_stream);
+    stream_destroy(&signature_stream);
 
     // release the signature
     p_signature = default_allocator(p_signature, 0);
@@ -187,12 +196,12 @@ void parse_command_line_arguments ( int argc, const char *argv[] )
         
         // signature
         else if ( strcmp(argv[i], "-s") == 0 )
-            signature_file = fopen(argv[i + 1], "rb"),
+            signature_path = (char *) argv[i + 1],
             i++;
 
         // input
         else if ( strcmp(argv[i], "-i") == 0 )
-            input_file = ( 0 == strcmp(argv[i + 1], "-") ) ? stdin : fopen(argv[i + 1], "rb"),
+            input_path = (char *) argv[i + 1],
             i++;
 
         // default
@@ -202,9 +211,7 @@ void parse_command_line_arguments ( int argc, const char *argv[] )
     // Check for required arguments
     if ( NULL ==  public_key_path ) goto invalid_arguments;
     if ( NULL == private_key_path ) goto invalid_arguments;
-    if ( NULL == signature_file ) goto invalid_arguments;
-
-    if ( NULL == input_file ) input_file = stdin;
+    if ( NULL == signature_path ) goto invalid_arguments;
 
     // success
     return;

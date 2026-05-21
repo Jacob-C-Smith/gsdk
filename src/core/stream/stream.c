@@ -60,7 +60,7 @@ int stream_from_path
     size_t  size     = -1;
 
     // open the file
-    p_f = fopen(p_path, "wb+");
+    p_f = fopen(p_path, "rb+");
     if ( NULL == p_f ) goto no_file;
 
     // allocate memory for a stream
@@ -552,7 +552,7 @@ int stream_flush ( stream *p_stream )
     // lock
     mutex_lock(&p_stream->_lock);
 
-    // read the data
+    // flush the data
     result = p_stream->pfn_flush(p_stream);
 
     // unlock

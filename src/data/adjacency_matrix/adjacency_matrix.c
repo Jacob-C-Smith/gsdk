@@ -1078,7 +1078,7 @@ int adjacency_matrix_edge_foreach
 
 int adjacency_matrix_pack
 (
-    void *p_buffer, 
+    stream           *p_stream, 
     adjacency_matrix *p_adjacency_matrix,
 
     fn_pack *pfn_vertex,
@@ -1087,47 +1087,47 @@ int adjacency_matrix_pack
 {
 
     // argument check
-    if ( NULL ==           p_buffer ) goto no_buffer;
+    if ( NULL ==           p_stream ) goto no_stream;
     if ( NULL == p_adjacency_matrix ) goto no_adjacency_matrix;
     if ( NULL ==         pfn_vertex ) goto no_vertex_pack;
     if ( NULL ==           pfn_edge ) goto no_edge_pack;
 
     // initialized data 
-    char *p = p_buffer;
+    size_t written = 0;
 
     // pack the metadata
-    p += pack_pack(p, "%i32%2i64", 
+    written += pack_pack(p_stream, "%i32%2i64", 
         p_adjacency_matrix->_type,
         p_adjacency_matrix->vertices.vertex_size,
         p_adjacency_matrix->edges.edge_size
     );
 
     // pack the vertex quantity
-    p += pack_pack(p, "%i64", p_adjacency_matrix->vertices.count);
+    written += pack_pack(p_stream, "%i64", p_adjacency_matrix->vertices.count);
 
     // pack the vertices
     for ( size_t i = 0; i < p_adjacency_matrix->vertices.count; i++ )
-        p += pfn_vertex(p, p_adjacency_matrix->vertices.pp_vertices[i]);
+        written += pfn_vertex(p_stream, p_adjacency_matrix->vertices.pp_vertices[i]);
 
     // pack the adjacency matrix
     for ( size_t i = 0; i < p_adjacency_matrix->vertices.count; i++ )
         for ( size_t j = 0; j < p_adjacency_matrix->vertices.count; j++ )
             if ( p_adjacency_matrix->edges.pp_edges[i * p_adjacency_matrix->vertices.capacity + j] )
-                p += pfn_edge(p, p_adjacency_matrix->edges.pp_edges[i * p_adjacency_matrix->vertices.capacity + j]);
+                written += pfn_edge(p_stream, p_adjacency_matrix->edges.pp_edges[i * p_adjacency_matrix->vertices.capacity + j]);
             else
-                p += pack_pack(p, "%i64", eight_bytes_of_f);
-    
+                written += pack_pack(p_stream, "%i64", eight_bytes_of_f);
+
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
-        
+
         // argument errors
         {
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[adjacency matrix] Null pointer provided for \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[adjacency matrix] Null pointer provided for \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -1140,7 +1140,7 @@ int adjacency_matrix_pack
 
                 // error
                 return 0;
-            
+
             no_vertex_pack:
                 #ifndef NDEBUG
                     log_error("[adjacency matrix] Null pointer provided for \"pfn_vertex\" in call to function \"%s\"\n", __FUNCTION__);
@@ -1148,7 +1148,7 @@ int adjacency_matrix_pack
 
                 // error
                 return 0;
-            
+
             no_edge_pack:
                 #ifndef NDEBUG
                     log_error("[adjacency matrix] Null pointer provided for \"pfn_edge\" in call to function \"%s\"\n", __FUNCTION__);
@@ -1163,7 +1163,7 @@ int adjacency_matrix_pack
 int adjacency_matrix_unpack
 (
     adjacency_matrix **pp_adjacency_matrix,
-    void *p_buffer, 
+    stream            *p_stream, 
 
     fn_unpack *pfn_vertex,
     fn_unpack *pfn_edge,
@@ -1175,14 +1175,14 @@ int adjacency_matrix_unpack
 
     // argument check
     if ( NULL == pp_adjacency_matrix ) goto no_adjacency_matrix;
-    if ( NULL ==            p_buffer ) goto no_buffer;
+    if ( NULL ==            p_stream ) goto no_stream;
     if ( NULL ==          pfn_vertex ) goto no_vertex_unpack;
     if ( NULL ==            pfn_edge ) goto no_edge_unpack;
     if ( NULL ==    pfn_key_accessor ) goto no_key_accessor;
     if ( NULL ==      pfn_comparator ) goto no_comparator;
 
     // initialized data 
-    char                   *p                  = p_buffer;
+    size_t                  written            = 0;
     adjacency_matrix       *p_adjacency_matrix = NULL;
     enum graph_edge_type_e  _type              = 0;
     size_t                  vertex_size        = 0;
@@ -1190,7 +1190,7 @@ int adjacency_matrix_unpack
     size_t                  vertex_count       = 0;
 
     // unpack the metadata
-    p += pack_unpack(p, "%i32%2i64", 
+    written += pack_unpack(p_stream, "%i32%2i64", 
         &_type,
         &vertex_size,
         &edge_size
@@ -1210,7 +1210,7 @@ int adjacency_matrix_unpack
     );
 
     // unpack the vertex quantity
-    p += pack_unpack(p, "%i64", &vertex_count);
+    written += pack_unpack(p_stream, "%i64", &vertex_count);
 
     // unpack the vertices
     for ( size_t i = 0; i < vertex_count; i++ )
@@ -1220,7 +1220,7 @@ int adjacency_matrix_unpack
         void *p_vertex = NULL;
 
         // unpack the vertex
-        p += pfn_vertex(&p_vertex, p);
+        written += pfn_vertex(&p_vertex, p_stream);
 
         // add the vertex
         adjacency_matrix_vertex_add(p_adjacency_matrix, p_vertex);
@@ -1236,15 +1236,16 @@ int adjacency_matrix_unpack
             unsigned long long sentinel = 0;
 
             // skip
-            pack_unpack(p, "%i64", &sentinel);
-            if ( sentinel == eight_bytes_of_f ) 
+            size_t temp = 0;
+            stream_peek(p_stream, &temp, sizeof(size_t));
+            if ( temp == eight_bytes_of_f ) 
             {
-                p += sizeof(sentinel);
+                written += pack_unpack(p_stream, "%i64", &sentinel);
                 continue;
             }
-            
+
             // unpack the edge
-            p += pfn_edge(&p_edge, p),
+            written += pfn_edge(&p_edge, p_stream),
             p_adjacency_matrix->edges.pp_edges[i * p_adjacency_matrix->vertices.capacity + j] = p_edge,
             p_adjacency_matrix->edges.count++;
         }
@@ -1253,11 +1254,11 @@ int adjacency_matrix_unpack
     *pp_adjacency_matrix = p_adjacency_matrix;
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
-        
+
         // argument errors
         {
             no_adjacency_matrix:
@@ -1268,9 +1269,9 @@ int adjacency_matrix_unpack
                 // error
                 return 0;
 
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[adjacency matrix] Null pointer provided for \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[adjacency matrix] Null pointer provided for \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -1283,7 +1284,7 @@ int adjacency_matrix_unpack
 
                 // error
                 return 0;
-            
+
             no_edge_unpack:
                 #ifndef NDEBUG
                     log_error("[adjacency matrix] Null pointer provided for \"pfn_edge\" in call to function \"%s\"\n", __FUNCTION__);
@@ -1291,7 +1292,7 @@ int adjacency_matrix_unpack
 
                 // error
                 return 0;
-            
+
             no_key_accessor:
                 #ifndef NDEBUG
                     log_error("[adjacency matrix] Null pointer provided for \"pfn_key_accessor\" in call to function \"%s\"\n", __FUNCTION__);

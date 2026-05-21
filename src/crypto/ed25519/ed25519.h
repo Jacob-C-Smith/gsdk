@@ -115,83 +115,83 @@ int ed25519_signature_print ( ed25519_signature *p_signature );
 
 /// reflection
 /** !
- * Pack a public key into a buffer
+ * Pack a public key into a stream
  * 
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param p_public_key the public key 
  * 
  * @return 1 on success, 0 on error
  */
-int ed25519_public_key_pack ( void *p_buffer, ed25519_public_key *p_public_key );
+int ed25519_public_key_pack ( stream *p_stream, ed25519_public_key *p_public_key );
 
 /** !
- * Unpack a buffer into a public key
+ * Unpack a stream into a public key
  * 
  * @param p_public_key result
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * 
  * @return 1 on success, 0 on error
  */
-int ed25519_public_key_unpack ( ed25519_public_key *p_public_key, void *p_buffer );
+int ed25519_public_key_unpack ( ed25519_public_key *p_public_key, stream *p_stream );
 
 /** !
- * Pack a private key into a buffer
+ * Pack a private key into a stream
  * 
- * @param p_buffer      the buffer
+ * @param p_stream      the stream
  * @param p_private_key the private key 
  * 
  * @return 1 on success, 0 on error
  */
-int ed25519_private_key_pack ( void *p_buffer, ed25519_private_key *p_private_key );
+int ed25519_private_key_pack ( stream *p_stream, ed25519_private_key *p_private_key );
 
 /** !
- * Unpack a buffer into a private key
+ * Unpack a stream into a private key
  * 
  * @param p_private_key result
- * @param p_buffer      the buffer
+ * @param p_stream      the stream
  * 
  * @return 1 on success, 0 on error
  */
-int ed25519_private_key_unpack ( ed25519_private_key *p_private_key, void *p_buffer );
+int ed25519_private_key_unpack ( ed25519_private_key *p_private_key, stream *p_stream );
 
 /** !
- * Pack an ed25519 key pair into a buffer
+ * Pack an ed25519 key pair into a stream
  * 
- * @param p_buffer      the buffer
+ * @param p_stream      the stream
  * @param p_public_key  the public key 
  * @param p_private_key the private key 
  * 
  * @return 1 on success, 0 on error
  */
-int ed25519_key_pair_pack ( void *p_buffer, ed25519_public_key *p_public_key, ed25519_private_key *p_private_key );
+int ed25519_key_pair_pack ( stream *p_stream, ed25519_public_key *p_public_key, ed25519_private_key *p_private_key );
 
 /** !
- * Unpack a buffer into an ed25519 key pair
+ * Unpack a stream into an ed25519 key pair
  * 
  * @param p_public_key  result
  * @param p_private_key result
- * @param p_buffer      the buffer
+ * @param p_stream      the stream
  * 
  * @return 1 on success, 0 on error
  */
-int ed25519_key_pair_unpack ( ed25519_public_key *p_public_key, ed25519_private_key *p_private_key, void *p_buffer );
+int ed25519_key_pair_unpack ( ed25519_public_key *p_public_key, ed25519_private_key *p_private_key, stream *p_stream );
 
 /** !
- * Pack a signature into a buffer
+ * Pack a signature into a stream
  * 
- * @param p_buffer    the buffer
+ * @param p_stream    the stream
  * @param p_signature the signature 
  * 
  * @return 1 on success, 0 on error
  */
-int ed25519_signature_pack ( void *p_buffer, ed25519_signature *p_signature );
+int ed25519_signature_pack ( stream *p_stream, ed25519_signature *p_signature );
 
 /** !
- * Unpack a buffer into a signature
+ * Unpack a stream into a signature
  * 
  * @param p_signature result
- * @param p_buffer    the buffer
+ * @param p_stream    the stream
  * 
  * @return 1 on success, 0 on error
  */
-int ed25519_signature_unpack ( ed25519_signature *p_signature, void *p_buffer );
+int ed25519_signature_unpack ( ed25519_signature *p_signature, stream *p_stream );

@@ -416,16 +416,16 @@ int bitmap_foreach ( bitmap *p_bitmap, fn_foreach *pfn_foreach )
 }
 
 /// reflection
-int bitmap_pack ( void *p_buffer, bitmap *p_bitmap )
+int bitmap_pack ( stream *p_stream, bitmap *p_bitmap )
 {
     
     // argument check
     if ( NULL == p_bitmap ) goto no_bitmap;
-    if ( NULL == p_buffer ) goto no_buffer;
+    if ( NULL == p_stream ) goto no_stream;
 
     // initialized data 
-    char   *p              = p_buffer,
-           *p_bytes        = p_bitmap->p_bitmap;
+    size_t  written        = 0;
+    char   *p_bytes        = p_bitmap->p_bitmap;
     size_t  bytes_required = 0;
 
     // lock
@@ -437,17 +437,17 @@ int bitmap_pack ( void *p_buffer, bitmap *p_bitmap )
                      (p_bitmap->max / 8) + 1;
 
     // pack the quantity of properties
-    p += pack_pack(p, "%i64", p_bitmap->max);
+    written += pack_pack(p_stream, "%i64", p_bitmap->max);
 
     // iterate through the bitmap
     for (size_t i = 0; i < bytes_required; i++)
-        p += pack_pack(p, "%i8", p_bytes[i]);
+        written += pack_pack(p_stream, "%i8", p_bytes[i]);
     
     // unlock
     mutex_unlock(&p_bitmap->_lock);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -462,9 +462,9 @@ int bitmap_pack ( void *p_buffer, bitmap *p_bitmap )
                 // error
                 return 0;
             
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[bitmap] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[bitmap] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -473,21 +473,21 @@ int bitmap_pack ( void *p_buffer, bitmap *p_bitmap )
     }
 }
 
-int bitmap_unpack ( bitmap **pp_bitmap, void *p_buffer )
+int bitmap_unpack ( bitmap **pp_bitmap, stream *p_stream )
 {
     
     // argument check
     if ( NULL == pp_bitmap ) goto no_bitmap;
-    if ( NULL == p_buffer  ) goto no_buffer;
+    if ( NULL == p_stream  ) goto no_stream;
 
     // initialized data
     bitmap *p_bitmap       = NULL;
-    char   *p              = p_buffer;
+    size_t  written        = 0;
     size_t  len            = 0,
             bytes_required = 0;
             
     // unpack the length
-    p += pack_unpack(p, "%i64", &len);
+    written += pack_unpack(p_stream, "%i64", &len);
 
     // construct an bitmap
     bitmap_construct(&p_bitmap, len);
@@ -501,13 +501,13 @@ int bitmap_unpack ( bitmap **pp_bitmap, void *p_buffer )
     for (size_t i = 0; i < bytes_required; i++)
 
         // unpack 8 bits at a time
-        p += pack_unpack(p, "%i8", &((char *)p_bitmap->p_bitmap)[i]);
+        written += pack_unpack(p_stream, "%i8", &((char *)p_bitmap->p_bitmap)[i]);
     
     // return the bitmap to the caller
     *pp_bitmap = p_bitmap;
 
     // success
-    return p - (char *)p_buffer;
+    return written;
     
     // error handling
     {
@@ -522,9 +522,9 @@ int bitmap_unpack ( bitmap **pp_bitmap, void *p_buffer )
                 // error
                 return 0;
 
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[bitmap] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[bitmap] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

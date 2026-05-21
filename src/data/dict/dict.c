@@ -598,22 +598,22 @@ int dict_foreach ( dict *const p_dict, fn_foreach *pfn_foreach )
     }
 }
 
-int dict_pack ( void *const p_buffer, dict *const p_dict, fn_pack *pfn_element )
+int dict_pack ( stream *p_stream, dict *const p_dict, fn_pack *pfn_element )
 {
 
     // argument check
-    if ( NULL ==    p_buffer ) goto no_buffer;
+    if ( NULL ==    p_stream ) goto no_stream;
     if ( NULL ==      p_dict ) goto no_dict;
     if ( NULL == pfn_element ) goto no_pack;
 
     // initialized data
-    char *p = p_buffer;
+    size_t written = 0;
 
     // lock
     mutex_lock(&p_dict->_lock);
 
     // pack the size and count
-    p += pack_pack(p, "%2i64",
+    written += pack_pack(p_stream, "%2i64",
         p_dict->max,
         p_dict->count
     );
@@ -630,7 +630,7 @@ int dict_pack ( void *const p_buffer, dict *const p_dict, fn_pack *pfn_element )
         {
 
             // call the pack function
-            p += pfn_element(p, p_item->value);
+            written += pfn_element(p_stream, p_item->value);
 
             // step
             p_item = p_item->next;
@@ -641,16 +641,16 @@ int dict_pack ( void *const p_buffer, dict *const p_dict, fn_pack *pfn_element )
     mutex_unlock(&p_dict->_lock);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
 
         // argument errors
         {
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[dict] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[dict] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -678,7 +678,7 @@ int dict_pack ( void *const p_buffer, dict *const p_dict, fn_pack *pfn_element )
 int dict_unpack
 (
     dict      **pp_dict,
-    void       *p_buffer,
+    stream     *p_stream,
     fn_unpack  *pfn_element,
 
     fn_allocator    *pfn_allocator,
@@ -689,18 +689,18 @@ int dict_unpack
 
     // argument check
     if ( NULL ==     pp_dict ) goto no_dict;
-    if ( NULL ==    p_buffer ) goto no_buffer;
+    if ( NULL ==    p_stream ) goto no_stream;
     if ( NULL == pfn_element ) goto no_unpack;
     
     // initialized data
     dict   *p_dict = NULL;
-    char   *p      = p_buffer;
+    size_t  written = 0;
     size_t  size   = 0,
             count  = 0;
     int     result = 0;
 
     // unpack the size and count
-    p += pack_unpack(p, "%2i64",
+    written += pack_unpack(p_stream, "%2i64",
         &size,
         &count
     );
@@ -725,7 +725,7 @@ int dict_unpack
         void *p_value = NULL;
 
         // parse the value
-        p += pfn_element(&p_value, p);
+        written += pfn_element(&p_value, p_stream);
 
         // add the value to the dictionary
         dict_add(p_dict, p_value);
@@ -735,16 +735,16 @@ int dict_unpack
     *pp_dict = p_dict;
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
 
         // argument errors
         {
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[dict] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[dict] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

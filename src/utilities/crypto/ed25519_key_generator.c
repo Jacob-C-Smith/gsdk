@@ -16,6 +16,7 @@
 // gsdk
 /// core
 #include <core/log.h>
+#include <core/stream.h>
 
 /// crypto
 #include <crypto/ed25519.h>
@@ -53,8 +54,7 @@ int main ( int argc, const char *argv[] )
     // initialized data
     ed25519_public_key   p_public_key  = { 0 };
     ed25519_private_key  p_private_key = { 0 };
-    FILE                *p_f           = NULL;
-    char                 _buffer[64]   = { 0 };
+    stream              *p_stream      = NULL;
 
     // construct a key pair
     if ( 0 == ed25519_key_pair_construct
@@ -64,17 +64,13 @@ int main ( int argc, const char *argv[] )
     ) ) goto failed_to_create_key_pair;
 
     // open the file
-    p_f = fopen(p_output_filename, "wb");
-    if ( NULL == p_f ) goto failed_to_open_file;
+    if ( 0 == stream_from_path(&p_stream, p_output_filename) ) goto failed_to_open_file;
 
     // pack the keypair
-    ed25519_key_pair_pack(_buffer, &p_public_key, &p_private_key);
-
-    // write the keypair to file
-    fwrite(_buffer, 1, sizeof(_buffer), p_f);
+    ed25519_key_pair_pack(p_stream, &p_public_key, &p_private_key);
 
     // close the file
-    fclose(p_f);
+    stream_destroy(&p_stream);
 
     // success
     return EXIT_SUCCESS;

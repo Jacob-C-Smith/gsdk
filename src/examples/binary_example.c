@@ -14,6 +14,7 @@
 // gsdk
 /// core
 #include <core/log.h>
+#include <core/stream.h>
 
 /// data
 #include <data/binary.h>
@@ -166,19 +167,16 @@ int main ( int argc, const char *argv[] )
     {
 
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
         // Open a file for writing
-        p_f = fopen("resources/reflection/binary_tree.bin", "wb");
+        stream_from_path(&p_stream, "resources/reflection/binary_tree.bin");
 
         // reflect the binary tree to a buffer
-        file_len = binary_tree_pack(buf, p_binary_tree, number_and_string_pack),
+        binary_tree_pack(p_stream, p_binary_tree, number_and_string_pack);
         
-        // write the buffer to a file
-        fwrite(buf, file_len, 1, p_f),
-
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint(p_binary_tree, "after serialize"),
@@ -226,22 +224,22 @@ int main ( int argc, const char *argv[] )
     {
         
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
         // read a buffer from a file
-        p_f = fopen("resources/reflection/binary_tree.bin", "rb"),
-        fread(buf, sizeof(char), file_len, p_f),
-        fclose(p_f);
+        stream_from_path(&p_stream, "resources/reflection/binary_tree.bin");
         
         // reflect a binary tree from the buffer
         binary_tree_unpack(
             &p_binary_tree, 
-            buf, 
+            p_stream, 
             
             number_and_string_unpack,
             number_and_string_number_comparator,
             number_and_string_number_key_accessor
         );
+
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint(p_binary_tree, "after unpack"),
@@ -414,34 +412,36 @@ hash64 number_and_string_hash ( const void *const k, unsigned long long l )
     return default_hash(k, sizeof(number_and_string));
 }
 
-int number_and_string_pack ( void *p_buffer, const void *const p_value )
+int number_and_string_pack ( stream *p_stream, const void *const p_value )
 {
 
     // initialized data 
     number_and_string *p_number_and_string = (number_and_string *)p_value;
+    int written = 0;
 
     // pack the metadata
-    pack_pack(p_buffer, "%i32%s", 
+    written += pack_pack(p_stream, "%i32%s", 
         p_number_and_string->number,
         p_number_and_string->_string
     );
 
     // success
-    return sizeof(number_and_string);
+    return written;
 }
 
-int number_and_string_unpack ( void *const p_value, void *p_buffer )
+int number_and_string_unpack ( void *const p_value, stream *p_stream )
 {
 
     // initialized data
     number_and_string **pp_value            = (number_and_string **) p_value;
     number_and_string  *p_number_and_string = NULL;
+    int written = 0;
 
     size_t     number        = 0;
     const char _string[1024] = { 0 };
 
     // unpack the buffer
-    pack_unpack(p_buffer, "%i32%s", &number, &_string);
+    written += pack_unpack(p_stream, "%i32%s", &number, &_string);
 
     // allocate memory for the result
     p_number_and_string = default_allocator(0, sizeof(number_and_string));
@@ -454,5 +454,5 @@ int number_and_string_unpack ( void *const p_value, void *p_buffer )
     *pp_value = p_number_and_string;
 
     // done
-    return sizeof(number_and_string);
+    return written;
 }

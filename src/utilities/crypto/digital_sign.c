@@ -14,6 +14,7 @@
 // gsdk
 /// core
 #include <core/log.h>
+#include <core/stream.h>
 
 /// crypto
 #include <crypto/digital_signature.h>
@@ -51,11 +52,13 @@ void parse_command_line_arguments ( int argc, const char *argv[] );
 
 // data
 /// paths
-char *private_key_path = NULL,
-     *public_key_path  = NULL;
-FILE *input_file       = NULL,
-     *output_file      = NULL;
-char  _buffer[256]     = { 0 };
+char   *private_key_path = NULL,
+       *public_key_path  = NULL,
+       *input_path       = NULL,
+       *output_path      = NULL;
+stream *input_stream     = NULL,
+       *output_stream    = NULL;
+char    _buffer[256]     = { 0 };
 
 // entry point
 int main ( int argc, const char *argv[] )
@@ -76,8 +79,12 @@ int main ( int argc, const char *argv[] )
         )
     ) goto failed_to_load_key_pair;
 
+    // open the input stream
+    if ( input_path ) stream_from_path(&input_stream, input_path);
+    else stream_from_file(&input_stream, stdin);
+
     // read the message
-    result = fread(_buffer, sizeof(char), sizeof(_buffer), input_file);
+    result = stream_read(input_stream, _buffer, sizeof(_buffer));
     if ( 0 == result ) goto failed_to_read_message;
 
     // sign the message
@@ -91,11 +98,16 @@ int main ( int argc, const char *argv[] )
         &p_signature
     ) ) goto failed_to_sign_message;
 
-    // write the signature
-    if ( 0 == fwrite(p_signature, sizeof(char), sizeof(((public_key *)0)->n), output_file) ) goto failed_to_write_signature;
+    // open the output stream
+    if ( output_path ) stream_from_path(&output_stream, output_path);
+    else stream_from_file(&output_stream, stdout);
 
-    // close the file
-    fclose(output_file);
+    // write the signature
+    if ( 0 == stream_write(output_stream, p_signature, sizeof(((public_key *)0)->n)) ) goto failed_to_write_signature;
+
+    // close the streams
+    stream_destroy(&input_stream);
+    stream_destroy(&output_stream);
 
     // release the signature
     p_signature = default_allocator(p_signature, 0);
@@ -166,9 +178,6 @@ int main ( int argc, const char *argv[] )
 void parse_command_line_arguments ( int argc, const char *argv[] )
 {
     
-    // error check
-    //
-    
     // iterate through each command line argument
     for (size_t i = 1; i < (size_t) argc; i++)
     {
@@ -185,12 +194,12 @@ void parse_command_line_arguments ( int argc, const char *argv[] )
         
         // input
         else if ( strcmp(argv[i], "-i") == 0 )
-            input_file = ( 0 == strcmp(argv[i + 1], "-") ) ? stdin : fopen(argv[i + 1], "rb"),
+            input_path = (char *) argv[i + 1],
             i++;
 
         // output
         else if ( strcmp(argv[i], "-o") == 0 )
-            output_file = ( 0 == strcmp(argv[i + 1], "-") ) ? stdout : fopen(argv[i + 1], "wb"),
+            output_path = (char *) argv[i + 1],
             i++;
 
         // default
@@ -200,9 +209,6 @@ void parse_command_line_arguments ( int argc, const char *argv[] )
     // Check for required arguments
     if ( NULL ==  public_key_path ) goto invalid_arguments;
     if ( NULL == private_key_path ) goto invalid_arguments;
-
-    if ( NULL == input_file ) input_file = stdin;
-    if ( NULL == output_file ) output_file = stdout;
 
     // success
     return;

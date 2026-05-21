@@ -557,22 +557,23 @@ int queue_fori ( queue *p_queue, fn_fori *pfn_fori )
     }
 }
 
-int queue_pack ( void *p_buffer, queue *p_queue, fn_pack *pfn_element )
+int queue_pack ( stream *p_stream, queue *p_queue, fn_pack *pfn_element )
 {
     
     // argument check
     if ( p_queue     == (void *) 0 ) goto no_queue;
+    if ( p_stream    == (void *) 0 ) return 0;
     if ( pfn_element == (void *) 0 ) return 0;
 
     // initialized data 
-    char *p = p_buffer;
+    size_t written = 0;
 	struct queue_node_s *p_iter = 0;
 
     // lock
     mutex_lock(&p_queue->_lock);
 
     // pack the size
-    p += pack_pack(p, "%i64", p_queue->size);
+    written += pack_pack(p_stream, "%i64", p_queue->size);
 
 	// store the head of the queue
 	p_iter = p_queue->front;
@@ -581,7 +582,7 @@ int queue_pack ( void *p_buffer, queue *p_queue, fn_pack *pfn_element )
 	while ( p_iter )
 
 		// pack the value
-		p += pfn_element(p, p_iter->content),
+		written += pfn_element(p_stream, p_iter->content),
 
 		// iterate
 		p_iter = p_iter->next;
@@ -590,7 +591,7 @@ int queue_pack ( void *p_buffer, queue *p_queue, fn_pack *pfn_element )
     mutex_unlock(&p_queue->_lock);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -608,20 +609,21 @@ int queue_pack ( void *p_buffer, queue *p_queue, fn_pack *pfn_element )
     }
 }
 
-int queue_unpack ( queue **pp_queue, void *p_buffer, fn_unpack *pfn_element )
+int queue_unpack ( queue **pp_queue, stream *p_stream, fn_unpack *pfn_element )
 {
     
     // argument check
     if ( pp_queue    == (void *) 0 ) goto no_queue;
+    if ( p_stream    == (void *) 0 ) return 0;
     if ( pfn_element == (void *) 0 ) return 0;
 
     // initialized data
     queue *p_queue = NULL;
-    char *p = p_buffer;
+    size_t written = 0;
     size_t size = 0;
 
     // unpack the size
-    p += pack_unpack(p, "%i64", &size);
+    written += pack_unpack(p_stream, "%i64", &size);
 
     // construct a queue
     queue_construct(&p_queue);
@@ -631,19 +633,11 @@ int queue_unpack ( queue **pp_queue, void *p_buffer, fn_unpack *pfn_element )
     {
         
         // initialized data
-        char _result[1024] = { 0 };
         void *p_element = NULL;
-        size_t len_result = pfn_element(_result, p);
-
-        // advance the buffer
-        p += len_result;
-
-        // allocate memory for the element
-        p_element = default_allocator(0, len_result),
-
-        // copy the memory
-        memcpy(p_element, _result, len_result),
         
+        // unpack the element
+        written += pfn_element(&p_element, p_stream);
+
         // add the element to the queue
         queue_enqueue(p_queue, p_element);
     }
@@ -652,7 +646,7 @@ int queue_unpack ( queue **pp_queue, void *p_buffer, fn_unpack *pfn_element )
     *pp_queue = p_queue;
 
     // success
-    return 1;
+    return written;
     
     // error handling
     {

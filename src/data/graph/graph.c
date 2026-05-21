@@ -2888,7 +2888,7 @@ int graph_edge_foreach
 
 int graph_pack
 (
-    void *p_buffer, 
+    stream *p_stream, 
     graph *p_graph,
 
     fn_pack *pfn_vertex,
@@ -2898,19 +2898,19 @@ int graph_pack
 
     // argument check
     if ( NULL ==  p_graph ) goto no_graph;
-    if ( NULL == p_buffer ) goto no_buffer;
+    if ( NULL == p_stream ) goto no_stream;
 
     // initialized data
-    char *p = p_buffer;
+    size_t written = 0;
 
     // pack the storage type
-    p += pack_pack(p, "%i32", p_graph->_type);
+    written += pack_pack(p_stream, "%i32", p_graph->_type);
 
     // done
-    p += p_graph->pfn_pack(p, p_graph->p_graph, pfn_vertex, pfn_edge);
+    written += p_graph->pfn_pack(p_stream, p_graph->p_graph, pfn_vertex, pfn_edge);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -2925,9 +2925,9 @@ int graph_pack
                 // error
                 return 0;
 
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    printf("[graph] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[graph] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -2939,7 +2939,7 @@ int graph_pack
 int graph_unpack
 (
     graph **pp_graph,
-    void *p_buffer, 
+    stream *p_stream, 
 
     fn_unpack *pfn_vertex,
     fn_unpack *pfn_edge,
@@ -2951,16 +2951,16 @@ int graph_unpack
     
     // argument check
     if ( NULL == pp_graph ) goto no_graph;
-    if ( NULL == p_buffer ) goto no_buffer;
+    if ( NULL == p_stream ) goto no_stream;
 
     // initialized data
-    char *p = p_buffer;
+    size_t written = 0;
     enum graph_storage_type_e _storage_type = 0;
     graph *p_graph = NULL;
     void *p_concrete_graph = NULL;
 
     // unpack the storage type
-    p += pack_unpack(p, "%i32", &_storage_type);
+    written += pack_unpack(p_stream, "%i32", &_storage_type);
 
     // validate the storage type
     if ( _storage_type >= GRAPH_QUANTITY ) goto invalid_storage_type;
@@ -2973,7 +2973,7 @@ int graph_unpack
     memcpy(p_graph, &_prototypes[_storage_type], sizeof(graph));
 
     // unpack the concrete graph
-    p += p_graph->pfn_unpack(&p_concrete_graph, p, pfn_vertex, pfn_edge, pfn_key_accessor, pfn_comparator);
+    written += p_graph->pfn_unpack(&p_concrete_graph, p_stream, pfn_vertex, pfn_edge, pfn_key_accessor, pfn_comparator);
 
     // set the concrete graph
     p_graph->p_graph = p_concrete_graph;
@@ -2985,10 +2985,11 @@ int graph_unpack
         enum graph_edge_type_e _edge_type = 0;
         size_t vertex_size = 0;
         size_t edge_size = 0;
-        char *p_peek = (char *)p_buffer + sizeof(enum graph_storage_type_e);
 
-        // unpack metadata
-        pack_unpack(p_peek, "%i32%2i64", &_edge_type, &vertex_size, &edge_size);
+        // peek at the metadata
+        stream_seek(p_stream, -(written - sizeof(enum graph_storage_type_e)), STREAM_SEEK_CURSOR);
+        pack_unpack(p_stream, "%i32%2i64", &_edge_type, &vertex_size, &edge_size);
+        stream_seek(p_stream, (written - sizeof(enum graph_storage_type_e)) - (sizeof(int) + sizeof(size_t) * 2), STREAM_SEEK_CURSOR);
 
         // store the metadata in the wrapper
         p_graph->_edge_type = _edge_type;
@@ -3002,7 +3003,7 @@ int graph_unpack
     *pp_graph = p_graph;
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -3017,9 +3018,9 @@ int graph_unpack
                 // error
                 return 0;
 
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    printf("[graph] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    printf("[graph] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

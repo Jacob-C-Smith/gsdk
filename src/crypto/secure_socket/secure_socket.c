@@ -60,7 +60,8 @@ int secure_socket_handshake ( secure_socket *p_secure_socket, bool is_server, ce
     {
 
         // initialized data
-        char *p_p = _plain_buf;
+        stream *p_stream = NULL;
+        size_t written = 0;
         ed25519_public_key _public_key = { 0 };
         ed25519_signature _signature = { 0 };
 
@@ -71,13 +72,13 @@ int secure_socket_handshake ( secure_socket *p_secure_socket, bool is_server, ce
         if ( 0 == ed25519_sign(&_signature, (const unsigned char *)&pub, sizeof(pub), &_public_key, p_private_key) ) goto failed_to_sign_public_key;
         
         // pack the ephemeral public key
-        p_p += x25519_public_key_pack(p_p, &pub);
+        written += x25519_public_key_pack(p_stream, &pub);
 
         // pack the signature of the ephemeral public key
-        p_p += ed25519_signature_pack(p_p, &_signature);
+        written += ed25519_signature_pack(p_stream, &_signature);
 
         // pack the certificate
-        p_p += certificate_pack(p_p, p_certificate);
+        written += certificate_pack(p_stream, p_certificate);
 
         // debug
         #ifdef SECURE_SOCKET_DEBUG
@@ -93,10 +94,10 @@ int secure_socket_handshake ( secure_socket *p_secure_socket, bool is_server, ce
         sha512_update(&s, (const unsigned char *)peer_pub, sizeof(x25519_public_key));
 
         // send server hello
-        if ( 0 == socket_tcp_send(p_secure_socket->tcp_socket, _plain_buf, p_p - _plain_buf) ) goto failed_to_send_server_hello;
+        // if ( 0 == socket_tcp_send(p_secure_socket->tcp_socket, _plain_buf, p_p - _plain_buf) ) goto failed_to_send_server_hello;
 
         // update the hasher
-        sha512_update(&s, (const unsigned char *)_plain_buf, p_p - _plain_buf);
+        // sha512_update(&s, (const unsigned char *)_plain_buf, p_p - _plain_buf);
     }
     
     // client
@@ -104,7 +105,8 @@ int secure_socket_handshake ( secure_socket *p_secure_socket, bool is_server, ce
     {
 
         // initialized data
-        char *p_p = _plain_buf;
+        size_t written = 0;
+        stream *p_stream = NULL;
         ed25519_public_key _server_key = { 0 };
         ed25519_signature _signature = { 0 };
         certificate *p_server_certificate = NULL;
@@ -119,16 +121,16 @@ int secure_socket_handshake ( secure_socket *p_secure_socket, bool is_server, ce
         if ( 0 == socket_tcp_receive(p_secure_socket->tcp_socket, _plain_buf, sizeof(_plain_buf)) ) goto failed_to_receive_server_hello;
 
         // unpack the public key
-        p_p += x25519_public_key_unpack(&peer_pub, p_p);
+        written += x25519_public_key_unpack(&peer_pub, p_stream);
 
         // unpack the signature
-        p_p += ed25519_signature_unpack(&_signature, p_p);
+        written += ed25519_signature_unpack(&_signature, p_stream);
 
         // unpack the certificate
-        p_p += certificate_unpack(&p_server_certificate, p_p);
+        written += certificate_unpack(&p_server_certificate, p_stream);
 
         // update the hasher
-        sha512_update(&s, (const unsigned char *)_plain_buf, p_p - _plain_buf);
+        // sha512_update(&s, (const unsigned char *)_plain_buf, p_stream - _plain_buf);
 
         // verify the certificate
         if ( 0 == certificate_verify(p_server_certificate, p_certificate ) ) goto failed_to_verify_certificate;

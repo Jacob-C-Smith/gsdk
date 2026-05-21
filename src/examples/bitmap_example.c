@@ -16,6 +16,7 @@
 #include <core/sync.h>
 #include <core/hash.h>
 #include <core/pack.h>
+#include <core/stream.h>
 #include <core/interfaces.h>
 
 /// data
@@ -99,19 +100,16 @@ int main ( int argc, const char* argv[] )
     {
         
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
-        // Open a file for writing
-        p_f = fopen("resources/reflection/bitmap.bin", "wb");
+        // construct a stream
+        stream_from_path(&p_stream, "resources/reflection/bitmap.bin");
 
         // reflect the bitmap to a buffer
-        file_len = bitmap_pack(buf, p_bitmap),
+        bitmap_pack(p_stream, p_bitmap),
         
-        // write the buffer to a file
-        fwrite(buf, file_len, 1, p_f),
-
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint(p_bitmap, "after serialize");
@@ -155,17 +153,16 @@ int main ( int argc, const char* argv[] )
     {
         
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
-        // read a buffer from a file
-        p_f = fopen("resources/reflection/bitmap.bin", "rb"),
-        fread(buf, sizeof(char), file_len, p_f),
+        // construct a stream
+        stream_from_path(&p_stream, "resources/reflection/bitmap.bin");
         
         // reflect a bitmap from the buffer
-        bitmap_unpack(&p_bitmap, buf),
+        bitmap_unpack(&p_bitmap, p_stream),
 
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint(p_bitmap, "after parse");

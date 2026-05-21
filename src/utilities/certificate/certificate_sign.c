@@ -16,6 +16,7 @@
 // gsdk
 /// core
 #include <core/log.h>
+#include <core/stream.h>
 
 /// crypto
 #include <crypto/sha.h>
@@ -51,12 +52,10 @@ int main ( int argc, const char *argv[] )
 {
     
     // initialized data
-    FILE                *p_f           = NULL;
+    stream              *p_stream      = NULL;
     ed25519_public_key   public_key    = { 0 };
     ed25519_private_key  private_key   = { 0 };
     certificate         *p_certificate = NULL;
-    char                 _buffer[160]  = { 0 };
-    size_t               len           = 0;
 
     // parse command line arguments
     parse_command_line_arguments(argc, argv);
@@ -64,38 +63,27 @@ int main ( int argc, const char *argv[] )
     // load a key pair from file
     {
 
-        // initialized data
-        char _buffer[64] = { 0 };
-
         // open the key file
-        p_f = fopen(p_key_file, "rb");
-        if ( NULL == p_f ) goto failed_to_open_file;
-
-        // read the key pair
-        fread(_buffer, 1, sizeof(_buffer), p_f);
+        if ( 0 == stream_from_path(&p_stream, p_key_file) ) goto failed_to_open_file;
 
         // unpack the key pair
-        ed25519_key_pair_unpack(&public_key, &private_key, _buffer);
+        ed25519_key_pair_unpack(&public_key, &private_key, p_stream);
 
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
     }
 
     // load the certificate
     {
 
         // open the file
-        p_f = fopen(p_output_filename, "rb");
-        if ( NULL == p_f ) goto failed_to_open_file;
-
-        // read the certificate
-        len = fread(_buffer, 1, sizeof(_buffer), p_f);
+        if ( 0 == stream_from_path(&p_stream, p_output_filename) ) goto failed_to_open_file;
 
         // unpack the certificate
-        certificate_unpack(&p_certificate, _buffer);
+        certificate_unpack(&p_certificate, p_stream);
 
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
     }
 
     // sign the certificate
@@ -105,17 +93,13 @@ int main ( int argc, const char *argv[] )
     certificate_print(p_certificate);
 
     // open the file for writing
-    p_f = fopen(p_output_filename, "wb");
-    if ( NULL == p_f ) goto failed_to_open_file;
+    if ( 0 == stream_from_path(&p_stream, p_output_filename) ) goto failed_to_open_file;
 
     // pack the certificate
-    len = certificate_pack(_buffer, p_certificate);
-
-    // write the certificate to file
-    fwrite(_buffer, 1, len, p_f);
+    certificate_pack(p_stream, p_certificate);
 
     // close the file
-    fclose(p_f);
+    stream_destroy(&p_stream);
 
     // destroy the certificate
     certificate_destroy(&p_certificate);

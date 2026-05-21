@@ -18,8 +18,10 @@
 
 // gsdk
 /// core
+#include <core/interfaces.h>
 #include <core/log.h>
 #include <core/pack.h>
+#include <core/stream.h>
 
 /// data
 #include <data/array.h>
@@ -27,18 +29,18 @@
 #include <data/tuple.h>
 
 /** !
- * Pack an array of bitmaps.
+ * Pack an array of bitmaps to a stream
  * 
- * @param p_buffer result
+ * @param p_stream the stream
  * @param p_array  the array to pack
  * 
  * @return bytes written on success, 0 on error
  */
-int pack_array_of_bitmaps ( void *p_buffer, array *p_array )
+int pack_array_of_bitmaps ( stream *p_stream, array *p_array )
 {
 
     // done
-    return array_pack(p_buffer, p_array, (fn_pack *) bitmap_pack);
+    return array_pack(p_stream, p_array, (fn_pack *) bitmap_pack);
 }
 
 // entry point
@@ -49,12 +51,13 @@ int main ( int argc, const char *argv[] )
     (void) argc, (void) argv;
 
     // initialized data
+    stream *p_stream  = NULL;
     tuple  *p_tuple   = NULL;
     array  *_p_a[3]   = { 0 };
     bitmap *_p_b[9]   = { 0 };
-    FILE   *p_f       = fopen("resources/reflection/tuple_of_arrays_of_bitmaps.bin", "wb");
-    size_t  len       = 0;
-    char    buf[4096] = { 0 };
+    
+    // construct a stream
+    stream_from_path(&p_stream, "resources/reflection/tuple_of_arrays_of_bitmaps.bin");
 
     // construct 9 bitmaps
     for (size_t i = 0; i < 9; i++)
@@ -85,13 +88,10 @@ int main ( int argc, const char *argv[] )
     tuple_from_elements(&p_tuple, (void *const *)_p_a, 3);
     
     // pack the tuple
-    len = tuple_pack(buf, p_tuple, (fn_pack *) pack_array_of_bitmaps);
+    tuple_pack(p_stream, p_tuple, (fn_pack *) pack_array_of_bitmaps);
 
-    // write the buffer to a file
-    fwrite(buf, len, 1, p_f);
-
-    // close the file
-    fclose(p_f);
+    // destroy the stream
+    stream_destroy(&p_stream);
     
     // log
     printf(

@@ -16,6 +16,7 @@
 #include <core/sync.h>
 #include <core/hash.h>
 #include <core/pack.h>
+#include <core/stream.h>
 #include <core/interfaces.h>
 
 // data
@@ -164,19 +165,16 @@ int main ( int argc, const char* argv[] )
     {
 
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
         // Open a file for writing
-        p_f = fopen("resources/reflection/hash_table.bin", "wb");
+        stream_from_path(&p_stream, "resources/reflection/hash_table.bin");
 
         // reflect the hash table to a buffer
-        file_len = hash_table_pack(buf, p_hash_table, color_pack),
+        hash_table_pack(p_stream, p_hash_table, color_pack);
         
-        // write the buffer to a file
-        fwrite(buf, file_len, 1, p_f),
-
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint(p_hash_table, "after serialize");
@@ -225,25 +223,24 @@ int main ( int argc, const char* argv[] )
     {
         
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
         // read a buffer from a file
-        p_f = fopen("resources/reflection/hash_table.bin", "rb"),
-        fread(buf, sizeof(char), file_len, p_f),
+        stream_from_path(&p_stream, "resources/reflection/hash_table.bin");
         
         // reflect a hash table from the buffer
         hash_table_unpack(
             &p_hash_table,
-            buf,
+            p_stream,
             color_unpack,
 
             color_comparator,
             color_key_accessor,
             color_hash_key
-        ),
+        );
 
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint(p_hash_table, "after parse");
@@ -427,37 +424,38 @@ void *color_key_accessor ( const void *const p_property )
     return p_color->_string;
 }
 
-int color_pack ( void *p_buffer, const void *const p_value )
+int color_pack ( stream *p_stream, const void *const p_value )
 {
 
     // initialized data
     const color *const p_color = (const color *const)p_value;
-    char  *p                   = p_buffer;
+    int written = 0;
     
     // pack the color
-    p += pack_pack(p, "%s%2i32",
+    written += pack_pack(p_stream, "%s%2i32",
         p_color->_string,
         p_color->hex_code,
         p_color->counter
     );
 
     // done
-    return sizeof(color);
+    return written;
 }
 
-int color_unpack ( void *p_value, void *p_buffer )
+int color_unpack ( void *p_value, stream *p_stream )
 {
 
     // initialized data
     color **pp_value = (color **) p_value;
     color  *p_color  = NULL;
+    int written = 0;
 
-    const char _string[1024] = { 0 };
+    char _string[1024] = { 0 };
     int        hex_code      = 0;
     int        counter       = 0;
 
     // unpack the buffer
-    pack_unpack(p_buffer, "%s%2i32",
+    written += pack_unpack(p_stream, "%s%2i32",
         &_string,
         &hex_code,
         &counter
@@ -475,5 +473,5 @@ int color_unpack ( void *p_value, void *p_buffer )
     *pp_value = p_color;
 
     // done
-    return sizeof(color);
+    return written;
 }

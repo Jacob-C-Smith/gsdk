@@ -912,41 +912,41 @@ int array_foreach ( array *p_array, fn_foreach *pfn_foreach )
     }
 }
 
-int array_pack ( void *p_buffer, array *p_array, fn_pack *pfn_element )
+int array_pack ( stream *p_stream, array *p_array, fn_pack *pfn_element )
 {
     
     // argument check
-    if ( NULL ==     p_buffer ) goto no_buffer;
+    if ( NULL ==     p_stream ) goto no_stream;
     if ( NULL ==      p_array ) goto no_array;
     if ( NULL == pfn_element  ) goto no_pack;
 
     // initialized data 
-    char *p = p_buffer;
-
+    size_t written = 0;
+    
     // lock
     mutex_lock(&p_array->_lock);
 
     // pack the length
-    p += pack_pack(p, "%i64", p_array->count);
+    written += pack_pack(p_stream, "%i64", p_array->count);
 
     // iterate through the array
     for (size_t i = 0; i < p_array->count; i++)
-        p += pfn_element(p, p_array->p_p_elements[i]);
+        written += pfn_element(p_stream, p_array->p_p_elements[i]);
 
     // unlock
     mutex_unlock(&p_array->_lock);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
         
         // argument errors
         {
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -971,21 +971,21 @@ int array_pack ( void *p_buffer, array *p_array, fn_pack *pfn_element )
     }
 }
 
-int array_unpack ( array **pp_array, void *p_buffer, fn_unpack *pfn_element )
+int array_unpack ( array **pp_array, stream *p_stream, fn_unpack *pfn_element )
 {
     
     // argument check
     if ( NULL ==    pp_array ) goto no_array;
-    if ( NULL ==    p_buffer ) goto no_buffer;
+    if ( NULL ==    p_stream ) goto no_stream;
     if ( NULL == pfn_element ) goto no_unpack;
 
     // initialized data
     array  *p_array = NULL;
-    char   *p       = p_buffer;
+    size_t  written = 0;
     size_t  len     = 0;
 
     // unpack the length
-    p += pack_unpack(p, "%i64", &len);
+    written += pack_unpack(p_stream, "%i64", &len);
 
     // construct an array
     array_construct(&p_array, len);
@@ -998,7 +998,7 @@ int array_unpack ( array **pp_array, void *p_buffer, fn_unpack *pfn_element )
 		void *p_element = NULL;
 
 		// call the unpack function
-		p += pfn_element(&p_element, p);
+		written += pfn_element(&p_element, p_stream);
         
         // add the element to the array
         array_add(p_array, p_element);
@@ -1008,7 +1008,7 @@ int array_unpack ( array **pp_array, void *p_buffer, fn_unpack *pfn_element )
     *pp_array = p_array;
 
     // success
-    return 1;
+    return written;
     
     // error handling
     {
@@ -1023,9 +1023,9 @@ int array_unpack ( array **pp_array, void *p_buffer, fn_unpack *pfn_element )
                 // error
                 return 0;
             
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[array] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[array] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

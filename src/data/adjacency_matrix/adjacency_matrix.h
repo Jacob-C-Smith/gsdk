@@ -136,7 +136,7 @@ int adjacency_matrix_edge_foreach
 /// reflection
 int adjacency_matrix_pack
 (
-    void             *p_buffer, 
+    stream           *p_stream, 
     adjacency_matrix *p_adjacency_matrix,
 
     fn_pack *pfn_vertex,
@@ -146,7 +146,7 @@ int adjacency_matrix_pack
 int adjacency_matrix_unpack
 (
     adjacency_matrix **pp_adjacency_matrix,
-    void              *p_buffer, 
+    stream            *p_stream, 
 
     fn_unpack *pfn_vertex,
     fn_unpack *pfn_edge,

@@ -194,24 +194,24 @@ int array_foreach ( array *p_array, fn_foreach *pfn_foreach );
 /** !
  * Pack an array into a buffer
  * 
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param p_array      the array
  * @param pfn_elemenet pointer to pack function IF not null ELSE default
  * 
  * @return 1 on success, 0 on error
  */
-int array_pack ( void *p_buffer, array *p_array, fn_pack *pfn_element );
+int array_pack ( stream *p_stream, array *p_array, fn_pack *pfn_element );
 
 /** !
  * Unpack a buffer into an array
  * 
  * @param pp_array     result
- * @param p_buffer     the buffer
+ * @param p_stream     the stream
  * @param pfn_elemenet pointer to unpack function IF not null ELSE default
  * 
  * @return 1 on success, 0 on error
  */
-int array_unpack ( array **pp_array, void *p_buffer, fn_unpack *pfn_element );
+int array_unpack ( array **pp_array, stream *p_stream, fn_unpack *pfn_element );
 
 /// hash
 /** !

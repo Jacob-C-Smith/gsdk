@@ -16,6 +16,7 @@
 #include <core/sync.h>
 #include <core/hash.h>
 #include <core/pack.h>
+#include <core/stream.h>
 
 // data
 #include <data/tuple.h>
@@ -120,19 +121,16 @@ int main ( int argc, const char* argv[] )
     {
 
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
         // Open a file for writing
-        p_f = fopen("resources/reflection/tuple.bin", "wb");
+        stream_from_path(&p_stream, "resources/reflection/tuple.bin");
 
         // reflect the tuple to a buffer
-        file_len = tuple_pack(buf, p_tuple, string_pack),
+        tuple_pack(p_stream, p_tuple, string_pack);
         
-        // write the buffer to a file
-        fwrite(buf, file_len, 1, p_f),
-
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint(p_tuple, "after serialize");
@@ -165,17 +163,16 @@ int main ( int argc, const char* argv[] )
     {
         
         // initialized data
-        char buf[1024] = { 0 };
+        stream *p_stream = NULL;
         
         // read a buffer from a file
-        p_f = fopen("resources/reflection/tuple.bin", "rb"),
-        fread(buf, file_len, 1, p_f),
+        stream_from_path(&p_stream, "resources/reflection/tuple.bin");
         
         // reflect an tuple from the buffer
-        tuple_unpack(&p_tuple, buf, string_unpack),
+        tuple_unpack(&p_tuple, p_stream, string_unpack);
         
         // close the file
-        fclose(p_f);
+        stream_destroy(&p_stream);
 
         // checkpoint
         checkpoint(p_tuple, "after parse");
@@ -256,14 +253,14 @@ hash64 string_hash ( const void *const string, unsigned long long unused )
     return hash_crc64(string, strlen(string));
 }
 
-int string_pack ( void *p_buffer, const void *const p_value )
+int string_pack ( stream *p_stream, const void *const p_value )
 {
 
     // done
-    return pack_pack(p_buffer, "%s", p_value);
+    return pack_pack(p_stream, "%s", p_value);
 }
 
-int string_unpack ( void *const p_value, void *p_buffer )
+int string_unpack ( void *const p_value, stream *p_stream )
 {
 
     // initialized data
@@ -273,7 +270,7 @@ int string_unpack ( void *const p_value, void *p_buffer )
     const char   _string  [1024] = { 0 };
 
     // unpack the buffer
-    result = pack_unpack(p_buffer, "%s", &_string);
+    result = pack_unpack(p_stream, "%s", &_string);
 
     // duplicate the string
     p_string = strdup(_string);

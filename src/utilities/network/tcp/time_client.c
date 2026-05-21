@@ -46,12 +46,9 @@ int main ( int argc, const char *argv[] )
     // construct a stream from the socket
     stream_from_tcp_socket(&p_stream, client_socket);
     
-    // receive message length
-    stream_read(p_stream, &len, 2);
+    // unpack the time string
+    pack_unpack(p_stream, "%s", &_buf);
 
-    // receive message
-    stream_read(p_stream, &_buf, len);
-    
     // print the message
     log_info("%s", _buf);
 

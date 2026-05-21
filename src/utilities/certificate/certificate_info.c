@@ -16,6 +16,7 @@
 // gsdk
 /// core
 #include <core/log.h>
+#include <core/stream.h>
 
 /// crypto
 #include <crypto/ed25519.h>
@@ -49,25 +50,20 @@ int main ( int argc, const char *argv[] )
 {
     
     // initialized data
-    FILE        *p_f           = NULL;
+    stream      *p_stream      = NULL;
     certificate *p_certificate = NULL;
-    char         _buffer[160]  = { 0 };
 
     // parse command line arguments
     parse_command_line_arguments(argc, argv);
 
     // open the file
-    p_f = fopen(p_filename, "rb");
-    if ( NULL == p_f ) goto failed_to_open_file;
-
-    // read the key pair
-    fread(_buffer, 1, sizeof(_buffer), p_f);
+    if ( 0 == stream_from_path(&p_stream, p_filename) ) goto failed_to_open_file;
 
     // unpack the certificate
-    certificate_unpack(&p_certificate, _buffer);
+    certificate_unpack(&p_certificate, p_stream);
 
     // close the file
-    fclose(p_f);
+    stream_destroy(&p_stream);
 
     // print the certificate
     certificate_print(p_certificate);

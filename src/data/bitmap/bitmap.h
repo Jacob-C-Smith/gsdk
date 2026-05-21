@@ -107,24 +107,24 @@ int bitmap_foreach ( bitmap *p_bitmap, fn_foreach *pfn_foreach );
 
 /// reflection
 /** !
- * Pack a bitmap into a buffer
+ * Pack a bitmap into a stream
  * 
- * @param p_buffer the buffer
+ * @param p_stream the stream
  * @param p_bitmap the bitmap
  * 
  * @return 1 on success, 0 on error
  */
-int bitmap_pack ( void *p_buffer, bitmap *p_bitmap );
+int bitmap_pack ( stream *p_stream, bitmap *p_bitmap );
 
 /** !
- * Unpack a buffer into a bitmap
+ * Unpack a stream into a bitmap
  * 
  * @param pp_bitmap result
- * @param p_buffer  the buffer
+ * @param p_stream  the stream
  * 
  * @return 1 on success, 0 on error
  */
-int bitmap_unpack ( bitmap **pp_bitmap, void *p_buffer );
+int bitmap_unpack ( bitmap **pp_bitmap, stream *p_stream );
 
 /// hash
 /** !

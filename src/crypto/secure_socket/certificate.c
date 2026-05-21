@@ -224,10 +224,14 @@ int certificate_sign ( certificate *p_certificate, ed25519_public_key *p_public_
 
     // initialized data
     char _buf[160] = { 0 };
+    stream *p_stream = NULL;
     size_t len = 0;
 
+    // construct a stream
+    stream_from_dynamic_buffer(&p_stream);
+
     // pack the certificate
-    len = certificate_pack(_buf, p_certificate);
+    len = certificate_pack(p_stream, p_certificate);
 
     // sign the certificate
     ed25519_sign(
@@ -281,8 +285,12 @@ int certificate_verify ( certificate *p_certificate, certificate *p_issuer )
 
     // initialized data
     char _buf[160] = { 0 };
+    stream *p_stream = NULL;
     size_t len = 0;
     ed25519_public_key *p_public_key = NULL;
+
+    // construct a stream
+    stream_from_dynamic_buffer(&p_stream);
 
     // CA uses their key
     if ( NULL == p_issuer )
@@ -316,7 +324,7 @@ int certificate_verify ( certificate *p_certificate, certificate *p_issuer )
     }
 
     // pack the certificate
-    len = certificate_pack(_buf, p_certificate);
+    len = certificate_pack(p_stream, p_certificate);
 
     // done
     return ed25519_verify(
@@ -431,36 +439,36 @@ int certificate_chain_verify ( certificate **pp_chain, size_t count, certificate
     }
 }
 
-int certificate_pack ( void *p_buffer, certificate *p_certificate )
+int certificate_pack ( stream *p_stream, certificate *p_certificate )
 {
 
     // argument check
-    if ( NULL ==      p_buffer ) goto no_buffer;
+    if ( NULL ==      p_stream ) goto no_stream;
     if ( NULL == p_certificate ) goto no_certificate;
 
     // initialized data
-    char *p = p_buffer;
-
+    size_t written = 0;
+    
     // pack the certificate
-    p += pack_pack(p, "%s", p_certificate->p_subject);
-    p += ed25519_public_key_pack(p, &p_certificate->public_key);
-    p += sha256_pack(p, (unsigned char *)p_certificate->issuer);
-    p += pack_pack(p, "%i64", p_certificate->not_before);
-    p += pack_pack(p, "%i64", p_certificate->not_after);
-    p += pack_pack(p, "%i8", p_certificate->is_ca);
-    p += ed25519_signature_pack(p, &p_certificate->signature);
+    written += pack_pack(p_stream, "%s", p_certificate->p_subject);
+    written += ed25519_public_key_pack(p_stream, &p_certificate->public_key);
+    written += sha256_pack(p_stream, (unsigned char *)p_certificate->issuer);
+    written += pack_pack(p_stream, "%i64", p_certificate->not_before);
+    written += pack_pack(p_stream, "%i64", p_certificate->not_after);
+    written += pack_pack(p_stream, "%i8", p_certificate->is_ca);
+    written += ed25519_signature_pack(p_stream, &p_certificate->signature);
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
 
         // argument errors
         {
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[ed25519] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[ed25519] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -477,16 +485,16 @@ int certificate_pack ( void *p_buffer, certificate *p_certificate )
     }
 }
 
-int certificate_unpack ( certificate **pp_certificate, void *p_buffer )
+int certificate_unpack ( certificate **pp_certificate, stream *p_stream )
 {
 
     // argument check
-    if ( NULL ==       p_buffer ) goto no_buffer;
+    if ( NULL ==       p_stream ) goto no_stream;
     if ( NULL == pp_certificate ) goto no_certificate;
 
     // initialized data
     certificate *p_certificate = NULL;
-    char *p = p_buffer;
+    size_t written = 0;
     char subject[64] = { 0 };
     ed25519_public_key public_key = { 0 };
     ed25519_signature signature = { 0 };
@@ -496,13 +504,13 @@ int certificate_unpack ( certificate **pp_certificate, void *p_buffer )
     char is_ca;
 
     // unpack the certificate
-    p += pack_unpack(p, "%s", subject);
-    p += ed25519_public_key_unpack(&public_key, p);
-    p += sha256_unpack(&issuer, p);
-    p += pack_unpack(p, "%i64", &not_before);
-    p += pack_unpack(p, "%i64", &not_after);
-    p += pack_unpack(p, "%i8", &is_ca);
-    p += ed25519_signature_unpack(&signature, p);
+    written += pack_unpack(p_stream, "%s", subject);
+    written += ed25519_public_key_unpack(&public_key, p_stream);
+    written += sha256_unpack(&issuer, p_stream);
+    written += pack_unpack(p_stream, "%i64", &not_before);
+    written += pack_unpack(p_stream, "%i64", &not_after);
+    written += pack_unpack(p_stream, "%i8", &is_ca);
+    written += ed25519_signature_unpack(&signature, p_stream);
 
     // construct a certificate struct
     if ( 0 == certificate_construct(
@@ -522,7 +530,7 @@ int certificate_unpack ( certificate **pp_certificate, void *p_buffer )
     *pp_certificate = p_certificate;
 
     // success
-    return p - (char *)p_buffer;
+    return written;
 
     // error handling
     {
@@ -537,9 +545,9 @@ int certificate_unpack ( certificate **pp_certificate, void *p_buffer )
                 // error
                 return 0;
 
-            no_buffer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[certificate] Null pointer provided for parameter \"p_buffer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[certificate] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

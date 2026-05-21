@@ -144,26 +144,26 @@ int circular_buffer_foreach ( circular_buffer *p_circular_buffer, fn_foreach *pf
 
 /// reflection
 /** !
- * Pack a circular buffer into a buffer
+ * Pack a circular buffer into a stream
  * 
- * @param p_buffer          result
+ * @param p_stream          the stream
  * @param p_circular_buffer the circular buffer
  * @param pfn_elemenet      pointer to pack function IF not null ELSE default
  * 
- * @return 1 on success, 0 on error
+ * @return bytes written on success, 0 on error
  */
-int circular_buffer_pack ( void *p_buffer, circular_buffer *p_circular_buffer, fn_pack *pfn_element );
+int circular_buffer_pack ( stream *p_stream, circular_buffer *p_circular_buffer, fn_pack *pfn_element );
 
 /** !
- * Unpack a buffer into a circular buffer
+ * Unpack a stream into a circular buffer
  * 
  * @param pp_circular_buffer result
- * @param p_buffer           the buffer
+ * @param p_stream           the stream
  * @param pfn_elemenet       pointer to unpack function IF not null ELSE default
  * 
- * @return 1 on success, 0 on error
+ * @return bytes read on success, 0 on error
  */
-int circular_buffer_unpack ( circular_buffer **pp_circular_buffer, void *p_buffer, fn_unpack *pfn_element );
+int circular_buffer_unpack ( circular_buffer **pp_circular_buffer, stream *p_stream, fn_unpack *pfn_element );
 
 /// hash
 /** !
