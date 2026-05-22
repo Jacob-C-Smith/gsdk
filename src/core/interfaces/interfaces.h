@@ -49,7 +49,7 @@ typedef hash64 (fn_hash64) ( const void *const  k       , unsigned long long  l 
 void *default_allocator ( void *p_pointer, unsigned long long size );
 
 /** !
- * B - A
+ * A - B
  * 
  * @param p_a A
  * @param p_b B

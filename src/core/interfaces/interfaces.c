@@ -49,7 +49,7 @@ int default_comparator ( const void *p_a, const void *p_b )
 {
 
     // default
-    return p_b - p_a;
+    return ( p_a < p_b ) ? -1 : ( p_a > p_b ) ? 1 : 0;
 }
 
 int default_equality ( const void *const p_a, const void *const p_b )

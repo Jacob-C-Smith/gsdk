@@ -47,9 +47,9 @@ int stack_peek ( const stack *const p_stack, const void **const ret );
 // iterators
 int stack_fori ( stack *const p_stack, fn_fori *pfn_fori );
 
-// reflection
-int stack_pack   ( void   *p_buffer, stack *p_stack , fn_pack   *pfn_element );
-int stack_unpack ( stack **pp_stack, void  *p_buffer, fn_unpack *pfn_element );
+/// reflection
+int stack_pack   ( stream *p_stream, stack *p_stack , fn_pack   *pfn_element );
+int stack_unpack ( stack **pp_stack, stream *p_stream, fn_unpack *pfn_element );
 
 // hash
 hash64 stack_hash ( stack *p_stack, fn_hash64 *pfn_element );

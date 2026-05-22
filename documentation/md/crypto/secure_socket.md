@@ -1,4 +1,4 @@
-# [gsdk](../../../README.md) > [core](../core.md) > secure socket
+# [gsdk](../../../README.md) > [crypto](../crypto.md) > secure socket
 
 ## Authenticated and encrypted network communication
  
@@ -69,8 +69,8 @@ int certificate_verify       ( certificate  *p_certificate, certificate *p_issue
 int certificate_chain_verify ( certificate **pp_chain     , size_t       count   , certificate *p_trust_root );
 
 /// reflection
-int certificate_pack   ( void         *p_buffer      , certificate *p_certificate );
-int certificate_unpack ( certificate **pp_certificate, void        *p_buffer );
+int certificate_pack   ( stream *p_stream, certificate *p_certificate );
+int certificate_unpack ( certificate **pp_certificate, stream *p_stream );
 
 /// destructor
 int certificate_destroy ( certificate **pp_certificate );

@@ -53,11 +53,11 @@ int binary_tree_traverse_inorder   ( binary_tree *const p_binary_tree, fn_binary
 int binary_tree_traverse_postorder ( binary_tree *const p_binary_tree, fn_binary_tree_traverse *pfn_traverse );
 
 /// reflection
-int binary_tree_pack ( void *p_buffer, binary_tree *p_binary_tree, fn_pack *pfn_element );
+int binary_tree_pack ( stream *p_stream, binary_tree *p_binary_tree, fn_pack *pfn_element );
 int binary_tree_unpack
 ( 
     binary_tree **pp_binary_tree, 
-    void *p_buffer, 
+    stream *p_stream, 
     
     fn_unpack       *pfn_element, 
     fn_comparator   *pfn_comparator, 

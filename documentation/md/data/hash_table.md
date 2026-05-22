@@ -72,11 +72,11 @@ int hash_table_foreach ( hash_table *p_hash_table, fn_foreach *pfn_foreach );
 int hash_table_fori    ( hash_table *p_hash_table, fn_fori    *pfn_fori );
 
 /// reflection
-int hash_table_pack   ( void *p_buffer, hash_table *p_hash_table, fn_pack *pfn_element );
+int hash_table_pack   ( stream *p_stream, hash_table *p_hash_table, fn_pack *pfn_element );
 int hash_table_unpack
 ( 
     hash_table **pp_hash_table,
-    void *p_buffer,
+    stream *p_stream,
     fn_unpack *pfn_element,
 
     fn_comparator   *pfn_comparator,

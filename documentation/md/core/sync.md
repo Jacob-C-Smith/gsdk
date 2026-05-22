@@ -29,18 +29,13 @@ $ ./build/tests/sync_test
  ```c
 // type definitions
 typedef ... mutex;
-typedef ... rwlock;
-typedef ... spinlock;
 typedef ... semaphore;
-
 typedef ... condition_variable;
 typedef ... monitor;
-typedef ... barrier;
 
 typedef signed long long timestamp;
  ```
- *NOTE: mutex and semaphore definitions are platform dependent*
-
+ 
  ### Function declarations
  ```c 
 // function declarations
@@ -77,9 +72,4 @@ int monitor_wait       ( monitor *p_monitor );
 int monitor_notify     ( monitor *p_monitor );
 int monitor_notify_all ( monitor *p_monitor );
 int monitor_destroy    ( monitor *p_monitor );
-
-/// barrier
-int barrier_create  ( barrier *p_barrier, int count );
-int barrier_wait    ( barrier *p_barrier );
-int barrier_destroy ( barrier *p_barrier );
  ```

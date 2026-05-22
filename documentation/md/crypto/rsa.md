@@ -1,4 +1,4 @@
-# [gsdk](../../../README.md) > [core](../core.md) > rsa
+# [gsdk](../../../README.md) > [crypto](../crypto.md) > rsa
 
 ## RSA primitives 
   
@@ -47,10 +47,10 @@ int print_public_key_short ( public_key  *p_public_key );
 int print_private_key      ( private_key *p_private_key );
 
 /// reflection
-int public_key_pack    ( void        *p_buffer     , public_key  *p_public_key );
-int public_key_unpack  ( public_key  *p_public_key , void        *p_buffer );
-int private_key_pack   ( void        *p_buffer     , private_key *p_private_key );
-int private_key_unpack ( private_key *p_private_key, void        *p_buffer );
+int public_key_pack    ( stream *p_stream, public_key  *p_public_key );
+int public_key_unpack  ( public_key  *p_public_key , stream *p_stream );
+int private_key_pack   ( stream *p_stream, private_key *p_private_key );
+int private_key_unpack ( private_key *p_private_key, stream *p_stream );
 
 /// encryption
 int rsa_encrypt

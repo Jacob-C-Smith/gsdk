@@ -1,4 +1,4 @@
-# [gsdk](../../../README.md) > [core](../core.md) > hash
+# [gsdk](../../../README.md) > [core](../core.md) > stream
 
 ## Abstractions for I/O
 

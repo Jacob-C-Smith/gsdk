@@ -52,11 +52,11 @@ int red_black_tree_traverse_postorder ( red_black_tree *const p_red_black_tree, 
 int red_black_tree_forcontext         ( red_black_tree *const p_red_black_tree, fn_forcontext *pfn_forcontext, void *p_context );
 
 /// reflection
-int red_black_tree_pack ( void *p_buffer, red_black_tree *p_red_black_tree, fn_pack *pfn_element );
+int red_black_tree_pack ( stream *p_stream, red_black_tree *p_red_black_tree, fn_pack *pfn_element );
 int red_black_tree_unpack
 ( 
     red_black_tree **pp_red_black_tree, 
-    void *p_buffer, 
+    stream *p_stream, 
     
     fn_unpack       *pfn_element, 
     fn_comparator   *pfn_comparator, 

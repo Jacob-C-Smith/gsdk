@@ -10,9 +10,7 @@
  >
  > 3 [Definitions](#definitions)
  >
- >> 3.1 [Type definitions](#type-definitions)
- >>
- >> 3.2 [Function declarations](#function-declarations)
+ >> 3.1 [Function declarations](#function-declarations)
 
 ## Motivation
  I wanted a mechanism to reflect binary data, and format strings fit the bill. 
@@ -66,19 +64,12 @@ The length defines a quantity of specifiers that are to be read sequentially
 ```
 
 ## Definitions
-### Type definitions
-```c
-// type definitions
-typedef int (fn_pack)   ( void *p_buffer, const void *const p_value );
-typedef int (fn_unpack) ( void *p_value, void *p_buffer );
-```
-
 ### Function declarations
 ```c 
 // function declarations
 /// pack
-size_t pack_pack ( void *p_buffer, const char *restrict format, ... );
+size_t pack_pack ( stream *p_stream, const char *restrict format, ... );
 
 /// unpack
-size_t pack_unpack ( void *p_buffer, const char *restrict format, ... );
+size_t pack_unpack ( stream *p_stream, const char *restrict format, ... );
 ```

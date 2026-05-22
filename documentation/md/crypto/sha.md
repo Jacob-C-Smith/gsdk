@@ -1,4 +1,4 @@
-# [gsdk](../../../README.md) > [core](../core.md) > sha
+# [gsdk](../../../README.md) > [crypto](../crypto.md) > sha
 
 ## Secure Hash Algorithm (256/512)
 

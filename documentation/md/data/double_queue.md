@@ -59,8 +59,8 @@ int double_queue_foreach ( double_queue *const p_double_queue, fn_foreach *pfn_f
 int double_queue_fori    ( double_queue *const p_double_queue, fn_fori    *pfn_fori );
 
 /// reflection
-int double_queue_pack   ( void          *p_buffer       , double_queue *p_double_queue, fn_pack   *pfn_element );
-int double_queue_unpack ( double_queue **pp_double_queue, void         *p_buffer      , fn_unpack *pfn_element );
+int double_queue_pack   ( stream *p_stream, double_queue *p_double_queue, fn_pack   *pfn_element );
+int double_queue_unpack ( double_queue **pp_double_queue, stream *p_stream, fn_unpack *pfn_element );
 
 /// hash
 hash64 double_queue_hash ( double_queue *p_double_queue, fn_hash64 *pfn_element );

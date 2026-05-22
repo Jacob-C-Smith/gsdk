@@ -50,8 +50,8 @@ int cache_fori     ( cache *p_cache, fn_fori    pfn_fori );
 int cache_for_each ( cache *p_cache, fn_foreach pfn_foreach );
 
 /// reflection
-int cache_pack   ( void   *p_buffer, cache *p_cache , fn_pack   *pfn_element );
-int cache_unpack ( cache **pp_cache, void  *p_buffer, fn_unpack *pfn_element );
+int cache_pack   ( stream *p_stream, cache *p_cache , fn_pack   *pfn_element );
+int cache_unpack ( cache **pp_cache, stream *p_stream, fn_unpack *pfn_element );
 
 /// hash
 hash64 cache_hash ( cache *p_cache, fn_hash64 *pfn_element );

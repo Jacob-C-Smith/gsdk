@@ -54,8 +54,8 @@ int queue_dequeue ( queue *const p_queue, void **const pp_value );
 int queue_fori ( queue *const p_queue, fn_fori *pfn_fori );
 
 /// reflection
-int queue_pack   ( void   *p_buffer, queue *p_queue , fn_pack   *pfn_element );
-int queue_unpack ( queue **pp_queue, void  *p_buffer, fn_unpack *pfn_element );
+int queue_pack   ( stream *p_stream, queue *p_queue , fn_pack   *pfn_element );
+int queue_unpack ( queue **pp_queue, stream *p_stream, fn_unpack *pfn_element );
 
 /// hash
 hash64 queue_hash ( queue *p_queue, fn_hash64 *pfn_element );
