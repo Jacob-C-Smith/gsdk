@@ -325,7 +325,7 @@ size_t pack_pack ( stream *p_stream, const char *restrict format, ... )
             written += sizeof(unsigned short);
             
             // store the value
-            stream_write(p_stream, s, len);
+            stream_write(p_stream, (void *)s, len);
 
             // update the written byte counter
             written += len;

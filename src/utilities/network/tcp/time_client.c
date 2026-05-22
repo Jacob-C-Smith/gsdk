@@ -31,7 +31,6 @@ int main ( int argc, const char *argv[] )
     socket_tcp client_socket = 0;
     socket_ip_address server_ip = { 0 };
     stream *p_stream = NULL;
-    short len = 0;
     char _buf[1024] = { 0 };
 
     // create a TCP socket
