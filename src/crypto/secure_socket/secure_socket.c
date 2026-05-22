@@ -61,7 +61,6 @@ int secure_socket_handshake ( secure_socket *p_secure_socket, bool is_server, ce
 
         // initialized data
         stream *p_stream = NULL;
-        size_t written = 0;
         ed25519_public_key _public_key = { 0 };
         ed25519_signature _signature = { 0 };
 
@@ -72,13 +71,13 @@ int secure_socket_handshake ( secure_socket *p_secure_socket, bool is_server, ce
         if ( 0 == ed25519_sign(&_signature, (const unsigned char *)&pub, sizeof(pub), &_public_key, p_private_key) ) goto failed_to_sign_public_key;
         
         // pack the ephemeral public key
-        written += x25519_public_key_pack(p_stream, &pub);
+        x25519_public_key_pack(p_stream, &pub);
 
         // pack the signature of the ephemeral public key
-        written += ed25519_signature_pack(p_stream, &_signature);
+        ed25519_signature_pack(p_stream, &_signature);
 
         // pack the certificate
-        written += certificate_pack(p_stream, p_certificate);
+        certificate_pack(p_stream, p_certificate);
 
         // debug
         #ifdef SECURE_SOCKET_DEBUG
@@ -105,7 +104,6 @@ int secure_socket_handshake ( secure_socket *p_secure_socket, bool is_server, ce
     {
 
         // initialized data
-        size_t written = 0;
         stream *p_stream = NULL;
         ed25519_public_key _server_key = { 0 };
         ed25519_signature _signature = { 0 };
@@ -121,13 +119,13 @@ int secure_socket_handshake ( secure_socket *p_secure_socket, bool is_server, ce
         if ( 0 == socket_tcp_receive(p_secure_socket->tcp_socket, _plain_buf, sizeof(_plain_buf)) ) goto failed_to_receive_server_hello;
 
         // unpack the public key
-        written += x25519_public_key_unpack(&peer_pub, p_stream);
+        x25519_public_key_unpack(&peer_pub, p_stream);
 
         // unpack the signature
-        written += ed25519_signature_unpack(&_signature, p_stream);
+        ed25519_signature_unpack(&_signature, p_stream);
 
         // unpack the certificate
-        written += certificate_unpack(&p_server_certificate, p_stream);
+        certificate_unpack(&p_server_certificate, p_stream);
 
         // update the hasher
         // sha512_update(&s, (const unsigned char *)_plain_buf, p_stream - _plain_buf);
@@ -259,14 +257,6 @@ int secure_socket_handshake ( secure_socket *p_secure_socket, bool is_server, ce
             failed_to_send_client_hello:
                 #ifndef NDEBUG
                     log_error("[secure socket] Failed to send client hello in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-
-            failed_to_send_server_hello:
-                #ifndef NDEBUG
-                    log_error("[secure socket] Failed to send server hello in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

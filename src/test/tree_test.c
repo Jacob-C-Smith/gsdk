@@ -293,6 +293,9 @@ void run_tests ( void )
 void test_tree ( const char *name ) 
 { 
 
+    // unused 
+    (void) name;
+
     test_empty_tree_scenario();
     test_one_element_tree_scenario();
     test_two_element_tree_scenario();
@@ -593,6 +596,10 @@ bool test_search ( void (*constructor)(tree **), void *key, void *expected_value
 
 bool test_size( void (*constructor)(tree **), size_t size, result_t expected )
 {
+
+    // unused
+    (void) expected;
+
     tree *p_tree = NULL;
     constructor(&p_tree);
     

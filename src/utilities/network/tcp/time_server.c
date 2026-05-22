@@ -32,8 +32,6 @@ int connection_callback ( socket_tcp socket, socket_ip_address ip, socket_port p
     struct tm* ptr = NULL;
     time_t lt = 0;
     stream *p_stream = NULL;
-    char _buf[1024] = { 0 };
-    size_t len = 0;
 
     // logs
     printf("Accepted connection from "), 
@@ -49,7 +47,7 @@ int connection_callback ( socket_tcp socket, socket_ip_address ip, socket_port p
     ptr = localtime(&lt);
 
     // pack the time string into the stream
-    len = pack_pack(p_stream, "%s", asctime(ptr));
+    pack_pack(p_stream, "%s", asctime(ptr));
 
     // destroy the stream
     stream_destroy(&p_stream);
