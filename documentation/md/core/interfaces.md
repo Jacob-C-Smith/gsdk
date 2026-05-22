@@ -51,19 +51,19 @@ The interfaces module provides a set of standard function pointer definitions an
 
  **Parameters**
  - `p_a` pointer to **A**
- - `p_a` pointer to **B**
+ - `p_b` pointer to **B**
 
  **Returns**
- - `< 0` **if A > B**
+ - `< 0` **if A < B**
  - `0`  **if A == B**
- - `> 0`  **if A < B**
+ - `> 0`  **if A > B**
  
  ### equality
  An **equality** function tests if two elements are equal.
 
  **Parameters**
  - `p_a` pointer to **A**
- - `p_a` pointer to **B**
+ - `p_b` pointer to **B**
 
  **Returns**
  - `1` (true) **IF a == b**
@@ -118,31 +118,31 @@ The interfaces module provides a set of standard function pointer definitions an
  - **ELSE** new pointer to **element**
  
  ### pack
- A **pack** function serializes a **value** into a **buffer**.
+ A **pack** function serializes a **value** into a **stream**.
  
  **Parameters**
- - `p_buffer` - pointer to **buffer**
+ - `p_stream` - pointer to **stream**
  - `p_value` - pointer to **value**
 
  **Returns**
- - bytes written to `p_buffer` 
+ - bytes written to `p_stream` 
  
  ### unpack
- An **unpack** function deserializes a value from a buffer.
+ An **unpack** function deserializes a value from a stream.
  
  **Parameters**
  - `p_value` - pointer to **value**
- - `p_buffer` - pointer to **buffer**
+ - `p_stream` - pointer to **stream**
 
  **Returns**
- - bytes read from `p_buffer` 
+ - bytes read from `p_stream` 
  
  ## Definitions
  ### Type definitions
 ```c
 // type definitions
 /// allocator
-typedef void *(fn_allocator) ( void *p_pointer, unsigned long size );
+typedef void *(fn_allocator) ( void *p_pointer, unsigned long long size );
 
 /// identity
 typedef int   (fn_comparator)   ( const void *p_a, const void *p_b );
@@ -155,8 +155,8 @@ typedef void  (fn_foreach) ( void *p_element );
 typedef void *(fn_map)     ( void *p_element );
 
 /// reflection
-typedef int    (fn_pack)   ( void              *p_buffer, const void *const   p_value );
-typedef int    (fn_unpack) ( void              *p_value , void               *p_buffer );
+typedef int    (fn_pack)   ( stream            *p_stream, const void *const   p_value );
+typedef int    (fn_unpack) ( void              *p_value , stream             *p_stream );
 typedef hash64 (fn_hash64) ( const void *const  k       , unsigned long long  l );
 ```
 

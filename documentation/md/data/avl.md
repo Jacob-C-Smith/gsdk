@@ -53,11 +53,11 @@ int avl_tree_traverse_postorder ( avl_tree *const p_avl_tree, fn_foreach    *pfn
 int avl_tree_forcontext         ( avl_tree *const p_avl_tree, fn_forcontext *pfn_forcontext, void *p_context );
 
 /// reflection
-int avl_tree_pack ( void *p_buffer, avl_tree *p_avl_tree, fn_pack *pfn_element );
+int avl_tree_pack ( stream *p_stream, avl_tree *p_avl_tree, fn_pack *pfn_element );
 int avl_tree_unpack
 ( 
     avl_tree **pp_avl_tree, 
-    void      *p_buffer, 
+    stream    *p_stream, 
     
     fn_unpack       *pfn_element, 
     fn_comparator   *pfn_comparator, 

@@ -45,8 +45,8 @@ size_t tuple_size    ( const tuple *const p_tuple );
 int tuple_fori ( tuple *p_tuple, fn_fori *pfn_fori );
 
 /// reflection
-int tuple_pack   ( void   *p_buffer, tuple *p_tuple , fn_pack *pfn_element );
-int tuple_unpack ( tuple **pp_tuple, void  *p_buffer, fn_unpack *pfn_element );
+int tuple_pack   ( stream *p_stream, tuple *p_tuple , fn_pack *pfn_element );
+int tuple_unpack ( tuple **pp_tuple, stream *p_stream, fn_unpack *pfn_element );
 
 /// hash
 hash64 tuple_hash ( tuple *p_tuple, fn_hash64 *pfn_element );

@@ -11,7 +11,7 @@
  >> 2.2 [Function declarations](#function-declarations)
 
  ## Example
- To run the example program, execute this command
+ To run the **[example program](../../../src/examples/log_example.c)**, execute this command
  ```
  $ ./build/examples/log_example
  ```

@@ -1,5 +1,18 @@
 # [gsdk](../../README.md) > core
 
-| hash | log | pack | socket | sync |
-| ---- | --- | ---- | ------ | ---- |
-| ![hash](https://raw.githubusercontent.com/Jacob-C-Smith/icons/refs/heads/main/hash-cache.png) | ![log](https://raw.githubusercontent.com/Jacob-C-Smith/icons/refs/heads/main/log.png) | ![pack](https://raw.githubusercontent.com/Jacob-C-Smith/icons/refs/heads/main/pack.png) | ![pack](https://raw.githubusercontent.com/Jacob-C-Smith/icons/refs/heads/main/socket.png)| ![pack](https://raw.githubusercontent.com/Jacob-C-Smith/icons/refs/heads/main/sync.png)
+> [core](../../src/core/)
+>> [hash](./core/hash.md)
+>>
+>> [interfaces](./core/interfaces.md)
+>>
+>> [log](./core/log.md)
+>>
+>> [pack](./core/pack.md)
+>>
+>> [socket](./core/socket.md)
+>>
+>> [stream](./core/stream.md)
+>>
+>> [sync](./core/sync.md)
+>>
+>> [test](./core/test.md)

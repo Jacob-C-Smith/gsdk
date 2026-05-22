@@ -1,4 +1,4 @@
-# [gsdk](../../../README.md) > [core](../core.md) > digital signature
+# [gsdk](../../../README.md) > [crypto](../crypto.md) > digital signature
 
 ## Sign and Verify data
 

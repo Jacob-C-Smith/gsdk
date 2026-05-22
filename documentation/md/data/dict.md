@@ -73,11 +73,11 @@ int dict_pop ( dict *const p_dict, const char *const p_key, const void **const p
 int dict_foreach ( dict *const p_dict, fn_foreach *pfn_foreach );
 
 /// reflection
-int dict_pack ( void *p_buffer, dict *const p_dict, fn_pack *pfn_element );
+int dict_pack ( stream *p_stream, dict *const p_dict, fn_pack *pfn_element );
 int dict_unpack
 (
     dict **const pp_dict,
-    void *const p_buffer,
+    stream *const p_stream,
     fn_unpack *pfn_element,
 
     fn_allocator    *pfn_allocator,

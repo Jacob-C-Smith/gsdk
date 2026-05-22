@@ -331,14 +331,14 @@ int number_and_string_string_comparator ( const void *const p_a, const void *con
 {
 
     // success
-    return strcmp(p_b, p_a);
+    return strcmp(p_a, p_b);
 }
 
 int number_and_string_number_comparator ( const void *const p_a, const void *const p_b )
 {
 
     // success
-    return p_b - p_a;
+    return p_a - p_b;
 }
 
 void *number_and_string_string_key_accessor ( const void *const p_value )

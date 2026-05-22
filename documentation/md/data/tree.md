@@ -53,8 +53,8 @@ typedef int (fn_tree_remove) ( void *const p_tree, const void *const p_key, cons
 
 typedef int (fn_tree_traverse_inorder) ( void *const p_tree, fn_foreach *pfn_foreach );
 
-typedef int    (fn_tree_pack)   ( void *p_buffer, void *p_tree, fn_pack *pfn_element );
-typedef int    (fn_tree_unpack) ( void **pp_tree, void  *p_buffer, fn_unpack *pfn_element, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor);
+typedef int    (fn_tree_pack)   ( stream *p_stream, void *p_tree, fn_pack *pfn_element );
+typedef int    (fn_tree_unpack) ( void **pp_tree, stream *p_stream, fn_unpack *pfn_element, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor);
 typedef hash64 (fn_tree_hash)   ( void *const p_tree, fn_hash64 *pfn_hash64);
 
 typedef int (fn_tree_destroy) ( void **const pp_tree, fn_allocator *pfn_allocator);
@@ -86,11 +86,11 @@ int tree_remove ( tree *const p_tree, const void *const p_key  , const void **co
 int tree_traverse_inorder ( tree *const p_tree, fn_foreach *pfn_foreach );
 
 /// reflection
-int tree_pack ( void *p_buffer, tree *p_tree, fn_pack *pfn_element );
+int tree_pack ( stream *p_stream, tree *p_tree, fn_pack *pfn_element );
 int tree_unpack
 ( 
     tree **pp_tree, 
-    void  *p_buffer, 
+    stream *p_stream, 
     
     fn_unpack       *pfn_element, 
     fn_comparator   *pfn_comparator, 

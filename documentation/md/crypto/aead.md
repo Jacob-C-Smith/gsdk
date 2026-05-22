@@ -1,4 +1,4 @@
-# [gsdk](../../../README.md) > [core](../core.md) > AEAD
+# [gsdk](../../../README.md) > [crypto](../crypto.md) > AEAD
 
 ## Authenticated Encryption with Associated Data
  

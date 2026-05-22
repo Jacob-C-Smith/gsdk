@@ -1,4 +1,4 @@
-# [gsdk](../../../README.md) > [performance](../performance.md)
+# [gsdk](../../../README.md) > [performance](../performance.md) > parallel
 
 ## High level abstractions for parallel computing
  

@@ -11,12 +11,12 @@
  >> 3.1 [Function declarations](#function-declarations)
 
  ## Example
- To run the example program, execute this command
+ To run the **[example program](../../../src/examples/hash_example.c)**, execute this command
  ```
 $ ./build/examples/hash_example
  ```
  ## Tester
- To run the tester program, execute this command
+ To run the **[tester program](../../../src/test/hash_test.c)**, execute this command
  ```
 $ ./build/tests/hash_test
  ```

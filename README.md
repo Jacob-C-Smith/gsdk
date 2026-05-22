@@ -16,11 +16,12 @@
 ---
 
 ## Features
-- **Core**: Interfaces, logging, synchronization, binary packing, cryptography, sockets, and hashing
-- **Data**: Arrays, maps, stacks, queues, sets, trees, and more
+- **Core**: Interfaces, logging, synchronization, binary packing, streams, sockets, hashing and a test framework
+- **Crypto**: Symmetric and asymmetric cryptography, cryptographic hashing functions, digital signatures, certificates, and secure sockets
+- **Data**: Arrays, maps, stacks, queues, sets, trees, graphs, and more
 - **Reflection**: JSON and base64 
 - **Examples**: Example programs for each module
-- **Tests**: Test suites for many modules
+- **Tests**: Test suites for most modules
 - **Documentation**: Detailed READMEs and extensive inline comments
 
 ## Getting started
@@ -45,9 +46,6 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>⭐ <a href="./documentation/md/core/pack.md"><b>
             pack
         </b></a></li>
-        <li>⭐ <a href="./documentation/md/core/sha.md"><b>
-            sha
-        </b></a></li>
         <li>⭐ <a href="./documentation/md/core/stream.md"><b>
             stream
         </b></a></li>
@@ -63,6 +61,18 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>⭐ <a href="./documentation/md/core/interfaces.md"><b>
             interfaces
         </b></a></li>
+        </a></li>
+        <li>🧪 <a href="./documentation/md/core/socket.md">
+            socket
+        </a></li>
+    </ul>
+</details>
+<details open>
+    <summary><a href="documentation/md/crypto.md">crypto</a></summary>
+    <ul>
+        <li>⭐ <a href="./documentation/md/core/sha.md"><b>
+            sha
+        </b></a></li>
         <li>⭐ <a href="./documentation/md/core/ed25519.md"><b>
             ed25519
         </b></a></li>
@@ -77,20 +87,9 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         </a></li>
         <li>🧪 <a href="./documentation/md/core/secure_socket.md">
             secure socket
-        </a></li><li>🧪 <a href="./documentation/md/core/socket.md">
-            socket
-        </a></li>
         <li>🧪 <a href="./documentation/md/core/x25519.md">
             x25519
         </a></li>
-        <!--
-        <li>🏗️ <a href="./documentation/md/core/aes.md">
-            aes
-        </a></li>
-        <li>🏗️ <a href="./documentation/md/core/socket.md">
-            socket
-        </a></li>
-        -->
     </ul>
 </details>
 

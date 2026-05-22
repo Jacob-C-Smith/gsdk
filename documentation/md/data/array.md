@@ -56,8 +56,8 @@ int array_map ( array *const p_array, fn_map *pfn_map, fn_allocator *pfn_allocat
 int array_fori ( array *p_array, fn_fori *pfn_fori );
 
 /// reflection
-int array_pack   ( void   *p_buffer, array *p_array , fn_pack *pfn_element );
-int array_unpack ( array **pp_array, void  *p_buffer, fn_unpack *pfn_element );
+int array_pack   ( stream *p_stream, array *p_array , fn_pack *pfn_element );
+int array_unpack ( array **pp_array, stream *p_stream, fn_unpack *pfn_element );
 
 /// hash
 hash64 array_hash ( array *p_array, fn_hash64 *pfn_element );

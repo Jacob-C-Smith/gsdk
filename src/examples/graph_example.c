@@ -576,7 +576,7 @@ int airport_comparator ( const void *p_a, const void *p_b )
 {
 
     // done
-    return strcmp(p_b, p_a);
+    return strcmp(p_a, p_b);
 }
 
 void airport_print ( void *p_element )
