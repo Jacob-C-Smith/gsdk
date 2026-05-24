@@ -128,9 +128,29 @@ int avl_tree_insert ( avl_tree *const p_avl_tree, const void *const p_value );
  * 
  * @return 1 on success, 0 on error
  */
-int avl_tree_remove ( avl_tree *const p_avl_tree, const void *const p_key, const void **const p_value );
+int avl_tree_remove ( avl_tree *const p_avl_tree, const void *const p_key, const void **const pp_value );
+
+/** !
+ * Find the successor of a key in an avl tree
+ * 
+ * @param p_avl_tree the avl tree
+ * @param p_key      the key
+ * @param pp_value   result
+ * 
+ * @return 1 on success, 0 on error
+ */
+int avl_tree_successor ( avl_tree *const p_avl_tree, const void *const p_key, void **const pp_value );
 
 /// iterator
+/** !
+ * Construct an iterator for an avl tree
+ * 
+ * @param p_avl_tree the avl tree
+ * 
+ * @return an iterator
+ */
+iterator avl_tree_iterator ( avl_tree *p_avl_tree );
+
 /** !
  * Traverse an avl tree using the pre order technique
  * 

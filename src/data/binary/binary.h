@@ -147,9 +147,29 @@ int binary_tree_insert ( binary_tree *const p_binary_tree, const void *const p_v
  * 
  * @return 1 on success, 0 on error
  */
-int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_key, const void **const p_value );
+int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_key, const void **const pp_value );
+
+/** !
+ * Find the successor of a key in a binary tree
+ * 
+ * @param p_binary_tree the binary tree
+ * @param p_key         the key
+ * @param pp_value      result
+ * 
+ * @return 1 on success, 0 on error
+ */
+int binary_tree_successor ( binary_tree *const p_binary_tree, const void *const p_key, void **const pp_value );
 
 /// iterator
+/** !
+ * Construct an iterator for a binary tree
+ * 
+ * @param p_binary_tree the binary tree
+ * 
+ * @return an iterator
+ */
+iterator binary_tree_iterator ( binary_tree *p_binary_tree );
+
 /** !
  * Traverse a binary tree using the pre order technique
  * 
