@@ -9,6 +9,10 @@
 // header file
 #include <data/tuple.h>
 
+fn_it_done tuple_iterator_done;
+fn_it_next tuple_iterator_next;
+fn_it_item tuple_iterator_item;
+
 // structure definitions
 struct tuple_s
 {
@@ -421,6 +425,44 @@ int tuple_fori ( tuple *p_tuple, fn_fori *pfn_fori )
                 return 0;
         }
     }
+}
+
+iterator tuple_iterator ( tuple *p_tuple )
+{
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_tuple,
+        .state  = { 0 },
+        .done   = tuple_iterator_done,
+        .next   = tuple_iterator_next,
+        .item   = tuple_iterator_item
+    };
+}
+
+bool tuple_iterator_done ( iterator *p_iterator ) 
+{
+
+    // done?
+    return ((size_t)p_iterator->state.p_state) >= ((tuple *) p_iterator->p_data)->element_count; 
+}
+
+void tuple_iterator_next ( iterator *p_iterator ) 
+{
+
+    // update the state
+    p_iterator->state.p_state = (void *)((size_t)p_iterator->state.p_state + 1); 
+
+    // done
+    return;
+}
+
+void *tuple_iterator_item ( iterator *p_iterator ) 
+{
+
+    // done
+    return ((tuple *) p_iterator->p_data)->_p_elements[(size_t)p_iterator->state.p_state]; 
 }
 
 int tuple_pack ( stream *p_stream, tuple *p_tuple, fn_pack *pfn_element )

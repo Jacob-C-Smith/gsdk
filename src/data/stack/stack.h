@@ -98,6 +98,15 @@ int stack_peek ( stack *p_stack, void **ret );
  */
 int stack_fori ( stack *const p_stack, fn_fori *pfn_fori );
 
+/** !
+ * Construct an iterator for a stack
+ * 
+ * @param p_stack the stack
+ * 
+ * @return an iterator
+ */
+iterator stack_iterator ( stack *p_stack );
+
 /// reflection
 /** !
  * Pack a stack into a stream

@@ -9,6 +9,10 @@
 // header file
 #include <data/double_queue.h>
 
+fn_it_done double_queue_iterator_done;
+fn_it_next double_queue_iterator_next;
+fn_it_item double_queue_iterator_item;
+
 // structure declarations
 struct double_queue_node_s;
 
@@ -771,6 +775,47 @@ int double_queue_fori ( double_queue *const p_double_queue, fn_fori *pfn_fori )
 				return 0;
 		}
 	}
+}
+
+iterator double_queue_iterator ( double_queue *p_double_queue )
+{
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_double_queue,
+        .state  = 
+		{ 
+			.p_state = (void *) p_double_queue->front 
+		},
+        .done = double_queue_iterator_done,
+        .next = double_queue_iterator_next,
+        .item = double_queue_iterator_item
+    };
+}
+
+bool double_queue_iterator_done ( iterator *p_iterator ) 
+{
+
+    // done?
+    return p_iterator->state.p_state == NULL; 
+}
+
+void double_queue_iterator_next ( iterator *p_iterator ) 
+{
+
+    // update the state
+    p_iterator->state.p_state = (void *)((double_queue_node *)p_iterator->state.p_state)->next; 
+
+    // done
+    return;
+}
+
+void *double_queue_iterator_item ( iterator *p_iterator ) 
+{
+
+    // done
+    return ((double_queue_node *)p_iterator->state.p_state)->content; 
 }
 
 int double_queue_pack ( stream *p_stream, double_queue *p_double_queue, fn_pack *pfn_element )

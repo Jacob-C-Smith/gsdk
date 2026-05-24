@@ -245,9 +245,22 @@ int checkpoint ( stack *p_stack, const char *p_event )
         log_info("#%d - Stack %s: ", step, p_event),
         printf("NULL\n");
     else
-        log_info("#%d - Stack %s:\n", step, p_event),
-        stack_fori(p_stack, string_print),
+    {
+
+        // initialized data
+        size_t i = 0;
+
+        // logs
+        log_info("#%d - Stack %s:\n", step, p_event);
+
+        // iterate through the stack
+        for ( iterator it = stack_iterator(p_stack); !it.done(&it); it.next(&it) )
+            string_print(it.item(&it), i),
+            i++;
+
+        // formatting
         putchar('\n');
+    }
 
     // increment counter
     step++;

@@ -190,6 +190,15 @@ int array_fori ( array *p_array, fn_fori *pfn_fori );
  */
 int array_foreach ( array *p_array, fn_foreach *pfn_foreach );
 
+/** !
+ * Create an iterator for an array
+ * 
+ * @param p_array the array
+ * 
+ * @return an iterator
+ */
+iterator array_iterator ( array *p_array );
+
 /// reflection
 /** !
  * Pack an array into a buffer

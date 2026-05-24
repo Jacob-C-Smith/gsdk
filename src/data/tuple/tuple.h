@@ -122,6 +122,15 @@ size_t tuple_size ( const tuple *const p_tuple );
  */
 int tuple_fori ( tuple *p_tuple, fn_fori *pfn_fori );
 
+/** !
+ * Create an iterator for a tuple
+ * 
+ * @param p_tuple the tuple
+ * 
+ * @return an iterator
+ */
+iterator tuple_iterator ( tuple *p_tuple );
+
 /// reflection
 /** !
  * Pack a tuple into a stream

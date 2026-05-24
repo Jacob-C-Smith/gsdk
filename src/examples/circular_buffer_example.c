@@ -246,9 +246,17 @@ int checkpoint ( circular_buffer *p_circular_buffer, const char *p_event )
 		log_info("#%d - Circular buffer %s: ", step, p_event),
 		printf("NULL\n");
     else
-		log_info("#%d - Circular buffer %s:\n", step, p_event),
-		circular_buffer_foreach(p_circular_buffer, string_print),
+	{
+		// logs
+		log_info("#%d - Circular buffer %s:\n", step, p_event);
+
+		// iterate through the circular buffer
+		for ( iterator it = circular_buffer_iterator(p_circular_buffer); !it.done(&it); it.next(&it) )
+			string_print(it.item(&it));
+		
+		// formatting
 		putchar('\n');
+	}
     
     // increment counter
     step++;

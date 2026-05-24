@@ -110,7 +110,7 @@ int main ( int argc, const char* argv[] )
             array_add(p_array, (void *)_p_colors[_color]);
 
         // checkpoint
-        checkpoint(p_array,"after adding < Green, Blue, Purple >");
+        checkpoint(p_array, "after adding < Green, Blue, Purple >");
     }
 
     // #4 - remove some
@@ -275,9 +275,22 @@ int checkpoint ( array *p_array, const char *p_event )
         log_info("#%d - Array %s: ", step, p_event),
         printf("NULL\n");
     else
-        log_info("#%d - Array %s:\n", step, p_event),
-        array_fori(p_array, string_print),
+    {
+
+        // initialized data
+        size_t i = 0;
+
+        // logs
+        log_info("#%d - Array %s:\n", step, p_event);
+
+        // iterate through the array
+        for ( iterator it = array_iterator(p_array); !it.done(&it); it.next(&it) )
+            string_print(it.item(&it), i),
+            i++;
+
+        // formatting
         putchar('\n');
+    }
 
     // increment counter
     step++;

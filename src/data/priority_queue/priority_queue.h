@@ -156,6 +156,15 @@ int priority_queue_insert ( priority_queue *const pp_priority_queue, void *p_key
 */
 int priority_queue_dequeue ( priority_queue *const p_priority_queue, void **pp_key );
 
+/** !
+ * Construct an iterator for a priority queue
+ * 
+ * @param p_priority_queue the priority queue
+ * 
+ * @return an iterator
+ */
+iterator priority_queue_iterator ( priority_queue *p_priority_queue );
+
 // destructors
 /** !
  *  Destroy and deallocate a priority queue

@@ -232,9 +232,22 @@ int checkpoint ( queue *p_queue, const char *p_event )
         log_info("#%d - Queue %s: ", step, p_event),
         printf("NULL\n");
     else
-        log_info("#%d - Queue %s:\n", step, p_event),
-        queue_fori(p_queue, string_print),
+    {
+
+        // initialized data
+        size_t i = 0;
+
+        // logs
+        log_info("#%d - Queue %s:\n", step, p_event);
+
+        // iterate through the queue
+        for ( iterator it = queue_iterator(p_queue); !it.done(&it); it.next(&it) )
+            string_print(it.item(&it), i),
+            i++;
+
+        // formatting
         putchar('\n');
+    }
 
     // increment counter
     step++;
