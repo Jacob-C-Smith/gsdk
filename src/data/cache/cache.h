@@ -147,6 +147,15 @@ int cache_fori ( cache *p_cache, fn_fori pfn_fori );
  */
 int cache_for_each ( cache *p_cache, fn_foreach pfn_foreach );
 
+/** !
+ * Construct an iterator for a cache
+ * 
+ * @param p_cache the cache
+ * 
+ * @return an iterator
+ */
+iterator cache_iterator ( cache *p_cache );
+
 /// reflection
 /** !
  * Pack a cache into a stream

@@ -9,6 +9,10 @@
 // header
 #include <data/stack.h>
 
+fn_it_done stack_iterator_done;
+fn_it_next stack_iterator_next;
+fn_it_item stack_iterator_item;
+
 // structure declarations
 struct stack_s
 {
@@ -328,6 +332,44 @@ int stack_fori ( stack *p_stack, fn_fori *pfn_fori )
                 return 0;
         }
     }
+}
+
+iterator stack_iterator ( stack *p_stack )
+{
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_stack,
+        .state  = { 0 },
+        .done   = stack_iterator_done,
+        .next   = stack_iterator_next,
+        .item   = stack_iterator_item
+    };
+}
+
+bool stack_iterator_done ( iterator *p_iterator ) 
+{
+
+    // done?
+    return ((size_t)p_iterator->state.p_state) >= ((stack *) p_iterator->p_data)->offset; 
+}
+
+void stack_iterator_next ( iterator *p_iterator ) 
+{
+
+    // update the state
+    p_iterator->state.p_state = (void *)((size_t)p_iterator->state.p_state + 1); 
+
+    // done
+    return;
+}
+
+void *stack_iterator_item ( iterator *p_iterator ) 
+{
+
+    // done
+    return ((stack *) p_iterator->p_data)->_p_data[(size_t)p_iterator->state.p_state]; 
 }
 
 int stack_pack ( stream *p_stream, stack *p_stack, fn_pack *pfn_element )

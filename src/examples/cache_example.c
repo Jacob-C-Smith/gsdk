@@ -328,9 +328,22 @@ int checkpoint ( cache *p_cache, const char *p_event )
         log_info("#%d - Cache %s: ", step, p_event),
         printf("NULL\n");
     else
-        log_info("#%d - Cache %s:\n", step, p_event),
-        cache_fori(p_cache, string_print),
+    {
+
+        // initialized data
+        size_t i = 0;
+
+        // logs
+        log_info("#%d - Cache %s:\n", step, p_event);
+
+        // iterate through the cache
+        for ( iterator it = cache_iterator(p_cache); !it.done(&it); it.next(&it) )
+            string_print(it.item(&it), i),
+            i++;
+        
+        // formatting
         putchar('\n');
+    }
     
     // increment counter
     step++;

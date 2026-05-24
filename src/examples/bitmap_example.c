@@ -215,11 +215,24 @@ int checkpoint ( bitmap *p_bitmap, const char *p_event )
         log_info("#%d - Bitmap %s: ", step, p_event),
         printf("NULL\n");
     else
-        log_info("#%d - Bitmap %s:\n", step, p_event),
-        putchar('<'),
-        bitmap_fori(p_bitmap, bit_print),
-        putchar('>'),
+    {
+
+        // initialized data
+        size_t i = 0;
+
+        // logs
+        log_info("#%d - Bitmap %s:\n", step, p_event);
+        putchar('<');
+
+        // iterate through the bitmap
+        for ( iterator it = bitmap_iterator(p_bitmap); !it.done(&it); it.next(&it) )
+            bit_print(it.item(&it), i),
+            i++;
+
+        // formatting
+        putchar('>');
         putchar('\n');
+    }
 
     // increment counter
     step++;

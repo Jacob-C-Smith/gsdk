@@ -8,6 +8,10 @@
 
 // headers 
 #include <data/priority_queue.h>
+
+fn_it_done priority_queue_iterator_done;
+fn_it_next priority_queue_iterator_next;
+fn_it_item priority_queue_iterator_item;
  
 // Preprocessor macros
 #define PRIORITY_QUEUE_PARENT(i) (i - 1) / 2
@@ -799,6 +803,44 @@ bool priority_queue_empty ( priority_queue *const p_priority_queue )
                 return true;
         }
     }
+}
+
+iterator priority_queue_iterator ( priority_queue *p_priority_queue )
+{
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_priority_queue,
+        .state  = { 0 },
+        .done   = priority_queue_iterator_done,
+        .next   = priority_queue_iterator_next,
+        .item   = priority_queue_iterator_item
+    };
+}
+
+bool priority_queue_iterator_done ( iterator *p_iterator ) 
+{
+
+    // done?
+    return ((size_t)p_iterator->state.p_state) >= ((priority_queue *) p_iterator->p_data)->entries.count; 
+}
+
+void priority_queue_iterator_next ( iterator *p_iterator ) 
+{
+
+    // update the state
+    p_iterator->state.p_state = (void *)((size_t)p_iterator->state.p_state + 1); 
+
+    // done
+    return;
+}
+
+void *priority_queue_iterator_item ( iterator *p_iterator ) 
+{
+
+    // done
+    return ((priority_queue *) p_iterator->p_data)->entries.data[(size_t)p_iterator->state.p_state]; 
 }
 
 int priority_queue_destroy ( priority_queue **const pp_priority_queue )

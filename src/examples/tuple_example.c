@@ -222,9 +222,22 @@ int checkpoint ( tuple *p_tuple, const char *p_event )
         log_info("#%d - Tuple %s: ", step, p_event),
         printf("NULL\n");
     else
-        log_info("#%d - Tuple %s:\n", step, p_event),
-        tuple_fori(p_tuple, string_print),
+    {
+
+        // initialized data
+        size_t i = 0;
+
+        // logs
+        log_info("#%d - Tuple %s:\n", step, p_event);
+
+        // iterate through the tuple
+        for ( iterator it = tuple_iterator(p_tuple); !it.done(&it); it.next(&it) )
+            string_print(it.item(&it), i),
+            i++;
+
+        // formatting
         putchar('\n');
+    }
 
     // increment counter
     step++;

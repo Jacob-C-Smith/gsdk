@@ -9,6 +9,10 @@
 // header
 #include <data/queue.h>
 
+fn_it_done queue_iterator_done;
+fn_it_next queue_iterator_next;
+fn_it_item queue_iterator_item;
+
 // structure definitions
 struct queue_node_s
 {
@@ -555,6 +559,44 @@ int queue_fori ( queue *p_queue, fn_fori *pfn_fori )
                 return 0;
         }
     }
+}
+
+iterator queue_iterator ( queue *p_queue )
+{
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_queue,
+        .state  = { .p_state = (void *) p_queue->front },
+        .done   = queue_iterator_done,
+        .next   = queue_iterator_next,
+        .item   = queue_iterator_item
+    };
+}
+
+bool queue_iterator_done ( iterator *p_iterator ) 
+{
+
+    // done?
+    return p_iterator->state.p_state == NULL; 
+}
+
+void queue_iterator_next ( iterator *p_iterator ) 
+{
+
+    // update the state
+    p_iterator->state.p_state = (void *)((struct queue_node_s *)p_iterator->state.p_state)->next; 
+
+    // done
+    return;
+}
+
+void *queue_iterator_item ( iterator *p_iterator ) 
+{
+
+    // done
+    return ((struct queue_node_s *)p_iterator->state.p_state)->content; 
 }
 
 int queue_pack ( stream *p_stream, queue *p_queue, fn_pack *pfn_element )

@@ -10,6 +10,11 @@
 #include <data/circular_buffer.h>
 
 // function definitions
+fn_it_done circular_buffer_iterator_done;
+fn_it_next circular_buffer_iterator_next;
+fn_it_item circular_buffer_iterator_item;
+
+// function definitions
 int circular_buffer_construct ( circular_buffer **const pp_circular_buffer, size_t size )
 {
 
@@ -580,6 +585,52 @@ int circular_buffer_foreach ( circular_buffer *p_circular_buffer, fn_foreach *pf
 				return 0;
 		}
 	}
+}
+
+iterator circular_buffer_iterator ( circular_buffer *p_circular_buffer )
+{
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_circular_buffer,
+        .state  = 
+		{ 
+			.p_state     = (void *) p_circular_buffer->read,
+			.p_auxiliary = (void *) circular_buffer_size(p_circular_buffer)
+		},
+        .done = circular_buffer_iterator_done,
+        .next = circular_buffer_iterator_next,
+        .item = circular_buffer_iterator_item
+    };
+}
+
+bool circular_buffer_iterator_done ( iterator *p_iterator ) 
+{
+
+    // done?
+    return (size_t) p_iterator->state.p_auxiliary == 0; 
+}
+
+void circular_buffer_iterator_next ( iterator *p_iterator ) 
+{
+
+	// initialized data
+	circular_buffer *p_circular_buffer = (circular_buffer *) p_iterator->p_data;
+
+    // update the state
+    p_iterator->state.p_state     = (void *)(( (size_t) p_iterator->state.p_state + 1 ) % p_circular_buffer->length); 
+	p_iterator->state.p_auxiliary = (void *)( (size_t) p_iterator->state.p_auxiliary - 1 );
+
+    // done
+    return;
+}
+
+void *circular_buffer_iterator_item ( iterator *p_iterator ) 
+{
+
+    // done
+    return ((circular_buffer *) p_iterator->p_data)->_p_data[(size_t)p_iterator->state.p_state]; 
 }
 
 int circular_buffer_pack ( stream *p_stream, circular_buffer *p_circular_buffer, fn_pack *pfn_element )

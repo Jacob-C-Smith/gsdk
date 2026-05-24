@@ -142,6 +142,15 @@ int circular_buffer_map ( circular_buffer *const p_circular_buffer, fn_map *pfn_
  */
 int circular_buffer_foreach ( circular_buffer *p_circular_buffer, fn_foreach *pfn_foreach );
 
+/** !
+ * Construct an iterator for a circular buffer
+ * 
+ * @param p_circular_buffer the circular buffer
+ * 
+ * @return an iterator
+ */
+iterator circular_buffer_iterator ( circular_buffer *p_circular_buffer );
+
 /// reflection
 /** !
  * Pack a circular buffer into a stream

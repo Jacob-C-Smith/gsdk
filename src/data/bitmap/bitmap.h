@@ -105,6 +105,15 @@ int bitmap_fori ( bitmap *p_bitmap, fn_fori *pfn_fori );
  */
 int bitmap_foreach ( bitmap *p_bitmap, fn_foreach *pfn_foreach );
 
+/** !
+ * Construct an iterator for a bitmap
+ * 
+ * @param p_bitmap the bitmap
+ * 
+ * @return an iterator
+ */
+iterator bitmap_iterator ( bitmap *p_bitmap );
+
 /// reflection
 /** !
  * Pack a bitmap into a stream

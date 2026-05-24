@@ -124,6 +124,15 @@ int queue_dequeue ( queue *const p_queue, void **const pp_value );
  */
 int queue_fori ( queue *const p_queue, fn_fori *pfn_fori );
 
+/** !
+ * Construct an iterator for a queue
+ * 
+ * @param p_queue the queue
+ * 
+ * @return an iterator
+ */
+iterator queue_iterator ( queue *p_queue );
+
 /// reflection
 /** !
  * Pack a queue into a stream

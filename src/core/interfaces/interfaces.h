@@ -13,9 +13,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// structure definitions
+struct iterator_s;
+
 // type definitions
 typedef unsigned long long hash64;
 typedef struct stream_s stream;
+typedef struct iterator_s iterator;
 
 /// allocator
 typedef void *(fn_allocator) ( void *p_pointer, unsigned long long size );
@@ -31,11 +35,28 @@ typedef void  (fn_fori)       ( void *p_element, int i );
 typedef void  (fn_foreach)    ( void *p_element );
 typedef void  (fn_forcontext) ( void *p_element, void *p_context );
 typedef void *(fn_map)        ( void *p_element );
+typedef bool  (fn_it_done)    ( iterator *p_it );
+typedef void  (fn_it_next)    ( iterator *p_it );
+typedef void *(fn_it_item)    ( iterator *p_it );
 
 /// reflection
 typedef int    (fn_pack)   ( stream            *p_stream, const void *const   p_value );
 typedef int    (fn_unpack) ( void              *p_value , stream             *p_stream );
 typedef hash64 (fn_hash64) ( const void *const  k       , unsigned long long  l );
+
+// structure definitions
+struct iterator_s
+{
+    void *p_data;
+    struct 
+    {
+        void *p_state;
+        void *p_auxiliary;
+    } state;
+    fn_it_done *done;
+    fn_it_next *next;
+    fn_it_item *item;
+};
 
 // function declarations   
 /** !

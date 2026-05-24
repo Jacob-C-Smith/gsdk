@@ -25,6 +25,11 @@ struct cache_s
     fn_allocator    *pfn_allocator;
 };
 
+// function declarations
+fn_it_done cache_iterator_done;
+fn_it_next cache_iterator_next;
+fn_it_item cache_iterator_item;
+
 // function definitions
 int cache_construct
 (
@@ -642,6 +647,44 @@ int cache_for_each ( cache *p_cache, fn_foreach pfn_foreach )
                 return 0;
         }
     }
+}
+
+iterator cache_iterator ( cache *p_cache )
+{
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_cache,
+        .state  = { 0 },
+        .done   = cache_iterator_done,
+        .next   = cache_iterator_next,
+        .item   = cache_iterator_item
+    };
+}
+
+bool cache_iterator_done ( iterator *p_iterator ) 
+{
+
+    // done?
+    return ((size_t)p_iterator->state.p_state) >= ((cache *) p_iterator->p_data)->properties.count; 
+}
+
+void cache_iterator_next ( iterator *p_iterator ) 
+{
+
+    // update the state
+    p_iterator->state.p_state = (void *)((size_t)p_iterator->state.p_state + 1); 
+
+    // done
+    return;
+}
+
+void *cache_iterator_item ( iterator *p_iterator ) 
+{
+
+    // done
+    return ((cache *) p_iterator->p_data)->properties.pp_data[(size_t)p_iterator->state.p_state]; 
 }
 
 int cache_pack ( stream *p_stream, cache *p_cache, fn_pack *pfn_element )

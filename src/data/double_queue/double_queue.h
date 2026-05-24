@@ -163,6 +163,15 @@ int double_queue_foreach ( double_queue *const p_double_queue, fn_foreach *pfn_f
  */
 int double_queue_fori ( double_queue *const p_double_queue, fn_fori *pfn_fori );
 
+/** !
+ * Construct an iterator for a double ended queue
+ * 
+ * @param p_double_queue the double ended queue
+ * 
+ * @return an iterator
+ */
+iterator double_queue_iterator ( double_queue *p_double_queue );
+
 /// reflection
 /** !
  * Pack a double ended queue into a stream

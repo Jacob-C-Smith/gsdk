@@ -272,9 +272,21 @@ int checkpoint ( double_queue *p_double_queue, const char *p_event )
 		log_info("#%d - Double queue %s: ", step, p_event),
 		printf("NULL\n");
     else
-		log_info("#%d - Double queue %s:\n", step, p_event),
-		double_queue_fori(p_double_queue, string_print),
+	{
+		// initialized data
+		size_t i = 0;
+
+		// logs
+		log_info("#%d - Double queue %s:\n", step, p_event);
+
+		// iterate through the double ended queue
+		for ( iterator it = double_queue_iterator(p_double_queue); !it.done(&it); it.next(&it) )
+			string_print(it.item(&it), i),
+			i++;
+		
+		// formatting
 		putchar('\n');
+	}
     
     // increment counter
     step++;

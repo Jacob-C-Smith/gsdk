@@ -17,6 +17,12 @@ struct bitmap_s
     void    *p_bitmap; // bitmap contents
 };
 
+// function declarations
+fn_it_done bitmap_iterator_done;
+fn_it_next bitmap_iterator_next;
+fn_it_item bitmap_iterator_item;
+
+// function definitions
 /// constructors
 int bitmap_construct ( bitmap **pp_bitmap, size_t bits )
 {
@@ -413,6 +419,51 @@ int bitmap_foreach ( bitmap *p_bitmap, fn_foreach *pfn_foreach )
                 return 0;
         }
     }
+}
+
+iterator bitmap_iterator ( bitmap *p_bitmap )
+{
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_bitmap,
+        .state  = { 0 },
+        .done   = bitmap_iterator_done,
+        .next   = bitmap_iterator_next,
+        .item   = bitmap_iterator_item
+    };
+}
+
+bool bitmap_iterator_done ( iterator *p_iterator ) 
+{
+
+    // done?
+    return ((size_t)p_iterator->state.p_state) >= ((bitmap *) p_iterator->p_data)->max; 
+}
+
+void bitmap_iterator_next ( iterator *p_iterator ) 
+{
+
+    // update the state
+    p_iterator->state.p_state = (void *)((size_t)p_iterator->state.p_state + 1); 
+
+    // done
+    return;
+}
+
+void *bitmap_iterator_item ( iterator *p_iterator ) 
+{
+
+    // initialized data
+    bitmap        *p_bitmap = (bitmap *) p_iterator->p_data;
+    size_t         i        = (size_t)   p_iterator->state.p_state;
+    unsigned char *p        = p_bitmap->p_bitmap;
+    size_t         offset   = i / 8,
+                   select   = i % 8;
+
+    // done
+    return (void *)(size_t)(p[offset] & ( 1 << select ));
 }
 
 /// reflection

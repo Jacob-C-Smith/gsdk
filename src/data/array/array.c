@@ -24,6 +24,10 @@ struct array_s
     void    **p_p_elements; // elements
 };
 
+fn_it_done array_iterator_done;
+fn_it_next array_iterator_next;
+fn_it_item array_iterator_item;
+
 int array_construct ( array **pp_array, size_t size )
 {
 
@@ -910,6 +914,44 @@ int array_foreach ( array *p_array, fn_foreach *pfn_foreach )
                 return 0;
         }
     }
+}
+
+iterator array_iterator ( array *p_array )
+{
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_array,
+        .state  = { 0 },
+        .done   = array_iterator_done,
+        .next   = array_iterator_next,
+        .item   = array_iterator_item
+    };
+}
+
+bool array_iterator_done ( iterator *p_iterator ) 
+{
+
+    // done?
+    return ((size_t)p_iterator->state.p_state) >= ((array *) p_iterator->p_data)->count; 
+}
+
+void array_iterator_next ( iterator *p_iterator ) 
+{
+
+    // update the state
+    p_iterator->state.p_state = (void *)((size_t)p_iterator->state.p_state + 1); 
+
+    // done
+    return;
+}
+
+void *array_iterator_item ( iterator *p_iterator ) 
+{
+
+    // done
+    return ((array *) p_iterator->p_data)->p_p_elements[(size_t)p_iterator->state.p_state]; 
 }
 
 int array_pack ( stream *p_stream, array *p_array, fn_pack *pfn_element )
