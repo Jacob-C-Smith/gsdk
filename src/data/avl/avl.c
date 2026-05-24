@@ -12,7 +12,11 @@
 // static data
 static const unsigned long long eight_bytes_of_f = 0xffffffffffffffff;
 
-// forward declarations
+// function declarations
+fn_it_done avl_tree_iterator_done;
+fn_it_next avl_tree_iterator_next;
+fn_it_item avl_tree_iterator_item;
+
 /** !
  * Allocate memory for an avl tree node
  * 
@@ -114,6 +118,18 @@ int avl_tree_node_unpack ( avl_tree_node **pp_node, stream *p_stream, fn_unpack 
  * @return 1 on success, 0 on error
  */
 int avl_tree_node_destroy ( avl_tree_node **const pp_avl_tree_node, fn_allocator *pfn_allocator );
+
+/** !
+ * Find the successor of a node in an avl tree
+ * 
+ * @param p_node      the node
+ * @param p_root      the root
+ * @param pfn_compare the comparator function
+ * @param pfn_key     the key accessor function
+ * 
+ * @return the successor node on success, NULL on error
+ */
+static avl_tree_node *avl_tree_node_successor ( avl_tree_node *p_node, avl_tree_node *p_root, fn_comparator *pfn_compare, fn_key_accessor *pfn_key );
 
 /** !
  * Get the height of an avl tree node
@@ -732,6 +748,191 @@ int avl_tree_remove ( avl_tree *const p_avl_tree, const void *const p_key, const
                 return 0;
         }
     }
+}
+
+int avl_tree_successor ( avl_tree *const p_avl_tree, const void *const p_key, void **const pp_value )
+{
+
+    // argument check
+    if ( NULL == p_avl_tree ) goto no_avl_tree;
+    if ( NULL ==      p_key ) goto no_key;
+
+    // lock
+    mutex_lock(&p_avl_tree->_lock);
+
+    // initialized data
+    avl_tree_node *p_node = p_avl_tree->p_root;
+    avl_tree_node *p_successor = NULL;
+
+    // find the node and its successor
+    while ( p_node )
+    {
+
+        // initialized data
+        int result = p_avl_tree->pfn_comparator
+        (
+            p_avl_tree->pfn_key_accessor(p_node->p_value),
+            p_key
+        );
+
+        // this?
+        if ( 0 == result )
+        {
+
+            // successor
+            p_successor = avl_tree_node_successor(p_node, p_avl_tree->p_root, p_avl_tree->pfn_comparator, p_avl_tree->pfn_key_accessor);
+            break;
+        }
+
+        // left?
+        if ( result < 0 )
+            p_node = p_node->p_left;
+        
+        // right?
+        else
+            p_node = p_node->p_right;
+    }
+
+    // not found?
+    if ( NULL == p_node ) goto not_found;
+
+    // return the value
+    if ( pp_value ) 
+        *pp_value = p_successor ? p_successor->p_value : NULL;
+
+    // unlock
+    mutex_unlock(&p_avl_tree->_lock);
+
+    // success
+    return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_avl_tree:
+                #ifndef NDEBUG
+                    log_error("[avl] Null pointer provided for parameter \"p_avl_tree\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+                
+            no_key:
+                #ifndef NDEBUG
+                    log_error("[avl] Null pointer provided for parameter \"p_key\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // avl errors
+        {
+            not_found:
+                #ifndef NDEBUG
+                    log_error("[avl] Failed to find key in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // unlock
+                mutex_unlock(&p_avl_tree->_lock);
+                
+                // error
+                return 0;
+        }
+    }
+}
+
+iterator avl_tree_iterator ( avl_tree *p_tree )
+{
+
+    // initialized data
+    avl_tree_node *p_node = p_tree->p_root;
+
+    // find the minimum node
+    if ( p_node )
+        while ( p_node->p_left ) p_node = p_node->p_left;
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_tree,
+        .state  = { .p_state = (void *) p_node },
+        .done   = avl_tree_iterator_done,
+        .next   = avl_tree_iterator_next,
+        .item   = avl_tree_iterator_item
+    };
+}
+
+bool avl_tree_iterator_done ( iterator *p_iterator ) 
+{
+
+    // done?
+    return p_iterator->state.p_state == NULL; 
+}
+
+void avl_tree_iterator_next ( iterator *p_iterator ) 
+{
+
+    // initialized data
+    avl_tree         *p_tree = (avl_tree *) p_iterator->p_data;
+    avl_tree_node    *p_node = (avl_tree_node *) p_iterator->state.p_state;
+
+    // update the state
+    p_iterator->state.p_state = avl_tree_node_successor(p_node, p_tree->p_root, p_tree->pfn_comparator, p_tree->pfn_key_accessor);
+
+    // done
+    return;
+}
+
+void *avl_tree_iterator_item ( iterator *p_iterator ) 
+{
+
+    // done
+    return ((avl_tree_node *) p_iterator->state.p_state)->p_value; 
+}
+
+static avl_tree_node *avl_tree_node_successor ( avl_tree_node *p_node, avl_tree_node *p_root, fn_comparator *pfn_compare, fn_key_accessor *pfn_key )
+{
+
+    // initialized data
+    avl_tree_node *p_successor = NULL;
+    avl_tree_node *p_ancestor = p_root;
+    
+    // right child exists?
+    if ( p_node->p_right )
+    {
+
+        // store right node
+        p_successor = p_node->p_right;
+
+        // leftmost node
+        while ( p_successor->p_left ) p_successor = p_successor->p_left;
+
+        // done
+        return p_successor;
+    }
+
+    // find the successor
+    while ( p_ancestor != p_node )
+    {
+
+        // initialized data
+        int result = pfn_compare(pfn_key(p_ancestor->p_value), pfn_key(p_node->p_value));
+
+        // left
+        if ( result < 0 )
+            p_successor = p_ancestor,
+            p_ancestor  = p_ancestor->p_left;
+
+        // right
+        else
+            p_ancestor = p_ancestor->p_right;
+    }
+
+    // done
+    return p_successor;
 }
 
 int avl_tree_traverse_preorder ( avl_tree *const p_avl_tree, fn_foreach *pfn_foreach )

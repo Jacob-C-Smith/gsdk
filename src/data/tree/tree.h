@@ -40,9 +40,11 @@ typedef struct tree_s tree;
 typedef int(fn_tree_insert)(void *const p_tree, const void *const p_value);
 typedef int(fn_tree_remove)(void *const p_tree, const void *const p_key, const void **const p_value);
 typedef int(fn_tree_search)(void *const p_tree, const void *const p_key, void **pp_value);
+typedef int(fn_tree_successor)(void *const p_tree, const void *const p_key, void **const pp_value);
 typedef bool(fn_tree_is_empty)(void *const p_tree);
 typedef size_t(fn_tree_size)(void *const p_tree);
 typedef int(fn_tree_traverse_inorder)(void *const p_tree, fn_foreach *pfn_foreach);
+typedef iterator(fn_tree_iterator)(void *p_tree);
 typedef int(fn_tree_pack)(stream *p_stream, void *p_tree, fn_pack *pfn_element);
 typedef int(fn_tree_unpack)(void **pp_tree, stream *p_stream, fn_unpack *pfn_element, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor);
 typedef int(fn_tree_destroy)(void **const pp_tree, fn_allocator *pfn_allocator);
@@ -57,9 +59,11 @@ struct tree_s
     fn_tree_insert           *pfn_insert;
     fn_tree_remove           *pfn_remove;
     fn_tree_search           *pfn_search;
+    fn_tree_successor        *pfn_successor;
     fn_tree_is_empty         *pfn_is_empty;
     fn_tree_size             *pfn_size;
     fn_tree_traverse_inorder *pfn_traverse_inorder;
+    fn_tree_iterator         *pfn_iterator;
     fn_tree_pack             *pfn_pack;
     fn_tree_unpack           *pfn_unpack;
     fn_tree_destroy          *pfn_destroy;
@@ -72,6 +76,7 @@ struct tree_s
  * Construct an empty tree
  * 
  * @param pp_tree          result
+ * @param _type            the type of tree
  * @param node_size        the size of a serialized value in bytes
  * @param pfn_comparator   function for testing equality of elements in set IF parameter is not null ELSE default
  * @param pfn_key_accessor function for accessing the key of a value IF parameter is not null ELSE default
@@ -92,12 +97,23 @@ int tree_construct
  * Search a tree for a value
  * 
  * @param p_tree   the tree
- * @param p_value  the element
+ * @param p_key    the key
  * @param pp_value result
  * 
  * @return 1 on success, 0 on error
  */
 int tree_search ( tree *const p_tree, const void *const p_key, void **pp_value );
+
+/** !
+ * Find the successor of a key in a tree
+ * 
+ * @param p_tree   the tree
+ * @param p_key    the key
+ * @param pp_value result
+ * 
+ * @return 1 on success, 0 on error
+ */
+int tree_successor ( tree *const p_tree, const void *const p_key, void **const pp_value );
 
 /** !
  * Is a tree empty?
@@ -149,6 +165,15 @@ int tree_remove ( tree *const p_tree, const void *const p_key, const void **cons
  * @return 1 on success, 0 on error
 */
 int tree_traverse_inorder ( tree *const p_tree, fn_foreach *pfn_foreach );
+
+/** !
+ * Construct an iterator for a tree
+ * 
+ * @param p_tree the tree
+ * 
+ * @return an iterator
+ */
+iterator tree_iterator ( tree *p_tree );
 
 /// reflection
 /** !

@@ -12,7 +12,11 @@
 // static data
 static const unsigned long long eight_bytes_of_f = 0xffffffffffffffff;
 
-// forward declarations
+// function declarations
+fn_it_done red_black_tree_iterator_done;
+fn_it_next red_black_tree_iterator_next;
+fn_it_item red_black_tree_iterator_item;
+
 /** !
  * Allocate memory for a red black tree node
  * 
@@ -114,6 +118,15 @@ int red_black_tree_node_unpack ( red_black_tree_node **pp_node, stream *p_stream
  * @return 1 on success, 0 on error
  */
 int red_black_tree_node_destroy ( red_black_tree_node **const pp_red_black_tree_node, fn_allocator *pfn_allocator );
+
+/** !
+ * Find the successor of a node in a red black tree
+ * 
+ * @param p_node the node
+ * 
+ * @return the successor node on success, NULL on error
+ */
+static red_black_tree_node *red_black_tree_node_successor ( red_black_tree_node *p_node );
 
 int red_black_tree_left_rotate ( red_black_tree *p_red_black_tree, red_black_tree_node *x );
 int red_black_tree_right_rotate ( red_black_tree *p_red_black_tree, red_black_tree_node *y );
@@ -720,6 +733,183 @@ int red_black_tree_remove ( red_black_tree *const p_red_black_tree, const void *
                 return 0;
         }
     }
+}
+
+int red_black_tree_successor ( red_black_tree *const p_red_black_tree, const void *const p_key, void **const pp_value )
+{
+
+    // argument check
+    if ( NULL == p_red_black_tree ) goto no_red_black_tree;
+    if ( NULL ==        p_key ) goto no_key;
+
+    // lock
+    mutex_lock(&p_red_black_tree->_lock);
+
+    // initialized data
+    red_black_tree_node *p_node = p_red_black_tree->p_root;
+    red_black_tree_node *p_successor = NULL;
+
+    // successor
+    while ( p_node )
+    {
+
+        // initialized data
+        int result = p_red_black_tree->pfn_comparator
+        (
+            p_red_black_tree->pfn_key_accessor(p_node->p_value),
+            p_key
+        );
+
+        // this?
+        if ( 0 == result )
+        {
+
+            // successor
+            p_successor = red_black_tree_node_successor(p_node);
+            break;
+        }
+
+        // left?
+        if ( result < 0 )
+            p_node = p_node->p_left;
+        
+        // right?
+        else
+            p_node = p_node->p_right;
+    }
+
+    // not found?
+    if ( NULL == p_node ) goto not_found;
+
+    // return the value
+    if ( pp_value ) 
+        *pp_value = p_successor ? p_successor->p_value : NULL;
+
+    // unlock
+    mutex_unlock(&p_red_black_tree->_lock);
+
+    // success
+    return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_red_black_tree:
+                #ifndef NDEBUG
+                    log_error("[red black] Null pointer provided for parameter \"p_red_black_tree\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+                
+            no_key:
+                #ifndef NDEBUG
+                    log_error("[red black] Null pointer provided for parameter \"p_key\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // red black errors
+        {
+            not_found:
+                #ifndef NDEBUG
+                    log_error("[red black] Failed to find key in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // unlock
+                mutex_unlock(&p_red_black_tree->_lock);
+                
+                // error
+                return 0;
+        }
+    }
+}
+
+iterator red_black_tree_iterator ( red_black_tree *p_tree )
+{
+
+    // initialized data
+    red_black_tree_node *p_node = p_tree->p_root;
+
+    // find the minimum node
+    if ( p_node )
+        while ( p_node->p_left ) p_node = p_node->p_left;
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_tree,
+        .state  = { .p_state = (void *) p_node },
+        .done   = red_black_tree_iterator_done,
+        .next   = red_black_tree_iterator_next,
+        .item   = red_black_tree_iterator_item
+    };
+}
+
+bool red_black_tree_iterator_done ( iterator *p_iterator ) 
+{
+
+    // done?
+    return p_iterator->state.p_state == NULL; 
+}
+
+void red_black_tree_iterator_next ( iterator *p_iterator ) 
+{
+
+    // initialized data
+    red_black_tree_node *p_node = (red_black_tree_node *) p_iterator->state.p_state;
+
+    // update the state
+    p_iterator->state.p_state = red_black_tree_node_successor(p_node);
+
+    // done
+    return;
+}
+
+void *red_black_tree_iterator_item ( iterator *p_iterator ) 
+{
+
+    // done
+    return ((red_black_tree_node *) p_iterator->state.p_state)->p_value; 
+}
+
+static red_black_tree_node *red_black_tree_node_successor ( red_black_tree_node *x )
+{
+
+    // initialized data
+    red_black_tree_node *y = x->p_parent;
+
+    // right child
+    if ( x->p_right )
+    {
+
+        // update x
+        x = x->p_right;
+
+        // leftmost
+        while ( x->p_left ) x = x->p_left;
+
+        // done
+        return x;
+    }
+
+    // successor
+    while ( y && x == y->p_right )
+    {
+
+        // update x
+        x = y;
+
+        // update y
+        y = y->p_parent;
+    }
+
+    // done
+    return y;
 }
 
 int red_black_tree_traverse_preorder ( red_black_tree *const p_red_black_tree, fn_foreach *pfn_foreach )

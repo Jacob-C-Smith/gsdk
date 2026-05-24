@@ -25,9 +25,11 @@ tree _prototypes[TREE_QUANTITY] =
         .pfn_insert           = (fn_tree_insert *)binary_tree_insert, 
         .pfn_remove           = (fn_tree_remove *)binary_tree_remove, 
         .pfn_search           = (fn_tree_search *)binary_tree_search, 
+        .pfn_successor        = (fn_tree_successor *)binary_tree_successor,
         .pfn_is_empty         = (fn_tree_is_empty *)binary_tree_is_empty,
         .pfn_size             = (fn_tree_size *)binary_tree_size,
         .pfn_traverse_inorder = (fn_tree_traverse_inorder *)binary_tree_traverse_inorder, 
+        .pfn_iterator         = (fn_tree_iterator *)binary_tree_iterator,
         .pfn_pack             = (fn_tree_pack *)binary_tree_pack, 
         .pfn_unpack           = (fn_tree_unpack *)binary_tree_unpack, 
         .pfn_destroy          = (fn_tree_destroy *)binary_tree_destroy, 
@@ -41,9 +43,11 @@ tree _prototypes[TREE_QUANTITY] =
         .pfn_insert           = (fn_tree_insert *)avl_tree_insert, 
         .pfn_remove           = (fn_tree_remove *)avl_tree_remove, 
         .pfn_search           = (fn_tree_search *)avl_tree_search, 
+        .pfn_successor        = (fn_tree_successor *)avl_tree_successor,
         .pfn_is_empty         = (fn_tree_is_empty *)avl_tree_is_empty,
         .pfn_size             = (fn_tree_size *)avl_tree_size,
         .pfn_traverse_inorder = (fn_tree_traverse_inorder *)avl_tree_traverse_inorder, 
+        .pfn_iterator         = (fn_tree_iterator *)avl_tree_iterator,
         .pfn_pack             = (fn_tree_pack *)avl_tree_pack, 
         .pfn_unpack           = (fn_tree_unpack *)avl_tree_unpack, 
         .pfn_destroy          = (fn_tree_destroy *)avl_tree_destroy, 
@@ -57,9 +61,11 @@ tree _prototypes[TREE_QUANTITY] =
         .pfn_insert           = (fn_tree_insert *)red_black_tree_insert, 
         .pfn_remove           = (fn_tree_remove *)red_black_tree_remove, 
         .pfn_search           = (fn_tree_search *)red_black_tree_search, 
+        .pfn_successor        = (fn_tree_successor *)red_black_tree_successor,
         .pfn_is_empty         = (fn_tree_is_empty *)red_black_tree_is_empty,
         .pfn_size             = (fn_tree_size *)red_black_tree_size,
         .pfn_traverse_inorder = (fn_tree_traverse_inorder *)red_black_tree_traverse_inorder, 
+        .pfn_iterator         = (fn_tree_iterator *)red_black_tree_iterator,
         .pfn_pack             = (fn_tree_pack *)red_black_tree_pack, 
         .pfn_unpack           = (fn_tree_unpack *)red_black_tree_unpack, 
         .pfn_destroy          = (fn_tree_destroy *)red_black_tree_destroy, 
@@ -178,6 +184,31 @@ int tree_search ( tree *p_tree, const void *const p_key, void **pp_value )
     
     // done
     return p_tree->pfn_search(p_tree->p_tree, p_key, pp_value);
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_tree:
+                #ifndef NDEBUG
+                    printf("[tree] Null pointer provided for parameter \"p_tree\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int tree_successor ( tree *const p_tree, const void *const p_key, void **const pp_value )
+{
+
+    // argument check
+    if ( NULL == p_tree ) goto no_tree;
+    
+    // done
+    return p_tree->pfn_successor(p_tree->p_tree, p_key, pp_value);
 
     // error handling
     {
@@ -327,6 +358,13 @@ int tree_traverse_inorder ( tree *const p_tree, fn_foreach *pfn_foreach )
                 return 0;
         }
     }
+}
+
+iterator tree_iterator ( tree *p_tree )
+{
+
+    // done
+    return p_tree->pfn_iterator(p_tree->p_tree);
 }
 
 int tree_pack ( stream *p_stream, tree *p_tree, fn_pack *pfn_element )

@@ -273,19 +273,31 @@ int checkpoint ( tree *p_tree, const char *p_event )
     else if ( tree_is_empty(p_tree) )
         log_info("#%d - Tree %s: empty\n", step, p_event);
     else
-        log_info("#%d - Tree (%d) %s:\n", step, tree_size(p_tree), p_event),
-        
-        putchar('('), putchar(' '),
-        tree_traverse_inorder(p_tree, number_and_string_number_print),
-        putchar(')'),
+    {
 
+        // logs
+        log_info("#%d - Tree (%d) %s:\n", step, tree_size(p_tree), p_event);
+        
+        // formatting
+        putchar('('), putchar(' ');
+
+        // iterate through the tree for keys
+        for ( iterator it = tree_iterator(p_tree); !it.done(&it); it.next(&it) )
+            number_and_string_number_print(it.item(&it));
+
+        // formatting
+        putchar(')'),
         printf(" -> "),
-        
-        putchar('('), putchar(' '),
-        tree_traverse_inorder(p_tree, number_and_string_string_print),
-        putchar(')'),
+        putchar('('), putchar(' ');
 
+        // iterate through the tree again for values
+        for ( iterator it = tree_iterator(p_tree); !it.done(&it); it.next(&it) )
+            number_and_string_string_print(it.item(&it));
+
+        // formatting
+        putchar(')'),
         putchar('\n');
+    }
 
     // increment counter
     step++;

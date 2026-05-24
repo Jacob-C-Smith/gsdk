@@ -134,9 +134,29 @@ int red_black_tree_insert ( red_black_tree *const p_red_black_tree, const void *
  * 
  * @return 1 on success, 0 on error
  */
-int red_black_tree_remove ( red_black_tree *const p_red_black_tree, const void *const p_key, const void **const p_value );
+int red_black_tree_remove ( red_black_tree *const p_red_black_tree, const void *const p_key, const void **const pp_value );
+
+/** !
+ * Find the successor of a key in a red black tree
+ * 
+ * @param p_red_black_tree the red black tree
+ * @param p_key            the key
+ * @param pp_value         result
+ * 
+ * @return 1 on success, 0 on error
+ */
+int red_black_tree_successor ( red_black_tree *const p_red_black_tree, const void *const p_key, void **const pp_value );
 
 /// iterator
+/** !
+ * Construct an iterator for a red black tree
+ * 
+ * @param p_red_black_tree the red black tree
+ * 
+ * @return an iterator
+ */
+iterator red_black_tree_iterator ( red_black_tree *p_red_black_tree );
+
 /** !
  * Traverse a red black tree using the pre order technique
  * 

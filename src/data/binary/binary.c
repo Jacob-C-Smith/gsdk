@@ -12,7 +12,11 @@
 // static data
 static const unsigned long long eight_bytes_of_f = 0xffffffffffffffff;
 
-// forward declarations
+// function declarations
+fn_it_done binary_tree_iterator_done;
+fn_it_next binary_tree_iterator_next;
+fn_it_item binary_tree_iterator_item;
+
 /** !
  * Allocate memory for a binary tree node
  * 
@@ -131,6 +135,18 @@ int binary_tree_node_unpack ( binary_tree_node **pp_node, stream *p_stream, fn_u
  * @return 1 on success, 0 on error
  */
 int binary_tree_node_destroy ( binary_tree_node **const pp_binary_tree_node, fn_allocator *pfn_allocator );
+
+/** !
+ * Find the successor of a node in a binary tree
+ * 
+ * @param p_node     the node
+ * @param p_root     the root
+ * @param pfn_compare the comparator function
+ * @param pfn_key    the key accessor function
+ * 
+ * @return the successor node on success, NULL on error
+ */
+static binary_tree_node *binary_tree_node_successor ( binary_tree_node *p_node, binary_tree_node *p_root, fn_comparator *pfn_compare, fn_key_accessor *pfn_key );
 
 // function definitions
 int binary_tree_construct ( binary_tree **const pp_binary_tree, unsigned long long node_size, fn_comparator *pfn_comparator, fn_key_accessor *pfn_key_accessor )
@@ -837,6 +853,191 @@ int binary_tree_remove ( binary_tree *const p_binary_tree, const void *const p_k
                 return 0;
         }
     }
+}
+
+int binary_tree_successor ( binary_tree *const p_binary_tree, const void *const p_key, void **const pp_value )
+{
+
+    // argument check
+    if ( NULL == p_binary_tree ) goto no_binary_tree;
+    if ( NULL ==         p_key ) goto no_key;
+
+    // lock
+    mutex_lock(&p_binary_tree->_lock);
+
+    // initialized data
+    binary_tree_node *p_node = p_binary_tree->p_root;
+    binary_tree_node *p_successor = NULL;
+
+    // successor
+    while ( p_node )
+    {
+
+        // initialized data
+        int result = p_binary_tree->pfn_comparator
+        (
+            p_binary_tree->pfn_key_accessor(p_node->p_value),
+            p_key
+        );
+
+        // this?
+        if ( 0 == result )
+        {
+
+            // successor
+            p_successor = binary_tree_node_successor(p_node, p_binary_tree->p_root, p_binary_tree->pfn_comparator, p_binary_tree->pfn_key_accessor);
+            break;
+        }
+
+        // left?
+        if ( result < 0 )
+            p_node = p_node->p_left;
+        
+        // right?
+        else
+            p_node = p_node->p_right;
+    }
+
+    // not found?
+    if ( NULL == p_node ) goto not_found;
+
+    // return the value
+    if ( pp_value ) 
+        *pp_value = p_successor ? p_successor->p_value : NULL;
+
+    // unlock
+    mutex_unlock(&p_binary_tree->_lock);
+
+    // success
+    return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_binary_tree:
+                #ifndef NDEBUG
+                    log_error("[binary] Null pointer provided for parameter \"p_binary_tree\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+                
+            no_key:
+                #ifndef NDEBUG
+                    log_error("[binary] Null pointer provided for parameter \"p_key\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // binary errors
+        {
+            not_found:
+                #ifndef NDEBUG
+                    log_error("[binary] Failed to find key in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // unlock
+                mutex_unlock(&p_binary_tree->_lock);
+                
+                // error
+                return 0;
+        }
+    }
+}
+
+iterator binary_tree_iterator ( binary_tree *p_tree )
+{
+
+    // initialized data
+    binary_tree_node *p_node = p_tree->p_root;
+
+    // find the minimum node
+    if ( p_node )
+        while ( p_node->p_left ) p_node = p_node->p_left;
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_tree,
+        .state  = { .p_state = (void *) p_node },
+        .done   = binary_tree_iterator_done,
+        .next   = binary_tree_iterator_next,
+        .item   = binary_tree_iterator_item
+    };
+}
+
+bool binary_tree_iterator_done ( iterator *p_iterator ) 
+{
+
+    // done?
+    return p_iterator->state.p_state == NULL; 
+}
+
+void binary_tree_iterator_next ( iterator *p_iterator ) 
+{
+
+    // initialized data
+    binary_tree      *p_tree = (binary_tree *) p_iterator->p_data;
+    binary_tree_node *p_node = (binary_tree_node *) p_iterator->state.p_state;
+
+    // update the state
+    p_iterator->state.p_state = binary_tree_node_successor(p_node, p_tree->p_root, p_tree->pfn_comparator, p_tree->pfn_key_accessor);
+
+    // done
+    return;
+}
+
+void *binary_tree_iterator_item ( iterator *p_iterator ) 
+{
+
+    // done
+    return ((binary_tree_node *) p_iterator->state.p_state)->p_value; 
+}
+
+static binary_tree_node *binary_tree_node_successor ( binary_tree_node *p_node, binary_tree_node *p_root, fn_comparator *pfn_compare, fn_key_accessor *pfn_key )
+{
+
+    // initialized data
+    binary_tree_node *p_successor = NULL;
+    binary_tree_node *p_ancestor = p_root;
+
+    // right child?
+    if ( p_node->p_right )
+    {
+
+        // initialized data
+        binary_tree_node *p_successor = p_node->p_right;
+
+        // leftmost
+        while ( p_successor->p_left ) p_successor = p_successor->p_left;
+
+        // done
+        return p_successor;
+    }
+
+    // successor
+    while ( p_ancestor != p_node )
+    {
+
+        // initialized data
+        int result = pfn_compare(pfn_key(p_ancestor->p_value), pfn_key(p_node->p_value));
+
+        // left
+        if ( result < 0 )
+            p_successor = p_ancestor,
+            p_ancestor  = p_ancestor->p_left;
+
+        // right?
+        else
+            p_ancestor = p_ancestor->p_right;
+    }
+
+    // done
+    return p_successor;
 }
 
 int binary_tree_traverse_preorder ( binary_tree *const p_binary_tree, fn_foreach *pfn_foreach )
