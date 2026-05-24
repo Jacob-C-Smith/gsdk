@@ -292,20 +292,31 @@ int checkpoint ( hash_table *p_hash_table, const char *p_event )
     if ( NULL == p_hash_table )
         log_info("#%d - Hash table %s: NULL\n", step, p_event);
     else
-        log_info("#%d - Hash table %s:\n", step, p_event),
+    {
+
+        // initialized data
+        size_t i = 0;
+
+        // logs
+        log_info("#%d - Hash table %s:\n", step, p_event);
 
         // summate accesses
-        total_accesses = 0, hash_table_foreach(p_hash_table, accumulate_accesses),
+        total_accesses = 0, hash_table_foreach(p_hash_table, accumulate_accesses);
 
         // print load factor and average accesses
         printf("α: %%%lf, avg. accesses: %lf\n", 
             100.00 * hash_table_load_factor(p_hash_table),
             (double)total_accesses / (double)COLOR_QUANTITY
-        ),
+        );
 
-        // print the contents of the hash table
-        hash_table_fori(p_hash_table, color_slot_print),
+        // iterate through the hash table
+        for ( iterator it = hash_table_iterator(p_hash_table); !it.done(&it); it.next(&it) )
+            color_print(it.item(&it)),
+            i++;
+
+        // formatting
         putchar('\n');
+    }
 
     // increment counter
     step++;

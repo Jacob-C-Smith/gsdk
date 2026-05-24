@@ -362,9 +362,22 @@ int checkpoint ( set *p_set, const char *name, const char *p_event )
         log_info("#%d - %s %s: ", step, name, p_event),
         printf("NULL\n");
     else
-        log_info("#%d - %s %s:\n", step, name, p_event),
-        set_foreach_i(p_set, string_print),
+    {
+
+        // initialized data
+        size_t i = 0;
+
+        // logs
+        log_info("#%d - %s %s:\n", step, name, p_event);
+
+        // iterate through the set
+        for ( iterator it = set_iterator(p_set); !it.done(&it); it.next(&it) )
+            string_print(it.item(&it), i),
+            i++;
+
+        // formatting
         putchar('\n');
+    }
 
     // increment counter
     step++;

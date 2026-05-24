@@ -119,6 +119,15 @@ int dict_pop ( dict *const p_dict, const char *const p_key, const void **const p
 */
 int dict_foreach ( dict *const p_dict, fn_foreach *pfn_foreach );
 
+/** !
+ * Construct an iterator for a dictionary
+ * 
+ * @param p_dict the dictionary
+ * 
+ * @return an iterator
+ */
+iterator dict_iterator ( dict *p_dict );
+
 /// reflection
 /** !
  * Pack a dictionary into a stream

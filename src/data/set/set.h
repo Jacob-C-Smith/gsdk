@@ -138,6 +138,15 @@ int set_remove ( set *const p_set, void *const p_element );
  */
 int set_foreach_i ( set *const p_set, void (*function)(void *const value, size_t index) );
 
+/** !
+ * Construct an iterator for a set
+ * 
+ * @param p_set the set
+ * 
+ * @return an iterator
+ */
+iterator set_iterator ( set *p_set );
+
 /// reflection
 /** !
  * Pack a set into a stream

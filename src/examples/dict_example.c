@@ -295,8 +295,15 @@ int checkpoint ( dict *p_dict, const char *p_event )
     if ( NULL == p_dict )
         log_info("#%d - Dictionary %s: NULL\n", step, p_event);
     else
-        log_info("#%d - Dictionary %s:\n", step, p_event),
-        dict_foreach(p_dict, person_print);
+    {
+
+        // logs
+        log_info("#%d - Dictionary %s:\n", step, p_event);
+
+        // iterate through the dictionary
+        for ( iterator it = dict_iterator(p_dict); !it.done(&it); it.next(&it) )
+            person_print(it.item(&it));
+    }
     
     // formatting
     putchar('\n');

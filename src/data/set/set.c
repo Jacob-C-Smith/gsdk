@@ -9,6 +9,10 @@
 // headers
 #include <data/set.h>
 
+fn_it_done set_iterator_done;
+fn_it_next set_iterator_next;
+fn_it_item set_iterator_item;
+
 // structure definitions
 struct set_s
 {
@@ -760,6 +764,44 @@ int set_foreach_i ( set *const p_set, void (*const function)(void *const value, 
                 return 0;
         }
     }
+}
+
+iterator set_iterator ( set *p_set )
+{
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_set,
+        .state  = { 0 },
+        .done   = set_iterator_done,
+        .next   = set_iterator_next,
+        .item   = set_iterator_item
+    };
+}
+
+bool set_iterator_done ( iterator *p_iterator ) 
+{
+
+    // done?
+    return ((size_t)p_iterator->state.p_state) >= ((set *) p_iterator->p_data)->count; 
+}
+
+void set_iterator_next ( iterator *p_iterator ) 
+{
+
+    // update the state
+    p_iterator->state.p_state = (void *)((size_t)p_iterator->state.p_state + 1); 
+
+    // done
+    return;
+}
+
+void *set_iterator_item ( iterator *p_iterator ) 
+{
+
+    // done
+    return ((set *) p_iterator->p_data)->elements[(size_t)p_iterator->state.p_state]; 
 }
 
 int set_pack ( stream *p_stream, set *p_set, fn_pack *pfn_element )

@@ -1,6 +1,10 @@
 // header
 #include <data/hash_table.h>
 
+fn_it_done hash_table_iterator_done;
+fn_it_next hash_table_iterator_next;
+fn_it_item hash_table_iterator_item;
+
 // type definitions
 typedef size_t (fn_table_hash)(hash_table *p_hash_table, void *key, size_t i);
 
@@ -708,8 +712,72 @@ int hash_table_fori ( hash_table *p_hash_table, fn_fori *pfn_fori )
     }
 }
 
+iterator hash_table_iterator ( hash_table *p_hash_table )
+{
+
+    // initialized data
+    size_t i = 0;
+
+    // first valid element
+    for (i = 0; i < p_hash_table->properties.max; i++)
+    {
+        if ( 
+            p_hash_table->properties.pp_data[i] != NULL && 
+            p_hash_table->properties.pp_data[i] != TOMBSTONE 
+        ) break;
+    }
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_hash_table,
+        .state  = { .p_state = (void *) i },
+        .done   = hash_table_iterator_done,
+        .next   = hash_table_iterator_next,
+        .item   = hash_table_iterator_item
+    };
+}
+
+bool hash_table_iterator_done ( iterator *p_iterator ) 
+{
+
+    // done?
+    return (size_t)p_iterator->state.p_state >= ((hash_table *) p_iterator->p_data)->properties.max; 
+}
+
+void hash_table_iterator_next ( iterator *p_iterator ) 
+{
+
+    // initialized data
+    hash_table *p_hash_table = (hash_table *) p_iterator->p_data;
+    size_t      i            = (size_t)   p_iterator->state.p_state + 1;
+
+    // next 
+    for (; i < p_hash_table->properties.max; i++)
+    {
+        if ( 
+            p_hash_table->properties.pp_data[i] != NULL && 
+            p_hash_table->properties.pp_data[i] != TOMBSTONE 
+        ) break;
+    }
+
+    // update the state
+    p_iterator->state.p_state = (void *) i; 
+
+    // done
+    return;
+}
+
+void *hash_table_iterator_item ( iterator *p_iterator ) 
+{
+
+    // done
+    return ((hash_table *) p_iterator->p_data)->properties.pp_data[(size_t)p_iterator->state.p_state]; 
+}
+
 int hash_table_pack ( stream *p_stream, hash_table *p_hash_table, fn_pack *pfn_element )
 {
+    
     // argument check
     if ( NULL == p_hash_table ) goto no_hash_table;
     if ( NULL ==     p_stream ) return 0;
