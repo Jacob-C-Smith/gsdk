@@ -123,7 +123,7 @@ size_t tuple_size ( const tuple *const p_tuple );
 int tuple_fori ( tuple *p_tuple, fn_fori *pfn_fori );
 
 /** !
- * Create an iterator for a tuple
+ * Construct an iterator for a tuple
  * 
  * @param p_tuple the tuple
  * 

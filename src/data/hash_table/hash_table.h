@@ -148,6 +148,15 @@ int hash_table_foreach ( hash_table *p_hash_table, fn_foreach *pfn_foreach );
  */
 int hash_table_fori ( hash_table *p_hash_table, fn_fori *pfn_fori );
 
+/** !
+ * Construct an iterator for a hash table
+ * 
+ * @param p_hash_table the hash table
+ * 
+ * @return an iterator
+ */
+iterator hash_table_iterator ( hash_table *p_hash_table );
+
 /// reflection
 /** !
  * Pack a hash table into a stream

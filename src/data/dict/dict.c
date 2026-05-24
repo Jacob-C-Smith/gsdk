@@ -33,6 +33,12 @@ struct dict_s
     fn_hash64       *pfn_hash_function; // pointer to hash function
 };
 
+// function declarations
+fn_it_done dict_iterator_done;
+fn_it_next dict_iterator_next;
+fn_it_item dict_iterator_item;
+
+// function definitions
 int dict_construct
 (
     dict **const pp_dict,
@@ -596,6 +602,72 @@ int dict_foreach ( dict *const p_dict, fn_foreach *pfn_foreach )
                 return 0;
         }
     }
+}
+
+iterator dict_iterator ( dict *p_dict )
+{
+
+    // initialized data
+    size_t i = 0;
+
+    // find non-empty
+    for (i = 0; i < p_dict->max; i++)
+        if ( p_dict->data[i] ) break;
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_dict,
+        .state  = 
+        { 
+            .p_state     = (void *) i, 
+            .p_auxiliary = (void *) ( ( i < p_dict->max ) ? p_dict->data[i] : NULL )
+        },
+        .done = dict_iterator_done,
+        .next = dict_iterator_next,
+        .item = dict_iterator_item
+    };
+}
+
+bool dict_iterator_done ( iterator *p_iterator ) 
+{
+
+    // done?
+    return p_iterator->state.p_auxiliary == NULL; 
+}
+
+void dict_iterator_next ( iterator *p_iterator ) 
+{
+
+    // initialized data
+    dict      *p_dict = (dict *) p_iterator->p_data;
+    dict_item *p_item = (dict_item *) p_iterator->state.p_auxiliary;
+    size_t     i      = (size_t) p_iterator->state.p_state;
+
+    // next 
+    p_item = p_item->next;
+
+    // end of chain?
+    if ( NULL == p_item )
+        for (i++; i < p_dict->max; i++)
+        {
+            p_item = p_dict->data[i];
+            if ( p_item ) break;
+        }
+    
+    // update the state
+    p_iterator->state.p_state     = (void *) i; 
+    p_iterator->state.p_auxiliary = (void *) p_item;
+
+    // done
+    return;
+}
+
+void *dict_iterator_item ( iterator *p_iterator ) 
+{
+
+    // done
+    return ((dict_item *)p_iterator->state.p_auxiliary)->value; 
 }
 
 int dict_pack ( stream *p_stream, dict *const p_dict, fn_pack *pfn_element )
