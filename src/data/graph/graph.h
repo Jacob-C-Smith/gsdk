@@ -75,6 +75,8 @@ typedef int(fn_graph_edge_search)(void *p_graph, const void *p_from, const void 
 typedef int(fn_graph_edge_add)(void *p_graph, const void *p_from, const void *p_to, const void *p_edge);
 typedef int(fn_graph_edge_remove)(void *p_graph, const void *p_from, const void *p_to, void **pp_edge, fn_allocator *pfn_allocator_edge);
 typedef int(fn_graph_edge_foreach)(void *p_graph, fn_foreach *pfn_foreach);
+typedef iterator(fn_graph_vertex_iterator)(void *p_graph);
+typedef iterator(fn_graph_edge_iterator)(void *p_graph, const void *p_key);
 
 typedef int(fn_graph_pack)(stream *p_stream, void *p_graph, fn_pack *pfn_vertex, fn_pack *pfn_edge);
 typedef int(fn_graph_unpack)(void **pp_graph, stream *p_stream, fn_unpack *pfn_vertex, fn_unpack *pfn_edge, fn_key_accessor *pfn_key_accessor, fn_comparator *pfn_comparator);
@@ -108,10 +110,14 @@ struct graph_s
     fn_graph_edge_search  *pfn_edge_search;
     fn_graph_edge_add     *pfn_edge_add;
     fn_graph_edge_remove  *pfn_edge_remove;
-    fn_graph_edge_count   *pfn_edge_count;
-    fn_graph_edge_foreach *pfn_edge_foreach;
+    fn_graph_edge_count   *p_edge_count;
+    fn_graph_edge_foreach *p_edge_foreach;
+
+    fn_graph_vertex_iterator *pfn_vertex_iterator;
+    fn_graph_edge_iterator   *pfn_edge_iterator;
 
     fn_graph_pack   *pfn_pack;
+
     fn_graph_unpack *pfn_unpack;
     fn_graph_hash   *pfn_hash;
 
@@ -446,6 +452,25 @@ int graph_edge_foreach
     graph      *p_graph,
     fn_foreach *pfn_foreach
 );
+
+/** !
+ * Construct an iterator for the vertices of a graph
+ * 
+ * @param p_graph the graph
+ * 
+ * @return an iterator
+ */
+iterator graph_vertex_iterator ( graph *p_graph );
+
+/** !
+ * Construct an iterator for the edges connected to a vertex
+ * 
+ * @param p_graph the graph
+ * @param p_key   the key of the vertex
+ * 
+ * @return an iterator
+ */
+iterator graph_edge_iterator ( graph *p_graph, const void *p_key );
 
 /// reflection
 /** !

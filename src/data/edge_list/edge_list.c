@@ -45,6 +45,15 @@ struct edge_list_s
 // type definitions
 typedef struct edge_list_edge_s edge_list_edge; 
 
+// function definitions
+fn_it_done edge_list_vertex_iterator_done;
+fn_it_next edge_list_vertex_iterator_next;
+fn_it_item edge_list_vertex_iterator_item;
+
+fn_it_done edge_list_edge_iterator_done;
+fn_it_next edge_list_edge_iterator_next;
+fn_it_item edge_list_edge_iterator_item;
+
 // function declarations
 static int vertex_index_get ( edge_list *p_edge_list, const void *p_key, void **pp_vertex )
 {
@@ -1140,11 +1149,143 @@ int edge_list_edge_foreach
     }
 }
 
+iterator edge_list_vertex_iterator ( edge_list *p_edge_list )
+{
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_edge_list,
+        .state  = { 0 },
+        .done   = edge_list_vertex_iterator_done,
+        .next   = edge_list_vertex_iterator_next,
+        .item   = edge_list_vertex_iterator_item
+    };
+}
+
+bool edge_list_vertex_iterator_done ( iterator *p_iterator ) 
+{
+
+    // done?
+    return ((size_t)p_iterator->state.p_state) >= ((edge_list *) p_iterator->p_data)->vertices.count; 
+}
+
+void edge_list_vertex_iterator_next ( iterator *p_iterator ) 
+{
+
+    // update the state
+    p_iterator->state.p_state = (void *)((size_t)p_iterator->state.p_state + 1); 
+
+    // done
+    return;
+}
+
+void *edge_list_vertex_iterator_item ( iterator *p_iterator ) 
+{
+
+    // done
+    return ((edge_list *) p_iterator->p_data)->vertices.pp_vertices[(size_t)p_iterator->state.p_state]; 
+}
+
+iterator edge_list_edge_iterator ( edge_list *p_edge_list, const void *p_key )
+{
+
+    // initialized data
+    void   *u = NULL;
+    size_t  i = 0;
+
+    // find the vertex
+    vertex_index_get(p_edge_list, p_key, &u);
+
+    // find the first edge
+    if ( u )
+    {
+        for ( i = 0; i < p_edge_list->edges.count; i++ )
+        {
+
+            // initialized data
+            edge_list_edge *p_edge = p_edge_list->edges.pp_edges[i];
+            bool            match  = (p_edge->p_from == u);
+
+            // if undirected, check mirror
+            if ( !match && !(p_edge_list->_type & GRAPH_DIRECTED) )
+                match = (p_edge->p_to == u);
+            
+            // match?
+            if ( match ) break;
+        }
+    }
+    else i = p_edge_list->edges.count;
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_edge_list,
+        .state  = 
+        { 
+            .p_state     = (void *) i,
+            .p_auxiliary = (void *) u
+        },
+        .done = edge_list_edge_iterator_done,
+        .next = edge_list_edge_iterator_next,
+        .item = edge_list_edge_iterator_item
+    };
+}
+
+bool edge_list_edge_iterator_done ( iterator *p_iterator ) 
+{
+
+    // done?
+    return ((size_t)p_iterator->state.p_state) >= ((edge_list *) p_iterator->p_data)->edges.count; 
+}
+
+void edge_list_edge_iterator_next ( iterator *p_iterator ) 
+{
+
+    // initialized data
+    edge_list *p_edge_list = (edge_list *) p_iterator->p_data;
+    void      *u           = (void *) p_iterator->state.p_auxiliary;
+    size_t     i           = (size_t) p_iterator->state.p_state + 1;
+
+    // find the next edge
+    for ( ; i < p_edge_list->edges.count; i++ )
+    {
+
+        // initialized data
+        edge_list_edge *p_edge = p_edge_list->edges.pp_edges[i];
+        bool            match  = (p_edge->p_from == u);
+
+        // if undirected, check mirror
+        if ( !match && !(p_edge_list->_type & GRAPH_DIRECTED) )
+            match = (p_edge->p_to == u);
+
+        // match?
+        if ( match ) break;
+    }
+
+    // update the state
+    p_iterator->state.p_state = (void *) i; 
+
+    // done
+    return;
+}
+
+void *edge_list_edge_iterator_item ( iterator *p_iterator ) 
+{
+
+    // initialized data
+    edge_list      *p_edge_list = (edge_list *) p_iterator->p_data;
+    edge_list_edge *p_edge      = p_edge_list->edges.pp_edges[(size_t)p_iterator->state.p_state];
+    void           *u           = (void *) p_iterator->state.p_auxiliary;
+
+    // done
+    return (p_edge->p_from == u) ? p_edge->p_to : p_edge->p_from; 
+}
+
 int edge_list_pack
-(
+( 
     stream    *p_stream, 
     edge_list *p_edge_list,
-
     fn_pack *pfn_vertex,
     fn_pack *pfn_edge
 )

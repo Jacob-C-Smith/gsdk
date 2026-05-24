@@ -132,6 +132,25 @@ int adjacency_list_edge_foreach
     fn_foreach     *pfn_foreach
 );
 
+/** !
+ * Construct an iterator for the vertices of an adjacency list
+ * 
+ * @param p_adjacency_list the adjacency list
+ * 
+ * @return an iterator
+ */
+iterator adjacency_list_vertex_iterator ( adjacency_list *p_adjacency_list );
+
+/** !
+ * Construct an iterator for the edges connected to a vertex in an adjacency list
+ * 
+ * @param p_adjacency_list the adjacency list
+ * @param p_key            the key of the vertex
+ * 
+ * @return an iterator
+ */
+iterator adjacency_list_edge_iterator ( adjacency_list *p_adjacency_list, const void *p_key );
+
 /// reflection
 int adjacency_list_pack
 (
