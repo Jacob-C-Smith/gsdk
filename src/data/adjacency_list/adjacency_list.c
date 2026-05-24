@@ -44,6 +44,16 @@ struct adjacency_list_s
 typedef struct vertex_entry_s vertex_entry;
 typedef struct edge_entry_s   edge_entry;
 
+// function declarations
+fn_it_done adjacency_list_vertex_iterator_done;
+fn_it_next adjacency_list_vertex_iterator_next;
+fn_it_item adjacency_list_vertex_iterator_item;
+
+fn_it_done adjacency_list_edge_iterator_done;
+fn_it_next adjacency_list_edge_iterator_next;
+fn_it_item adjacency_list_edge_iterator_item;
+
+
 // function definitions
 static int vertex_index_get ( adjacency_list *p_adjacency_list, const void *p_key, vertex_entry **pp_entry )
 {
@@ -1227,6 +1237,98 @@ int adjacency_list_edge_foreach
                 return 0;
         }
     }
+}
+
+iterator adjacency_list_vertex_iterator ( adjacency_list *p_adjacency_list )
+{
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_adjacency_list,
+        .state  = { 0 },
+        .done   = adjacency_list_vertex_iterator_done,
+        .next   = adjacency_list_vertex_iterator_next,
+        .item   = adjacency_list_vertex_iterator_item
+    };
+}
+
+bool adjacency_list_vertex_iterator_done ( iterator *p_iterator ) 
+{
+
+    // done?
+    return ((size_t)p_iterator->state.p_state) >= ((adjacency_list *) p_iterator->p_data)->vertex_count; 
+}
+
+void adjacency_list_vertex_iterator_next ( iterator *p_iterator ) 
+{
+
+    // update the state
+    p_iterator->state.p_state = (void *)((size_t)p_iterator->state.p_state + 1); 
+
+    // done
+    return;
+}
+
+void *adjacency_list_vertex_iterator_item ( iterator *p_iterator ) 
+{
+
+    // done
+    return ((adjacency_list *) p_iterator->p_data)->pp_vertices[(size_t)p_iterator->state.p_state]->p_vertex; 
+}
+
+iterator adjacency_list_edge_iterator ( adjacency_list *p_adjacency_list, const void *p_key )
+{
+
+    // initialized data
+    vertex_entry *p_entry = NULL;
+
+    // find the vertex
+    vertex_index_get(p_adjacency_list, p_key, &p_entry);
+
+    // success
+    return (iterator)
+    {
+        .p_data = p_adjacency_list,
+        .state  = 
+        { 
+            .p_state     = 0,
+            .p_auxiliary = p_entry
+        },
+        .done = adjacency_list_edge_iterator_done,
+        .next = adjacency_list_edge_iterator_next,
+        .item = adjacency_list_edge_iterator_item
+    };
+}
+
+bool adjacency_list_edge_iterator_done ( iterator *p_iterator ) 
+{
+
+    // initialized data
+    vertex_entry *p_entry = (vertex_entry *) p_iterator->state.p_auxiliary;
+
+    // done?
+    return ( NULL == p_entry ) || ( ((size_t)p_iterator->state.p_state) >= p_entry->edge_count ); 
+}
+
+void adjacency_list_edge_iterator_next ( iterator *p_iterator ) 
+{
+
+    // update the state
+    p_iterator->state.p_state = (void *)((size_t)p_iterator->state.p_state + 1); 
+
+    // done
+    return;
+}
+
+void *adjacency_list_edge_iterator_item ( iterator *p_iterator ) 
+{
+
+    // initialized data
+    vertex_entry *p_entry = (vertex_entry *) p_iterator->state.p_auxiliary;
+
+    // done
+    return p_entry->pp_edges[(size_t)p_iterator->state.p_state]->p_to; 
 }
 
 int adjacency_list_pack

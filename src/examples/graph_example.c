@@ -551,9 +551,40 @@ int checkpoint ( graph *p_graph, const char *p_event )
     if ( NULL == p_graph )
         log_info("#%d - Graph %s: NULL\n", step, p_event);
     else
-        log_info("#%d - Graph %s:\n", step, p_event),
-        printf("Vertices (%zu)\n", graph_vertex_count(p_graph)),
+    {
+        log_info("#%d - Graph %s:\n", step, p_event);
+        printf("Vertices (%zu)\n", graph_vertex_count(p_graph));
         printf("Edges (%zu)\n", graph_edge_count(p_graph));
+
+        // iterate over each vertex
+        for ( iterator it = graph_vertex_iterator(p_graph); !it.done(&it); it.next(&it) )
+        {
+            
+            // initialized data
+            void *p_vertex = it.item(&it);
+            void *p_key    = airport_key_accessor(p_vertex);
+
+            // print vertex
+            printf("  %s -> ", (char *)p_key);
+
+            // iterate over each edge
+            for ( iterator it2 = graph_edge_iterator(p_graph, p_key); !it2.done(&it2); it2.next(&it2) )
+            {
+                
+                // initialized data
+                void *p_neighbor     = it2.item(&it2);
+                void *p_neighbor_key = airport_key_accessor(p_neighbor);
+                void *p_edge         = NULL;
+
+                // store the edge data
+                graph_edge_search(p_graph, p_key, p_neighbor_key, &p_edge);
+
+                // print neighbor and weight
+                printf("(%s %.0f) ", (char *)p_neighbor_key, flight_weight_accessor(p_edge));
+            }
+            putchar('\n');
+        }
+    }
         
     // increment counter
     step++;

@@ -132,6 +132,25 @@ int edge_list_edge_foreach
     fn_foreach       *pfn_foreach
 );
 
+/** !
+ * Construct an iterator for the vertices of an edge list
+ * 
+ * @param p_edge_list the edge list
+ * 
+ * @return an iterator
+ */
+iterator edge_list_vertex_iterator ( edge_list *p_edge_list );
+
+/** !
+ * Construct an iterator for the edges connected to a vertex in an edge list
+ * 
+ * @param p_edge_list the edge list
+ * @param p_key       the key of the vertex
+ * 
+ * @return an iterator
+ */
+iterator edge_list_edge_iterator ( edge_list *p_edge_list, const void *p_key );
+
 /// reflection
 int edge_list_pack
 (

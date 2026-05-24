@@ -87,10 +87,14 @@ graph _prototypes[GRAPH_QUANTITY] =
         .pfn_edge_search  = (fn_graph_edge_search *)  adjacency_matrix_edge_search,
         .pfn_edge_add     = (fn_graph_edge_add *)     adjacency_matrix_edge_add,             
         .pfn_edge_remove  = (fn_graph_edge_remove *)  adjacency_matrix_edge_remove,                
-        .pfn_edge_count   = (fn_graph_edge_count *)   adjacency_matrix_edge_count,               
-        .pfn_edge_foreach = (fn_graph_edge_foreach *) adjacency_matrix_edge_foreach,
+        .p_edge_count     = (fn_graph_edge_count *)   adjacency_matrix_edge_count,               
+        .p_edge_foreach   = (fn_graph_edge_foreach *) adjacency_matrix_edge_foreach,
 
-        .pfn_pack   = (fn_graph_pack *)   adjacency_matrix_pack,         
+        .pfn_vertex_iterator = (fn_graph_vertex_iterator *) adjacency_matrix_vertex_iterator,
+        .pfn_edge_iterator   = (fn_graph_edge_iterator *)   adjacency_matrix_edge_iterator,
+
+        .pfn_pack   = (fn_graph_pack *)   adjacency_matrix_pack,
+         
         .pfn_unpack = (fn_graph_unpack *) adjacency_matrix_unpack,
         .pfn_hash   = (fn_graph_hash *)   adjacency_matrix_hash,
 
@@ -113,10 +117,14 @@ graph _prototypes[GRAPH_QUANTITY] =
         .pfn_edge_search  = (fn_graph_edge_search *)  adjacency_list_edge_search,
         .pfn_edge_add     = (fn_graph_edge_add *)     adjacency_list_edge_add,             
         .pfn_edge_remove  = (fn_graph_edge_remove *)  adjacency_list_edge_remove,                
-        .pfn_edge_count   = (fn_graph_edge_count *)   adjacency_list_edge_count,               
-        .pfn_edge_foreach = (fn_graph_edge_foreach *) adjacency_list_edge_foreach,
+        .p_edge_count     = (fn_graph_edge_count *)   adjacency_list_edge_count,               
+        .p_edge_foreach   = (fn_graph_edge_foreach *) adjacency_list_edge_foreach,
 
-        .pfn_pack   = (fn_graph_pack *)   adjacency_list_pack,         
+        .pfn_vertex_iterator = (fn_graph_vertex_iterator *) adjacency_list_vertex_iterator,
+        .pfn_edge_iterator   = (fn_graph_edge_iterator *)   adjacency_list_edge_iterator,
+
+        .pfn_pack   = (fn_graph_pack *)   adjacency_list_pack,
+         
         .pfn_unpack = (fn_graph_unpack *) adjacency_list_unpack,
         .pfn_hash   = (fn_graph_hash *)   adjacency_list_hash,
 
@@ -139,10 +147,14 @@ graph _prototypes[GRAPH_QUANTITY] =
         .pfn_edge_search  = (fn_graph_edge_search *)  edge_list_edge_search,
         .pfn_edge_add     = (fn_graph_edge_add *)     edge_list_edge_add,             
         .pfn_edge_remove  = (fn_graph_edge_remove *)  edge_list_edge_remove,                
-        .pfn_edge_count   = (fn_graph_edge_count *)   edge_list_edge_count,               
-        .pfn_edge_foreach = (fn_graph_edge_foreach *) edge_list_edge_foreach,
+        .p_edge_count     = (fn_graph_edge_count *)   edge_list_edge_count,               
+        .p_edge_foreach   = (fn_graph_edge_foreach *) edge_list_edge_foreach,
 
-        .pfn_pack   = (fn_graph_pack *)   edge_list_pack,         
+        .pfn_vertex_iterator = (fn_graph_vertex_iterator *) edge_list_vertex_iterator,
+        .pfn_edge_iterator   = (fn_graph_edge_iterator *)   edge_list_edge_iterator,
+
+        .pfn_pack   = (fn_graph_pack *)   edge_list_pack,
+         
         .pfn_unpack = (fn_graph_unpack *) edge_list_unpack,
         .pfn_hash   = (fn_graph_hash *)   edge_list_hash,
 
@@ -2628,7 +2640,7 @@ size_t graph_edge_count ( graph *p_graph )
     if ( NULL == p_graph ) goto no_graph;
     
     // done
-    return p_graph->pfn_edge_count(p_graph->p_graph);
+    return p_graph->p_edge_count(p_graph->p_graph);
 
     // error handling
     {
@@ -2866,9 +2878,9 @@ int graph_edge_foreach
 
     // argument check
     if ( NULL == p_graph ) goto no_graph;
-    
+
     // done
-    return p_graph->pfn_edge_foreach(p_graph->p_graph, pfn_foreach);
+    return p_graph->p_edge_foreach(p_graph->p_graph, pfn_foreach);
 
     // error handling
     {
@@ -2886,9 +2898,22 @@ int graph_edge_foreach
     }
 }
 
+iterator graph_vertex_iterator ( graph *p_graph )
+{
+
+    // done
+    return p_graph->pfn_vertex_iterator(p_graph->p_graph);
+}
+
+iterator graph_edge_iterator ( graph *p_graph, const void *p_key )
+{
+
+    // done
+    return p_graph->pfn_edge_iterator(p_graph->p_graph, p_key);
+}
+
 int graph_pack
-(
-    stream *p_stream, 
+(    stream *p_stream, 
     graph *p_graph,
 
     fn_pack *pfn_vertex,

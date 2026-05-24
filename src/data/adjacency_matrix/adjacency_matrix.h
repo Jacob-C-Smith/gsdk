@@ -133,6 +133,25 @@ int adjacency_matrix_edge_foreach
     fn_foreach       *pfn_foreach
 );
 
+/** !
+ * Construct an iterator for the vertices of an adjacency matrix
+ * 
+ * @param p_adjacency_matrix the adjacency matrix
+ * 
+ * @return an iterator
+ */
+iterator adjacency_matrix_vertex_iterator ( adjacency_matrix *p_adjacency_matrix );
+
+/** !
+ * Construct an iterator for the edges connected to a vertex in an adjacency matrix
+ * 
+ * @param p_adjacency_matrix the adjacency matrix
+ * @param p_key              the key of the vertex
+ * 
+ * @return an iterator
+ */
+iterator adjacency_matrix_edge_iterator ( adjacency_matrix *p_adjacency_matrix, const void *p_key );
+
 /// reflection
 int adjacency_matrix_pack
 (
