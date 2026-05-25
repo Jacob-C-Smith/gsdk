@@ -64,7 +64,7 @@ int stream_from_path
 
     // doesn't exist?
     if ( NULL == p_f ) 
-        p_f = fopen("data.txt", "w+");   
+        p_f = fopen(p_path, "w+");   
     
     // error check
     if ( NULL == p_f ) goto no_file;

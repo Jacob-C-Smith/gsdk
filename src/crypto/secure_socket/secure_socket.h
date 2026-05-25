@@ -23,6 +23,7 @@
 #include <core/pack.h>
 #include <core/socket.h>
 #include <core/tcp.h>
+#include <core/sync.h>
 
 /// crypto
 #include <crypto/ed25519.h>
@@ -32,32 +33,27 @@
 #include <crypto/certificate.h>
 
 // preprocessor definitions
-// #define SECURE_SOCKET_DEBUG
-
-// structure declarations
-struct secure_socket_s;
+#define SECURE_SOCKET_DEBUG
 
 // type definitions
-typedef struct secure_socket_s secure_socket;
-typedef int(fn_secure_socket_accept)( secure_socket *p_secure_socket, socket_ip_address ip_address, socket_port port_number, void *const p_parameter );
+typedef int(fn_secure_socket_accept)( stream *p_stream, socket_ip_address ip_address, socket_port port_number, void *const p_parameter );
 
 // function declarations
 /// construct
 /** !
- * Construct a secure socket from an existing TCP socket.
- * Performs a TLS-like handshake using X25519 for key exchange and AEAD for encryption.
- *
- * @param pp_secure_socket  result
- * @param tcp_socket        the established TCP socket
- * @param is_server         true if server, false if client
+ * Construct a secure stream from an existing TCP socket.
+ * 
+ * @param pp_stream         result
+ * @param tcp_socket        the TCP socket
+ * @param is_server         TRUE IF server ELSE client
  * @param p_certificate     the local certificate
  * @param p_private_key     the local private key for handshake signing
  *
  * @return 1 on success, 0 on error
  */
-int secure_socket_construct
+int secure_stream_construct
 (
-    secure_socket       **pp_secure_socket,
+    stream              **pp_stream,
     socket_tcp            tcp_socket,
     bool                  is_server,
     certificate          *p_certificate,
@@ -68,7 +64,7 @@ int secure_socket_construct
 /** !
  * Establish a secure connection to a server.
  *
- * @param pp_secure_socket result
+ * @param pp_stream        result
  * @param ip_address       server IP
  * @param port             server port
  * @param p_certificate    the local certificate
@@ -78,7 +74,7 @@ int secure_socket_construct
  */
 int secure_socket_connect
 (
-    secure_socket       **pp_secure_socket,
+    stream              **pp_stream,
     socket_ip_address     ip_address,
     socket_port           port,
     certificate          *p_certificate,
@@ -89,7 +85,7 @@ int secure_socket_connect
 /** !
  * Listen on a secure socket
  *
- * @param tcp_server_socket raw tcp socket
+ * @param tcp_server_socket raw TCP socket
  * @param pfn_callback      pointer to callback function parameter
  * @param p_certificate     the certificate
  * @param p_private_key     the private key
@@ -105,37 +101,3 @@ int secure_socket_listen
     ed25519_private_key     *p_private_key,
     void                    *p_parameter
 );
-
-/// send 
-/** !
- * Send encrypted data over the secure socket.
- *
- * @param p_secure_socket the secure socket
- * @param p_data          the plaintext data
- * @param len             the quantity of bytes
- *
- * @return bytes sent on success, 0 on error
- */
-int secure_socket_send ( secure_socket *p_secure_socket, const void *p_data, size_t len );
-
-/// receive
-/** !
- * Receive and decrypt data from the secure socket.
- *
- * @param p_secure_socket the secure socket
- * @param p_buffer        the buffer to store decrypted data
- * @param buffer_len      the quantity of bytes
- *
- * @return bytes received on success, 0 on error
- */
-int secure_socket_receive ( secure_socket *p_secure_socket, void *p_buffer, size_t buffer_len );
-
-/// descructor
-/** !
- * Release the secure socket and underlying resources.
- *
- * @param pp_secure_socket pointer to the secure socket pointer
- *
- * @return 1 on success, 0 on error
- */
-int secure_socket_destroy ( secure_socket **pp_secure_socket );

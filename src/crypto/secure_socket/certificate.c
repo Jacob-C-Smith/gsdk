@@ -223,15 +223,18 @@ int certificate_sign ( certificate *p_certificate, ed25519_public_key *p_public_
     if ( NULL ==  p_private_key ) goto no_private_key;
 
     // initialized data
-    char _buf[160] = { 0 };
+    char _buf[1024] = { 0 };
     stream *p_stream = NULL;
     size_t len = 0;
 
     // construct a stream
-    stream_from_dynamic_buffer(&p_stream);
+    stream_from_buffer(&p_stream, _buf, sizeof(_buf));
 
     // pack the certificate
     len = certificate_pack(p_stream, p_certificate);
+
+    // destroy the stream
+    stream_destroy(&p_stream);
 
     // sign the certificate
     ed25519_sign(
@@ -284,13 +287,13 @@ int certificate_verify ( certificate *p_certificate, certificate *p_issuer )
     if ( NULL == p_certificate ) goto no_certificate;
 
     // initialized data
-    char _buf[160] = { 0 };
+    char _buf[1024] = { 0 };
     stream *p_stream = NULL;
     size_t len = 0;
     ed25519_public_key *p_public_key = NULL;
 
     // construct a stream
-    stream_from_dynamic_buffer(&p_stream);
+    stream_from_buffer(&p_stream, _buf, sizeof(_buf));
 
     // CA uses their key
     if ( NULL == p_issuer )
@@ -325,6 +328,9 @@ int certificate_verify ( certificate *p_certificate, certificate *p_issuer )
 
     // pack the certificate
     len = certificate_pack(p_stream, p_certificate);
+
+    // destroy the stream
+    stream_destroy(&p_stream);
 
     // done
     return ed25519_verify(

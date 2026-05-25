@@ -31,10 +31,8 @@ int main ( int argc, const char *argv[] )
     (void) argv;
 
     // initialized data
-    secure_socket *p_secure_socket = NULL;
+    stream *p_stream_socket = NULL;
     socket_ip_address server_ip = { 0 };
-    short len = 0;
-    char _in[1024] = { 0 };
     char _msg[1024] = { 0 };
     char _out[1024] = { 0 };
     certificate *p_root = NULL;
@@ -69,7 +67,7 @@ int main ( int argc, const char *argv[] )
     if ( 0 == socket_resolve_host(&server_ip, 1, "127.0.0.1") ) goto failed_to_resolve_host;
 
     // create a TCP socket
-    if ( 0 == secure_socket_connect(&p_secure_socket, server_ip, 3000, p_intermediate, NULL) ) goto failed_to_connect;
+    if ( 0 == secure_socket_connect(&p_stream_socket, server_ip, 3000, p_intermediate, NULL) ) goto failed_to_connect;
 
     // destroy the intermediate
     if ( 0 == certificate_destroy(&p_intermediate) ) goto failed_to_destroy_certificate;
@@ -88,21 +86,12 @@ int main ( int argc, const char *argv[] )
 
         _out[strlen(_out) - 1] = '\0';
 
-        // pack the string into a buffer
-        stream_from_buffer(&p_stream, _msg, 1024);
-        len = pack_pack(p_stream, "%s", &_out);
-        stream_destroy(&p_stream);
+        // pack the string directly to the secure stream
+        pack_pack(p_stream_socket, "%s", &_out);
+        stream_flush(p_stream_socket);
 
-        // send the message 
-        secure_socket_send(p_secure_socket, _msg, len);
-
-        // receive message
-        len = secure_socket_receive(p_secure_socket, &_in, 1024);
-
-        // unpack the string
-        stream_from_buffer(&p_stream, _in, len);
-        pack_unpack(p_stream, "%s", &_msg);
-        stream_destroy(&p_stream);
+        // unpack the string directly from the secure stream
+        pack_unpack(p_stream_socket, "%s", &_msg);
 
         // print the message
         log_info("> %s\n", &_msg);
@@ -112,7 +101,7 @@ int main ( int argc, const char *argv[] )
     log_info("Bye bye!\n");
 
     // close the socket
-    if ( 0 == secure_socket_destroy(&p_secure_socket) ) goto failed_to_destroy_secure_socket;
+    if ( 0 == stream_destroy(&p_stream_socket) ) goto failed_to_destroy_secure_socket;
     
     // success
     return EXIT_SUCCESS;

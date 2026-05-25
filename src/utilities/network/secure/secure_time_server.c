@@ -24,7 +24,7 @@
 /// crypto
 #include <crypto/secure_socket.h>
 
-int connection_callback ( secure_socket *p_secure_socket, socket_ip_address ip_address, socket_port port, void *const p_parameter )
+int connection_callback ( stream *p_stream_socket, socket_ip_address ip_address, socket_port port, void *const p_parameter )
 {
 
     // unused
@@ -32,11 +32,8 @@ int connection_callback ( secure_socket *p_secure_socket, socket_ip_address ip_a
     (void) p_parameter;
 
     // initialized data
-    char _buf[1024] = { 0 };
     struct tm* ptr = NULL;
     time_t lt = 0;
-    size_t len = 0;
-    stream *p_stream = NULL;
 
     // logs
     printf("Accepted connection from "), 
@@ -48,16 +45,11 @@ int connection_callback ( secure_socket *p_secure_socket, socket_ip_address ip_a
     // compute the localized time
     ptr = localtime(&lt);
 
-    // pack the time string into a buffer
-    stream_from_buffer(&p_stream, _buf, 1024);
-    len = pack_pack(p_stream, "%s", asctime(ptr));
-    stream_destroy(&p_stream);
-
-    // send the localized time to the client
-    secure_socket_send(p_secure_socket, _buf, len);
+    // pack the time string directly into the secure stream
+    pack_pack(p_stream_socket, "%s", asctime(ptr));
 
     // clean up
-    secure_socket_destroy(&p_secure_socket);
+    stream_destroy(&p_stream_socket);
 
     // success
     return 1;
