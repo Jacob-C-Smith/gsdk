@@ -24,7 +24,7 @@
 /// crypto
 #include <crypto/secure_socket.h>
 
-int connection_callback ( secure_socket *p_secure_socket, socket_ip_address ip_address, socket_port port, void *const p_parameter )
+int connection_callback ( stream *p_stream_socket, socket_ip_address ip_address, socket_port port, void *const p_parameter )
 {
 
     // unused
@@ -32,11 +32,7 @@ int connection_callback ( secure_socket *p_secure_socket, socket_ip_address ip_a
     (void) p_parameter;
 
     // initialized data
-    char _in[1024] = { 0 };
     char _msg[1024] = { 0 };
-    char _out[1024] = { 0 };
-    size_t len = 0;
-    stream *p_stream = NULL;
 
     // logs
     printf("Accepted connection from "), 
@@ -46,27 +42,16 @@ int connection_callback ( secure_socket *p_secure_socket, socket_ip_address ip_a
     while ( 1 )
     {
 
-        // receive message
-        len = secure_socket_receive(p_secure_socket, _in, 1024);
-
-        if ( len == 0 ) break;
-        
-        // unpack the time string
-        stream_from_buffer(&p_stream, _in, len);
-        pack_unpack(p_stream, "%s", _msg);
-        stream_destroy(&p_stream);
+        // unpack the string directly from the secure stream
+        if ( 0 == pack_unpack(p_stream_socket, "%s", _msg) ) break;
 
         // print the message
         log_info(" > %s \n", _msg);
         log_info(" < %s \n", _msg);
 
-        // pack the time string into a buffer
-        stream_from_buffer(&p_stream, _out, 1024);
-        len = pack_pack(p_stream, "%s", _msg);
-        stream_destroy(&p_stream);
-
-        // send the message back
-        secure_socket_send(p_secure_socket, _out, len);
+        // pack the string directly to the secure stream
+        pack_pack(p_stream_socket, "%s", _msg);
+        stream_flush(p_stream_socket);
     }
 
     // logs
@@ -74,7 +59,7 @@ int connection_callback ( secure_socket *p_secure_socket, socket_ip_address ip_a
     socket_ip_address_print(ip_address);
 
     // clean up
-    secure_socket_destroy(&p_secure_socket);
+    stream_destroy(&p_stream_socket);
 
     // success
     return 1;

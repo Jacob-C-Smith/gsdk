@@ -113,6 +113,15 @@ int construct_buffer_stream ( void **pp_result )
 int construct_file_stream ( void **pp_result ) 
 { 
 
+    // initialized data
+    FILE *p_f = fopen(TEST_FILE_PATH, "wb+");
+
+    // error check
+    if ( NULL == p_f ) return 0;
+
+    // close
+    fclose(p_f);
+
     // construct a file path stream
     return stream_from_path((stream **)pp_result, TEST_FILE_PATH);
 }

@@ -64,7 +64,7 @@ int stream_from_path
 
     // doesn't exist?
     if ( NULL == p_f ) 
-        p_f = fopen("data.txt", "w+");   
+        p_f = fopen(p_path, "wb+");   
     
     // error check
     if ( NULL == p_f ) goto no_file;
@@ -974,6 +974,9 @@ int stream_write_file ( stream *p_stream, void *p_data, size_t size )
     // update cursor
     if ( written > 0 ) p_stream->cursor += written;
 
+    // update the size
+    if ( p_stream->cursor > p_stream->size ) p_stream->size = p_stream->cursor;
+
     // success
     return written;
 }
@@ -1203,7 +1206,7 @@ int stream_size_file ( stream *p_stream )
     // get the file size
     fseek(p_f, 0, SEEK_END);
     size = ftell(p_f);
-    fseek(p_f, 0, SEEK_SET);
+    fseek(p_f, p_stream->cursor, SEEK_SET);
 
     // update the file size
     p_stream->size = size;
