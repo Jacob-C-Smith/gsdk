@@ -111,6 +111,20 @@ int json_string_parse ( stream *p_stream, char **pp_result, char *p_next )
     while ( '\"' != c )
     {
 
+        // grow the buffer
+        if ( read >= len - 1 )
+        {
+
+            // double the size
+            len *= 2;
+
+            // resize
+            p_string = default_allocator(p_string, len);
+
+            // error check
+            if ( NULL == p_string ) goto no_mem;
+        }
+
         // escape sequence
         if ( '\\' == c )
         {
@@ -177,6 +191,9 @@ int json_string_parse ( stream *p_stream, char **pp_result, char *p_next )
     // resize
     p_string = default_allocator(p_string, read + 1);
     if ( NULL == p_string ) goto no_mem;
+
+    // null terminate
+    p_string[read] = '\0';
 
     // return a pointer to the caller
     *pp_result = p_string;
@@ -264,12 +281,15 @@ int json_object_parse ( stream *p_stream, dict **const pp_dict, char *p_next )
         
         // parse the value
         if ( json_parse(&p_value, p_stream, &c) )
+        {
 
             // store the key
-            p_value->p_key = p_key,
+            if ( p_value ) 
+                p_value->p_key = p_key;
         
             // add the value to the object
             dict_add(p_dict, p_value);
+        }
 
         // eat whitespace
         while ( ' ' == c || '\n' == c || '\r' == c || '\t' == c )
