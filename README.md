@@ -165,8 +165,8 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 <details open>
     <summary><a href="documentation/md/performance.md">performance</a></summary>
     <ul>
-        <li>🧪 <a href="./doocumentation/performance/parallel.md">parallel</a></li>
-        <!--<li>🏗️ <a href="./doocumentation/performance/distribute.md">distribute</a></li>-->
+        <li>⭐ <a href="./documentation/md/performance/parallel.md"><b>parallel</b></a></li>
+        <!--<li>🏗️ <a href="./documentation/performance/distribute.md">distribute</a></li>-->
     </ul>
 </details>
 
