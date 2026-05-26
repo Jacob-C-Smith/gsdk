@@ -78,6 +78,9 @@ int thread_pool_construct ( thread_pool **pp_thread_pool, size_t thread_quantity
     p_thread_pool = default_allocator(p_thread_pool, size);
     if ( NULL == p_thread_pool ) goto no_mem;
 
+    // zero the memory
+    memset(p_thread_pool, 0, size);
+
     // store the quantity of threads
     *p_thread_pool = (thread_pool)
     {
