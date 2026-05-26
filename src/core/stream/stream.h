@@ -48,12 +48,13 @@ struct stream_s;
 
 // type definitions
 typedef struct stream_s stream;
-typedef int (fn_stream_read)  ( stream *p_stream, void *p_data, size_t size );
-typedef int (fn_stream_write) ( stream *p_stream, void *p_data, size_t size );
-typedef int (fn_stream_size)  ( stream *p_stream );
-typedef int (fn_stream_flush) ( stream *p_stream );
-typedef int (fn_stream_seek)  ( stream *p_stream, long offset, enum stream_seek_e whence );
-typedef int (fn_stream_close) ( stream *p_stream );
+typedef int  (fn_stream_read)  ( stream *p_stream, void *p_data, size_t size );
+typedef int  (fn_stream_write) ( stream *p_stream, void *p_data, size_t size );
+typedef int  (fn_stream_size)  ( stream *p_stream );
+typedef int  (fn_stream_flush) ( stream *p_stream );
+typedef int  (fn_stream_seek)  ( stream *p_stream, long offset, enum stream_seek_e whence );
+typedef bool (fn_stream_eof)   ( stream *p_stream );
+typedef int  (fn_stream_close) ( stream *p_stream );
 
 // structure definitions
 struct stream_s
@@ -69,6 +70,7 @@ struct stream_s
     fn_stream_size     *pfn_size;
     fn_stream_flush    *pfn_flush; 
     fn_stream_seek     *pfn_seek;
+    fn_stream_eof      *pfn_eof;
     fn_stream_close    *pfn_close;
 };
 

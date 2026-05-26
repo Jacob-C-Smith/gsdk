@@ -1,968 +1,215 @@
 /** !
- * Tester for json module
+ * json tester
  * 
- * @file json_test.c
+ * @file src/test/json_test.c
  * 
  * @author Jacob Smith
  */
 
-// header
-#include <reflection/json_test.h>
+// standard library
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 
-// log module
+// gsdk
+/// core
 #include <core/log.h>
-
-// sync module
 #include <core/sync.h>
+#include <core/stream.h>
+#include <core/test.h>
 
-// enumeration definitions
-enum result_e
-{
-    zero = 0,    
-    one  = 1,
-};
+/// data
+#include <data/array.h>
+#include <data/dict.h>
 
-// type definitions
-typedef enum result_e result_t;
-
-// global variables
-int total_tests      = 0,
-    total_passes     = 0,
-    total_fails      = 0,
-    ephemeral_tests  = 0,
-    ephemeral_passes = 0,
-    ephemeral_fails  = 0;
-const char *alphabet[] = {
-    "a",
-    "b",
-    "c",
-    "d",
-    "e",
-    "f",
-    "g",
-    "h",
-    "i",
-    "j",
-    "k",
-    "l",
-    "m",
-    "n",
-    "o",
-    "p",
-    "q",
-    "r",
-    "s",
-    "t",
-    "u",
-    "v",
-    "w",
-    "x",
-    "y",
-    "z"
-};
+/// reflection
+#include <reflection/json.h>
 
 // external declarations
-fn_key_accessor object_key_accessor;
+extern fn_key_accessor object_key_accessor;
 
-// forward declarations
-/** !
- * Print the time formatted in days, hours, minutes, seconds, miliseconds, microseconds
- * 
- * @param seconds the time in seconds
- * 
- * @return void
- */
-void print_time_pretty ( double seconds );
+// function declarations
+/// scenario constructors
+fn_scenario_constructor construct_null;
+fn_scenario_constructor construct_bool_false;
+fn_scenario_constructor construct_bool_true;
+fn_scenario_constructor construct_int_minus_one;
+fn_scenario_constructor construct_int_zero;
+fn_scenario_constructor construct_int_one;
+fn_scenario_constructor construct_int_max;
+fn_scenario_constructor construct_int_min;
+fn_scenario_constructor construct_float_minus_one;
+fn_scenario_constructor construct_float_zero;
+fn_scenario_constructor construct_float_one;
+fn_scenario_constructor construct_float_max;
+fn_scenario_constructor construct_float_min;
+fn_scenario_constructor construct_string_empty;
+fn_scenario_constructor construct_string_a;
+fn_scenario_constructor construct_string_abc;
+fn_scenario_constructor construct_string_quote_abc_quote;
+fn_scenario_constructor construct_string_quote;
+fn_scenario_constructor construct_string_quote_quote;
+fn_scenario_constructor construct_string_reverse_solidus;
+fn_scenario_constructor construct_string_solidus;
+fn_scenario_constructor construct_string_backspace;
+fn_scenario_constructor construct_string_formfeed;
+fn_scenario_constructor construct_string_linefeed;
+fn_scenario_constructor construct_string_carriage_return;
+fn_scenario_constructor construct_string_horizontal_tab;
+fn_scenario_constructor construct_object_empty;
+fn_scenario_constructor construct_object_string;
+fn_scenario_constructor construct_object_int;
+fn_scenario_constructor construct_object_float;
+fn_scenario_constructor construct_object_false;
+fn_scenario_constructor construct_object_true;
+fn_scenario_constructor construct_object_mixed_values;
+fn_scenario_constructor construct_object_object;
+fn_scenario_constructor construct_object_object_object;
+fn_scenario_constructor construct_object_recursive;
+fn_scenario_constructor construct_object_array;
+fn_scenario_constructor construct_object_array_objects;
+fn_scenario_constructor construct_object_array_object;
+fn_scenario_constructor construct_array_empty;
+fn_scenario_constructor construct_array_null;
+fn_scenario_constructor construct_array_nulls;
+fn_scenario_constructor construct_array_bool;
+fn_scenario_constructor construct_array_bools;
+fn_scenario_constructor construct_array_int;
+fn_scenario_constructor construct_array_ints;
+fn_scenario_constructor construct_array_float;
+fn_scenario_constructor construct_array_floats;
+fn_scenario_constructor construct_array_string_empty;
+fn_scenario_constructor construct_array_string;
+fn_scenario_constructor construct_array_strings;
+fn_scenario_constructor construct_array_object_empty;
+fn_scenario_constructor construct_array_object;
+fn_scenario_constructor construct_array_objects;
+fn_scenario_constructor construct_array_array_empty;
+fn_scenario_constructor construct_array_array_array_empty;
+fn_scenario_constructor construct_array_matrix;
+fn_scenario_constructor construct_array_tensor;
 
-/** !
- * Run all the tests
- * 
- * @param void
- * 
- * @return void
- */
-void run_tests ( void );
+/// test cases
+fn_test_case test_parse;
+fn_test_case test_serialize;
 
-/** !
- * Print a summary of the test scenario
- * 
- * @param void
- * 
- * @return void
- */
-void print_final_summary ( void );
+/// allocators
 
-/** !
- * Print the result of a single test
- * 
- * @param scenario_name the name of the scenario
- * @param test_name     the name of the test
- * @param passed        true if test passes, false if test fails
- * 
- * @return void
- */
-void print_test ( const char *scenario_name, const char *test_name, bool passed );
+/// result evaluators
+fn_results_match json_results_match;
+fn_results_match textual_results_match;
 
-bool     test_parse_json     ( char         *test_file    , int         (*expected_value_constructor) (json_value **), result_t expected );
-bool     test_serial_json    ( char         *test_file    , char         *expected_file                               , int(*expected_value_constructor) (json_value **), result_t expected );
-result_t load_json           ( json_value  **pp_value     , char         *test_file, char **free_me );
-result_t save_json           ( char         *path         , json_value   *p_value );
-bool     value_equals        ( json_value   *a            , json_value   *b );
-size_t   load_file           ( const char   *path         , void         *buffer                                      , bool     binary_mode );
+bool value_equals ( json_value *a, json_value *b );
 
-/** !
- * Test parsing of valid and invalid null values
- * 
- * @param name the name of the test
- * 
- * @return void
- */
-void test_parse_null ( char *name );
+// test
+/// cases
+test_case _json_test_cases[] = 
+{
+    TEST_MATCH("parse"    , test_parse    , NULL, json_results_match   ),
+    TEST_MATCH("serialize", test_serialize, NULL, textual_results_match),
+};
 
-/** !
- * Test parsing of valid and invalid boolean values
- * 
- * @param name the name of the test
- * 
- * @return void
- */
-void test_parse_bool ( char *name );
+/// scenarios
+test_scenario _scenarios[] = 
+{
+    TEST_SCENARIO("null"                   , "resources/test/json/null.json"                   , _json_test_cases, construct_null                   , json_allocator),
+    TEST_SCENARIO("bool false"             , "resources/test/json/bool/false.json"             , _json_test_cases, construct_bool_false             , json_allocator),
+    TEST_SCENARIO("bool true"              , "resources/test/json/bool/true.json"              , _json_test_cases, construct_bool_true              , json_allocator),
+    TEST_SCENARIO("int minus one"          , "resources/test/json/int/-1.json"                 , _json_test_cases, construct_int_minus_one          , json_allocator),
+    TEST_SCENARIO("int zero"               , "resources/test/json/int/0.json"                  , _json_test_cases, construct_int_zero               , json_allocator),
+    TEST_SCENARIO("int one"                , "resources/test/json/int/1.json"                  , _json_test_cases, construct_int_one                , json_allocator),
+    TEST_SCENARIO("int max"                , "resources/test/json/int/max.json"                , _json_test_cases, construct_int_max                , json_allocator),
+    TEST_SCENARIO("int min"                , "resources/test/json/int/min.json"                , _json_test_cases, construct_int_min                , json_allocator),
+    TEST_SCENARIO("float minus one"        , "resources/test/json/float/-1.json"               , _json_test_cases, construct_float_minus_one        , json_allocator),
+    TEST_SCENARIO("float zero"             , "resources/test/json/float/0.json"                , _json_test_cases, construct_float_zero             , json_allocator),
+    TEST_SCENARIO("float one"              , "resources/test/json/float/1.json"                , _json_test_cases, construct_float_one              , json_allocator),
+    TEST_SCENARIO("float max"              , "resources/test/json/float/max.json"              , _json_test_cases, construct_float_max              , json_allocator),
+    TEST_SCENARIO("float min"              , "resources/test/json/float/min.json"              , _json_test_cases, construct_float_min              , json_allocator),
+    TEST_SCENARIO("string empty"           , "resources/test/json/string/empty.json"           , _json_test_cases, construct_string_empty           , json_allocator),
+    TEST_SCENARIO("string a"               , "resources/test/json/string/a.json"               , _json_test_cases, construct_string_a               , json_allocator),
+    TEST_SCENARIO("string abc"             , "resources/test/json/string/abc.json"             , _json_test_cases, construct_string_abc             , json_allocator),
+    TEST_SCENARIO("string quote abc quote" , "resources/test/json/string/quote_abc_quote.json" , _json_test_cases, construct_string_quote_abc_quote , json_allocator),
+    TEST_SCENARIO("string quote"           , "resources/test/json/string/quote.json"           , _json_test_cases, construct_string_quote           , json_allocator),
+    TEST_SCENARIO("string quote quote"     , "resources/test/json/string/quote_quote.json"     , _json_test_cases, construct_string_quote_quote     , json_allocator),
+    TEST_SCENARIO("string reverse solidus" , "resources/test/json/string/reverse_solidus.json" , _json_test_cases, construct_string_reverse_solidus , json_allocator),
+    TEST_SCENARIO("string solidus"         , "resources/test/json/string/solidus.json"         , _json_test_cases, construct_string_solidus         , json_allocator),
+    TEST_SCENARIO("string backspace"       , "resources/test/json/string/backspace.json"       , _json_test_cases, construct_string_backspace       , json_allocator),
+    TEST_SCENARIO("string formfeed"        , "resources/test/json/string/formfeed.json"        , _json_test_cases, construct_string_formfeed        , json_allocator),
+    TEST_SCENARIO("string linefeed"        , "resources/test/json/string/linefeed.json"        , _json_test_cases, construct_string_linefeed        , json_allocator),
+    TEST_SCENARIO("string carriage return" , "resources/test/json/string/carriage_return.json" , _json_test_cases, construct_string_carriage_return , json_allocator),
+    TEST_SCENARIO("string horizontal tab"  , "resources/test/json/string/horizontal_tab.json"  , _json_test_cases, construct_string_horizontal_tab  , json_allocator),
+    TEST_SCENARIO("object empty"           , "resources/test/json/object/empty.json"           , _json_test_cases, construct_object_empty           , json_allocator),
+    TEST_SCENARIO("object string"          , "resources/test/json/object/string.json"          , _json_test_cases, construct_object_string          , json_allocator),
+    TEST_SCENARIO("object int"             , "resources/test/json/object/int.json"             , _json_test_cases, construct_object_int             , json_allocator),
+    TEST_SCENARIO("object float"           , "resources/test/json/object/float.json"           , _json_test_cases, construct_object_float           , json_allocator),
+    TEST_SCENARIO("object false"           , "resources/test/json/object/false.json"           , _json_test_cases, construct_object_false           , json_allocator),
+    TEST_SCENARIO("object true"            , "resources/test/json/object/true.json"            , _json_test_cases, construct_object_true            , json_allocator),
+    TEST_SCENARIO("object mixed values"    , "resources/test/json/object/mixed_values.json"    , _json_test_cases, construct_object_mixed_values    , json_allocator),
+    TEST_SCENARIO("object object"          , "resources/test/json/object/object.json"          , _json_test_cases, construct_object_object          , json_allocator),
+    TEST_SCENARIO("object object object"   , "resources/test/json/object/object_object.json"   , _json_test_cases, construct_object_object_object   , json_allocator),
+    TEST_SCENARIO("object recursive"       , "resources/test/json/object/recursive.json"       , _json_test_cases, construct_object_recursive       , json_allocator),
+    TEST_SCENARIO("object array"           , "resources/test/json/object/array.json"           , _json_test_cases, construct_object_array           , json_allocator),
+    TEST_SCENARIO("object array objects"   , "resources/test/json/object/array_objects.json"   , _json_test_cases, construct_object_array_objects   , json_allocator),
+    TEST_SCENARIO("object array object"    , "resources/test/json/object/array_object.json"    , _json_test_cases, construct_object_array_object    , json_allocator),
+    TEST_SCENARIO("array empty"            , "resources/test/json/array/empty.json"            , _json_test_cases, construct_array_empty            , json_allocator),
+    TEST_SCENARIO("array null"             , "resources/test/json/array/null.json"             , _json_test_cases, construct_array_null             , json_allocator),
+    TEST_SCENARIO("array nulls"            , "resources/test/json/array/nulls.json"            , _json_test_cases, construct_array_nulls            , json_allocator),
+    TEST_SCENARIO("array bool"             , "resources/test/json/array/bool.json"             , _json_test_cases, construct_array_bool             , json_allocator),
+    TEST_SCENARIO("array bools"            , "resources/test/json/array/bools.json"            , _json_test_cases, construct_array_bools            , json_allocator),
+    TEST_SCENARIO("array int"              , "resources/test/json/array/int.json"              , _json_test_cases, construct_array_int              , json_allocator),
+    TEST_SCENARIO("array ints"             , "resources/test/json/array/ints.json"             , _json_test_cases, construct_array_ints             , json_allocator),
+    TEST_SCENARIO("array float"            , "resources/test/json/array/float.json"            , _json_test_cases, construct_array_float            , json_allocator),
+    TEST_SCENARIO("array floats"           , "resources/test/json/array/floats.json"           , _json_test_cases, construct_array_floats           , json_allocator),
+    TEST_SCENARIO("array string empty"     , "resources/test/json/array/string_empty.json"     , _json_test_cases, construct_array_string_empty     , json_allocator),
+    TEST_SCENARIO("array string"           , "resources/test/json/array/string.json"           , _json_test_cases, construct_array_string           , json_allocator),
+    TEST_SCENARIO("array strings"          , "resources/test/json/array/strings.json"          , _json_test_cases, construct_array_strings          , json_allocator),
+    TEST_SCENARIO("array object empty"     , "resources/test/json/array/object_empty.json"     , _json_test_cases, construct_array_object_empty     , json_allocator),
+    TEST_SCENARIO("array object"           , "resources/test/json/array/object.json"           , _json_test_cases, construct_array_object           , json_allocator),
+    TEST_SCENARIO("array objects"          , "resources/test/json/array/objects.json"          , _json_test_cases, construct_array_objects          , json_allocator),
+    TEST_SCENARIO("array array empty"      , "resources/test/json/array/array_empty.json"      , _json_test_cases, construct_array_array_empty      , json_allocator),
+    TEST_SCENARIO("array array array empty", "resources/test/json/array/array_array_empty.json", _json_test_cases, construct_array_array_array_empty, json_allocator),
+    TEST_SCENARIO("array matrix"           , "resources/test/json/array/matrix.json"           , _json_test_cases, construct_array_matrix           , json_allocator),
+    TEST_SCENARIO("array tensor"           , "resources/test/json/array/tensor.json"           , _json_test_cases, construct_array_tensor           , json_allocator),
+};
 
-/** !
- * Test parsing of valid and invalid integer values
- * 
- * @param name the name of the test
- * 
- * @return void
- */
-void test_parse_int ( char *name );
-
-/** !
- * Test parsing of valid and invalid floating point values
- * 
- * @param name the name of the test
- * 
- * @return void
- */
-void test_parse_float (char *name);
-
-/** !
- * Test parsing of valid and invalid string values
- * 
- * @param name the name of the test
- * 
- * @return void
- */
-void test_parse_string (char *name);
-
-/** !
- * Test parsing of valid and invalid object values
- * 
- * @param name the name of the test
- * 
- * @return void
- */
-void test_parse_object (char *name);
-
-/** !
- * Test parsing of valid and invalid array values
- * 
- * @param name the name of the test
- * 
- * @return void
- */
-void test_parse_array ( char *name );
-
-/** !
- * Test serializing the null value
- * 
- * @param name the name of the test
- * 
- * @return void
- */
-void test_serial_null ( char *name );
-
-/** !
- * Test serializing of boolean values
- * 
- * @param name the name of the test
- * 
- * @return void
- */
-int test_serial_bool ( char *name );
-
-/** !
- * Test serializing of integer values
- * 
- * @param name the name of the test
- * 
- * @return void
- */
-int test_serial_int ( char *name );
-
-/** !
- * Test serializing of floating point values
- * 
- * @param name the name of the test
- * 
- * @return void
- */
-int test_serial_float ( char *name );
-
-/** !
- * Test serializing of string values
- * 
- * @param name the name of the test
- * 
- * @return void
- */
-int test_serial_string ( char *name );
-
-/** !
- * Test serializing of object values
- * 
- * @param name the name of the test
- * 
- * @return void
- */
-int test_serial_object ( char *name );
-
-/** !
- * Test serializing of boolean values
- * 
- * @param name the name of the test
- * 
- * @return void
- */
-int test_serial_array ( char *name );
+/// suites
+test_suite _suite = TEST_SUITE("json", _scenarios);
 
 // entry point
-int main ( int argc, const char* argv[] )
-{
-    
-    // Suppress warnings
-    (void) argc;
-    (void) argv;
-
-    // initialized data
-    timestamp t0 = 0,
-              t1 = 0;
-
-    // Formatting
-    printf(
-        "╭─────────────╮\n"\
-        "│ json tester │\n"\
-        "╰─────────────╯\n\n"
-    );
-
-    // Start
-    t0 = timer_high_precision();
-
-    // Run tests
-    run_tests();
-
-    // Stop
-    t1 = timer_high_precision();
-
-    // Report the time it took to run the tests
-    log_info("\njson tests took ");
-    print_time_pretty ( (double) ( t1 - t0 ) / (double) timer_seconds_divisor() );
-    log_info(" to test\n");
-
-    // exit
-    return ( total_passes == total_tests ) ? EXIT_SUCCESS : EXIT_FAILURE;
-}
-
-void print_time_pretty ( double seconds )
-{
-
-    // initialized data
-    double _seconds     = seconds;
-    size_t days         = 0,
-           hours        = 0,
-           minutes      = 0,
-           __seconds    = 0,
-           milliseconds = 0,
-           microseconds = 0;
-
-    // Days
-    while ( _seconds > 86400.0 ) { days++;_seconds-=286400.0; };
-
-    // Hours
-    while ( _seconds > 3600.0 ) { hours++;_seconds-=3600.0; };
-
-    // Minutes
-    while ( _seconds > 60.0 ) { minutes++;_seconds-=60.0; };
-
-    // Seconds
-    while ( _seconds > 1.0 ) { __seconds++;_seconds-=1.0; };
-
-    // milliseconds
-    while ( _seconds > 0.001 ) { milliseconds++;_seconds-=0.001; };
-
-    // Microseconds        
-    while ( _seconds > 0.000001 ) { microseconds++;_seconds-=0.000001; };
-
-    // Print days
-    if ( days ) log_info("%zu D, ", days);
-    
-    // Print hours
-    if ( hours ) log_info("%zu h, ", hours);
-
-    // Print minutes
-    if ( minutes ) log_info("%zu m, ", minutes);
-
-    // Print seconds
-    if ( __seconds ) log_info("%zu s, ", __seconds);
-    
-    // Print milliseconds
-    if ( milliseconds ) log_info("%zu ms, ", milliseconds);
-    
-    // Print microseconds
-    if ( microseconds ) log_info("%zu us", microseconds);
-    
-    // done
-    return;
-}
-
-void run_tests ( void )
-{
-
-    // initialized data
-    timestamp parser_t0 = 0,
-              parser_t1 = 0,
-              serial_t0 = 0,
-              serial_t1 = 0;
-
-    /////////////////////
-    // Test the parser //
-    /////////////////////
-
-    // Start
-    parser_t0 = timer_high_precision();
-
-    // Test parsing valid and invalid null
-    test_parse_null("parse null");
-
-    // Test parsing valid and invalid booleans
-    test_parse_bool("parse bool");
-
-    // Test parsing valid, invalid, and over/underflowed integers
-    test_parse_int("parse int");
-
-    // Test parsing valid, invalid, and over/underflowed floating point numbers
-    test_parse_float("parse float");
-    
-    // Test parsing valid, invalid, and unicode strings
-    test_parse_string("parse string");
-
-    // Test parsing a variety of objects
-    test_parse_object("parse object");
-
-    // Test parsing a variety of arrays
-    test_parse_array("parse array");
-
-    // Stop
-    parser_t1 = timer_high_precision();
-
-    /////////////////////////
-    // Test the serializer //
-    /////////////////////////
-
-    // Start
-    serial_t0 = timer_high_precision();
-
-    // Test serializing null
-    test_serial_null("serial null");
-    
-    // Test serializing booleans
-    test_serial_bool("serial bool");
-
-    // Test serializing integers
-    test_serial_int("serial int");
-
-    // Test serializing floating point numbers
-    test_serial_float("serial float");
-    
-    // Test serializing strings
-    test_serial_string("serial string");
-
-    // Test serializing objects
-    test_serial_object("serial object");
-
-    // Test serializing arrays
-    test_serial_array("serial array");
-
-    // Stop
-    serial_t1 = timer_high_precision();
-
-    // Report the time it took to run the parser tests
-    log_info("parser tests took: ");
-    print_time_pretty ( (double)(parser_t1-parser_t0)/(double)timer_seconds_divisor() );
-    log_info(" to test\n");
-
-    // Report the time it took to run the serializer tests
-    log_info("serial tests took: ");
-    print_time_pretty ( (double)(serial_t1-serial_t0)/(double)timer_seconds_divisor() );
-    log_info(" to test\n");
-
-    // done
-    return;
-}
-
-void test_parse_null ( char *name )
-{
-
-    // Formatting
-    log_scenario("%s\n", name);
-
-    // Test a valid null token
-    print_test(name, "null", test_parse_json("resources/test/json/parse/pass/null.json", (void *) 0, one));
-
-    // Test an invalid null token
-    print_test(name, "nul" , test_parse_json("resources/test/json/parse/fail/null.json", (void *) 0, zero));
-
-    // Print the summary of this test
-    print_final_summary();
-
-    // success
-    return;
-}
-
-void test_parse_bool ( char *name )
-{
-
-    // Formatting
-    log_scenario("%s\n", name);
-
-    // Test a valid false token
-    print_test(name, "false", test_parse_json("resources/test/json/parse/pass/bool/bool_false.json", construct_bool_false, one));
-
-    // Test a valid true token
-    print_test(name, "true", test_parse_json("resources/test/json/parse/pass/bool/bool_true.json", construct_bool_true , one));
-
-    // Test an invalid false token
-    print_test(name, "fals", test_parse_json("resources/test/json/parse/fail/bool/bool_false.json", (void *) 0, zero));
-
-    // Test an invalid true token
-    print_test(name, "tru", test_parse_json("resources/test/json/parse/fail/bool/bool_true.json", (void *) 0, zero));
-
-    // Print the summary of this test
-    print_final_summary();
-
-    // done
-    return;
-}
-
-void test_parse_int ( char *name )
-{
-
-    // Formatting
-    log_scenario("%s\n", name);
-
-    // Test -1
-    print_test(name, "-1", test_parse_json("resources/test/json/parse/pass/int/int_-1.json", construct_int_minus_one, one));
-
-    // Test 0
-    print_test(name, "0", test_parse_json("resources/test/json/parse/pass/int/int_0.json", construct_int_zero, one));
-
-    // Test 1
-    print_test(name, "1", test_parse_json("resources/test/json/parse/pass/int/int_1.json", construct_int_one, one));
-
-    // Test integer max
-    print_test(name, "max", test_parse_json("resources/test/json/parse/pass/int/int_max.json", construct_int_max, one));
-
-    // Test integer min
-    print_test(name, "min", test_parse_json("resources/test/json/parse/pass/int/int_min.json", construct_int_min, one));
-
-    // Test an overflow
-    print_test(name, "max +1", test_parse_json("resources/test/json/parse/fail/int/int_max.json", (void *)0, zero));
-
-    // Test an underflow
-    print_test(name, "min -1", test_parse_json("resources/test/json/parse/fail/int/int_min.json", (void *)0, zero));
-
-    // Print the summary of this test
-    print_final_summary();
-
-    // done
-    return;
-}
-
-void test_parse_float ( char *name )
-{
-
-    // Formatting
-    log_scenario("%s\n", name);
-
-    // Test -1.0
-    print_test(name, "-1.0", test_parse_json("resources/test/json/parse/pass/float/float_-1.json", construct_float_minus_one, one));
-
-    // Test 0.0
-    print_test(name, "0.0", test_parse_json("resources/test/json/parse/pass/float/float_0.json", construct_float_zero, one));
-
-    // Test 1.0
-    print_test(name, "1.0", test_parse_json("resources/test/json/parse/pass/float/float_1.json", construct_float_one, one));
-
-    // Test double precision floating point max
-    print_test(name, "max", test_parse_json("resources/test/json/parse/pass/float/float_max.json", construct_float_max, one));
-
-    // Test double precision floating point min
-    print_test(name, "min", test_parse_json("resources/test/json/parse/pass/float/float_min.json", construct_float_min, one));
-
-    // Test double precision floating point overflow
-    print_test(name, "max + 1.0", test_parse_json("resources/test/json/parse/fail/float/float_max.json", (void *)0, zero));
-
-    // Test double precision floating point underflow
-    print_test(name, "min - 1.0", test_parse_json("resources/test/json/parse/fail/float/float_min.json", (void *)0, zero));
-
-    // Print the summary of this test
-    print_final_summary();
-
-    // done
-    return;
-}
-
-void test_parse_string ( char *name )
-{
-
-    // Formatting
-    log_scenario("%s\n", name);
-    
-    print_test(name, "\"\""       , test_parse_json("resources/test/json/parse/pass/string/string_empty.json"          , construct_string_empty          , one));
-    print_test(name, "\"a\""      , test_parse_json("resources/test/json/parse/pass/string/string_a.json"              , construct_string_a              , one));
-    print_test(name, "\"abc\""    , test_parse_json("resources/test/json/parse/pass/string/string_abc.json"            , construct_string_abc            , one));
-    print_test(name, "\"\"abc\"\"", test_parse_json("resources/test/json/parse/pass/string/string_quote_abc_quote.json", construct_string_quote_abc_quote, one));
-    print_test(name, "\"\"\"\""   , test_parse_json("resources/test/json/parse/pass/string/string_quote_quote.json"    , construct_string_quote_quote    , one));
-    print_test(name, "    \"abc\"", test_parse_json("resources/test/json/parse/pass/string/string_whitespaces_abc.json", construct_string_whitespaces_abc, one));
-    print_test(name, "\"\"\""     , test_parse_json("resources/test/json/parse/pass/string/string_quote.json"          , construct_string_quote          , one));
-    print_test(name, "\"\\\\\""   , test_parse_json("resources/test/json/parse/pass/string/string_reverse_solidus.json", construct_string_reverse_solidus, one));
-    print_test(name, "\"\\/\""    , test_parse_json("resources/test/json/parse/pass/string/string_solidus.json"        , construct_string_solidus        , one));
-    print_test(name, "\"\\b\""    , test_parse_json("resources/test/json/parse/pass/string/string_backspace.json"      , construct_string_backspace      , one));
-    print_test(name, "\"\\f\""    , test_parse_json("resources/test/json/parse/pass/string/string_formfeed.json"       , construct_string_formfeed       , one));
-    print_test(name, "\"\\n\""    , test_parse_json("resources/test/json/parse/pass/string/string_linefeed.json"       , construct_string_linefeed       , one));
-    print_test(name, "\"\\r\""    , test_parse_json("resources/test/json/parse/pass/string/string_carriage_return.json", construct_string_carriage_return, one));
-    print_test(name, "\"\\t\""    , test_parse_json("resources/test/json/parse/pass/string/string_horizontal_tab.json" , construct_string_horizontal_tab , one));
-    //print_test(name, "string \"\u1234\"" , test_parse_json("resources/test/json/parse/pass/string/string_escape.json"         , construct_string_escape         , one));
-
-    // Print the summary of this test
-    print_final_summary();
-
-    // done
-    return;
-}
-
-void test_parse_object ( char *name )
-{
-
-    // Formatting
-    log_scenario("%s\n", name);
-    
-    print_test(name, "{}"                                               , test_parse_json("resources/test/json/parse/pass/object/object_empty.json"        , construct_object_empty        , one));
-    print_test(name, "{\"abc\":\"def\"}"                                , test_parse_json("resources/test/json/parse/pass/object/object_string.json"       , construct_object_string       , one));
-    print_test(name, "{\"abc\":123}"                                    , test_parse_json("resources/test/json/parse/pass/object/object_int.json"          , construct_object_int          , one));
-    print_test(name, "{\"pi\":3.14}"                                    , test_parse_json("resources/test/json/parse/pass/object/object_float.json"        , construct_object_float        , one));
-    print_test(name, "{\"abc\":false}"                                  , test_parse_json("resources/test/json/parse/pass/object/object_false.json"        , construct_object_false        , one));
-    print_test(name, "{\"abc\":true}"                                   , test_parse_json("resources/test/json/parse/pass/object/object_true.json"         , construct_object_true         , one));
-    print_test(name, "{\"abc\":\"def\",\"ghi\":\"jkl\",\"mno\":\"pqr\"}", test_parse_json("resources/test/json/parse/pass/object/object_strings.json"      , construct_object_strings      , one));
-    print_test(name, "{\"name\":\"jake\",\"age\":20,\"height\":1.779}"  , test_parse_json("resources/test/json/parse/pass/object/object_mixed_values.json" , construct_object_mixed_values , one));
-    print_test(name, "{\"abc\":{\"def\":123}}"                          , test_parse_json("resources/test/json/parse/pass/object/object_object.json"       , construct_object_object       , one));
-    print_test(name, "{\"abc\":{\"def\":{\"ghi\":123}}}"                , test_parse_json("resources/test/json/parse/pass/object/object_object_object.json", construct_object_object_object, one));
-    print_test(name, "{\"abc\":[1,2,3]}"                                , test_parse_json("resources/test/json/parse/pass/object/object_array.json"        , construct_object_array        , one));
-    print_test(name, "{\"a\":[{\"a\":1},{\"b\":2},{\"c\":3}]}"          , test_parse_json("resources/test/json/parse/pass/object/object_array_objects.json", construct_object_array_objects, one));
-    print_test(name, "{\"a\":[{\"a\":1}]}"                              , test_parse_json("resources/test/json/parse/pass/object/object_array_object.json" , construct_object_array_object , one));
-
-    // Print the summary of this test
-    print_final_summary();
-
-    // done
-    return;
-}
-
-void test_parse_array ( char *name )
-{
-
-    // Formatting
-    log_scenario("%s\n", name);
-    
-    print_test(name, "[]"                                  , test_parse_json("resources/test/json/parse/pass/array/array_empty.json"            , construct_array_empty            , one));
-    print_test(name, "[null]"                              , test_parse_json("resources/test/json/parse/pass/array/array_null.json"             , construct_array_null             , one));
-    print_test(name, "[null, null, null]"                  , test_parse_json("resources/test/json/parse/pass/array/array_nulls.json"            , construct_array_nulls            , one));
-    print_test(name, "[true]"                              , test_parse_json("resources/test/json/parse/pass/array/array_bool.json"             , construct_array_bool             , one));
-    print_test(name, "[true, false, true]"                 , test_parse_json("resources/test/json/parse/pass/array/array_bools.json"            , construct_array_bools            , one));
-    print_test(name, "[1]"                                 , test_parse_json("resources/test/json/parse/pass/array/array_int.json"              , construct_array_int              , one));
-    print_test(name, "[1, 2, 3]"                           , test_parse_json("resources/test/json/parse/pass/array/array_ints.json"             , construct_array_ints             , one));
-    print_test(name, "[3.14]"                              , test_parse_json("resources/test/json/parse/pass/array/array_float.json"            , construct_array_float            , one));
-    print_test(name, "[1.2, 3.4, 5.6]"                     , test_parse_json("resources/test/json/parse/pass/array/array_floats.json"           , construct_array_floats           , one));
-    print_test(name, "[\"\"]"                              , test_parse_json("resources/test/json/parse/pass/array/array_string_empty.json"     , construct_array_string_empty     , one));
-    print_test(name, "[\"abc\"]"                           , test_parse_json("resources/test/json/parse/pass/array/array_string.json"           , construct_array_string           , one));
-    print_test(name, "[\"abc\", \"def\", \"ghi\"]"         , test_parse_json("resources/test/json/parse/pass/array/array_strings.json"          , construct_array_strings          , one));
-    print_test(name, "[{}]"                                , test_parse_json("resources/test/json/parse/pass/array/array_object_empty.json"     , construct_array_object_empty     , one));
-    print_test(name, "[{\"a\":1}]"                         , test_parse_json("resources/test/json/parse/pass/array/array_object.json"           , construct_array_object           , one));
-    print_test(name, "[[{\"a\":1}, {\"b\":2}, {\"c\":3}]]" , test_parse_json("resources/test/json/parse/pass/array/array_objects.json"          , construct_array_objects          , one));
-    print_test(name, "[[]]"                                , test_parse_json("resources/test/json/parse/pass/array/array_array_empty.json"      , construct_array_array_empty      , one));
-    print_test(name, "[[[]]]"                              , test_parse_json("resources/test/json/parse/pass/array/array_array_array_empty.json", construct_array_array_array_empty, one));
-    print_test(name, "[[1, 2, 3],[4, 5, 6],[7, 8, 9]]"     , test_parse_json("resources/test/json/parse/pass/array/array_matrix.json"           , construct_array_matrix           , one));
-    print_test(name, "[[[1, 2], [3, 4]], [[5, 6], [7, 8]]]", test_parse_json("resources/test/json/parse/pass/array/array_tensor.json"           , construct_array_tensor           , one));
-
-    // Print the summary of this test
-    print_final_summary();
-
-    // done
-    return;
-}
-
-void test_serial_null ( char *name )
-{
-
-    // Formatting
-    log_scenario("%s\n", name);
-
-    // Test serializing a null value
-    print_test(name, "null", test_serial_json("resources/test/json/serial/TESTER_null.json", "resources/test/json/parse/pass/null.json", construct_null, one));
-
-    // Print the summary of this test
-    print_final_summary();
-
-    // done
-    return;
-}
-
-int test_serial_bool ( char *name )
-{
-
-    // Formatting
-    log_scenario("%s\n", name);
-
-    print_test(name, "false", test_serial_json("resources/test/json/serial/bool/TESTER_bool_false.json", "resources/test/json/parse/pass/bool/bool_false.json", construct_bool_false, one));
-    print_test(name, "true" , test_serial_json("resources/test/json/serial/bool/TESTER_bool_true.json" , "resources/test/json/parse/pass/bool/bool_true.json" , construct_bool_true , one));
-
-    // Print the summary of this test
-    print_final_summary();
-
-    return 1;
-
-}
-
-int test_serial_int ( char *name )
-{
-
-    // Formatting
-    log_scenario("%s\n", name);
-
-    print_test(name, "-1"    , test_serial_json("resources/test/json/serial/int/TESTER_int_-1.json" , "resources/test/json/parse/pass/int/int_-1.json" , construct_int_minus_one, one));
-    print_test(name, "0"     , test_serial_json("resources/test/json/serial/int/TESTER_int_0.json"  , "resources/test/json/parse/pass/int/int_0.json"  , construct_int_zero     , one));
-    print_test(name, "1"     , test_serial_json("resources/test/json/serial/int/TESTER_int_1.json"  , "resources/test/json/parse/pass/int/int_1.json"  , construct_int_one      , one));
-    print_test(name, "max"   , test_serial_json("resources/test/json/serial/int/TESTER_int_max.json", "resources/test/json/parse/pass/int/int_max.json", construct_int_max      , one));
-    print_test(name, "min"   , test_serial_json("resources/test/json/serial/int/TESTER_int_min.json", "resources/test/json/parse/pass/int/int_min.json", construct_int_min      , one));
-
-    // Print the summary of this test
-    print_final_summary();
-
-    return 1;
-}
-
-int test_serial_float ( char *name )
-{
-
-    // Formatting
-    log_scenario("%s\n", name);
-
-    print_test(name, "-1.0", test_serial_json("resources/test/json/serial/float/TESTER_float_-1.json" , "resources/test/json/parse/pass/float/float_-1.json" , construct_float_minus_one, one));
-    print_test(name, "0.0" , test_serial_json("resources/test/json/serial/float/TESTER_float_0.json"  , "resources/test/json/parse/pass/float/float_0.json"  , construct_float_zero     , one));
-    print_test(name, "1.0" , test_serial_json("resources/test/json/serial/float/TESTER_float_1.json"  , "resources/test/json/parse/pass/float/float_1.json"  , construct_float_one      , one));
-    print_test(name, "max" , test_serial_json("resources/test/json/serial/float/TESTER_float_max.json", "resources/test/json/parse/pass/float/float_max.json", construct_float_max      , one));
-    print_test(name, "min" , test_serial_json("resources/test/json/serial/float/TESTER_float_min.json", "resources/test/json/parse/pass/float/float_min.json", construct_float_min      , one));
-
-    // Print the summary of this test
-    print_final_summary();
-
-    return 1;
-}
-
-int test_serial_string ( char *name )
-{
-
-    // Formatting
-    log_scenario("%s\n", name);
-    
-    print_test(name, "\"\""       , test_serial_json("resources/test/json/serial/string/TESTER_string_empty.json"          , "resources/test/json/parse/pass/string/string_empty.json"          , construct_string_empty          , one));
-    print_test(name, "\"a\""      , test_serial_json("resources/test/json/serial/string/TESTER_string_a.json"              , "resources/test/json/parse/pass/string/string_a.json"              , construct_string_a              , one));
-    print_test(name, "\"abc\""    , test_serial_json("resources/test/json/serial/string/TESTER_string_abc.json"            , "resources/test/json/parse/pass/string/string_abc.json"            , construct_string_abc            , one));
-    print_test(name, "\"\"abc\"\"", test_serial_json("resources/test/json/serial/string/TESTER_string_quote_abc_quote.json", "resources/test/json/parse/pass/string/string_quote_abc_quote.json", construct_string_quote_abc_quote, one));
-    print_test(name, "\"\"\"\""   , test_serial_json("resources/test/json/serial/string/TESTER_string_quote_quote.json"    , "resources/test/json/parse/pass/string/string_quote_quote.json"    , construct_string_quote_quote    , one));
-    print_test(name, "\"\"\""     , test_serial_json("resources/test/json/serial/string/TESTER_string_quote.json"          , "resources/test/json/parse/pass/string/string_quote.json"          , construct_string_quote          , one));
-    print_test(name, "\"\\\\\""   , test_serial_json("resources/test/json/serial/string/TESTER_string_reverse_solidus.json", "resources/test/json/parse/pass/string/string_reverse_solidus.json", construct_string_reverse_solidus, one));
-    print_test(name, "\"\\/\""    , test_serial_json("resources/test/json/serial/string/TESTER_string_solidus.json"        , "resources/test/json/parse/pass/string/string_solidus.json"        , construct_string_solidus        , one));
-    print_test(name, "\"\\b\""    , test_serial_json("resources/test/json/serial/string/TESTER_string_backspace.json"      , "resources/test/json/parse/pass/string/string_backspace.json"      , construct_string_backspace      , one));
-    print_test(name, "\"\\f\""    , test_serial_json("resources/test/json/serial/string/TESTER_string_formfeed.json"       , "resources/test/json/parse/pass/string/string_formfeed.json"       , construct_string_formfeed       , one));
-    print_test(name, "\"\\n\""    , test_serial_json("resources/test/json/serial/string/TESTER_string_linefeed.json"       , "resources/test/json/parse/pass/string/string_linefeed.json"       , construct_string_linefeed       , one));
-    print_test(name, "\"\\r\""    , test_serial_json("resources/test/json/serial/string/TESTER_string_carriage_return.json", "resources/test/json/parse/pass/string/string_carriage_return.json", construct_string_carriage_return, one));
-    print_test(name, "\"\\t\""    , test_serial_json("resources/test/json/serial/string/TESTER_string_horizontal_tab.json" , "resources/test/json/parse/pass/string/string_horizontal_tab.json" , construct_string_horizontal_tab , one));
-
-    // Print the summary of this test
-    print_final_summary();
-
-    return 1;
-}
-
-int test_serial_object ( char *name )
-{
-
-    // Formatting
-    log_scenario("%s\n", name);
-    
-    print_test(name, "{}"                                               , test_serial_json("resources/test/json/serial/object/TESTER_object_empty.json"        , "resources/test/json/parse/pass/object/object_empty.json"        , construct_object_empty        , one));
-    print_test(name, "{\"abc\":\"def\"}"                                , test_serial_json("resources/test/json/serial/object/TESTER_object_string.json"       , "resources/test/json/parse/pass/object/object_string.json"       , construct_object_string       , one));
-    print_test(name, "{\"abc\":123}"                                    , test_serial_json("resources/test/json/serial/object/TESTER_object_int.json"          , "resources/test/json/parse/pass/object/object_int.json"          , construct_object_int          , one));
-    print_test(name, "{\"pi\":3.14}"                                    , test_serial_json("resources/test/json/serial/object/TESTER_object_float.json"        , "resources/test/json/parse/pass/object/object_float.json"        , construct_object_float        , one));
-    print_test(name, "{\"abc\":false}"                                  , test_serial_json("resources/test/json/serial/object/TESTER_object_false.json"        , "resources/test/json/parse/pass/object/object_false.json"        , construct_object_false        , one));
-    print_test(name, "{\"abc\":true}"                                   , test_serial_json("resources/test/json/serial/object/TESTER_object_true.json"         , "resources/test/json/parse/pass/object/object_true.json"         , construct_object_true         , one));
-    print_test(name, "{\"abc\":{\"def\":123}}"                          , test_serial_json("resources/test/json/serial/object/TESTER_object_object.json"       , "resources/test/json/parse/pass/object/object_object.json"       , construct_object_object       , one));
-    print_test(name, "{\"abc\":{\"def\":{\"ghi\":123}}}"                , test_serial_json("resources/test/json/serial/object/TESTER_object_object_object.json", "resources/test/json/parse/pass/object/object_object_object.json", construct_object_object_object, one));
-    print_test(name, "{\"abc\":[1,2,3]}"                                , test_serial_json("resources/test/json/serial/object/TESTER_object_array.json"        , "resources/test/json/parse/pass/object/object_array.json"        , construct_object_array        , one));
-    print_test(name, "{\"a\":[{\"a\":1},{\"b\":2},{\"c\":3}]}"          , test_serial_json("resources/test/json/serial/object/TESTER_object_array_objects.json", "resources/test/json/parse/pass/object/object_array_objects.json", construct_object_array_objects, one));
-    print_test(name, "{\"a\":[{\"a\":1}]}"                              , test_serial_json("resources/test/json/serial/object/TESTER_object_array_object.json" , "resources/test/json/parse/pass/object/object_array_object.json" , construct_object_array_object , one));
-
-    // Print the summary of this test
-    print_final_summary();
-
-    return 1;
-}
-
-int test_serial_array ( char *name )
-{
-
-    // Formatting
-    log_scenario("%s\n", name);
-    
-    print_test(name, "[]"                                  , test_serial_json("resources/test/json/serial/array/TESTER_array_empty.json"            , "resources/test/json/parse/pass/array/array_empty.json"            , construct_array_empty            , one));
-    print_test(name, "[null]"                              , test_serial_json("resources/test/json/serial/array/TESTER_array_null.json"             , "resources/test/json/parse/pass/array/array_null.json"             , construct_array_null             , one));
-    print_test(name, "[null, null, null]"                  , test_serial_json("resources/test/json/serial/array/TESTER_array_nulls.json"            , "resources/test/json/parse/pass/array/array_nulls.json"            , construct_array_nulls            , one));
-    print_test(name, "[true]"                              , test_serial_json("resources/test/json/serial/array/TESTER_array_bool.json"             , "resources/test/json/parse/pass/array/array_bool.json"             , construct_array_bool             , one));
-    print_test(name, "[true, false, true]"                 , test_serial_json("resources/test/json/serial/array/TESTER_array_bools.json"            , "resources/test/json/parse/pass/array/array_bools.json"            , construct_array_bools            , one));
-    print_test(name, "[1]"                                 , test_serial_json("resources/test/json/serial/array/TESTER_array_int.json"              , "resources/test/json/parse/pass/array/array_int.json"              , construct_array_int              , one));
-    print_test(name, "[1, 2, 3]"                           , test_serial_json("resources/test/json/serial/array/TESTER_array_ints.json"             , "resources/test/json/parse/pass/array/array_ints.json"             , construct_array_ints             , one));
-    print_test(name, "[3.14]"                              , test_serial_json("resources/test/json/serial/array/TESTER_array_float.json"            , "resources/test/json/parse/pass/array/array_float.json"            , construct_array_float            , one));
-    print_test(name, "[1.2, 3.4, 5.6]"                     , test_serial_json("resources/test/json/serial/array/TESTER_array_floats.json"           , "resources/test/json/parse/pass/array/array_floats.json"           , construct_array_floats           , one));
-    print_test(name, "[\"\"]"                              , test_serial_json("resources/test/json/serial/array/TESTER_array_string_empty.json"     , "resources/test/json/parse/pass/array/array_string_empty.json"     , construct_array_string_empty     , one));
-    print_test(name, "[\"abc\"]"                           , test_serial_json("resources/test/json/serial/array/TESTER_array_string.json"           , "resources/test/json/parse/pass/array/array_string.json"           , construct_array_string           , one));
-    print_test(name, "[\"abc\", \"def\", \"ghi\"]"         , test_serial_json("resources/test/json/serial/array/TESTER_array_strings.json"          , "resources/test/json/parse/pass/array/array_strings.json"          , construct_array_strings          , one));
-    print_test(name, "[{}]"                                , test_serial_json("resources/test/json/serial/array/TESTER_array_object_empty.json"     , "resources/test/json/parse/pass/array/array_object_empty.json"     , construct_array_object_empty     , one));
-    print_test(name, "[{\"a\":1}]"                         , test_serial_json("resources/test/json/serial/array/TESTER_array_object.json"           , "resources/test/json/parse/pass/array/array_object.json"           , construct_array_object           , one));
-    print_test(name, "[[{\"a\":1}, {\"b\":2}, {\"c\":3}]]" , test_serial_json("resources/test/json/serial/array/TESTER_array_objects.json"          , "resources/test/json/parse/pass/array/array_objects.json"          , construct_array_objects          , one));
-    print_test(name, "[[]]"                                , test_serial_json("resources/test/json/serial/array/TESTER_array_array_empty.json"      , "resources/test/json/parse/pass/array/array_array_empty.json"      , construct_array_array_empty      , one));
-    print_test(name, "[[[]]]"                              , test_serial_json("resources/test/json/serial/array/TESTER_array_array_array_empty.json", "resources/test/json/parse/pass/array/array_array_array_empty.json", construct_array_array_array_empty, one));
-    print_test(name, "[[1, 2, 3],[4, 5, 6],[7, 8, 9]]"     , test_serial_json("resources/test/json/serial/array/TESTER_array_matrix.json"           , "resources/test/json/parse/pass/array/array_matrix.json"           , construct_array_matrix           , one));
-    print_test(name, "[[[1, 2], [3, 4]], [[5, 6], [7, 8]]]", test_serial_json("resources/test/json/serial/array/TESTER_array_tensor.json"           , "resources/test/json/parse/pass/array/array_tensor.json"           , construct_array_tensor           , one));
-
-    // Print the summary of this test
-    print_final_summary();
-
-    // success
-    return 1;
-}
-
-result_t load_json ( json_value **pp_value, char *test_file, char **free_me )
+int main ( int argc, const char *argv[] ) 
 {
 
     // unused
-    (void) free_me;
-
-    // initialized data
-    size_t    file_len = load_file(test_file, 0, false);
-    char     *file_buf = default_allocator(0, file_len + 1);
-    result_t  r        = 0; 
+    (void) argc;
+    (void) argv;
+     
+    // run the tests
+    test_suite_test(&_suite); 
     
-    // Initialize data
-    memset(file_buf, 0, file_len + 1);
-
-    // Load the file
-    load_file(test_file, file_buf, false);
-
-    // Parse JSON
-    r = (result_t) json_value_parse(file_buf, 0, pp_value);
-
-    // Release memory
-    file_buf = default_allocator(file_buf, 0);
-
-    // success
-    return r;
+    // done
+    return (_suite.counters.total.fails == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-bool value_equals (json_value *a, json_value *b)
-{
-    result_t result = 1;
-
-    if ( a == 0 )
-    {
-        if (b == 0)
-            return result;
-        else
-            return 0;
-    }
-    
-    if ( b == 0 )
-    {
-        if (a == 0)
-            return result;
-        else
-            return 0;
-    }      
-
-    if ( a->type != b->type )
-    {
-        result = 0;
-        goto exit;
-    }
-
-    if ( a->type == JSON_VALUE_BOOLEAN )
-        if ( a->boolean != b->boolean )
-            result = 0;
-    
-    if ( a->type == JSON_VALUE_NUMBER )
-    {
-
-        // Set the last bit of each float's mantissa to zero. 
-        // This averts rounding errors
-        if (
-            (*((unsigned long long *)((&a->number))) & (unsigned long long)0xfffffffffffffffe) !=
-            (*((unsigned long long *)((&b->number))) & (unsigned long long)0xfffffffffffffffe) 
-        )
-            result = 0;
-    }
-
-    if ( a->type == JSON_VALUE_INTEGER )
-        if ( a->integer != b->integer )
-            result = 0;
-
-    if ( a->type == JSON_VALUE_STRING )
-        if ( strcmp(a->string, b->string) )
-            result = 0;
-
-    if ( a->type == JSON_VALUE_OBJECT )
-    {
-        dict   *a_dict       = a->object,
-               *b_dict       = b->object;
-        size_t  a_properties = 0,
-                b_properties = 0;
-        void  **a_values     = 0,
-              **b_values     = 0;
-
-        // store the sizes of a and b
-        dict_size(a_dict, &a_properties),
-        dict_size(b_dict, &b_properties);        
-        
-        if (a_properties != b_properties)
-        {
-            result = 0;
-        }
-
-        a_values = calloc(a_properties+1, sizeof(json_value *)),
-        b_values = calloc(b_properties+1, sizeof(json_value *));
-        
-        dict_values(a_dict, a_values, a_properties);
-        dict_values(b_dict, b_values, b_properties);
-        
-        for (size_t i = 0; i < a_properties; i++)
-        {
-            bool has_key   = false,
-                 has_value = false;
-                 
-            for (size_t j = 0; j < b_properties; j++)
-            {
-                if ( 0 == strcmp(
-                    object_key_accessor(a_values[i]),
-                    object_key_accessor(a_values[j])
-                ))
-                {
-                    has_key = true;
-                }
-                if ( value_equals(a_values[i], b_values[j]) )
-                {
-                    has_value = true;
-                }
-            }
-
-            if ( ( has_key && has_value ) == 0 )
-            {
-                result = 0;
-            }
-        }
-
-        free(a_values);
-        free(b_values);
-    }
-
-    if ( a->type == JSON_VALUE_ARRAY )
-    {
-        array        *a_array      = a->list,
-                     *b_array      = b->list;
-        size_t        a_properties = 0,
-                      b_properties = 0;
-        json_value **a_values     = 0,
-                    **b_values     = 0;
-        
-        array_get(a_array,0,&a_properties);
-        array_get(b_array,0,&b_properties);
-
-        if (a_properties != b_properties)
-        {
-            result = 0;
-        }
-
-        a_values = calloc(b_properties+1, sizeof(json_value *)),
-        b_values = calloc(b_properties+1, sizeof(json_value *));
-        
-        array_get(a_array, (void **) a_values, 0);
-        array_get(b_array, (void **) b_values, 0);
-        
-        for (size_t i = 0; i < a_properties; i++)
-        {
-            bool has_value = false;
-                 
-            for (size_t j = 0; j < b_properties; j++)
-            {
-                if ( value_equals(a_values[i], b_values[j]) )
-                {
-                    has_value = true;
-                }
-            }
-
-            if (has_value == false)
-                result = 0;
-        }
-
-        // Clean up
-        free(a_values);
-        free(b_values);
-    }
-
-    exit:
-    return result;
-}
-
-int construct_null ( json_value **pp_value )
+int construct_null ( void **pp_result )
 {
 
-    // null is NULL is (void *) 0
-    *pp_value = (void *) 0;
+    // null is NULL
+    *pp_result = NULL;
 
     // success
     return 1;
 }
 
-int construct_bool_false ( json_value **pp_value )
+int construct_bool_false ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
     
-    // Populate the json_value
-    *p_value = (json_value) 
-    {
-        .type    = JSON_VALUE_BOOLEAN,
-        .boolean = false
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_BOOLEAN, .boolean = false };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -971,18 +218,15 @@ int construct_bool_false ( json_value **pp_value )
     return 1;
 }
 
-int construct_bool_true ( json_value **pp_value )
+int construct_bool_true ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
     
-    // Populate the json_value
-    *p_value = (json_value) 
-    {
-        .type    = JSON_VALUE_BOOLEAN,
-        .boolean = true
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_BOOLEAN, .boolean = true };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -991,18 +235,15 @@ int construct_bool_true ( json_value **pp_value )
     return 1;
 }
 
-int construct_int_minus_one ( json_value **pp_value )
+int construct_int_minus_one ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
     
-    // Type
-    *p_value = (json_value)
-    {
-        .type    = JSON_VALUE_INTEGER,
-        .integer = -1
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_INTEGER, .integer = -1 };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1011,18 +252,15 @@ int construct_int_minus_one ( json_value **pp_value )
     return 1;
 }
 
-int construct_int_zero ( json_value **pp_value )
+int construct_int_zero ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
     
-    // Type
-    *p_value = (json_value)
-    {
-        .type    = JSON_VALUE_INTEGER,
-        .integer = 0
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_INTEGER, .integer = 0 };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1031,18 +269,15 @@ int construct_int_zero ( json_value **pp_value )
     return 1;
 }
 
-int construct_int_one ( json_value **pp_value )
+int construct_int_one ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
     
-    // Type
-    *p_value = (json_value)
-    {
-        .type    = JSON_VALUE_INTEGER,
-        .integer = 1
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_INTEGER, .integer = 1 };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1051,18 +286,15 @@ int construct_int_one ( json_value **pp_value )
     return 1;
 }
 
-int construct_int_max ( json_value **pp_value )
+int construct_int_max ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
     
-    // Type
-    *p_value = (json_value)
-    {
-        .type    = JSON_VALUE_INTEGER,
-        .integer = 9223372036854775807
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_INTEGER, .integer = 9223372036854775807 };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1071,18 +303,15 @@ int construct_int_max ( json_value **pp_value )
     return 1;
 }
 
-int construct_int_min ( json_value **pp_value )
+int construct_int_min ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
     
-    // Type
-    *p_value = (json_value)
-    {
-        .type    = JSON_VALUE_INTEGER,
-        .integer = (-9223372036854775807 - 1)
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_INTEGER, .integer = -9223372036854775807 };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1091,18 +320,15 @@ int construct_int_min ( json_value **pp_value )
     return 1;
 }
 
-int construct_float_minus_one ( json_value **pp_value )
+int construct_float_minus_one ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
     
-    // Type
-    *p_value = (json_value)
-    {
-        .type    = JSON_VALUE_NUMBER,
-        .number = -1.0
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_NUMBER, .number = -1.0 };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1111,18 +337,15 @@ int construct_float_minus_one ( json_value **pp_value )
     return 1;
 }
 
-int construct_float_zero ( json_value **pp_value )
+int construct_float_zero ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
     
-    // Type
-    *p_value = (json_value)
-    {
-        .type   = JSON_VALUE_NUMBER,
-        .number = 0.0
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_NUMBER, .number = 0.0 };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1131,18 +354,15 @@ int construct_float_zero ( json_value **pp_value )
     return 1;
 }
 
-int construct_float_one ( json_value **pp_value )
+int construct_float_one ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
     
-    // Type
-    *p_value = (json_value)
-    {
-        .type   = JSON_VALUE_NUMBER,
-        .number = 1.0
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_NUMBER, .number = 1.0 };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1151,18 +371,15 @@ int construct_float_one ( json_value **pp_value )
     return 1;
 }
 
-int construct_float_max ( json_value **pp_value )
+int construct_float_max ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
     
-    // Type
-    *p_value = (json_value)
-    {
-        .type   = JSON_VALUE_NUMBER,
-        .number = DBL_MAX
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_NUMBER, .number = DBL_MAX };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1171,18 +388,15 @@ int construct_float_max ( json_value **pp_value )
     return 1;
 }
 
-int construct_float_min ( json_value **pp_value )
+int construct_float_min ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
     
-    // Type
-    *p_value = (json_value)
-    {
-        .type   = JSON_VALUE_NUMBER,
-        .number = -DBL_MAX
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_NUMBER, .number = -DBL_MAX };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1191,21 +405,19 @@ int construct_float_min ( json_value **pp_value )
     return 1;
 }
 
-int construct_string_empty ( json_value **pp_value )
+int construct_string_empty ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
-    
-    char *z = default_allocator(0, 3);
-    *z='\0';
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    char        *p_string = default_allocator(NULL, 32);
 
-    // Type
-    *p_value = (json_value)
-    {
-        .type   = JSON_VALUE_STRING,
-        .string = z
-    };
+    // store the string
+    strncpy(p_string, "", 1);
+
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_STRING, .string = p_string };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1214,22 +426,19 @@ int construct_string_empty ( json_value **pp_value )
     return 1;
 }
 
-int construct_string_a ( json_value **pp_value )
+int construct_string_a ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
-    char *z = default_allocator(0, 5);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    char        *p_string = default_allocator(NULL, 32);
 
-    z[0]='a';
-    z[1]='\0';
+    // store the string
+    strncpy(p_string, "a", 2);
 
-    // Type
-    *p_value = (json_value)
-    {
-        .type   = JSON_VALUE_STRING,
-        .string = z
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_STRING, .string = p_string };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1238,24 +447,19 @@ int construct_string_a ( json_value **pp_value )
     return 1;
 }
 
-int construct_string_abc ( json_value **pp_value )
+int construct_string_abc ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
-    char *z = default_allocator(0, 5);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    char        *p_string = default_allocator(NULL, 32);
 
-    z[0]='a';
-    z[1]='b';
-    z[2]='c';
-    z[3]='\0';
+    // store the string
+    strncpy(p_string, "abc", 4);
 
-    // Type
-    *p_value = (json_value)
-    {
-        .type   = JSON_VALUE_STRING,
-        .string = z
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_STRING, .string = p_string };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1264,26 +468,19 @@ int construct_string_abc ( json_value **pp_value )
     return 1;
 }
 
-int construct_string_quote_abc_quote ( json_value **pp_value )
+int construct_string_quote_abc_quote ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
-    char *z = default_allocator(0, 10);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    char        *p_string = default_allocator(NULL, 32);
 
-    z[0]='\"';
-    z[1]='a';
-    z[2]='b';
-    z[3]='c';
-    z[4]='\"';
-    z[5]='\0';
+    // store the string
+    strncpy(p_string, "\"abc\"", 6);
 
-    // Type
-    *p_value = (json_value)
-    {
-        .type   = JSON_VALUE_STRING,
-        .string = z
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_STRING, .string = p_string };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1292,22 +489,19 @@ int construct_string_quote_abc_quote ( json_value **pp_value )
     return 1;
 }
 
-int construct_string_quote ( json_value **pp_value )
+int construct_string_quote ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
-    char *z = default_allocator(0, 3);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    char        *p_string = default_allocator(NULL, 32);
 
-    z[0]='\"';
-    z[1]='\0';
+    // store the string
+    strncpy(p_string, "\"", 2);
 
-    // Type
-    *p_value = (json_value)
-    {
-        .type   = JSON_VALUE_STRING,
-        .string = z
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_STRING, .string = p_string };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1316,23 +510,19 @@ int construct_string_quote ( json_value **pp_value )
     return 1;
 }
 
-int construct_string_quote_quote ( json_value **pp_value )
+int construct_string_quote_quote ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
-    char *z = default_allocator(0, 4);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    char        *p_string = default_allocator(NULL, 32);
 
-    z[0]='\"';
-    z[1]='\"';
-    z[2]='\0';
-    
-    // Type
-    *p_value = (json_value)
-    {
-        .type   = JSON_VALUE_STRING,
-        .string = z
-    };
+    // store the string
+    strncpy(p_string, "\"\"", 3);
+
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_STRING, .string = p_string };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1341,24 +531,19 @@ int construct_string_quote_quote ( json_value **pp_value )
     return 1;
 }
 
-int construct_string_whitespaces_abc ( json_value **pp_value )
+int construct_string_reverse_solidus ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
-    char *z = default_allocator(0, 4);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    char        *p_string = default_allocator(NULL, 32);
 
-    z[0]='a';
-    z[1]='b';
-    z[2]='c';
-    z[3]='\0';
+    // store the string
+    strncpy(p_string, "\\", 2);
 
-    // Type
-    *p_value = (json_value)
-    {
-        .type   = JSON_VALUE_STRING,
-        .string = z
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_STRING, .string = p_string };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1367,22 +552,19 @@ int construct_string_whitespaces_abc ( json_value **pp_value )
     return 1;
 }
 
-int construct_string_reverse_solidus ( json_value **pp_value )
+int construct_string_solidus ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
-    char *z = default_allocator(0, 3);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    char        *p_string = default_allocator(NULL, 32);
 
-    z[0]='\\';
-    z[1]='\0';
-    
-    // Type
-    *p_value = (json_value)
-    {
-        .type   = JSON_VALUE_STRING,
-        .string = z
-    };
+    // store the string
+    strncpy(p_string, "/", 2);
+
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_STRING, .string = p_string };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1391,22 +573,19 @@ int construct_string_reverse_solidus ( json_value **pp_value )
     return 1;
 }
 
-int construct_string_solidus ( json_value **pp_value )
+int construct_string_backspace ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
-    char *z = default_allocator(0, 3);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    char        *p_string = default_allocator(NULL, 32);
 
-    z[0]='/';
-    z[1]='\0';
+    // store the string
+    strncpy(p_string, "\b", 2);
 
-    // Type
-    *p_value = (json_value)
-    {
-        .type   = JSON_VALUE_STRING,
-        .string = z
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_STRING, .string = p_string };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1415,22 +594,19 @@ int construct_string_solidus ( json_value **pp_value )
     return 1;
 }
 
-int construct_string_backspace ( json_value **pp_value )
+int construct_string_formfeed ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
-    char *z = default_allocator(0, 3);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    char        *p_string = default_allocator(NULL, 32);
 
-    z[0]='\b';
-    z[1]='\0';
+    // store the string
+    strncpy(p_string, "\f", 2);
 
-    // Type
-    *p_value = (json_value)
-    {
-        .type   = JSON_VALUE_STRING,
-        .string = z
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_STRING, .string = p_string };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1439,22 +615,19 @@ int construct_string_backspace ( json_value **pp_value )
     return 1;
 }
 
-int construct_string_formfeed ( json_value **pp_value )
+int construct_string_linefeed ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
-    char *z = default_allocator(0, 3);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    char        *p_string = default_allocator(NULL, 32);
 
-    z[0]='\f';
-    z[1]='\0';
+    // store the string
+    strncpy(p_string, "\n", 2);
 
-    // Type
-    *p_value = (json_value)
-    {
-        .type   = JSON_VALUE_STRING,
-        .string = z
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_STRING, .string = p_string };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1463,22 +636,19 @@ int construct_string_formfeed ( json_value **pp_value )
     return 1;
 }
 
-int construct_string_linefeed ( json_value **pp_value )
+int construct_string_carriage_return ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
-    char *z = default_allocator(0, 3);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    char        *p_string = default_allocator(NULL, 32);
 
-    z[0]='\n';
-    z[1]='\0';
+    // store the string
+    strncpy(p_string, "\r", 2);
 
-    // Type
-    *p_value = (json_value)
-    {
-        .type   = JSON_VALUE_STRING,
-        .string = z
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_STRING, .string = p_string };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1487,22 +657,19 @@ int construct_string_linefeed ( json_value **pp_value )
     return 1;
 }
 
-int construct_string_carriage_return ( json_value **pp_value )
+int construct_string_horizontal_tab ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
-    char *z = default_allocator(0, 3);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    char        *p_string = default_allocator(NULL, 32);
 
-    z[0]='\r';
-    z[1]='\0';
+    // store the string
+    strncpy(p_string, "\t", 2);
 
-    // Type
-    *p_value = (json_value)
-    {
-        .type   = JSON_VALUE_STRING,
-        .string = z
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_STRING, .string = p_string };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1511,22 +678,19 @@ int construct_string_carriage_return ( json_value **pp_value )
     return 1;
 }
 
-int construct_string_horizontal_tab ( json_value **pp_value )
+int construct_object_empty ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
-    char *z = default_allocator(0, 3);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    dict        *p_dict   = NULL;
 
-    z[0]='\t';
-    z[1]='\0';
+    // construct a dictionary
+    dict_construct(&p_dict, 16, NULL, object_key_accessor, NULL);
 
-    // Type
-    *p_value = (json_value)
-    {
-        .type   = JSON_VALUE_STRING,
-        .string = z
-    };
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_OBJECT, .object = p_dict };
 
     // return a pointer to the caller
     *pp_value = p_value;
@@ -1535,1372 +699,1374 @@ int construct_string_horizontal_tab ( json_value **pp_value )
     return 1;
 }
 
-int construct_object_empty ( json_value **pp_value )
+int construct_object_string ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    dict        *p_dict   = NULL;
+
+    // construct a dictionary
+    dict_construct(&p_dict, 16, NULL, object_key_accessor, NULL);
+
+    // populate 1
+    *p_1 = (json_value) { .type = JSON_VALUE_STRING, .p_key = strdup("abc"), .string = strdup("def"), };
     
-    // type
-    p_value->type = JSON_VALUE_OBJECT;
+    // populate the dictionary
+    dict_add(p_dict, p_1);
 
-    // value
-    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_OBJECT, .object = p_dict };
 
-    // return
+    // return a pointer to the caller
     *pp_value = p_value;
 
     // success
     return 1;
 }
 
-int construct_object_string ( json_value **pp_value )
+int construct_object_int ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value     = calloc(1, sizeof(json_value)),
-               *p_abc_value = calloc(1, sizeof(json_value));
-    char *z = default_allocator(0, 4);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    dict        *p_dict   = NULL;
 
-    z[0]='d';
-    z[1]='e';
-    z[2]='f';
-    z[3]='\0';
+    // construct a dictionary
+    dict_construct(&p_dict, 16, NULL, object_key_accessor, NULL);
 
-    // Type
-    p_value->type = JSON_VALUE_OBJECT;
-    p_abc_value->type = JSON_VALUE_STRING;
-    p_abc_value->string = z;
-    p_abc_value->p_key = "abc";
+    // populate 1
+    *p_1 = (json_value) { .type = JSON_VALUE_INTEGER, .p_key = strdup("abc"), .integer = 123, };
     
-    // value
-    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
-    dict_add(p_value->object, p_abc_value);
+    // populate the dictionary
+    dict_add(p_dict, p_1);
 
-    // return
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_OBJECT, .object = p_dict };
+
+    // return a pointer to the caller
     *pp_value = p_value;
 
     // success
     return 1;
 }
 
-int construct_object_int  ( json_value **pp_value )
+int construct_object_float ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value     = calloc(1, sizeof(json_value)),
-               *p_abc_value = calloc(1, sizeof(json_value));
-    
-    // Type
-    p_value->type = JSON_VALUE_OBJECT;
-    p_abc_value->type = JSON_VALUE_INTEGER;
-    p_abc_value->integer = 123;
-    p_abc_value->p_key = "abc";
-    
-    // Value
-    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
-    dict_add(p_value->object, p_abc_value);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    dict        *p_dict   = NULL;
 
-    // return
+    // construct a dictionary
+    dict_construct(&p_dict, 16, NULL, object_key_accessor, NULL);
+
+    // populate 1
+    *p_1 = (json_value) { .type = JSON_VALUE_NUMBER, .p_key = strdup("pi"), .number = 3.14, };
+    
+    // populate the dictionary
+    dict_add(p_dict, p_1);
+
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_OBJECT, .object = p_dict };
+
+    // return a pointer to the caller
     *pp_value = p_value;
 
     // success
     return 1;
 }
 
-int construct_object_float  ( json_value **pp_value )
+int construct_object_false ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value     = calloc(1, sizeof(json_value)),
-               *p_abc_value = calloc(1, sizeof(json_value));
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    dict        *p_dict   = NULL;
+
+    // construct a dictionary
+    dict_construct(&p_dict, 16, NULL, object_key_accessor, NULL);
+
+    // populate 1
+    *p_1 = (json_value) { .type = JSON_VALUE_BOOLEAN, .p_key = strdup("abc"), .boolean = false, };
     
-    // Type
-    p_value->type = JSON_VALUE_OBJECT;
-    p_abc_value->type = JSON_VALUE_NUMBER;
-    p_abc_value->number = 3.14;
-    p_abc_value->p_key = "pi";
+    // populate the dictionary
+    dict_add(p_dict, p_1);
 
-    // Value
-    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
-    dict_add(p_value->object, p_abc_value);
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_OBJECT, .object = p_dict };
 
-    // return
+    // return a pointer to the caller
     *pp_value = p_value;
 
     // success
     return 1;
 }
 
-int construct_object_false  ( json_value **pp_value )
+int construct_object_true ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value     = calloc(1, sizeof(json_value)),
-               *p_abc_value = calloc(1, sizeof(json_value));
-    
-    // Type
-    p_value->type = JSON_VALUE_OBJECT;
-    p_abc_value->type = JSON_VALUE_BOOLEAN;
-    p_abc_value->boolean = false;
-    p_abc_value->p_key = "abc";
-    
-    // Value
-    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
-    dict_add(p_value->object, p_abc_value);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    dict        *p_dict   = NULL;
 
-    // return
+    // construct a dictionary
+    dict_construct(&p_dict, 16, NULL, object_key_accessor, NULL);
+
+    // populate 1
+    *p_1 = (json_value) { .type = JSON_VALUE_BOOLEAN, .p_key = strdup("abc"), .boolean = true, };
+    
+    // populate the dictionary
+    dict_add(p_dict, p_1);
+
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_OBJECT, .object = p_dict };
+
+    // return a pointer to the caller
     *pp_value = p_value;
 
     // success
     return 1;
 }
 
-int construct_object_true  ( json_value **pp_value )
+int construct_object_mixed_values ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value     = calloc(1, sizeof(json_value)),
-               *p_abc_value = calloc(1, sizeof(json_value));
-    
-    // Type
-    p_value->type = JSON_VALUE_OBJECT;
-    p_abc_value->type = JSON_VALUE_BOOLEAN;
-    p_abc_value->boolean = true;
-    p_abc_value->p_key = "abc";
-    
-    // Value
-    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
-    dict_add(p_value->object, p_abc_value);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_2      = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_3      = default_allocator(NULL, sizeof(json_value));
+    dict        *p_dict   = NULL;
 
-    // return
+    // construct a dictionary
+    dict_construct(&p_dict, 16, NULL, object_key_accessor, NULL);
+
+    // populate 1
+    *p_1 = (json_value) { .type = JSON_VALUE_STRING, .p_key = strdup("name"), .string = strdup("Jacob"), };
+    
+    // populate 2
+    *p_2 = (json_value) { .type = JSON_VALUE_INTEGER, .p_key = strdup("age"), .integer = 23, };
+    
+    // populate 3
+    *p_3 = (json_value) { .type = JSON_VALUE_NUMBER, .p_key = strdup("height"), .number = 1.83, };
+    
+    // populate the dictionary
+    dict_add(p_dict, p_1);
+    dict_add(p_dict, p_2);
+    dict_add(p_dict, p_3);
+
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_OBJECT, .object = p_dict };
+
+    // return a pointer to the caller
     *pp_value = p_value;
 
     // success
     return 1;
 }
 
-int construct_object_strings ( json_value **pp_value )
+int construct_object_object ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value     = calloc(1, sizeof(json_value)),
-               *p_abc_value = calloc(1, sizeof(json_value)),
-               *p_ghi_value = calloc(1, sizeof(json_value)),
-               *p_mno_value = calloc(1, sizeof(json_value));
-    char *x = default_allocator(0, 4);
-    char *y = default_allocator(0, 4);
-    char *z = default_allocator(0, 4);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_2      = default_allocator(NULL, sizeof(json_value));
+    dict        *p_dict   = NULL;
+    dict        *p_dict1  = NULL;
 
-    x[0] = 'd';
-    x[1] = 'e';
-    x[2] = 'f';
-    x[3] = '\0';
+    // construct a dictionary
+    dict_construct(&p_dict, 16, NULL, object_key_accessor, NULL);
 
-    y[0] = 'j';
-    y[1] = 'k';
-    y[2] = 'l';
-    y[3] = '\0';
-
-    z[0] = 'p';
-    z[1] = 'q';
-    z[2] = 'r';
-    z[3] = '\0';
-
-    // Type
-    p_value->type = JSON_VALUE_OBJECT;
-    p_abc_value->type = JSON_VALUE_STRING;
-    p_abc_value->string = x;
-    p_abc_value->p_key = "abc";
-
-    p_ghi_value->type = JSON_VALUE_STRING;
-    p_ghi_value->string = y;
-    p_ghi_value->p_key = "def";
-
-    p_mno_value->type = JSON_VALUE_STRING;
-    p_mno_value->string = z;
-    p_mno_value->p_key = "mno";
+    // construct another dictionary
+    dict_construct(&p_dict1, 16, NULL, object_key_accessor, NULL);
     
-    // Value
-    dict_construct(&p_value->object, 3, NULL, object_key_accessor, NULL);
-    dict_add(p_value->object, p_abc_value);
-    dict_add(p_value->object, p_ghi_value);
-    dict_add(p_value->object, p_mno_value);
+    // populate 2
+    *p_2 = (json_value) { .type = JSON_VALUE_INTEGER, .p_key = strdup("def"), .integer = 123, };
 
-    // return
+    // populate dictionary 1
+    dict_add(p_dict1, p_2);
+    
+    // populate 1
+    *p_1 = (json_value) { .type = JSON_VALUE_OBJECT, .p_key = strdup("abc"), .object = p_dict1, };
+
+    // populate the dictionary
+    dict_add(p_dict, p_1);
+
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_OBJECT, .object = p_dict };
+
+    // return a pointer to the caller
     *pp_value = p_value;
 
     // success
     return 1;
 }
 
-int construct_object_mixed_values ( json_value **pp_value )
+int construct_object_object_object ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value        = calloc(1, sizeof(json_value)),
-               *p_name_value   = calloc(1, sizeof(json_value)),
-               *p_age_value    = calloc(1, sizeof(json_value)),
-               *p_height_value = calloc(1, sizeof(json_value));
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_2      = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_3      = default_allocator(NULL, sizeof(json_value));
+    dict        *p_dict   = NULL;
+    dict        *p_dict1  = NULL;
+    dict        *p_dict2  = NULL;
 
-    char *z = default_allocator(0, 5);
+    // construct a dictionary
+    dict_construct(&p_dict, 16, NULL, object_key_accessor, NULL);
+
+    // construct another dictionary
+    dict_construct(&p_dict1, 16, NULL, object_key_accessor, NULL);
     
-    z[0] = 'j';
-    z[1] = 'a';
-    z[2] = 'k';
-    z[3] = 'e';
-    z[4] = '\0';
-
-    // Type
-    p_value->type          = JSON_VALUE_OBJECT;
-    p_name_value->type     = JSON_VALUE_STRING;
-    p_name_value->string   = z;
-    p_name_value->p_key    = "name";
+    // construct yet another dictionary
+    dict_construct(&p_dict2, 16, NULL, object_key_accessor, NULL);
     
-    p_age_value->type      = JSON_VALUE_INTEGER;
-    p_age_value->integer   = 20;
-    p_age_value->p_key     = "age";
+    // populate 3
+    *p_3 = (json_value) { .type = JSON_VALUE_INTEGER, .p_key = strdup("ghi"), .integer = 123, };
 
-    p_height_value->type   = JSON_VALUE_NUMBER;
-    p_height_value->number = 1.779;
-    p_height_value->p_key  = "height";
+    // populate dictionary 2
+    dict_add(p_dict2, p_3);
+
+    // populate 2
+    *p_2 = (json_value) { .type = JSON_VALUE_OBJECT, .p_key = strdup("def"), .object = p_dict2, };
+
+    // populate dictionary 1
+    dict_add(p_dict1, p_2);
     
-    // Value
-    dict_construct(&p_value->object, 3, NULL, object_key_accessor, NULL);
-    dict_add(p_value->object, p_name_value);
-    dict_add(p_value->object, p_age_value);
-    dict_add(p_value->object, p_height_value);
+    // populate 1
+    *p_1 = (json_value) { .type = JSON_VALUE_OBJECT, .p_key = strdup("abc"), .object = p_dict1, };
 
-    // return
+    // populate the dictionary
+    dict_add(p_dict, p_1);
+
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_OBJECT, .object = p_dict };
+
+    // return a pointer to the caller
     *pp_value = p_value;
 
     // success
     return 1;
 }
 
-int construct_object_object ( json_value **pp_value )
+int construct_array_empty ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value     = calloc(1, sizeof(json_value)),
-               *p_abc_value = calloc(1, sizeof(json_value)),
-               *p_def_value = calloc(1, sizeof(json_value));
-    
-    // Type
-    p_value->type      = JSON_VALUE_OBJECT;
-    p_abc_value->type  = JSON_VALUE_OBJECT;
-    p_abc_value->p_key = "abc";
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
 
-    p_def_value->type    = JSON_VALUE_INTEGER;
-    p_def_value->integer = 123;
-    p_def_value->p_key   = "def";
+    // construct an array
+    array_construct(&p_array, 1);
 
-    // Construct the object
-    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
-    dict_construct(&p_abc_value->object, 1, NULL, object_key_accessor, NULL);
-    dict_add(p_value->object, p_abc_value);
-    dict_add(p_abc_value->object, p_def_value);
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
 
-    // return
+    // return a pointer to the caller
     *pp_value = p_value;
 
     // success
     return 1;
 }
 
-int construct_object_object_object ( json_value **pp_value )
+int construct_array_null ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value     = calloc(1, sizeof(json_value)),
-               *p_abc_value = calloc(1, sizeof(json_value)),
-               *p_def_value = calloc(1, sizeof(json_value)),
-               *p_ghi_value = calloc(1, sizeof(json_value));
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
+
+    // construct an array 
+    array_construct(&p_array, 1);
     
-    // Type
-    p_value->type     = JSON_VALUE_OBJECT;
-    p_abc_value->type = JSON_VALUE_OBJECT;
-    p_def_value->type = JSON_VALUE_OBJECT;
-    p_ghi_value->type = JSON_VALUE_INTEGER;
+    // populate the array
+    array_add(p_array, NULL);
 
-    p_abc_value->p_key = "abc";
-    p_def_value->p_key = "def";
-    p_ghi_value->p_key = "ghi";
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
 
-    // Construct the object
-    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
-    dict_construct(&p_abc_value->object, 1, NULL, object_key_accessor, NULL);
-    dict_construct(&p_def_value->object, 1, NULL, object_key_accessor, NULL);
-
-    p_ghi_value->integer = 123;
-    
-    dict_add(p_def_value->object, p_ghi_value);
-    dict_add(p_abc_value->object, p_def_value);
-    dict_add(p_value->object, p_abc_value);
-
-    // return
+    // return a pointer to the caller
     *pp_value = p_value;
 
     // success
     return 1;
 }
 
-int construct_object_array ( json_value **pp_value )
+int construct_array_nulls ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value       = calloc(1, sizeof(json_value)),
-                *p_array_value = calloc(1, sizeof(json_value)),
-                *p_int_value   = 0;
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
+
+    // construct an array 
+    array_construct(&p_array, 1);
     
-    // Type
-    p_value->type        = JSON_VALUE_OBJECT;
-    p_array_value->type  = JSON_VALUE_ARRAY;
-    p_array_value->p_key = "abc";
+    // populate the array
+    array_add(p_array, NULL);
+    array_add(p_array, NULL);
+    array_add(p_array, NULL);
 
-    // Construct the object
-    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
-    array_construct(&p_array_value->list, 3);
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
 
-    p_int_value          = calloc(1, sizeof(json_value));
-    p_int_value->type    = JSON_VALUE_INTEGER;
-    p_int_value->integer = 1;
-    array_add(p_array_value->list, p_int_value);
-
-    p_int_value          = calloc(1, sizeof(json_value));
-    p_int_value->type    = JSON_VALUE_INTEGER;
-    p_int_value->integer = 2;
-    array_add(p_array_value->list, p_int_value);
-    
-    p_int_value          = calloc(1, sizeof(json_value));
-    p_int_value->type    = JSON_VALUE_INTEGER;
-    p_int_value->integer = 3;
-    array_add(p_array_value->list, p_int_value);
-
-    dict_add(p_value->object, p_array_value);
-
-    // return
+    // return a pointer to the caller
     *pp_value = p_value;
 
     // success
     return 1;
 }
 
-int construct_object_array_objects ( json_value **pp_value )
+int construct_array_bool ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value       = calloc(1, sizeof(json_value)),
-                *p_array_value = calloc(1, sizeof(json_value)),
-                *p_dict_value  = 0,
-                *p_int_value   = 0;
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
+
+    // construct an array 
+    array_construct(&p_array, 1);
     
-    // Type
-    p_value->type        = JSON_VALUE_OBJECT;
-    p_array_value->type  = JSON_VALUE_ARRAY;
-    p_array_value->p_key = "a";
-
-    // Construct the object
-    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
-    array_construct(&p_array_value->list, 3);
-
-    p_int_value          = calloc(1, sizeof(json_value));
-    p_dict_value         = calloc(1, sizeof(json_value));
-    p_int_value->type    = JSON_VALUE_INTEGER;
-    p_int_value->integer = 1;
-    p_int_value->p_key   = "a";
-    p_dict_value->type   = JSON_VALUE_OBJECT;
-    dict_construct(&p_dict_value->object, 1, NULL, object_key_accessor, NULL);
-    dict_add(p_dict_value->object, p_int_value);
-    array_add(p_array_value->list, p_dict_value);
-
-    p_int_value          = calloc(1, sizeof(json_value));
-    p_dict_value         = calloc(1, sizeof(json_value));
-    p_int_value->type    = JSON_VALUE_INTEGER;
-    p_int_value->integer = 2;
-    p_int_value->p_key   = "b";
-    p_dict_value->type   = JSON_VALUE_OBJECT;
-    dict_construct(&p_dict_value->object, 1, NULL, object_key_accessor, NULL);
-    dict_add(p_dict_value->object,p_int_value);
-    array_add(p_array_value->list, p_dict_value);
+    // populate 1
+    *p_1 = (json_value) { .type = JSON_VALUE_BOOLEAN, .boolean = true, };
     
-    p_int_value          = calloc(1, sizeof(json_value));
-    p_dict_value         = calloc(1, sizeof(json_value));
-    p_int_value->type    = JSON_VALUE_INTEGER;
-    p_int_value->integer = 3;
-    p_int_value->p_key   = "c";
-    p_dict_value->type   = JSON_VALUE_OBJECT;
-    dict_construct(&p_dict_value->object, 1, NULL, object_key_accessor, NULL);
-    dict_add(p_dict_value->object,p_int_value);
-    array_add(p_array_value->list, p_dict_value);
+    // populate the array
+    array_add(p_array, p_1);
 
-    dict_add(p_value->object,  p_array_value);
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
 
-    // return
+    // return a pointer to the caller
     *pp_value = p_value;
 
     // success
     return 1;
 }
 
-int construct_object_array_object ( json_value **pp_value )
+int construct_array_bools ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value       = calloc(1, sizeof(json_value)),
-                *p_array_value = calloc(1, sizeof(json_value)),
-                *p_dict_value  = 0,
-                *p_int_value   = 0;
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_2      = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_3      = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
+
+    // construct an array 
+    array_construct(&p_array, 1);
     
-    // Type
-    p_value->type        = JSON_VALUE_OBJECT;
-    p_array_value->type  = JSON_VALUE_ARRAY;
-    p_array_value->p_key = "a";
-
-    // Construct the object
-    dict_construct(&p_value->object, 1, NULL, object_key_accessor, NULL);
-    array_construct(&p_array_value->list, 3);
-
-    p_int_value          = calloc(1, sizeof(json_value));
-    p_dict_value         = calloc(1, sizeof(json_value));
-    p_int_value->type    = JSON_VALUE_INTEGER;
-    p_int_value->integer = 1;
-    p_int_value->p_key   = "a";
+    // populate 1
+    *p_1 = (json_value) { .type = JSON_VALUE_BOOLEAN, .boolean = true, };
     
-    p_dict_value->type   = JSON_VALUE_OBJECT;
-    dict_construct(&p_dict_value->object, 1, NULL, object_key_accessor, NULL);
-    dict_add(p_dict_value->object,p_int_value);
-    array_add(p_array_value->list, p_dict_value);
+    // populate 2
+    *p_2 = (json_value) { .type = JSON_VALUE_BOOLEAN, .boolean = false, };
+    
+    // populate 3
+    *p_3 = (json_value) { .type = JSON_VALUE_BOOLEAN, .boolean = true, };
+    
+    // populate the array
+    array_add(p_array, p_1),
+    array_add(p_array, p_2),
+    array_add(p_array, p_3);
 
-    dict_add(p_value->object,p_array_value);
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
 
-    // return
+    // return a pointer to the caller
     *pp_value = p_value;
 
     // success
     return 1;
 }
 
-int construct_array_empty ( json_value **pp_value )
+int construct_array_int ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
+
+    // construct an array 
+    array_construct(&p_array, 1);
     
-    // Type
-    p_value->type = JSON_VALUE_ARRAY;
+    // populate 1
+    *p_1 = (json_value) { .type = JSON_VALUE_INTEGER, .integer = 1, };
+    
+    // populate the array
+    array_add(p_array, p_1);
 
-    // Value
-    array_construct(&p_value->list, 1);
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
 
-    // return
+    // return a pointer to the caller
     *pp_value = p_value;
 
     // success
     return 1;
 }
 
-int construct_array_null ( json_value **pp_value )
+int construct_array_ints ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_2      = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_3      = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
+
+    // construct an array 
+    array_construct(&p_array, 1);
     
-    // Type
-    p_value->type = JSON_VALUE_ARRAY;
+    // populate 1
+    *p_1 = (json_value) { .type = JSON_VALUE_INTEGER, .integer = 1, };
+    
+    // populate 2
+    *p_2 = (json_value) { .type = JSON_VALUE_INTEGER, .integer = 2, };
+    
+    // populate 3
+    *p_3 = (json_value) { .type = JSON_VALUE_INTEGER, .integer = 3, };
+    
+    // populate the array
+    array_add(p_array, p_1),
+    array_add(p_array, p_2),
+    array_add(p_array, p_3);
 
-    // Value
-    array_construct(&p_value->list, 1);
-    array_add(p_value->list, 0);
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
 
-    // return
+    // return a pointer to the caller
     *pp_value = p_value;
 
     // success
     return 1;
 }
 
-int construct_array_nulls ( json_value **pp_value )
+int construct_array_float ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value));
-    
-    // Type
-    p_value->type = JSON_VALUE_ARRAY;
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
 
-    // Value
-    array_construct(&p_value->list, 3);
-    array_add(p_value->list, 0);
-    array_add(p_value->list, 0);
-    array_add(p_value->list, 0);
+    // construct an array 
+    array_construct(&p_array, 1);
     
-    // return
+    // populate 1
+    *p_1 = (json_value) { .type = JSON_VALUE_NUMBER, .number = 3.14, };
+    
+    // populate the array
+    array_add(p_array, p_1);
+
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
+
+    // return a pointer to the caller
     *pp_value = p_value;
 
     // success
     return 1;
 }
 
-int construct_array_bool ( json_value **pp_value )
+int construct_array_floats ( void **pp_result )
 {
 
     // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value)),
-               *p_bool  = 0;
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_2      = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_3      = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
 
-    // Type
-    p_value->type = JSON_VALUE_ARRAY;
+    // construct an array 
+    array_construct(&p_array, 1);
+    
+    // populate 1
+    *p_1 = (json_value) { .type = JSON_VALUE_NUMBER, .number = 1.2, };
+    
+    // populate 2
+    *p_2 = (json_value) { .type = JSON_VALUE_NUMBER, .number = 3.4, };
+    
+    // populate 3
+    *p_3 = (json_value) { .type = JSON_VALUE_NUMBER, .number = 5.6, };
+    
+    // populate the array
+    array_add(p_array, p_1),
+    array_add(p_array, p_2),
+    array_add(p_array, p_3);
 
-    // Value
-    p_bool = calloc(1, sizeof(json_value));
-    p_bool->type = JSON_VALUE_BOOLEAN;
-    p_bool->boolean = true;
-    array_construct(&p_value->list, 1);
-    array_add(p_value->list, p_bool);
+    // populate the json value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
 
-    // return
+    // return a pointer to the caller
     *pp_value = p_value;
 
     // success
     return 1;
 }
 
-int construct_array_bools ( json_value **pp_value )
-{
-
-    // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value)),
-               *p_bool  = 0;
-
-    // Type
-    p_value->type = JSON_VALUE_ARRAY;
-    array_construct(&p_value->list, 3);
-    
-    // Value 1
-    p_bool = calloc(1, sizeof(json_value));
-    p_bool->type = JSON_VALUE_BOOLEAN;
-    p_bool->boolean = true;
-    array_add(p_value->list, p_bool);
-    
-    // Value 2
-    p_bool = calloc(1, sizeof(json_value));
-    p_bool->type = JSON_VALUE_BOOLEAN;
-    p_bool->boolean = false;
-    array_add(p_value->list, p_bool);
-
-    // Value 3
-    p_bool = calloc(1, sizeof(json_value));
-    p_bool->type = JSON_VALUE_BOOLEAN;
-    p_bool->boolean = true;
-    array_add(p_value->list, p_bool);
-
-    // return
-    *pp_value = p_value;
-
-    // success
-    return 1;
-}
-
-int construct_array_int ( json_value **pp_value )
-{
-
-    // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value)),
-               *p_bool  = 0;
-
-    // Type
-    p_value->type = JSON_VALUE_ARRAY;
-
-    // Value
-    p_bool = calloc(1, sizeof(json_value));
-    p_bool->type = JSON_VALUE_INTEGER;
-    p_bool->integer = 1;
-    array_construct(&p_value->list, 1);
-    array_add(p_value->list, p_bool);
-
-    // return
-    *pp_value = p_value;
-
-    // success
-    return 1;
-}
-
-int construct_array_ints ( json_value **pp_value )
-{
-
-    // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value)),
-                *p_int  = 0;
-
-    // Type
-    p_value->type = JSON_VALUE_ARRAY;
-    array_construct(&p_value->list, 3);
-    
-    // Value 1
-    p_int = calloc(1, sizeof(json_value));
-    p_int->type = JSON_VALUE_INTEGER;
-    p_int->integer = 1;
-    array_add(p_value->list, p_int);
-    
-    // Value 2
-    p_int = calloc(1, sizeof(json_value));
-    p_int->type = JSON_VALUE_INTEGER;
-    p_int->integer = 2;
-    array_add(p_value->list, p_int);
-
-    // Value 3
-    p_int = calloc(1, sizeof(json_value));
-    p_int->type = JSON_VALUE_INTEGER;
-    p_int->integer = 3;
-    array_add(p_value->list, p_int);
-
-    // return
-    *pp_value = p_value;
-
-    // success
-    return 1;
-}
-
-int construct_array_float ( json_value **pp_value )
-{
-
-    // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value)),
-                *p_float  = 0;
-
-    // Type
-    p_value->type = JSON_VALUE_ARRAY;
-
-    // Value
-    p_float = calloc(1, sizeof(json_value));
-    p_float->type = JSON_VALUE_NUMBER;
-    p_float->number = 3.14;
-    array_construct(&p_value->list, 1);
-    array_add(p_value->list, p_float);
-
-    // return
-    *pp_value = p_value;
-
-    // success
-    return 1;
-}
-
-int construct_array_floats ( json_value **pp_value )
-{
-
-    // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value)),
-                *p_float  = 0;
-
-    // Type
-    p_value->type = JSON_VALUE_ARRAY;
-    array_construct(&p_value->list, 3);
-    
-    // Value 1
-    p_float = calloc(1, sizeof(json_value));
-    p_float->type = JSON_VALUE_NUMBER;
-    p_float->number = 1.2;
-    array_add(p_value->list, p_float);
-    
-    // Value 2
-    p_float = calloc(1, sizeof(json_value));
-    p_float->type = JSON_VALUE_NUMBER;
-    p_float->number = 3.4;
-    array_add(p_value->list, p_float);
-
-    // Value 3
-    p_float = calloc(1, sizeof(json_value));
-    p_float->type = JSON_VALUE_NUMBER;
-    p_float->number = 5.6;
-    array_add(p_value->list, p_float);
-
-    // return
-    *pp_value = p_value;
-
-    // success
-    return 1;
-}
-
-int construct_array_string_empty ( json_value **pp_value )
-{
-
-    // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value)),
-                *p_string  = 0;
-
-    // Type
-    p_value->type = JSON_VALUE_ARRAY;
-
-    char *z = default_allocator(0, 5);
-
-    z[0]='\0';
-
-    // Value
-    p_string = calloc(1, sizeof(json_value));
-    p_string->type = JSON_VALUE_STRING;
-    p_string->string = z;
-    array_construct(&p_value->list, 1);
-    array_add(p_value->list, p_string);
-
-    // return
-    *pp_value = p_value;
-
-    // success
-    return 1;
-}
-
-int construct_array_string ( json_value **pp_value )
-{
-
-    // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value)),
-               *p_string = 0;
-
-    // Type
-    p_value->type = JSON_VALUE_ARRAY;
-    char *z = default_allocator(0, 5);
-
-    z[0]='a';
-    z[1]='b';
-    z[2]='c';
-    z[3]='\0';
-
-    // Value
-    p_string = calloc(1, sizeof(json_value));
-    p_string->type = JSON_VALUE_STRING;
-    p_string->string = z;
-    array_construct(&p_value->list, 1);
-    array_add(p_value->list, p_string);
-
-    // return
-    *pp_value = p_value;
-
-    // success
-    return 1;
-}
-
-int construct_array_strings ( json_value **pp_value )
-{
-
-    // initialized data
-    json_value *p_value  = calloc(1, sizeof(json_value)),
-                *p_string = 0;
-    char *x = default_allocator(0, 4);
-    char *y = default_allocator(0, 4);
-    char *z = default_allocator(0, 4);
-
-    x[0] = 'a';
-    x[1] = 'b';
-    x[2] = 'c';
-    x[3] = '\0';
-
-    y[0] = 'd';
-    y[1] = 'e';
-    y[2] = 'f';
-    y[3] = '\0';
-
-    z[0] = 'g';
-    z[1] = 'h';
-    z[2] = 'i';
-    z[3] = '\0';
-
-    // Type
-    p_value->type = JSON_VALUE_ARRAY;
-    array_construct(&p_value->list, 3);
-    
-    // Value 1
-    p_string = calloc(1, sizeof(json_value));
-    p_string->type = JSON_VALUE_STRING;
-    p_string->string = x;
-    array_add(p_value->list, p_string);
-    
-    // Value 2
-    p_string = calloc(1, sizeof(json_value));
-    p_string->type = JSON_VALUE_STRING;
-    p_string->string = y;
-    array_add(p_value->list, p_string);
-
-    // Value 3
-    p_string = calloc(1, sizeof(json_value));
-    p_string->type = JSON_VALUE_STRING;
-    p_string->string = z;
-    array_add(p_value->list, p_string);
-
-    // return
-    *pp_value = p_value;
-
-    // success
-    return 1;
-}
-
-int construct_array_object_empty ( json_value **pp_value )
-{
-
-    // initialized data
-    json_value *p_value  = calloc(1, sizeof(json_value)),
-                *p_object = 0;
-
-    // Type
-    p_value->type = JSON_VALUE_ARRAY;
-    array_construct(&p_value->list, 3);
-    
-    // Value 1
-    p_object = calloc(1, sizeof(json_value));
-    p_object->type = JSON_VALUE_OBJECT;
-    dict_construct(&p_object->object, 2, NULL, object_key_accessor, NULL);
-    array_add(p_value->list, p_object);
-    
-    // return
-    *pp_value = p_value;
-
-    // success
-    return 1;
-}
-
-int construct_array_object ( json_value **pp_value )
+int construct_object_recursive ( void **pp_result )
 {
     
     // initialized data
-    json_value *p_value           = calloc(1, sizeof(json_value)),
-                *p_object          = 0,
-                *p_object_property = 0;
+    json_value **pp_value  = (json_value **) pp_result;
+    json_value  *p_value   = default_allocator(NULL, sizeof(json_value));
+    dict        *p_dict    = NULL;
+    dict        *p_current = NULL;
 
-    // Type
-    p_value->type = JSON_VALUE_ARRAY;
-    array_construct(&p_value->list, 3);
-    
-    // Value 1
-    p_object_property = calloc(1, sizeof(json_value));
-    p_object_property->type = JSON_VALUE_INTEGER;
-    p_object_property->integer = 1;
-    p_object_property->p_key = "a";
+    // construct a dictionary
+    dict_construct(&p_dict, 16, NULL, object_key_accessor, NULL);
 
-    // Value 2
-    p_object = calloc(1, sizeof(json_value));
-    p_object->type = JSON_VALUE_OBJECT;
-    dict_construct(&p_object->object, 2, NULL, object_key_accessor, NULL);
-    dict_add(p_object->object, p_object_property);
-    array_add(p_value->list, p_object);
-    
-    // return
-    *pp_value = p_value;
+    // populate the value
+    *p_value = (json_value) { .type = JSON_VALUE_OBJECT, .object = p_dict };
 
-    // success
-    return 1;
-}
+    // store the root
+    p_current = p_dict;
 
-int construct_array_objects ( json_value **pp_value )
-{
-    
-    // initialized data
-    json_value *p_value           = calloc(1, sizeof(json_value)),
-                *p_object          = 0,
-                *p_object_property = 0;
-
-    // Type
-    p_value->type = JSON_VALUE_ARRAY;
-    array_construct(&p_value->list, 3);
-    
-    // Value 1
-    p_object_property = calloc(1, sizeof(json_value));
-    p_object_property->type = JSON_VALUE_INTEGER;
-    p_object_property->integer = 1;
-    p_object_property->p_key = "a";
-
-    // Value 2
-    p_object = calloc(1, sizeof(json_value));
-    p_object->type = JSON_VALUE_OBJECT;
-    dict_construct(&p_object->object, 2, NULL, object_key_accessor, NULL);
-    dict_add(p_object->object, p_object_property);
-    array_add(p_value->list, p_object);
-    
-    // Value 1
-    p_object_property = calloc(1, sizeof(json_value));
-    p_object_property->type = JSON_VALUE_INTEGER;
-    p_object_property->integer = 2;
-    p_object_property->p_key = "b";
-
-    // Value 2
-    p_object = calloc(1, sizeof(json_value));
-    p_object->type = JSON_VALUE_OBJECT;
-    dict_construct(&p_object->object, 2, NULL, object_key_accessor, NULL);
-    dict_add(p_object->object, p_object_property);
-    array_add(p_value->list, p_object);
-
-    // Value 1
-    p_object_property = calloc(1, sizeof(json_value));
-    p_object_property->type = JSON_VALUE_INTEGER;
-    p_object_property->integer = 3;
-    p_object_property->p_key = "c";
-
-    // Value 2
-    p_object = calloc(1, sizeof(json_value));
-    p_object->type = JSON_VALUE_OBJECT;
-    dict_construct(&p_object->object, 2, NULL, object_key_accessor, NULL);
-    dict_add(p_object->object, p_object_property);
-    array_add(p_value->list, p_object);
-
-    // return
-    *pp_value = p_value;
-
-    // success
-    return 1;
-}
-
-int construct_array_array_empty ( json_value **pp_value )
-{
-    
-    // initialized data
-    json_value *p_value = calloc(1, sizeof(json_value)),
-               *p_array = 0;
-
-    // Type
-    p_value->type = JSON_VALUE_ARRAY;
-    array_construct(&p_value->list, 3);
-    
-    // Value 2
-    p_array = calloc(1, sizeof(json_value));
-    p_array->type = JSON_VALUE_ARRAY;
-    array_construct(&p_array->list, 3);
-
-    // Value 2
-    array_add(p_value->list, p_array);
-    
-    // return
-    *pp_value = p_value;
-
-    // success
-    return 1;
-}
-
-int construct_array_array_array_empty ( json_value **pp_value )
-{
-    
-    // initialized data
-    json_value *p_value           = calloc(1, sizeof(json_value)),
-                *p_array           = 0,
-                *p_array_array     = 0;
-
-    // Type
-    p_value->type = JSON_VALUE_ARRAY;
-    array_construct(&p_value->list, 3);
-    
-    // Value 1
-    p_array_array = calloc(1, sizeof(json_value));
-    p_array_array->type = JSON_VALUE_ARRAY;
-    array_construct(&p_array_array->list, 3);
-
-    // Value 2
-    p_array = calloc(1, sizeof(json_value));
-    p_array->type = JSON_VALUE_ARRAY;
-    array_construct(&p_array->list, 3);
-    array_add(p_array->list, p_array_array);
-
-    // Value 2
-    array_add(p_value->list, p_array);
-    
-    // return
-    *pp_value = p_value;
-
-    // success
-    return 1;
-}
-
-int construct_array_matrix ( json_value **pp_value )
-{
-
-    // initialized data
-    json_value *p_value           = calloc(1, sizeof(json_value)),
-                *p_subarray        = 0,
-                *p_object_property = 0;
-
-    p_value->type = JSON_VALUE_ARRAY;
-    array_construct(&p_value->list, 3);
-
-    {
-        p_subarray = calloc(1, sizeof(json_value));
-        p_subarray->type = JSON_VALUE_ARRAY;
-        array_construct(&p_subarray->list, 3);
-
-        p_object_property = calloc(1, sizeof(json_value));
-        p_object_property->type = JSON_VALUE_INTEGER;
-        p_object_property->integer = 1;
-        array_add(p_subarray->list, p_object_property);
-
-        p_object_property = calloc(1, sizeof(json_value));
-        p_object_property->type = JSON_VALUE_INTEGER;
-        p_object_property->integer = 2;
-        array_add(p_subarray->list, p_object_property);
-
-        p_object_property = calloc(1, sizeof(json_value));
-        p_object_property->type = JSON_VALUE_INTEGER;
-        p_object_property->integer = 3;
-        array_add(p_subarray->list, p_object_property);
-
-        array_add(p_value->list, p_subarray);
-    }
-
-    {
-        p_subarray = calloc(1, sizeof(json_value));
-        p_subarray->type = JSON_VALUE_ARRAY;
-        array_construct(&p_subarray->list, 3);
-    
-        p_object_property = calloc(1, sizeof(json_value));
-        p_object_property->type = JSON_VALUE_INTEGER;
-        p_object_property->integer = 4;
-        array_add(p_subarray->list, p_object_property);
-        
-        p_object_property = calloc(1, sizeof(json_value));
-        p_object_property->type = JSON_VALUE_INTEGER;
-        p_object_property->integer = 5;
-        array_add(p_subarray->list, p_object_property);
-    
-        p_object_property = calloc(1, sizeof(json_value));
-        p_object_property->type = JSON_VALUE_INTEGER;
-        p_object_property->integer = 6;
-        array_add(p_subarray->list, p_object_property);
-    
-        array_add(p_value->list, p_subarray);
-    }
-
-    {
-        p_subarray = calloc(1, sizeof(json_value));
-        p_subarray->type = JSON_VALUE_ARRAY;
-        array_construct(&p_subarray->list, 3);
-    
-        p_object_property = calloc(1, sizeof(json_value));
-        p_object_property->type = JSON_VALUE_INTEGER;
-        p_object_property->integer = 7;
-        array_add(p_subarray->list, p_object_property);
-        
-        p_object_property = calloc(1, sizeof(json_value));
-        p_object_property->type = JSON_VALUE_INTEGER;
-        p_object_property->integer = 8;
-        array_add(p_subarray->list, p_object_property);
-    
-        p_object_property = calloc(1, sizeof(json_value));
-        p_object_property->type = JSON_VALUE_INTEGER;
-        p_object_property->integer = 9;
-        array_add(p_subarray->list, p_object_property);
-    
-        array_add(p_value->list, p_subarray);
-    }
-
-    // return
-    *pp_value = p_value;
-
-    // success
-    return 1;
-}
-
-int construct_array_tensor ( json_value **pp_value )
-{
-
-    // initialized data
-    json_value *p_value           = calloc(1, sizeof(json_value)),
-                *p_subarray        = 0,
-                *p_subsubarray     = 0,
-                *p_object_property = 0;
-
-    p_value->type = JSON_VALUE_ARRAY;
-    array_construct(&p_value->list, 2);
-
-    {
-        p_subarray = calloc(1, sizeof(json_value));
-        p_subarray->type = JSON_VALUE_ARRAY;
-        array_construct(&p_subarray->list, 2);
-
-
-        {
-            p_subsubarray = calloc(1, sizeof(json_value));
-            p_subsubarray->type = JSON_VALUE_ARRAY;
-            array_construct(&p_subsubarray->list, 2);
-
-            p_object_property = calloc(1, sizeof(json_value));
-            p_object_property->type = JSON_VALUE_INTEGER;
-            p_object_property->integer = 1;
-            array_add(p_subsubarray->list, p_object_property);
-
-            p_object_property = calloc(1, sizeof(json_value));
-            p_object_property->type = JSON_VALUE_INTEGER;
-            p_object_property->integer = 2;
-            array_add(p_subsubarray->list, p_object_property);
-
-            array_add(p_subarray->list, p_subsubarray);
-        }
-
-        {
-            p_subsubarray = calloc(1, sizeof(json_value));
-            p_subsubarray->type = JSON_VALUE_ARRAY;
-            array_construct(&p_subsubarray->list, 2);
-
-            p_object_property = calloc(1, sizeof(json_value));
-            p_object_property->type = JSON_VALUE_INTEGER;
-            p_object_property->integer = 3;
-            array_add(p_subsubarray->list, p_object_property);
-
-            p_object_property = calloc(1, sizeof(json_value));
-            p_object_property->type = JSON_VALUE_INTEGER;
-            p_object_property->integer = 4;
-            array_add(p_subsubarray->list, p_object_property);
-
-            array_add(p_subarray->list, p_subsubarray);
-        }
-
-        array_add(p_value->list, p_subarray);
-    }
-
-    {
-        p_subarray = calloc(1, sizeof(json_value));
-        p_subarray->type = JSON_VALUE_ARRAY;
-        array_construct(&p_subarray->list, 2);
-
-
-        {
-            p_subsubarray = calloc(1, sizeof(json_value));
-            p_subsubarray->type = JSON_VALUE_ARRAY;
-            array_construct(&p_subsubarray->list, 2);
-
-            p_object_property = calloc(1, sizeof(json_value));
-            p_object_property->type = JSON_VALUE_INTEGER;
-            p_object_property->integer = 5;
-            array_add(p_subsubarray->list, p_object_property);
-
-            p_object_property = calloc(1, sizeof(json_value));
-            p_object_property->type = JSON_VALUE_INTEGER;
-            p_object_property->integer = 6;
-            array_add(p_subsubarray->list, p_object_property);
-
-            array_add(p_subarray->list, p_subsubarray);
-        }
-
-        {
-            p_subsubarray = calloc(1, sizeof(json_value));
-            p_subsubarray->type = JSON_VALUE_ARRAY;
-            array_construct(&p_subsubarray->list, 2);
-
-            p_object_property = calloc(1, sizeof(json_value));
-            p_object_property->type = JSON_VALUE_INTEGER;
-            p_object_property->integer = 7;
-            array_add(p_subsubarray->list, p_object_property);
-
-            p_object_property = calloc(1, sizeof(json_value));
-            p_object_property->type = JSON_VALUE_INTEGER;
-            p_object_property->integer = 8;
-            array_add(p_subsubarray->list, p_object_property);
-
-            array_add(p_subarray->list, p_subsubarray);
-        }
-
-        array_add(p_value->list, p_subarray);
-    }
-
-    // return
-    *pp_value = p_value;
-
-    // success
-    return 1;
-}
-
-bool test_parse_json ( char *test_file, int(*expected_value_constructor) (json_value **), result_t expected )
-{
-    
-    // initialized data
-    result_t     result   = 0,
-                 value_eq = 0;
-    char        *free_me = 0;
-    json_value  *p_return_value   = 0,
-                *p_expected_value = 0;
-
-    // construct the expected json value
-    if (expected_value_constructor) expected_value_constructor(&p_expected_value);
-
-    // parse the json value
-    result = load_json ( &p_return_value, test_file, NULL );
-
-    // test for equality
-    value_eq = value_equals(p_return_value, p_expected_value);
-
-    // free the json value
-    if ( p_return_value ) json_value_free(p_return_value, 0);
-    if ( p_expected_value ) json_value_free(p_expected_value, 0);
-
-    // release the allocation
-    if ( free_me )
-        free_me = default_allocator(free_me, 0);
-
-    // success
-    return (result == expected && value_eq);
-}
-
-bool test_serial_json ( char *test_file, char *expected_file, int(*expected_value_constructor) (json_value **), result_t expected )
-{
-    
-    // Suppress warnings
-    (void) expected;
-
-    // initialized data
-    json_value  *p_return_value   = 0,
-                *p_expected_value = 0;
-    bool         ret              = true;
-    FILE        *p_f              = fopen(test_file, "w"),
-                *p_ef             = 0;
-    
-    // Construct the expected value
-    if ( expected_value_constructor ) expected_value_constructor(&p_expected_value);
-
-    // Write the expected value to a file
-    json_value_fprint(p_expected_value, p_f);
-    
-    // Clean up resources
-    json_value_free(p_return_value, 0);
-    json_value_free(p_expected_value, 0);
-
-    fclose(p_f);
-
-    // Open the expected and the result
-    p_f  = fopen(test_file, "r");
-    p_ef = fopen(expected_file, "r");    
-
-    load_file(test_file, 0, false);
-    load_file(expected_file, 0, false);
-    
-    // Compare the files
+    for (char c = 'a'; c <= 'z'; c++) 
     {
 
         // initialized data
-        size_t  f_len       = load_file(test_file, 0, false),
-                ef_len      = load_file(expected_file, 0, false);
-        char   *f_contents  = calloc(f_len+1, sizeof(char)),
-               *ef_contents = calloc(ef_len+1, sizeof(char));
+        json_value *p_value = default_allocator(NULL, sizeof(json_value));
+        dict       *p_next  = NULL;
+        char        key[2]  = { c, '\0' };
 
-        // error checking
-        if ( ef_contents == (void *) 0 ) return false;
-        
-        // error checking
-        if ( f_contents == (void *) 0 ) return false;
+        // construct a dictionary
+        dict_construct(&p_next, 16, NULL, object_key_accessor, NULL);
 
-        // Load each file
-        load_file(test_file    , f_contents, false),
-        load_file(expected_file, ef_contents, false);
+        // populate the child
+        *p_value = (json_value) { .type = JSON_VALUE_OBJECT, .p_key = strdup(key), .object = p_next };
 
-        // For each character ...
-        for (size_t i = 0; i < f_len; i++)
+        // populate the dictionary
+        dict_add(p_current, p_value);
 
-            // ... compare the expected to the result ...
-            if ( f_contents[i] != ef_contents[i] )
-
-                // ... and fail if there is a difference
-                ret = false;
-
-
-        // Free the file contents
-        free(f_contents);
-        free(ef_contents);
+        // store the next dictionary
+        p_current = p_next;
     }
 
-    fclose(p_f);
-    fclose(p_ef);
+    // return a pointer to the caller
+    *pp_value = p_value;
 
     // success
-    return ret;
+    return 1;
 }
 
-void print_test ( const char *scenario_name, const char *test_name, bool passed )
+int construct_object_array ( void **pp_result )
 {
 
     // initialized data
-    if ( passed )
-        log_pass("%s %s\n", scenario_name, test_name);
-    else
-        log_fail("%s %s\n", scenario_name, test_name);
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    dict        *p_dict   = NULL;
+    array       *p_array  = NULL;
 
-    // Increment the pass/fail counter
-    if (passed)
-        ephemeral_passes++;
-    else
-        ephemeral_fails++;
+    // construct a dictionary
+    dict_construct(&p_dict, 16, NULL, object_key_accessor, NULL);
 
-    // Increment the test counter
-    ephemeral_tests++;
+    // construct an array
+    array_construct(&p_array, 1);
 
-    // done
-    return;
-}
-
-void print_final_summary ( void )
-{
-
-    // Accumulate
-    total_tests  += ephemeral_tests,
-    total_passes += ephemeral_passes,
-    total_fails  += ephemeral_fails;
-
-    // Print
-    log_info("\nTests: %d, Passed: %d, Failed: %d (%%%.3f)\n",  ephemeral_tests, ephemeral_passes, ephemeral_fails, ((float)ephemeral_passes/(float)ephemeral_tests*100.f));
-    log_info("Total: %d, Passed: %d, Failed: %d (%%%.3f)\n\n",  total_tests, total_passes, total_fails, ((float)total_passes/(float)total_tests*100.f));
-    
-    // Clear test counters for this test
-    ephemeral_tests  = 0;
-    ephemeral_passes = 0;
-    ephemeral_fails  = 0;
-
-    // done
-    return;
-}
-
-size_t load_file ( const char *path, void *buffer, bool binary_mode )
-{
-
-    // argument checking 
-    if ( path == 0 ) goto no_path;
-
-    // initialized data
-    size_t  ret = 0;
-    FILE   *f   = fopen(path, (binary_mode) ? "rb" : "r");
-    
-    // Check if file is valid
-    if ( f == NULL ) goto invalid_file;
-
-    // Find file size and prep for read
-    fseek(f, 0, SEEK_END);
-    ret = (size_t) ftell(f);
-    fseek(f, 0, SEEK_SET);
-    
-    // Read to data
-    if ( buffer ) 
-        ret = fread(buffer, 1, ret, f);
-
-    // The file is no longer needed
-    fclose(f);
-    
-    // success
-    return ret;
-
-    // error handling
+    // populate the array
+    for (int i = 1; i <= 3; i++) 
     {
 
-        // argument errors
-        {
-            no_path:
-                #ifndef NDEBUG
-                    log_error("[json] Null path provided to function \"%s\n", __FUNCTION__);
-                #endif
+        // initialized data
+        json_value *p_2 = default_allocator(NULL, sizeof(json_value));
 
-            // error
-            return 0;
+        // populate the value
+        *p_2 = (json_value) { .type = JSON_VALUE_INTEGER, .integer = i };
+
+        // populate the array
+        array_add(p_array, p_2);
+    }
+
+    // populate the value
+    *p_1 = (json_value) { .type = JSON_VALUE_ARRAY, .p_key = strdup("abc"), .list = p_array };
+
+    // populate the dictionary
+    dict_add(p_dict, p_1);
+
+    // populate the value
+    *p_value = (json_value) { .type = JSON_VALUE_OBJECT, .object = p_dict };
+
+    // return a pointer to the caller
+    *pp_value = p_value;
+
+    // success
+    return 1;
+}
+
+int construct_object_array_objects ( void **pp_result )
+{
+
+    // initialized data
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    dict        *p_dict   = NULL;
+    array       *p_array  = NULL;
+    char        *keys[]   = {"a", "b", "c"};
+
+    // construct a dictionary
+    dict_construct(&p_dict, 16, NULL, object_key_accessor, NULL);
+
+    // construct an array
+    array_construct(&p_array, 1);
+
+    // populate the values
+    for (int i = 0; i < 3; i++) 
+    {
+
+        // initialized data
+        json_value *p_2    = default_allocator(NULL, sizeof(json_value));
+        json_value *p_3    = default_allocator(NULL, sizeof(json_value));
+        dict       *p_dict = NULL;
+
+        // construct a dictionary
+        dict_construct(&p_dict, 16, NULL, object_key_accessor, NULL);
+
+        // populate the value
+        *p_2 = (json_value) { .type = JSON_VALUE_INTEGER, .p_key = strdup(keys[i]), .integer = i + 1 };
+
+        // populate the dictionary
+        dict_add(p_dict, p_2);
+
+        // populate the value
+        *p_3 = (json_value) { .type = JSON_VALUE_OBJECT, .object = p_dict };
+
+        // populate the array
+        array_add(p_array, p_3);
+    }
+
+    // populate the value
+    *p_1 = (json_value) { .type = JSON_VALUE_ARRAY, .p_key = strdup("a"), .list = p_array };
+
+    // populate the dictionary
+    dict_add(p_dict, p_1);
+
+    // populate the value
+    *p_value = (json_value) { .type = JSON_VALUE_OBJECT, .object = p_dict };
+
+    // return a pointer to the caller
+    *pp_value = p_value;
+
+    // success
+    return 1;
+}
+
+int construct_object_array_object ( void **pp_result )
+{
+
+    // initialized data
+    json_value **pp_value    = (json_value **) pp_result;
+    json_value  *p_value     = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1         = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_2         = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_3         = default_allocator(NULL, sizeof(json_value));
+    dict        *p_dict      = NULL;
+    array       *p_array     = NULL;
+    dict        *p_item_dict = NULL;
+
+    // construct a dictionary
+    dict_construct(&p_dict, 16, NULL, object_key_accessor, NULL);
+
+    // construct an array
+    array_construct(&p_array, 1);
+    
+    // construct a dictionary
+    dict_construct(&p_item_dict, 16, NULL, object_key_accessor, NULL);
+
+    // populate the value
+    *p_1 = (json_value) { .type = JSON_VALUE_INTEGER, .p_key = strdup("a"), .integer = 1 };
+
+    // populate the dictionary
+    dict_add(p_item_dict, p_1);
+
+    // populate the value
+    *p_2 = (json_value) { .type = JSON_VALUE_OBJECT, .object = p_item_dict };
+
+    // populate the array
+    array_add(p_array, p_2);
+
+    // populate the value
+    *p_3 = (json_value) { .type = JSON_VALUE_ARRAY, .p_key = strdup("a"), .list = p_array };
+
+    // populate the dictionary
+    dict_add(p_dict, p_3);
+
+    // populate the value
+    *p_value = (json_value) { .type = JSON_VALUE_OBJECT, .object = p_dict };
+
+    // return a pointer to the caller
+    *pp_value = p_value;
+
+    // success
+    return 1;
+}
+
+int construct_array_string_empty ( void **pp_result )
+{
+
+    // initialized data
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
+    char        *p_str    = default_allocator(NULL, 1);
+
+    // construct an array
+    array_construct(&p_array, 1);
+
+    // store a null terminator
+    p_str[0] = '\0';
+
+    // populate the value
+    *p_1 = (json_value) { .type = JSON_VALUE_STRING, .string = p_str };
+
+    // populate the array
+    array_add(p_array, p_1);
+
+    // populate the value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
+
+    // return a pointer to the caller
+    *pp_value = p_value;
+
+    // success
+    return 1;
+}
+
+int construct_array_string ( void **pp_result )
+{
+
+    // initialized data
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
+    char        *p_str    = default_allocator(NULL, 4);
+
+    // construct an array
+    array_construct(&p_array, 1);
+
+    // populate the string
+    strncpy(p_str, "abc", 4);
+
+    // populate the value
+    *p_1 = (json_value) { .type = JSON_VALUE_STRING, .string = p_str };
+
+    // populate the array
+    array_add(p_array, p_1);
+
+    // populate the value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
+
+    // return a pointer to the caller
+    *pp_value = p_value;
+
+    // success
+    return 1;
+}
+
+int construct_array_strings ( void **pp_result )
+{
+
+    // initialized data
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
+    char        *strs[]   = {"abc", "def", "ghi"};
+
+    // construct an array
+    array_construct(&p_array, 1);
+
+    // populate the value
+    for (int i = 0; i < 3; i++) 
+    {
+
+        // initialized data
+        json_value *p_item = default_allocator(NULL, sizeof(json_value));
+        char       *p_str  = default_allocator(NULL, 4);
+
+        // populate the string
+        strncpy(p_str, strs[i], 4);
+
+        // populate the value
+        *p_item = (json_value) { .type = JSON_VALUE_STRING, .string = p_str };
+
+        // populate the array
+        array_add(p_array, p_item);
+    }
+
+    // populate the value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
+
+    // return a pointer to the caller
+    *pp_value = p_value;
+
+    // success
+    return 1;
+}
+
+int construct_array_object_empty ( void **pp_result )
+{
+
+    // initialized data
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
+    dict        *p_dict   = NULL;
+
+    // construct an array
+    array_construct(&p_array, 1);
+
+    // construct a dictionary
+    dict_construct(&p_dict, 16, NULL, object_key_accessor, NULL);
+
+    // populate the value
+    *p_1 = (json_value) { .type = JSON_VALUE_OBJECT, .object = p_dict };
+
+    // populate the array
+    array_add(p_array, p_1);
+
+    // populate the value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
+
+    // return a pointer to the caller
+    *pp_value = p_value;
+
+    // success
+    return 1;
+}
+
+int construct_array_object ( void **pp_result )
+{
+
+    // initialized data
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_2      = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
+    dict        *p_dict   = NULL;
+    
+    // construct an array
+    array_construct(&p_array, 1);
+
+    // construct a dictionary
+    dict_construct(&p_dict, 16, NULL, object_key_accessor, NULL);
+
+    // populate the value
+    *p_1 = (json_value) { .type = JSON_VALUE_INTEGER, .p_key = strdup("a"), .integer = 1 };
+
+    // populate the dictionary
+    dict_add(p_dict, p_1);
+
+    // populate the value
+    *p_2 = (json_value) { .type = JSON_VALUE_OBJECT, .object = p_dict };
+
+    // populate the array
+    array_add(p_array, p_2);
+
+    // populate the value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
+
+    // return a pointer to the caller
+    *pp_value = p_value;
+
+    // success
+    return 1;
+}
+
+int construct_array_objects ( void **pp_result )
+{
+
+    // initialized data
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
+    char        *keys[]   = {"a", "b", "c"};
+
+    // construct an array
+    array_construct(&p_array, 1);
+
+    // populate the value
+    for (int i = 0; i < 3; i++) 
+    {
+
+        // initialized data
+        json_value *p_1    = default_allocator(NULL, sizeof(json_value));
+        json_value *p_2    = default_allocator(NULL, sizeof(json_value));
+        dict       *p_dict = NULL;
+
+        // construct a dictionary
+        dict_construct(&p_dict, 16, NULL, object_key_accessor, NULL);
+        
+        // populate the value
+        *p_2 = (json_value) { .type = JSON_VALUE_INTEGER, .p_key = strdup(keys[i]), .integer = i + 1 };
+        
+        // populate the dictionary
+        dict_add(p_dict, p_2);
+        
+        // populate the value
+        *p_1 = (json_value) { .type = JSON_VALUE_OBJECT, .object = p_dict };
+
+        // populate the array
+        array_add(p_array, p_1);
+    }
+
+    // populate the value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
+
+    // return a pointer to the caller
+    *pp_value = p_value;
+
+    // success
+    return 1;
+}
+
+int construct_array_array_empty ( void **pp_result )
+{
+
+    // initialized data
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_item   = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
+    array       *p_inner  = NULL;
+
+    // construct arrays
+    array_construct(&p_array, 1),
+    array_construct(&p_inner, 1);
+
+    // populate the value
+    *p_item = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_inner };
+
+    // populate the array
+    array_add(p_array, p_item);
+
+    // populate the value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
+
+    // return a pointer to the caller
+    *pp_value = p_value;
+
+    // success
+    return 1;
+}
+
+int construct_array_array_array_empty ( void **pp_result )
+{
+
+    // initialized data
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_1      = default_allocator(NULL, sizeof(json_value));
+    json_value  *p_2      = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
+    array       *p_inner1 = NULL;
+    array       *p_inner2 = NULL;
+
+    // construct arrays
+    array_construct(&p_array, 1),
+    array_construct(&p_inner1, 1),
+    array_construct(&p_inner2, 1);
+
+    // popualte the value
+    *p_2 = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_inner2 };
+
+    // populate the array
+    array_add(p_inner1, p_2);
+
+    // popualte the value
+    *p_1 = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_inner1 };
+
+    // populate the array
+    array_add(p_array, p_1);
+
+    // popualte the value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
+
+    // return a pointer to the caller
+    *pp_value = p_value;
+
+    // success
+    return 1;
+}
+
+int construct_array_matrix ( void **pp_result )
+{
+
+    // initialized data
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
+    int          val      = 1;
+
+    // construct an array
+    array_construct(&p_array, 1);
+
+    // populate the matrix
+    for (int i = 0; i < 3; i++) 
+    {
+
+        // initialized data
+        json_value *p_row   = default_allocator(NULL, sizeof(json_value));
+        array      *p_inner = NULL;
+
+        // construct an array
+        array_construct(&p_inner, 1);
+
+        // populate the columns
+        for (int j = 0; j < 3; j++) 
+        {
+
+            // initialized data
+            json_value *p_item = default_allocator(NULL, sizeof(json_value));
+
+            // populate the value
+            *p_item = (json_value) { .type = JSON_VALUE_INTEGER, .integer = val++ };
+
+            // populate the array
+            array_add(p_inner, p_item);
         }
 
-        // File errors
-        {
-            invalid_file:
-                #ifndef NDEBUG
-                    printf("[standard library] Failed to load file \"%s\". %s\n", path, strerror(errno));
-                #endif
+        // populate the value
+        *p_row = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_inner };
+        
+        // populate the array
+        array_add(p_array, p_row);
+    }
 
-            // error
-            return 0;
+    // populate the value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
+
+    // return a pointer to the caller
+    *pp_value = p_value;
+
+    // success
+    return 1;
+}
+
+int construct_array_tensor ( void **pp_result )
+{
+
+    // initialized data
+    json_value **pp_value = (json_value **) pp_result;
+    json_value  *p_value  = default_allocator(NULL, sizeof(json_value));
+    array       *p_array  = NULL;
+    int          val      = 1;
+
+    // construct an array
+    array_construct(&p_array, 1);
+
+    // populate the tensor
+    for (int i = 0; i < 2; i++) 
+    {
+
+        // initialized data
+        json_value *p_matrix = default_allocator(NULL, sizeof(json_value));
+        array      *p_1      = NULL;
+
+        // construct an array
+        array_construct(&p_1, 1);
+
+        // populate the row
+        for (int j = 0; j < 2; j++) 
+        {
+
+            // initialized data
+            json_value *p_row = default_allocator(NULL, sizeof(json_value));
+            array      *p_2   = NULL;
+            
+            // construct an array
+            array_construct(&p_2, 1);
+
+            // populate the columns
+            for (int k = 0; k < 2; k++) 
+            {
+                
+                // initialized data
+                json_value *p_column = default_allocator(NULL, sizeof(json_value));
+
+                // populate the value
+                *p_column = (json_value) { .type = JSON_VALUE_INTEGER, .integer = val++ };
+
+                // populate the array
+                array_add(p_2, p_column);
+            }
+            
+            // populate the value
+            *p_row = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_2 };
+            
+            // populate the array
+            array_add(p_1, p_row);
+        }
+        
+        // populate the value
+        *p_matrix = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_1 };
+       
+        // populate the array
+        array_add(p_array, p_matrix);
+    }
+
+    // populate the value
+    *p_value = (json_value) { .type = JSON_VALUE_ARRAY, .list = p_array };
+
+    // return a pointer to the caller
+    *pp_value = p_value;
+
+    // success
+    return 1;
+}
+
+void *test_parse ( test_case *p_test_case, void *p_subject )
+{
+
+    // unused
+    (void) p_subject;
+
+    // initialized data
+    json_value        *p_result   = NULL;
+    stream            *p_stream   = NULL;
+    const char *const  p_path     = (const char *const) p_test_case->p_data;
+
+    // construct a stream
+    stream_from_path(&p_stream, p_path);
+
+    // parse json
+    json_parse(&p_result, p_stream, NULL);
+
+    // done
+    return (void *) p_result;
+}
+
+void *test_serialize ( test_case *p_test_case, void *p_subject )
+{
+
+    // unused
+    (void) p_test_case;
+
+    // initialized data
+    stream *p_result = NULL;
+
+    // construct another stream
+    stream_from_dynamic_buffer(&p_result);
+
+    // serialize json
+    json_serialize(p_result, p_subject);
+
+    // done
+    return (void *) p_result;
+}
+
+bool json_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+
+    // unused
+    (void) p_scenario;
+    (void) p_case;
+
+    // done
+    return value_equals((json_value *)p_subject, (json_value *)p_result);
+}
+
+bool textual_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+
+    // unused
+    (void) p_scenario;
+    (void) p_subject;
+
+    // initialized data
+    stream *p_a = NULL;
+    stream *p_b = p_result;
+
+    // construct a stream
+    stream_from_path(&p_a, (const char *)p_case->p_data);
+
+    // seek start
+    stream_seek(p_b, 0, SEEK_SET);
+
+    // equal?
+    while( !stream_eof(p_a) )
+    {
+
+        // initialized data
+        char a = '\0';
+        char b = '\0';
+
+        // read
+        stream_read(p_a, &a, 1),
+        stream_read(p_b, &b, 1);
+
+        // equal?
+        if ( a != b ) return false;
+    }
+
+    // done
+    return true; 
+}
+
+bool value_equals ( json_value *a, json_value *b )
+{
+
+    // null?
+    if ( NULL == a ) return ( NULL == b );
+    if ( NULL == b ) return ( NULL == a );    
+
+    // type?
+    if ( a->type != b->type ) return false;
+
+    // strategy
+    switch (a->type)
+    {
+
+        // boolean equality
+        case JSON_VALUE_BOOLEAN: return ( a->boolean == b->boolean );
+
+        // integer equality
+        case JSON_VALUE_INTEGER: return ( a->integer == b->integer );
+
+        // float equality
+        // NOTE: The least significant bit of the mantissa is cleared to avoid
+        //       rounding errors
+        case JSON_VALUE_NUMBER: 
+            return 
+            (
+                (*((unsigned long long *)(&a->number)) & (unsigned long long)0xfffffffffffffffe) ==
+                (*((unsigned long long *)(&b->number)) & (unsigned long long)0xfffffffffffffffe) 
+            );
+
+        // string equality
+        case JSON_VALUE_STRING: return ( 0 == strcmp(a->string, b->string) );
+
+        // object equality
+        case JSON_VALUE_OBJECT:
+        {
+
+            // initialized data
+            dict     *p_a          = a->object;
+            dict     *p_b          = b->object;
+            size_t    a_properties = 0;
+            size_t    b_properties = 0;
+            iterator  it_a         = { 0 };
+            iterator  it_b         = { 0 };
+            
+            // store the size of a
+            dict_size(p_a, &a_properties);
+
+            // store the size of b
+            dict_size(p_b, &b_properties);
+
+            // size?
+            if ( a_properties != b_properties ) return false;
+
+            // construct an iterator on a
+            it_a = dict_iterator(p_a);
+
+            // iterate through each property of a
+            for (size_t i = 0; i < a_properties; i++)
+            {
+
+                // initialized data
+                bool        found = false;
+                json_value *p_i   = it_a.item(&it_a);
+                
+                // construct an iterator on b
+                it_b = dict_iterator(p_b);
+
+                // iterate through each property of b
+                for (size_t j = 0; j < b_properties; j++)
+                {
+
+                    // initialized data
+                    json_value *p_j = it_b.item(&it_b);
+
+                    // key?
+                    if ( 0 == strcmp(p_i->p_key, p_j->p_key) ) 
+                    {
+
+                        // value?
+                        found = value_equals(p_i, p_j);
+
+                        // done
+                        break;
+                    }
+                }
+
+                // found?
+                if ( false == found ) return false;
+            }
+
+            // done
+            return true;
+        }
+
+        case JSON_VALUE_ARRAY:
+        {
+
+            // initialized data
+            array *p_a = a->list;
+            array *p_b = b->list;
+            size_t    a_length = array_size(p_a);
+            size_t    b_length = array_size(p_b);
+            
+            // size?
+            if ( a_length != b_length ) return false;
+
+            // iterate through each element of each arary
+            for 
+            ( 
+                iterator it_a = array_iterator(p_a), it_b = array_iterator(p_b); 
+                !it_a.done(&it_a) && !it_b.done(&it_b);
+                it_a.next(&it_a), it_b.next(&it_b)
+            )
+
+                // equal?
+                if ( false == value_equals (
+                        (json_value *)it_a.item(&it_a),
+                        (json_value *)it_b.item(&it_b)
+                ) ) 
+                    return false;
+
+            // done
+            return true;
         }
     }
+
+    // error
+    return false;
 }
