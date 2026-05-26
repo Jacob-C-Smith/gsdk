@@ -1,0 +1,26 @@
+{
+    "name": "wavefront",
+    "threads": 
+    {
+        "Col_0": 
+        [
+            { "task": "0" }, 
+            { 
+                "task": "1", 
+                "wait": "Col_0:0" 
+            }
+        ],
+        "Col_1": 
+        [
+            { "task": "2", "wait": "Col_0:0" },
+            { 
+                "task": "3", 
+                "wait": 
+                [
+                    "Col_0:1",
+                    "Col_1:2" 
+                ]
+            }
+        ]
+    }
+}

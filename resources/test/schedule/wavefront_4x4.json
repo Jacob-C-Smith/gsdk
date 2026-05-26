@@ -1,0 +1,34 @@
+{
+    "name": "wavefront_4x4",
+    "threads": 
+    {
+        "Col_0": 
+        [
+            { "task": "0" }, 
+            { "task": "1", "wait": "Col_0:0" },
+            { "task": "2", "wait": ["Col_0:1", "Col_1:4"] },
+            { "task": "3", "wait": ["Col_0:2", "Col_1:5", "Col_2:8"] }
+        ],
+        "Col_1": 
+        [
+            { "task": "4", "wait": "Col_0:0" },
+            { "task": "5", "wait": ["Col_0:1", "Col_1:4"] },
+            { "task": "6", "wait": ["Col_0:2", "Col_1:5", "Col_2:8"] },
+            { "task": "7", "wait": ["Col_0:3", "Col_1:6", "Col_2:9", "Col_3:12"] }
+        ],
+        "Col_2": 
+        [
+            { "task": "8", "wait": ["Col_0:1", "Col_1:4"] },
+            { "task": "9", "wait": ["Col_0:2", "Col_1:5", "Col_2:8"] },
+            { "task": "10", "wait": ["Col_0:3", "Col_1:6", "Col_2:9", "Col_3:12"] },
+            { "task": "11", "wait": ["Col_1:7", "Col_2:10", "Col_3:13"] }
+        ],
+        "Col_3": 
+        [
+            { "task": "12", "wait": ["Col_0:2", "Col_1:5", "Col_2:8"] },
+            { "task": "13", "wait": ["Col_0:3", "Col_1:6", "Col_2:9", "Col_3:12"] },
+            { "task": "14", "wait": ["Col_1:7", "Col_2:10", "Col_3:13"] },
+            { "task": "15", "wait": ["Col_2:11", "Col_3:14"] }
+        ]
+    }
+}

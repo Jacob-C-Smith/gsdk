@@ -1,0 +1,24 @@
+{
+    "name": "wavefront_3x3",
+    "threads": 
+    {
+        "Col_0": 
+        [
+            { "task": "0" }, 
+            { "task": "1", "wait": "Col_0:0" },
+            { "task": "2", "wait": ["Col_0:1", "Col_1:3"] }
+        ],
+        "Col_1": 
+        [
+            { "task": "3", "wait": "Col_0:0" },
+            { "task": "4", "wait": ["Col_0:1", "Col_1:3"] },
+            { "task": "5", "wait": ["Col_0:2", "Col_1:4", "Col_2:6"] }
+        ],
+        "Col_2": 
+        [
+            { "task": "6", "wait": ["Col_0:1", "Col_1:3"] },
+            { "task": "7", "wait": ["Col_0:2", "Col_1:4", "Col_2:6"] },
+            { "task": "8", "wait": ["Col_1:5", "Col_2:7"] }
+        ]
+    }
+}
