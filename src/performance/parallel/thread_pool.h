@@ -60,9 +60,9 @@ int thread_pool_execute ( thread_pool *p_thread_pool, fn_parallel_task *pfn_para
  * 
  * @param p_thread_pool the thread pool
  * 
- * @return 1 on success, 0 on error
+ * @return 1 if idle, 0 otherwise
  */
-bool thread_pool_is_idle ( thread_pool *p_thread_pool );
+int thread_pool_is_idle ( thread_pool *p_thread_pool );
 
 /// blockers
 /** !
