@@ -197,32 +197,21 @@ int schedule_load ( schedule **pp_schedule, const char *const path )
     if ( NULL ==        path ) goto no_path;
 
     // initialized data
-    size_t      file_size       = 0;
-    char       *p_file_contents = NULL;
-    json_value *p_value         = NULL;
+    stream     *p_stream = NULL;
+    json_value *p_value  = NULL;
     
-    // store the size of the file
-    file_size = load_file(path, 0, true);
-
-    // error check
-    if ( 0 == file_size ) goto invalid_file;
-    
-    // allocate memory for the file
-    p_file_contents = default_allocator(0, file_size);
-    if ( NULL == p_file_contents ) goto no_mem;
-
-    // load the file
-    load_file(path, p_file_contents, 0);
+    // construct a stream
+    stream_from_path(&p_stream, path);
 
     // parse the file into a json value
-    if ( 0 == json_value_parse(p_file_contents, 0, &p_value) ) goto failed_to_parse_json_value;
+    if ( 0 == json_parse(&p_value, p_stream, NULL) ) goto failed_to_parse_json_value;
 
     // construct a schedule
     if ( 0 == schedule_load_as_json_value(pp_schedule, p_value) ) goto failed_to_construct_schedule;
 
-    // clean up
-    p_file_contents = default_allocator(p_file_contents, 0);
-    
+    // release the stream
+    stream_destroy(&p_stream);
+
     // success
     return 1;
 
@@ -244,28 +233,6 @@ int schedule_load ( schedule **pp_schedule, const char *const path )
                     log_error("[parallel] [schedule] Null pointer provided for parameter \"path\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
-                // error
-                return 0;
-        }
-        
-        // standard library errors
-        {
-            no_mem:
-                #ifndef NDEBUG
-                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-                
-                // error
-                return 0;
-        }
-        
-        // file errors
-        {
-            invalid_file:
-                #ifndef NDEBUG
-                    log_error("[parallel] [schedule] Can not load test file in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-                
                 // error
                 return 0;
         }

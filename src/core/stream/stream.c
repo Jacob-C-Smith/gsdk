@@ -36,6 +36,10 @@ fn_stream_seek stream_seek_buffer;
 fn_stream_seek stream_seek_file;
 fn_stream_seek stream_seek_socket_tcp;
 
+/// eof
+fn_stream_eof stream_eof_file;
+fn_stream_eof stream_eof_buffer;
+
 /// close
 fn_stream_close stream_close_buffer;
 fn_stream_close stream_close_dynamic_buffer;
@@ -90,6 +94,7 @@ int stream_from_path
         .pfn_size  = stream_size_file,
         .pfn_flush = stream_flush_file,
         .pfn_seek  = stream_seek_file,
+        .pfn_eof   = stream_eof_file,
         .pfn_close = stream_close_file,
     };
 
@@ -181,6 +186,7 @@ int stream_from_file
         .pfn_size  = stream_size_file,
         .pfn_flush = stream_flush_file,
         .pfn_seek  = stream_seek_file,
+        .pfn_eof   = stream_eof_file,
         .pfn_close = stream_close_file,
     };
 
@@ -260,6 +266,7 @@ int stream_from_buffer
         .pfn_size  = stream_size_buffer,
         .pfn_flush = stream_flush_buffer,
         .pfn_seek  = stream_seek_buffer,
+        .pfn_eof   = stream_eof_buffer,
         .pfn_close = stream_close_buffer,
     };
 
@@ -346,6 +353,7 @@ int stream_from_dynamic_buffer ( stream **pp_stream )
         .pfn_size  = stream_size_buffer,
         .pfn_flush = stream_flush_buffer,
         .pfn_seek  = stream_seek_buffer,
+        .pfn_eof   = stream_eof_buffer,
         .pfn_close = stream_close_dynamic_buffer,
     };
 
@@ -671,7 +679,7 @@ bool stream_eof ( stream *p_stream )
     mutex_lock(&p_stream->_lock);
 
     // eof?
-    eof = ( p_stream->size > 0 ) ? ( p_stream->cursor >= p_stream->size ) : false;
+    eof = p_stream->pfn_eof(p_stream);
 
     // unlock
     mutex_unlock(&p_stream->_lock);
@@ -958,6 +966,10 @@ int stream_read_file ( stream *p_stream, void *p_data, size_t size )
     // initialized data
     int read = fread(p_data, 1, size, (FILE *) p_stream->p_data); 
     
+    // error check
+    if ( read == 0 ) 
+        return 0;
+
     // update cursor
     if ( read > 0 ) p_stream->cursor += read;
     
@@ -1012,6 +1024,13 @@ int stream_seek_file ( stream *p_stream, long offset, enum stream_seek_e whence 
 
     // success
     return ( 0 == result );
+}
+
+bool stream_eof_file ( stream *p_stream )
+{
+
+    // success
+    return ( p_stream->size > 0 ) ? ( p_stream->cursor >= p_stream->size ) : false;
 }
 
 int stream_close_file ( stream *p_stream )
@@ -1144,6 +1163,13 @@ int stream_seek_buffer ( stream *p_stream, long offset, enum stream_seek_e whenc
 
     // success
     return 1;
+}
+
+bool stream_eof_buffer ( stream *p_stream )
+{
+
+    // success
+    return ( p_stream->size > 0 ) ? ( p_stream->cursor >= p_stream->size ) : false;
 }
 
 int stream_close_buffer ( stream *p_stream )

@@ -9,12 +9,10 @@
 // header 
 #include <reflection/json.h>
 
-// preprocessor macros
-#define DICT_SIZE 16
-
-// forward declarations
+// function declarations
 fn_key_accessor object_key_accessor;
 
+// function definitions
 int double_precision ( double value )
 {
 
@@ -37,30 +35,39 @@ int double_precision ( double value )
     return ret + 1;
 };
 
-int json_whitespace_parse ( char *pointer, char **return_pointer )
+int json_whitespace_parse ( stream *p_stream, char *p_next )
 {
 
     // argument check
-    if (  pointer == (void *) 0 ) goto no_pointer;
-    if ( *pointer ==       '\0' ) goto done;
+    if ( NULL == p_stream ) goto no_stream;
 
-    // Skip past spaces, line feed, carriage return, horizontal tab
-    while (
-        *pointer == ' '  ||
-        *pointer == '\n' ||
-        *pointer == '\r' ||
-        *pointer == '\t'         
+    // initialized data
+    char c = '\0';
+
+    // read a character
+    if ( 0 == stream_read(p_stream, &c, 1) ) return 0;
+
+    // eat spaces, line feed, carriage return, horizontal tab
+    while 
+    (
+        ' '  == c ||
+        '\n' == c ||
+        '\r' == c ||
+        '\t' == c         
     )
-    { if (*pointer == '\0') break; pointer++; };
+    { 
 
-    // error checking
-    if ( *pointer == '\0' ) return 0;
+        // end of json
+        if ( '\0' == c ) 
+            break; 
+        
+        // read the next character
+        stream_read(p_stream, &c, 1);
+    };
+
+    // return the next character to the caller
+    if ( p_next ) *p_next = c;
     
-    done:
-
-    // Update the pointer
-    *return_pointer = pointer;
-
     // success
     return 1;
 
@@ -69,155 +76,114 @@ int json_whitespace_parse ( char *pointer, char **return_pointer )
 
         // argument errors
         {
-            no_pointer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[json] Null pointer provided for parameter \"pointer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[json] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
                 return 0;
-
         }
     }
 }
 
-int json_string_parse ( char *const pointer, char **return_pointer )
+int json_string_parse ( stream *p_stream, char **pp_result, char *p_next )
 {
 
     // argument check
-    if ( pointer == (void *) 0 ) goto no_pointer;
+    if ( NULL ==  p_stream ) goto no_stream;
+    if ( NULL == pp_result ) goto no_result;
 
     // initialized data
-    size_t i = 0,
-           j = 1;
+    char   *p_string = NULL;
+    size_t  len      = 16,
+            read     = 0;
+    char    c        = '\0';
 
-    // error check
-    if ( pointer[i] != '\"' ) return 0;
-    
-    // Check for an empty string
-    if ( pointer[0] == '\0' ) goto exit;
+    // allocate memory for the string
+    p_string = default_allocator(NULL, len);
+    if ( NULL == p_string ) goto no_mem;
 
-    // Walk the string
-    while ( pointer[j] )
+    // read a character
+    stream_read(p_stream, &c, 1);
+
+    // walk the string
+    while ( '\"' != c )
     {
 
-        // Continuation condition
-        if ( pointer[j] == '\"' ) goto exit;
-        
-        // Escape sequence
-        else if ( pointer[j] == '\\' )
+        // escape sequence
+        if ( '\\' == c )
         {
 
-            // Escape sequence strategy
-            switch ( pointer[j+1] )
+            // read a character
+            stream_read(p_stream, &c, 1);
+
+            // strategy
+            switch ( c )
             {
 
-                // Single quote
+                // double quote
                 case '\"':
-
-                    // Write the carriage return 
-                    pointer[i] = '\"';
-
-                    // done
+                    c = '\"';
                     break;
 
-                // Backslash
+                // back slash
                 case '\\':
-
-                    // Write the backslash 
-                    pointer[i] = '\\';
-
-                    // done
+                    c = '\\';
                     break;
 
-                // Forward slash
+                // forward slash
                 case '/':
-
-                    // Write the forward slash 
-                    pointer[i] = '/';
-
-                    // done
+                    c = '/';
                     break;
 
-                // Backspace
+                // backspace
                 case 'b':
-
-                    // Write the backspace 
-                    pointer[i] = '\b';
-
-                    // done
+                    c = '\b';
                     break;
 
-                // Form feed
+                // form feed
                 case 'f':
-
-                    // Write the form feed  
-                    pointer[i] = '\f';
-
-                    // done 
+                    c = '\f';
                     break;
-
-                // Line feed
+                
+                // line feed
                 case 'n':
-
-                    // Write the line feed 
-                    pointer[i] = '\n';
-
-                    // done
+                    c = '\n';
                     break;
-                
-                // Carriage return
+
+                // carriage return
                 case 'r':
-
-                    // Write the carriage return 
-                    pointer[i] = '\r';
-
+                    c = '\r';
                     break;
 
-                // Horizontal tab
+                // horizontal tab
                 case 't':
-
-                    // Write the horizontal tab 
-                    pointer[i]='\t';
-
-                    // done
+                    c = '\t';
                     break;
-                
-                // TODO: Unicode
-                case 'u':
-
-                    // TODO:
-
-                    // done
-                    break;
-
-                // Bad string
-                case '\0':
-                default:
-
-                    // error handling
-                    goto unexpected_escape_sequence;
             }
-            
-            // Increment the cursor
-            j++;
         }
-
-        // Copy the text
-        else
-            pointer[i] = pointer[j];
         
-        // Increment the cursors
-        i++, j++;
+        // store the character
+        p_string[read++] = c;
+
+        // read a character
+        stream_read(p_stream, &c, 1);
     }
-    
-    exit:
 
-    // Insert a null terminator
-    pointer[i] = '\0';
+    // eat a character
+    stream_read(p_stream, &c, 1);
 
-    // return the updated pointer
-    *return_pointer = &pointer[j];
+    // resize
+    p_string = default_allocator(p_string, read + 1);
+    if ( NULL == p_string ) goto no_mem;
+
+    // return a pointer to the caller
+    *pp_result = p_string;
+
+    // return the next character to the caller
+    if ( p_next ) 
+        *p_next = c;
 
     // success
     return 1;
@@ -227,116 +193,109 @@ int json_string_parse ( char *const pointer, char **return_pointer )
 
         // argument errors
         {
-            no_pointer:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[json] Null pointer provided for parameter \"pointer\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[json] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+            no_result:
+                #ifndef NDEBUG
+                    log_error("[json] Null pointer provided for parameter \"pp_result\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
                 return 0;
         }
 
-        // json errors
+        // standard library errors
         {
-            unexpected_escape_sequence:
+            no_mem:
                 #ifndef NDEBUG
-                    log_error("[json] Unexpected escape sequence while parsing string in call to function \"%s\"\n", __FUNCTION__);
-                #endif
+					printf("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+				#endif
 
-                // error
-                return 0;
+				// error
+				return 0;
         }
     }
 }
  
-int json_object_parse ( char *pointer, char **return_pointer, dict **const pp_dict )
+int json_object_parse ( stream *p_stream, dict **const pp_dict, char *p_next )
 {
-    
+
     // initialized data
     dict *p_dict = NULL;
+    char  c      = '\0';
 
     // construct a dictionary
-    if ( 0 == dict_construct(&p_dict, DICT_SIZE, NULL, object_key_accessor, NULL)  ) goto failed_to_construct_dict;
-
-    // error checking
-    if ( *pointer != '{' ) return 0;
-
-    // increment the cursor
-    pointer++;
-
+    if ( 0 == dict_construct(&p_dict, 16, NULL, object_key_accessor, NULL) ) goto failed_to_construct_dict;
+    
     parse_property:
-
-    // parse whitespaces
-    json_whitespace_parse(pointer, &pointer);
-
-    // parse the property key
-    if ( *pointer == '\"' )
+    
+    // walk the object
+    if ( c != '}' )
     {
 
         // initialized data
-        char       *key   = pointer;
-        json_value *value = 0;
+        json_value *p_value = NULL;
+        char       *p_key = NULL;
 
-        // parse the property key
-        json_string_parse(pointer, &pointer);
+        // eat whitespace
+        json_whitespace_parse(p_stream, &c);
 
-        // increment the cursor
-        pointer++;
+        // edge case
+        if ( '}' == c ) goto end_of_object;
 
-        // parse any whitespace
-        json_whitespace_parse(pointer, &pointer);
+        // error check
+        if ( '\"' != c ) return 0;
 
-        // check for a valid property
-        if ( *pointer == ':' ) pointer++;
+        // parse the key
+        json_string_parse(p_stream, &p_key, &c);
 
-        // invalid property
-        else goto expected_value;
+        // eat whitespace
+        while ( ' ' == c || '\n' == c || '\r' == c || '\t' == c )
+            if ( 0 == stream_read(p_stream, &c, 1) ) break;
 
-        // parse a JSON value
-        if ( json_value_parse(pointer, &pointer, &value) == 0 ) goto failed_to_parse_json_value;
-
-        // store the key
-        value->p_key = key;
-
-        // add the value to the dictionary
-        dict_add(p_dict, value);
-
-        // Search for the next property ...
-        if ( *pointer == ',' )
-        {
-
-            // Increment the property counter and the pointer 
-            pointer++;
-
-            // Parse another property
-            goto parse_property;
-        }
-
-        // ... or the end of the object
-        else if ( *pointer == '}' );
+        // error check
+        if ( ':' != c ) return 0;
         
-        // Default
-        else
+        // parse the value
+        if ( json_parse(&p_value, p_stream, &c) )
 
-            // error
-            return 0;
+            // store the key
+            p_value->p_key = p_key,
+        
+            // add the value to the object
+            dict_add(p_dict, p_value);
+
+        // eat whitespace
+        while ( ' ' == c || '\n' == c || '\r' == c || '\t' == c )
+            if ( 0 == stream_read(p_stream, &c, 1) ) break;
+
+        // check for another element
+        if ( c == ',' ) goto parse_property;
     }
-    
+
+    end_of_object:
+
     // error checking
-    if ( *pointer != '}' ) return 0;
+    if ( c != '}' ) return 0;
 
-    // Increment the cursor
-    pointer++;
-
-    // return the cursor to the caller
-    if ( return_pointer ) *return_pointer = pointer;
+    // read
+    stream_read(p_stream, &c, 1);
 
     // return a pointer to the caller
     *pp_dict = p_dict;
 
+    // return the next character to the caller
+    if ( p_next ) *p_next = c;
+    
     // success
     return 1;
-
+    
     // error check
     {
         
@@ -350,94 +309,53 @@ int json_object_parse ( char *pointer, char **return_pointer, dict **const pp_di
                 // error
                 return 0;
         }
-
-        // json errors
-        {
-            failed_to_parse_json_value:
-                #ifndef NDEBUG
-                    log_error("[json] Failed to parse json value in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-
-            expected_value:
-                #ifndef NDEBUG
-                    log_error("[json] Expected colon delimiter while parsing json text in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-        }
     }
 }
 
-int json_array_parse ( char *pointer, char **return_pointer, array **const pp_array )
+int json_array_parse ( stream *p_stream, array **const pp_array, char *p_next )
 {
 
     // initialized data
-    size_t  i       = 0;
-    array  *p_array = 0;
+    array *p_array = 0;
+    char   c       = '\0';
 
-    // Construct an array
-    if ( array_construct(&p_array, DICT_SIZE) == 0 ) goto failed_to_construct_array;
+    // construct an array
+    if ( 0 == array_construct(&p_array, 1) ) goto failed_to_construct_array;
 
-    // error checking
-    if ( pointer[0] != '[' ) return 0;
-
-    // Increment the cursor
-    pointer++;
-
-    parse_property:
+    parse_element:
     
-    // Parse whitespaces
-    json_whitespace_parse(pointer, &pointer);
-
-    // Walk the text
-    if ( pointer[0] != ']' )
+    // walk the array
+    if ( c != ']' )
     {
 
         // initialized data
-        json_value *value = 0;
+        json_value *p_value = NULL;
 
-        // Parse the text into a value
-        json_value_parse(&pointer[i], &pointer, &value);
-
-        // Add the value to the array
-        array_add(p_array, value);
-
-        // Check for another property
-        if ( *pointer == ',' )
-        {
-
-            // Increment the property counter and the cursor
-            pointer++;
-
-            // Parse another property
-            goto parse_property;
-        }
-
-        // Terminate
-        else if ( *pointer == ']' );
-
-        // Default
-        else
-
-            // error
-            return 0;
-    }
-    
-    // error checking
-    if ( *pointer != ']' ) return 0;
+        // parse the value
+        if ( json_parse(&p_value, p_stream, &c) )
         
-    // Increment the cursor
-    pointer++;
+            // add the value to the array
+            array_add(p_array, p_value);
 
-    // return the cursor to the caller
-    if ( return_pointer ) *return_pointer = pointer;
+        // eat whitespace
+        while ( ' ' == c || '\n' == c || '\r' == c || '\t' == c )
+            if ( 0 == stream_read(p_stream, &c, 1) ) break;
+
+        // check for another element
+        if ( c == ',' ) goto parse_element;
+    }
+
+    // error checking
+    if ( c != ']' ) return 0;
+
+    // read
+    stream_read(p_stream, &c, 1);
 
     // return a pointer to the caller
     *pp_array = p_array;
+
+    // return the next character to the caller
+    if ( p_next ) *p_next = c;
 
     // success
     return 1;
@@ -445,11 +363,11 @@ int json_array_parse ( char *pointer, char **return_pointer, array **const pp_ar
     // error check
     {
         
-        // dict errors
+        // array errors
         {
             failed_to_construct_array:
                 #ifndef NDEBUG
-                    log_error("[array] Array constructor returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[json] Array constructor returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -458,221 +376,313 @@ int json_array_parse ( char *pointer, char **return_pointer, array **const pp_ar
     }
 }
 
-int json_value_parse ( char *text, char **return_pointer, json_value **const pp_value )
+int json_parse ( json_value **const pp_value, stream *p_stream, char *p_next )
 {
 
     // argument check
-    if ( text     == (void *) 0 ) goto no_text;
-    if ( pp_value == (void *) 0 ) goto no_value;
+    if ( NULL == pp_value ) goto no_value;
+    if ( NULL == p_stream ) goto no_stream;
 
     // initialized data
     json_value *p_value = (void *) 0;
+    char        c       = '\0';
 
-    if ( return_pointer  ) 
+    // eat whitespace
+    if ( 0 == json_whitespace_parse(p_stream, &c) ) return 0;
+
+    // parse a value
+    switch ( c )
     {
 
-        // allocate memory
-        p_value = default_allocator(0, sizeof(json_value));
-        
-        // error check
-        if ( p_value == (void *) 0 ) goto no_mem;
-
-        // Initialize data
-        memset(p_value, 0, sizeof(json_value));
-    }
-    else
-    {
-
-        // initialized data
-        size_t len = strlen(text);
-
-        // allocate memory
-        p_value = default_allocator(0, sizeof(json_value) + len + 1);
-
-        // error check
-        if ( p_value == (void *) 0 ) goto no_mem;
-
-        // Initialize data
-        memset(p_value, 0, sizeof(json_value) + len + 1);
-
-        // store the length
-        p_value->len = len;
-
-        // Copy the json text
-        strncpy(p_value->_text, text, len);
-
-        // Update the text pointer
-        text = p_value->_text;
-    }
-
-    // Parse whitespace
-    (void) json_whitespace_parse(text, &text);
-
-    // Parse a value
-    switch ( *text )
-    {
-
-        // This branch parses a string
+        // parse a string
         case '\"':
         {
 
             // initialized data
-            char *last_text = text;
-            size_t string_len = 0;
+            char *p_string = NULL;
             
-            // Parse the string
-            if ( json_string_parse(text, &text) == 0 ) goto failed_to_parse_json_string;
-            
-            // Increment the cursor
-            text++;
+            // parse the string
+            if ( 0 == json_string_parse(p_stream, &p_string, &c) ) goto failed_to_parse_json_string;
 
-            // Compute the length of the string
-            string_len = strlen(last_text); 
+            // allocate memory for the value
+            p_value = default_allocator(NULL, sizeof(json_value));
+            if ( NULL == p_value ) goto no_mem;
 
-            // allocate memory for the string
-            p_value->string = default_allocator(0, ( (string_len + 1 + 8) & 0xFFFFFFFFFFFFFFF8) * sizeof(char));
-        
-            // error check
-            if ( p_value->string == (void *) 0 ) goto no_mem;
+            // populate the value
+            *p_value = (json_value)
+            {
+                .type   = JSON_VALUE_STRING,
+                .string = p_string,
+            };
 
-            // Initialize memory
-            memset(p_value->string, 0, ( (string_len + 1 + 8) & 0xFFFFFFFFFFFFFFF8) * sizeof(char));
-
-            // Copy the string 
-            (void) strncpy(p_value->string, last_text, string_len+1);
-
-            // Set the return type
-            p_value->type = JSON_VALUE_STRING;
-            
             // done
-            break;
+            goto done;
         }
         
-        // This branch parses an object
+        // parse an object
         case '{':
-            
-            // Parse the JSON text as an object
-            if ( json_object_parse(text, &text, &p_value->object) == 0 ) goto failed_to_parse_json_object;
+        {
 
-            // Set the value type
-            p_value->type = JSON_VALUE_OBJECT;
-        
+            // initialized data
+            dict *p_dict = NULL;
+
+            // parse an array
+            if ( 0 == json_object_parse(p_stream, &p_dict, &c) ) goto failed_to_parse_json_object;
+
+            // allocate memory for the value
+            p_value = default_allocator(NULL, sizeof(json_value));
+            if ( NULL == p_value ) goto no_mem;
+
+            // populate the value
+            *p_value = (json_value)
+            {
+                .type = JSON_VALUE_OBJECT,
+                .object = p_dict
+            };
+
             // done
-            break;
+            goto done;
+        }
         
-        
-        // This branch parses an array
+        // parse an array
         case '[':
+        {
 
-            // Parse the JSON text as an array
-            if ( json_array_parse(text, &text, &p_value->list) == 0 ) goto failed_to_parse_json_array;
+            // initialized data
+            array *p_array = NULL;
 
-            // Set the value type
-            p_value->type = JSON_VALUE_ARRAY;
+            // parse an array
+            if ( 0 == json_array_parse(p_stream, &p_array, &c) ) goto failed_to_parse_json_array;
+
+            // allocate memory for the value
+            p_value = default_allocator(NULL, sizeof(json_value));
+            if ( NULL == p_value ) goto no_mem;
+
+            // populate the value
+            *p_value = (json_value)
+            {
+                .type = JSON_VALUE_ARRAY,
+                .list = p_array
+            };
 
             // done
-            break;
+            goto done;
+        }
 
-        // This branch parses the 'true' keyword
+        // parse the 'true' keyword
         case 't':
+        {
+
+            // initialized data
+            char _maybe_true[5] = { c };
+
+            // read
+            stream_read(p_stream, &_maybe_true[1], 3);
 
             // Check for the correct keyworkd
-            if ( strncmp(text, "true", 4) ) goto failed_to_parse_keyword;
+            if ( strncmp(_maybe_true, "true", 4) ) goto failed_to_parse_keyword;
 
-            // Store a true value
-            p_value->type = JSON_VALUE_BOOLEAN;
-            p_value->boolean = true;
+            // allocate memory for the value
+            p_value = default_allocator(NULL, sizeof(json_value));
+            if ( NULL == p_value ) goto no_mem;
 
-            // Skip the cursor
-            text += 4;
+            // populate the value
+            *p_value = (json_value)
+            {
+                .type = JSON_VALUE_BOOLEAN,
+                .boolean = true
+            };
+
+            // read
+            stream_read(p_stream, &c, 1);
+
+            // return a pointer to the caller
+            if ( p_next ) *p_next = c;
 
             // done
             goto done;
+        }
 
-        // This branch parses the 'false' keyword
+        // parse the 'false' keyword
         case 'f':
-            
-            // Check for the 'false' keyword
-            if ( strncmp(text, "false", 5) ) goto failed_to_parse_keyword;
+        {
 
-            // Store a true value
-            p_value->type = JSON_VALUE_BOOLEAN;
-            p_value->boolean = false;
-            
-            // Skip the cursor
-            text += 5;
-            
+            // initialized data
+            char _maybe_false[6] = { c };
+
+            // read
+            stream_read(p_stream, &_maybe_false[1], 4);
+
+            // Check for the correct keyworkd
+            if ( strncmp(_maybe_false, "false", 5) ) goto failed_to_parse_keyword;
+
+            // allocate memory for the value
+            p_value = default_allocator(NULL, sizeof(json_value));
+            if ( NULL == p_value ) goto no_mem;
+
+            // populate the value
+            *p_value = (json_value)
+            {
+                .type = JSON_VALUE_BOOLEAN,
+                .boolean = false
+            };
+
+            // read
+            stream_read(p_stream, &c, 1);
+
+            // return a pointer to the caller
+            if ( p_next ) *p_next = c;
+
             // done
             goto done;
+        }
         
-        // This branch parses the 'null' keyword
+        // parse the 'null' keyword
         case 'n':
+        {
 
-            // error check
-            if ( strncmp(text, "null", 4) ) goto failed_to_parse_keyword;
-        
-            // Free the JSON value
-            p_value = default_allocator(p_value, 0);
-            p_value = (void *) 0;
-            
-            // Skip the cursor
-            text += 4;
+            // initialized data
+            char _maybe_null[5] = { c };
+
+            // read
+            stream_read(p_stream, &_maybe_null[1], 3);
+
+            // Check for the correct keyworkd
+            if ( strncmp(_maybe_null, "null", 4) ) goto failed_to_parse_keyword;
+
+            // allocate memory for the value
+            p_value = default_allocator(NULL, sizeof(json_value));
+            if ( NULL == p_value ) goto no_mem;
+
+            // store a null value
+            p_value = NULL;
+
+            // read
+            stream_read(p_stream, &c, 1);
+
+            // return a pointer to the caller
+            if ( p_next ) *p_next = c;
 
             // done
             goto done;
+        }
 
-        // Parse a number
-        default:
-
-            // done
-            break;
+        // default
+        default: break;
     }
 
-    // Parse a number
-    if ( *text == '-' || (*text >= '0' && *text <= '9') ) 
+    // parse a number
+    if ( '-' == c || ('0' <= c && '9' >= c) ) 
     {
-        // initialized data
-        size_t i = 0,
-               d = 0;
-        bool   f = false;
-        bool   n = false;
-        
-        // Check the number's sign
-        if ( text[0] == '-' )
 
-            // Set the negative bit, and skip past the sign
-            i++, n = true;
+        // // initialized data
+        bool   f          = false;
+        char   _text[310] = { 0 };
+        size_t read       = 0;
 
-        // Skip digits and decimal places
-        while ( ( text[i] >= '0' && text[i] <= '9' ) || text[i] == '.' ) 
+        // sign?
+        if ( '-' == c ) 
+
+            // store the sign
+            _text[read++] = c,
+
+            // read
+            stream_read(p_stream, &c, 1);
+
+        // parse integer
+        while ( c >= '0' && c <= '9' ) 
         { 
 
-            // Check for a float
-            f |= ( text[i] == '.' );
-            
-            // Increment
-            i++, d++;
+            // store the digit
+            _text[read++] = c;
+
+            // read
+            if ( 0 == stream_read(p_stream, &c, 1) ) break;
+
+            // error check
+            if ( read >= sizeof(_text) - 1 ) goto integer_bounds_exceeded;
         };
 
-        // Clear errors
-        errno = 0;
+        // float?
+        if ( c == '.' )
+        {
 
-        // Parse a floating point
+            // set the float bit
+            f = true;
+
+            // store the decimal point
+            _text[read++] = c;
+
+            // read
+            stream_read(p_stream, &c, 1);
+        }
+
+        // parse a float
         if ( f )
         {
 
-            // Clear error
+            // parse fraction
+            while ( c >= '0' && c <= '9' ) 
+            { 
+
+                // store the digit
+                _text[read++] = c;
+
+                // read
+                if ( 0 == stream_read(p_stream, &c, 1) ) break;
+
+                // exponent?
+                if ( 'E' == c || 'e' == c )
+                {
+
+                    // store the exponent
+                    _text[read++] = c;
+
+                    // read
+                    if ( 0 == stream_read(p_stream, &c, 1) ) break;
+
+                    // sign?
+                    if ( '+' == c || '-' == c )
+                    {
+                        
+                        // store the sign
+                        _text[read++] = c;
+
+                        // read
+                        if ( 0 == stream_read(p_stream, &c, 1) ) break;
+                    }
+                }
+
+                // error check
+                if ( read >= sizeof(_text) - 1 ) 
+
+                    // eat
+                    while ( c >= '0' && c <= '9' ) 
+                        if ( 0 == stream_read(p_stream, &c, 1) ) break;
+            };
+
+            // error check
+            if ( '.' == c ) goto failed_to_parse_float;
+
+            // allocate memory for the value
+            p_value = default_allocator(NULL, sizeof(json_value));
+            if ( NULL == p_value ) goto no_mem;
+
+            // clear error
             errno = 0;
 
-            // Store a number value
-            p_value->type = JSON_VALUE_NUMBER;
-            p_value->number = strtod(text, NULL);
+            // populate the value
+            *p_value = (json_value)
+            {
+                .type   = JSON_VALUE_NUMBER,
+                .number = strtod(_text, NULL),
+            };
 
-            // Bounds check
+            // bounds check
             if ( errno == ERANGE )
             {
                 
-                // free the JSON value
+                // release the json value
                 p_value = default_allocator(p_value, 0);
 
                 // error handling
@@ -680,52 +690,56 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             }
         }
 
-        // Parse an integer
+        // parse an integer
         else
         {
- 
-            // Clear error
+
+            // allocate memory for the value
+            p_value = default_allocator(NULL, sizeof(json_value));
+            if ( NULL == p_value ) goto no_mem;
+
+            // clear error
             errno = 0;
 
-            // Set the type of the value
-            p_value->type = JSON_VALUE_INTEGER;
-            p_value->integer = strtoll(text, NULL, 10);
+            // populate the value
+            *p_value = (json_value)
+            {
+                .type = JSON_VALUE_INTEGER,
+                .integer = strtoll(_text, NULL, 10)
+            };
 
-            // Bounds check
+            // bounds check
             if ( errno == ERANGE )
             {
-
-                // Free the value
-                p_value = default_allocator(p_value, 0);
                 
+                // release the json value
+                p_value = default_allocator(p_value, 0);
+
                 // error handling
                 goto integer_bounds_exceeded;
             }
         }
+    }
+    
+    // default
+    else 
+    {
 
-        // Decrement the decimal places
-        d--;
+        // return a pointer to the caller
+        if ( p_next ) *p_next = c;
 
-        // Skip N decimal places
-        text+=d; 
-
-        // Increment the cursor
-        text++;
-
-        // Increment the cursor again if the number has a - sign
-        text += n ? 1 : 0;
+        // error
+        return 0;
     }
 
     done:
     
-    // Parse whitespace
-    if ( p_value ) (void) json_whitespace_parse(text, &text);
+    // return the next character to the caller
+    if ( p_next ) 
+        *p_next = c;
 
-    // Write the result
+    // return a pointer to the caller
     *pp_value = p_value;
-
-    // Update the cursor
-    if ( return_pointer ) *return_pointer = text;
 
     // success
     return 1;
@@ -735,17 +749,17 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
 
         // argument errors
         {
-            no_text:
+            no_value:
                 #ifndef NDEBUG
-                    log_error("[json] Null pointer provided for parameter \"text\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[json] Null pointer provided for parameter \"pp_value\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
                 return 0;
 
-            no_value:
+            no_stream:
                 #ifndef NDEBUG
-                    log_error("[json] Null pointer provided for parameter \"pp_value\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[json] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -778,12 +792,23 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
                 // error 
                 return 0;
 
+            failed_to_parse_float:
+                    #ifndef NDEBUG
+                        log_error("[json] Failed to parse json number in call to function \"%s\"\n", __FUNCTION__);
+                    #endif
+    
+                    // release the value
+                    p_value = default_allocator(p_value, 0);
+    
+                    // error
+                    return 0;
+            
             failed_to_parse_keyword:
                 #ifndef NDEBUG
                     log_error("[json] Failed to parse json keyword in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
-                // Clean up
+                // release the value
                 p_value = default_allocator(p_value, 0);
 
                 // error
@@ -791,26 +816,18 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
 
             integer_bounds_exceeded:
                 #ifndef NDEBUG
-
-                    // For some reason, printing this on one line caused a segfault. 
-                    // Maybe I should report it?
                     log_error("[json] Integer must be between [%lld, ", -9223372036854775807LL);
                     log_error("%lld] in call to function \"%s\"\n",9223372036854775807LL, __FUNCTION__);
                 #endif
-
 
                 // error
                 return 0;
             
             float_bounds_exceeded:
                 #ifndef NDEBUG
-
-                    // For some reason, printing this on one line caused a segfault. 
-                    // Maybe I should report it?
                     log_error("[json] Float must be between [%.17lg, ", -DBL_MAX);
                     log_error("%.17lg] in call to function \"%s\"\n",DBL_MAX, __FUNCTION__);
                 #endif
-
 
                 // error
                 return 0;
@@ -829,531 +846,282 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
     }
 }
 
-int json_value_serialize ( const json_value *const p_value, char *_buffer )
+int json_serialize ( stream *p_stream, const json_value *const p_value )
 {
 
-    size_t written_characters = 0;
-
-    // Null case
-    if ( p_value == 0 ) written_characters += (size_t) sprintf(&_buffer[written_characters], "null");
-
-    // Everything else
-    else
-    {
-
-        // Print the value
-        switch ( p_value->type )
-        {
-            
-            // Print a boolean value
-            case JSON_VALUE_BOOLEAN:
-                written_characters += (size_t) sprintf(&_buffer[written_characters],"%s",p_value->boolean ? "true" : "false");
-                break;
-            
-            // Print an integer value
-            case JSON_VALUE_INTEGER:
-                written_characters += (size_t) sprintf(&_buffer[written_characters],"%lld", p_value->integer);
-                break;
-
-            // Print a floating point value
-            case JSON_VALUE_NUMBER:
-            {
-            
-                // initialized data
-                int precision = double_precision(p_value->number);
-
-                // Print the value with the current precision
-                if ( precision > 18 )
-                    written_characters += (size_t) sprintf(&_buffer[written_characters],"%.*le", 16, p_value->number);
-                else
-                    written_characters += (size_t) sprintf(&_buffer[written_characters],"%.*lf", precision, p_value->number);
-                
-                // done
-                break;
-            }
-
-            // Print a string
-            case JSON_VALUE_STRING:
-            {
-
-                // initialized data
-                size_t len = strlen(p_value->string);
-
-                // Formatting
-                written_characters += (size_t) sprintf(&_buffer[written_characters], "\"");
-                
-                // iterate over each character
-                for (size_t i = 0; i < len; i++)
-                {
-
-                    // Check for an escape sequence
-                    switch(p_value->string[i])
-                    {
-
-                        // Double quote
-                        case '\"':
-                            _buffer[written_characters++] = '\\';
-                            _buffer[written_characters++] = '\"';
-
-                            break;
-
-                        // Backslash
-                        case '\\':
-                            _buffer[written_characters++] = '\\';
-                            _buffer[written_characters++] = '\\';
-
-                            break;
-
-                        // Backspace
-                        case '\b':
-                            _buffer[written_characters++] = '\\';
-                            _buffer[written_characters++] = 'b';
-
-                            break;
-                        
-                        // Form feed
-                        case '\f':
-                            _buffer[written_characters++] = '\\';
-                            _buffer[written_characters++] = 'f';
-
-                            break;
-                        
-                        // Line feed
-                        case '\n':
-                            _buffer[written_characters++] = '\\';
-                            _buffer[written_characters++] = 'n';
-
-                            break;
-                        
-                        // Carriage return
-                        case '\r':
-                            _buffer[written_characters++] = '\\';
-                            _buffer[written_characters++] = 'r';
-
-                            break;
-                        
-                        // Horizontal tab
-                        case '\t':
-                            _buffer[written_characters++] = '\\';
-                            _buffer[written_characters++] = 't';
-
-                            break;
-
-                        // TODO: Unicode
-                        // TODO:case '\u':
-                            // TODO:
-                            // TODO:break;
-                        
-                        // Default
-                        default:
-                            _buffer[written_characters++] = p_value->string[i];
-                    }
-                }
-            
-                // Formatting
-                written_characters += (size_t) sprintf(&_buffer[written_characters], "\"");
-                
-                // done
-                break;
-            }
-            
-            // print an object
-            case JSON_VALUE_OBJECT:
-            {
-                if ( p_value->object )
-                {
-                    
-                    // initialized data
-                    size_t       property_count = 0;
-                    json_value **values         = 0;
-
-                    dict_size(p_value->object, &property_count);
-
-                    written_characters += (size_t) sprintf(&_buffer[written_characters],"{");
-
-                    if ( property_count == 0 )
-                        goto doned;
-
-                    values = default_allocator(0, property_count * sizeof(json_value*));
-
-                    dict_values(p_value->object, (void **)values, property_count);
-
-                    for (size_t i = 0; i < property_count-1; i++)
-                    {
-                        written_characters += (size_t) sprintf(&_buffer[written_characters],"\"%s\":", (char *)object_key_accessor(values[i]));
-                        written_characters += json_value_serialize(values[i],&_buffer[written_characters]);
-                        written_characters += (size_t) sprintf(&_buffer[written_characters],",");
-                    }
-                    written_characters += (size_t) sprintf(&_buffer[written_characters],"\"%s\":", (char *)object_key_accessor(values[property_count-1]));
-                    written_characters +=  json_value_serialize(values[property_count-1], &_buffer[written_characters]);
-
-                    values = default_allocator(values, 0);
-                    doned:
-                    written_characters += (size_t) sprintf(&_buffer[written_characters],"}");
-                }
-                break;
-            }
-            
-            // Print an array
-            case JSON_VALUE_ARRAY:
-            {
-                
-                // initialized data
-                size_t       element_count = 0;
-                json_value **elements      = 0;
-
-                // error check
-                if ( p_value->list == (void *) 0 ) goto no_list;
-
-                // Formatting
-                written_characters += (size_t) sprintf(&_buffer[written_characters],"[");
-
-                // Get the quantity of elements                    
-                array_get(p_value->list, 0, &element_count);
-
-                // edge case
-                if ( 0 == element_count ) goto donea;
-                
-                // Get the contents of the array
-                {
-
-                    // allocate memory for the elements
-                    elements = default_allocator(0, element_count * sizeof(json_value*));
-
-                    // error check
-                    if ( elements == (void *) 0 ) goto no_mem;
-
-                    // Get the contents of the array
-                    array_get(p_value->list, (void **)elements, 0);
-                }
-                
-                // Print the first element
-                if ( element_count ) written_characters += json_value_serialize(elements[0], &_buffer[written_characters]);
-                
-                // iterate over each element
-                for (size_t i = 1; i < element_count; i++)
-                {
-
-                    // Formatting
-                    written_characters += (size_t) sprintf(&_buffer[written_characters], ",");
-
-                    // Print the value
-                    written_characters += json_value_serialize(elements[i], &_buffer[written_characters]);
-                }
-
-                donea:
-
-                // Free the element
-                elements = default_allocator(elements, 0);
-
-                // Formatting
-                written_characters += (size_t) sprintf(&_buffer[written_characters], "]");
-            }
-                break;
-            
-            default:
-
-                // error
-                return 0;
-            }
-    }
-
-    // success
-    return written_characters;
-
-    no_list:
-    no_mem:
-        return 0;
-
-    // error handling
-    {
-
-    }
-}
-
-int json_value_print ( const json_value *const p_value )
-{
-    
-    // done
-    return json_value_fprint(p_value, stdout);
-}
-
-int json_value_fprint ( const json_value *const p_value, FILE *p_f )
-{
-    
     // initialized data
-    size_t written_characters = 0;
+    int written = 0;
 
-    // Null case
-    if ( p_value == 0 ) written_characters += fprintf(p_f,"null");
+    // null?
+    if ( NULL == p_value ) 
 
-    // Everything else
-    else
+        // write null
+        written += stream_write(p_stream, "null", 4);
+
+    // strategy
+    else switch ( p_value->type )
     {
-
-        // Print the value
-        switch (p_value->type)
+            
+        // write a boolean 
+        case JSON_VALUE_BOOLEAN:
         {
-            // Print a boolean value
-            case JSON_VALUE_BOOLEAN:
-                written_characters += fprintf(p_f,"%s",p_value->boolean ? "true" : "false");
-                break;
             
-            // Print an integer value
-            case JSON_VALUE_INTEGER:
-                written_characters += fprintf(p_f,"%lld", p_value->integer);
-                break;
+            // write the boolean 
+            written += stream_write(p_stream, p_value->boolean ? "true" : "false", p_value->boolean ? 4 : 5);
 
-            // Print a floating point value
-            case JSON_VALUE_NUMBER:
-            {
+            // done
+            break;
+        }
 
-                // initialized data
-                int precision = double_precision(p_value->number);
+        // write a string
+        case JSON_VALUE_STRING:
+        {
 
-                // Print the value with the current precision
-                if ( precision > 18 )
-                    written_characters += (size_t) fprintf(p_f, "%.*le", 16, p_value->number);
-                else
-                    written_characters += (size_t) fprintf(p_f, "%.*lf", precision, p_value->number);
-                
-                // done
-                break;
-            }
-
-            // Print a string
-            case JSON_VALUE_STRING:
-            {
-
-                // initialized data
-                size_t len = strlen(p_value->string);
-
-                // Formatting
-                written_characters += fprintf(p_f, "\"");
-                
-                // iterate over each character
-                for (size_t i = 0; i < len; i++)
-                {
-
-                    // Check for an escape sequence
-                    switch(p_value->string[i])
-                    {
-
-                        // Double quote
-                        case '\"':
-                            putc('\\', p_f); 
-                            putc('\"', p_f);
-
-                            break;
-
-                        // Backslash
-                        case '\\':
-                            putc('\\', p_f);
-                            putc('\\', p_f);
-
-                            break;
-
-                        // Forward slash
-                        case '/':
-                            putc('/', p_f);
-
-                            break;
-                        
-                        // Backspace
-                        case '\b':
-                            putc('\\', p_f);
-                            putc('b', p_f);
-
-                            break;
-                        
-                        // Form feed
-                        case '\f':
-                            putc('\\', p_f);
-                            putc('f', p_f);
-
-                            break;
-                        
-                        // Line feed
-                        case '\n':
-                            putc('\\', p_f);
-                            putc('n', p_f);
-
-                            break;
-                        
-                        // Carriage return
-                        case '\r':
-                            putc('\\', p_f);
-                            putc('r', p_f);
-
-                            break;
-                        
-                        // Horizontal tab
-                        case '\t':
-                            putc('\\', p_f);
-                            putc('t', p_f);
-
-                            break;
-
-                        // TODO: Unicode
-                        // TODO:case '\u':
-                            // TODO:
-                            // TODO:break;
-                        
-                        // Default
-                        default:
-                            written_characters--;
-                            putc(p_value->string[i], p_f);
-                    }
-
-                    written_characters += 2;
-                }
+            // write the opening quote
+            written += stream_write(p_stream, "\"", 1);
             
-                // Formatting
-                written_characters += fprintf(p_f, "\"");
-
-                // done
-                break;
-            }
-            
-            // Print an object
-            case JSON_VALUE_OBJECT:
-            {
-                if ( p_value->object )
-                {
-                    // initialized data
-                    size_t       property_count = 0;
-                    json_value **values         = 0;
-
-                    written_characters += fprintf(p_f,"{");
-
-                    // store the size of the object
-                    dict_size(p_value->object, &property_count);
-
-                    if ( property_count == 0 ) goto doned;
-
-                    values = default_allocator(0, property_count * sizeof(json_value*));
-
-                    dict_values(p_value->object, (void **)values, property_count);
-                    for (size_t i = 0; i < property_count-1; i++)
-                    {
-                        written_characters += fprintf(p_f,"\"%s\":", (char *) object_key_accessor(values[i]));
-                        written_characters += json_value_fprint(values[i],p_f);
-                        written_characters += fprintf(p_f,",");
-                    }
-                    written_characters += fprintf(p_f,"\"%s\":", (char *) object_key_accessor(values[property_count-1]));
-                    written_characters += json_value_fprint(values[property_count-1],p_f);
-
-                    values = default_allocator(values, 0);
-                    doned:
-                    written_characters += fprintf(p_f,"}");
-                }
-                
-                // done
-                break;
-            }
-            
-            // Print an array
-            case JSON_VALUE_ARRAY:
+            // iterate over each character
+            for (size_t i = 0; i < strlen(p_value->string); i++)
             {
                 
-                // initialized data
-                size_t       element_count = 0;
-                json_value **elements      = 0;
-
-                // error check
-                if ( p_value->list == (void *) 0 ) goto no_list;
-                
-                // Formatting
-                written_characters += fprintf(p_f,"[");
-
-                // Get the quantity of elements                    
-                array_get(p_value->list, 0, &element_count);
-                
-                // edge case
-                if ( 0 == element_count ) goto donea;
-
-                // Get the contents of the array
+                // strategy
+                switch ( p_value->string[i] )
                 {
 
-                    // allocate memory for the elements
-                    elements = default_allocator(0, element_count * sizeof(json_value*));
+                    // double quote
+                    case '\"':
+                        written += stream_write(p_stream, "\\\"", 2);
+                        break;
 
-                    // error check
-                    if ( elements == (void *) 0 ) goto no_mem;
+                    // back slash
+                    case '\\':
+                        written += stream_write(p_stream, "\\\\", 2);
+                        break;
 
-                    // Get the contents of the array
-                    array_get(p_value->list, (void **)elements, 0);
+                    // backspace
+                    case '\b':
+                        written += stream_write(p_stream, "\\b", 2);
+                        break;
+                    
+                    // form feed
+                    case '\f':
+                        written += stream_write(p_stream, "\\f", 2);
+                        break;
+                    
+                    // line feed
+                    case '\n':
+                        written += stream_write(p_stream, "\\n", 2);
+                        break;
+                    
+                    // carriage return
+                    case '\r':
+                        written += stream_write(p_stream, "\\r", 2);
+                        break;
+                    
+                    // horizontal tab
+                    case '\t':
+                        written += stream_write(p_stream, "\\t", 2);
+                        break;
+                    
+                    // default
+                    default:
+                        written += stream_write(p_stream, &p_value->string[i], 1);
+                        break;
                 }
-                
-                // Print the first element
-                if ( element_count ) written_characters += json_value_fprint(elements[0],p_f);
-                
-                // iterate over each element
-                for (size_t i = 1; i < element_count; i++)
-                {
-
-                    // Formatting
-                    written_characters += fprintf(p_f, ",");
-
-                    // Print the value
-                    written_characters += json_value_fprint(elements[i],p_f);
-                }
-
-                // Free the element
-                if ( 0 < element_count )
-                    elements = default_allocator(elements, 0);
-                
-                donea:
-
-                // Formatting
-                written_characters += fprintf(p_f, "]");
-
-                // done
-                break;
             }
             
-            default:
+            // write the closing quote
+            written += stream_write(p_stream, "\"", 1);
 
-                // error
-                return 0;
-            }
-    }
+            // done
+            break;
+        }
 
-    // success
-    return written_characters;
-    
-    no_list:
-        return 0;
+        // write an integer
+        case JSON_VALUE_INTEGER:
+        {
 
-    // error handling
-    {
+            // initialized data
+            char _buffer[32] = { 0 };
+
+            // write the integer to a buffer
+            snprintf(_buffer, 32, "%lld", p_value->integer);
+
+            // write
+            written += stream_write(p_stream, _buffer, strlen(_buffer));
+
+            // done
+            break;
+        }
+
+        // write a number
+        case JSON_VALUE_NUMBER:
+        {
         
-        // argument check
-        {
-            no_mem:
-                #ifndef NDEBUG
-                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
-                #endif
+            // initialized data
+            int precision = double_precision(p_value->number);
+            char _buffer[32] = { 0 };
 
-                // error
-                return 0;
+            // write the value to a buffer
+            if ( precision > 18 )
+                sprintf(_buffer,"%.*le", 16, p_value->number);
+            else
+                sprintf(_buffer,"%.*lf", precision, p_value->number);
+            
+            // write
+            written += stream_write(p_stream, _buffer, strlen(_buffer));
+
+            // done
+            break;
+        }
+
+        // write an array
+        case JSON_VALUE_ARRAY:
+        {
+
+            // initialized data
+            size_t   len = array_size(p_value->list);
+            iterator it  = { 0 };
+
+            // edge case
+            if ( 0 == len )
+            {
+
+                // write empty array
+                written += stream_write(p_stream, "[]", 2);
+
+                // done
+                break;
+            }
+
+            // write the opening bracket
+            written += stream_write(p_stream, "[", 1);
+
+            // construct an iterator
+            it = array_iterator(p_value->list);
+
+            // iterate through the array
+            for (size_t i = 0; i < len - 1; it.next(&it), i++)
+            {
+
+                // write the element
+                written += json_serialize(p_stream, (json_value *) it.item(&it));
+
+                // write a comma
+                written += stream_write(p_stream, ",", 1);
+            }
+
+            // write the last element
+            written += json_serialize(p_stream, (json_value *) it.item(&it));
+
+            // write the closing bracket
+            written += stream_write(p_stream, "]", 1);
+
+            // done
+            break;
+        }
+
+        // write an object
+        case JSON_VALUE_OBJECT:
+        {
+
+            // initialized data
+            size_t   len = 0;
+            iterator it  = { 0 };
+
+            // store the size of the dictionary
+            dict_size(p_value->object, &len);
+
+            // edge case
+            if ( 0 == len )
+            {
+                
+                // write empty object
+                written += stream_write(p_stream, "{}", 2);
+
+                // done
+                break;
+            }
+
+            // write the opening brace
+            written += stream_write(p_stream, "{", 1);
+
+            // construct an iterator
+            it = dict_iterator(p_value->object);
+
+            // iterate through the array
+            for (size_t i = 0; i < len - 1; it.next(&it), i++)
+            {
+
+                // initialized data
+                json_value        *p_value = it.item(&it);
+                const char *const  p_key   = object_key_accessor(p_value);
+
+                // write the key
+                written += stream_write(p_stream, "\"", 1);
+                written += stream_write(p_stream, (void *)p_key, strlen(p_key));
+                written += stream_write(p_stream, "\"", 1);
+
+                // write the separator
+                written += stream_write(p_stream, ":", 1);
+
+                // write the element
+                written += json_serialize(p_stream, p_value);
+
+                // write a comma
+                written += stream_write(p_stream, ",", 1);
+            }
+
+            // write the last element
+            {
+
+                // initialized data
+                json_value        *p_value = it.item(&it);
+                const char *const  p_key   = object_key_accessor(p_value);
+
+                // write the key
+                written += stream_write(p_stream, "\"", 1);
+                written += stream_write(p_stream, (void *)p_key, strlen(p_key));
+                written += stream_write(p_stream, "\"", 1);
+
+                // write the separator
+                written += stream_write(p_stream, ":", 1);
+
+                // write the element
+                written += json_serialize(p_stream, p_value);
+            }
+
+            // write the closing brace
+            written += stream_write(p_stream, "}", 1);
+
+            // done
+            break;
         }
     }
+
+    // success
+    return written;
 }
 
-void *json_value_free ( json_value *p_value, unsigned long long unused )
+void *json_allocator ( void *p_pointer, unsigned long long unused )
 {
+    
+    // argument check
+    if ( NULL == p_pointer ) return NULL;
     
     // unused
     (void) unused;
 
-    // argument errors
-    if ( p_value == (void *)0 ) return NULL;
+    // initialized data
+    json_value *p_value = (json_value *) p_pointer;
     
+    // release the key
+    if ( p_value->p_key ) 
+        p_value->p_key = default_allocator(p_value->p_key, 0);
+
     // strategy
     switch ( p_value->type )
     {
-        case JSON_VALUE_INVALID:
         case JSON_VALUE_BOOLEAN:
         case JSON_VALUE_INTEGER:
         case JSON_VALUE_NUMBER:
@@ -1363,7 +1131,7 @@ void *json_value_free ( json_value *p_value, unsigned long long unused )
             
         case JSON_VALUE_STRING:
 
-            // Free the string
+            // release the string
             p_value->string = default_allocator(p_value->string, 0);
             
             // done
@@ -1371,16 +1139,16 @@ void *json_value_free ( json_value *p_value, unsigned long long unused )
 
         case JSON_VALUE_OBJECT:
 
-            // destroy the dictionary
-            dict_destroy(&p_value->object, (fn_allocator *) json_value_free);
+            // release the dictionary
+            dict_destroy(&p_value->object, json_allocator);
 
             // done
             break;
 
         case JSON_VALUE_ARRAY:
 
-            // destroy the array
-            array_destroy(&p_value->list, (fn_allocator *) json_value_free);
+            // release the array
+            array_destroy(&p_value->list, json_allocator);
 
             // done
             break;
