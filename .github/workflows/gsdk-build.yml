@@ -406,6 +406,25 @@ jobs:
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/tests/json_test
 
+  thread-pool-test:
+    needs: [json-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run thread pool test
+        run: |
+          chmod +x build/tests/thread_pool_test
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/tests/thread_pool_test
+
+
   log-example:
     needs: build
     runs-on: ubuntu-latest
@@ -965,7 +984,7 @@ jobs:
           ./build/examples/graph_example
 
   parallel-example:
-    needs: [hash-test, sync-test, array-test, dict-test, json-test, log-example, hash-example, sync-example, array-example, dict-example, json-example]
+    needs: [hash-test, sync-test, array-test, dict-test, json-test, log-example, hash-example, sync-example, array-example, dict-example, json-example, thread-pool-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -10,11 +10,7 @@
 #include <performance/thread_pool.h>
 
 // preprocessor definitions
-#define PARALLEL_THREAD_POOL_NAME_LENGTH        (63 + 1)
-#define PARALLEL_THREAD_POOL_THREAD_NAME_LENGTH (63 + 1)
-#define PARALLEL_THREAD_POOL_TASK_NAME_LENGTH   (63 + 1)
-#define PARALLEL_THREAD_POOL_MAX_THREADS        64
-#define PARALLEL_THREAD_POOL_MAX_TASKS          256
+#define PARALLEL_THREAD_POOL_MAX_THREADS 64
 
 // forward declarations
 struct thread_pool_thread_s;
@@ -27,12 +23,14 @@ typedef struct thread_pool_work_parameter_s thread_pool_work_parameter;
 // structure definitions
 struct thread_pool_thread_s
 {
-    bool              running;
-    monitor           _montior;
-    void             *ret;
-    void             *p_parameter;
-    fn_parallel_task *pfn_parallel_task;
-    parallel_thread  *p_parallel_thread;
+    size_t                       index;
+    volatile bool                running;
+    volatile bool                terminate;
+    condition_variable           _ready;
+    void                        *ret;
+    void                        *p_parameter;
+    fn_parallel_task * volatile  pfn_parallel_task;
+    parallel_thread             *p_parallel_thread;
 
 };
 
@@ -44,169 +42,92 @@ struct thread_pool_work_parameter_s
 
 struct thread_pool_s
 {
-    monitor _montior;
-    mutex _lock;
-    size_t thread_quantity;
-    size_t running_threads;
+    condition_variable   _ready;
+    mutex                _lock;
+    size_t               thread_quantity;
+    volatile size_t      running_threads;
+    volatile bool        started;
+    volatile bool        terminate;
     thread_pool_work_parameter _threads[];
 };
 
 // function declarations
 /** !
- * Allocate memory for a scheudle thread
- * 
- * @param pp_thread_pool_thread return
- * 
- * @return 1 on success, 0 on error
-*/
-int parallel_thread_pool_thread_create ( thread_pool_thread **pp_thread_pool_thread, size_t task_quantity );
-
-/** !
- * Construct a named thread from a json value
- * 
- * @param pp_thread return
- * @param name      the name
- * @param value     the json value
- * 
- * @return 1 on success, 0 on error
- */
-int parallel_thread_pool_thread_load_as_json_value ( thread_pool_thread **const pp_thread, const char *const name, const json_value *const p_value );
-
-/** !
- * Worker thread loop
- * 
- * @param p_parameter who am I?
- * 
- * @return ret
- */
-void *parallel_thread_pool_work ( thread_pool_work_parameter *p_parameter );
-
-/** !
- * Main thread loop
- * 
- * @param p_parameter who am I?
- * 
- * @return ret
- */
-void *parallel_thread_pool_main_work ( thread_pool_work_parameter *p_parameter );
-
-// TODO: Document
-int thread_pool_thread_destroy ( thread_pool_thread **pp_thread );
-
-/** !
  * Start a worker thread
  * 
- * @param p_parameter 
+ * @param p_parameter any
  * 
- * @return 
+ * @return any
  */
 void *thread_pool_work ( thread_pool_work_parameter *p_parameter );
 
 // function definitions
-int thread_pool_create ( thread_pool **const pp_thread_pool )
-{
-
-    // argument check
-    if ( pp_thread_pool == (void *) 0 ) goto no_thread_pool;
-
-    // initialized data
-    thread_pool *p_thread_pool = (void *) 0;
-
-    // allocate memory for the thread_pool
-    p_thread_pool = default_allocator(0, sizeof(thread_pool));
-
-    // error check
-    if ( p_thread_pool == (void *) 0 ) goto no_mem;
-
-    // Zero set memory
-    memset(p_thread_pool, 0, sizeof(thread_pool));
-
-    // return a pointer to the caller
-    *pp_thread_pool = p_thread_pool;
-
-    // success
-    return 1;
-
-    // error handling
-    {
-
-        // argument errors
-        {
-            no_thread_pool: 
-                #ifndef NDEBUG
-                    log_error("[parallel] [thread pool] Null pointer provided for parameter \"pp_thread_pool\" in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-        }
-        
-        // standard library errors
-        {
-            no_mem:
-                #ifndef NDEBUG
-                    log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-                
-                // error
-                return 0;
-        }
-    }
-}
-
 int thread_pool_construct ( thread_pool **pp_thread_pool, size_t thread_quantity )
 {
 
     // argument check
-    if ( pp_thread_pool  ==                       (void *) 0 ) goto no_thread_pool;
-    if ( thread_quantity ==                                0 ) goto no_thread_quantity;
-    if ( thread_quantity >  PARALLEL_THREAD_POOL_MAX_THREADS ) goto too_many_threads;
+    if ( NULL                             ==  pp_thread_pool ) goto no_thread_pool;
+    if ( 0                                == thread_quantity ) goto no_thread_quantity;
+    if ( PARALLEL_THREAD_POOL_MAX_THREADS <  thread_quantity ) goto too_many_threads;
     
     // initialized data
-    thread_pool *p_thread_pool = (void *) 0;
+    thread_pool *p_thread_pool = NULL;
+    size_t       size          = sizeof(thread_pool) + (thread_quantity * sizeof(thread_pool_work_parameter));
 
-    // Construct a thread pool
-    if ( thread_pool_create(&p_thread_pool) == 0 ) goto failed_to_create_thread_pool;
-
-    // Grow the allocation
-    p_thread_pool = default_allocator(p_thread_pool, sizeof(thread_pool) * ( thread_quantity * sizeof(thread_pool_work_parameter) ));
-
-    // Initialize data
-    memset(p_thread_pool, 0, sizeof(thread_pool) * ( thread_quantity * sizeof(thread_pool_work_parameter) ));
-
-    // error check
-    if ( p_thread_pool == (void *) 0 ) goto no_mem;
+    // allocate memory for a thread pool
+    p_thread_pool = default_allocator(p_thread_pool, size);
+    if ( NULL == p_thread_pool ) goto no_mem;
 
     // store the quantity of threads
     *p_thread_pool = (thread_pool)
     {
         .thread_quantity = thread_quantity,
-        ._montior = { 0 }
+        ._ready = { 0 },
+        ._lock = { 0 }
     };
 
-    // Construct a monitor
-    monitor_create(&p_thread_pool->_montior);
+    // construct a condition variable
+    condition_variable_create(&p_thread_pool->_ready);
 
-    // Construct threads
+    // construct a lock
+    mutex_create(&p_thread_pool->_lock);
+
+    // lock
+    mutex_lock(&p_thread_pool->_lock);
+
+    // construct threads
     for (size_t i = 0; i < thread_quantity; i++)
     {
     
         // store the thread pool in the parameter
         p_thread_pool->_threads[i].p_thread_pool = p_thread_pool;
+        p_thread_pool->_threads[i]._thread.index = i;
 
-        // Construct a monitor
-        monitor_create(&p_thread_pool->_threads[i]._thread._montior);
+        // construct a condition variable
+        condition_variable_create(&p_thread_pool->_threads[i]._thread._ready);
 
-        // Construct a thread
-        if ( parallel_thread_start(&p_thread_pool->_threads[i]._thread.p_parallel_thread, (fn_parallel_task *)thread_pool_work, &p_thread_pool->_threads[i]) == 0 ) goto failed_to_start_thread;
+        // construct a thread
+        if ( 0 == parallel_thread_start(&p_thread_pool->_threads[i]._thread.p_parallel_thread, (fn_parallel_task *)thread_pool_work, &p_thread_pool->_threads[i]) )
+        {
+
+            // unlock
+            mutex_unlock(&p_thread_pool->_lock);
+            goto failed_to_start_thread;
+        }
     }
 
-    // Wait for all the threads to start
+    // wait for threads to start
     while ( p_thread_pool->running_threads != thread_quantity )
-        sleep(0);
+        condition_variable_wait(&p_thread_pool->_ready, &p_thread_pool->_lock);
     
-    // Start the worker threads
-    monitor_notify_all(&p_thread_pool->_montior);
+    // start the worker threads
+    p_thread_pool->started = true;
+
+    // broadcast
+    condition_variable_broadcast(&p_thread_pool->_ready);
+
+    // unlock
+    mutex_unlock(&p_thread_pool->_lock);
 
     // return a pointer to the caller
     *pp_thread_pool = p_thread_pool;
@@ -244,20 +165,15 @@ int thread_pool_construct ( thread_pool **pp_thread_pool, size_t thread_quantity
                 return 0;
         }
 
-        // Parallel errors
+        // parallel errors
         {
-            failed_to_create_thread_pool:
-                #ifndef NDEBUG
-                    log_error("[parallel] [thread pool] Failed to create thread pool in call to function \"%s\"\n", __FUNCTION__);
-                #endif
-
-                // error
-                return 0;
-
             failed_to_start_thread:
                 #ifndef NDEBUG
                     log_error("[parallel] [thread pool] Failed to create thread in call to function \"%s\"\n", __FUNCTION__);
                 #endif
+
+                // destroy the thread pool
+                thread_pool_destroy(&p_thread_pool);
 
                 // error
                 return 0;
@@ -280,57 +196,46 @@ int thread_pool_execute ( thread_pool *p_thread_pool, fn_parallel_task *pfn_para
 {
 
     // argument check
-    if ( p_thread_pool     == (void *) 0 ) goto no_thread_pool;
-    if ( pfn_parallel_task == (void *) 0 ) goto no_parallel_task;
-
-    // initialized data
-    size_t i = 0;
-
-    try_again:
+    if ( NULL ==     p_thread_pool ) goto no_thread_pool;
+    if ( NULL == pfn_parallel_task ) goto no_parallel_task;
 
     // lock
     mutex_lock(&p_thread_pool->_lock);
 
-    // Defer to other threads
-    sleep(0);
+    // state check
+    while ( p_thread_pool->terminate == false )
+    {
 
-    // Find an idle thread
-    for (i = 0; i < p_thread_pool->thread_quantity; i++)
-    {   
+        // find an idle thread
+        for (size_t i = 0; i < p_thread_pool->thread_quantity; i++)
+        {   
 
-        // If this thread is running, try the next one
-        if ( p_thread_pool->_threads[i]._thread.running ) continue;
+            // busy?
+            if ( p_thread_pool->_threads[i]._thread.pfn_parallel_task || p_thread_pool->_threads[i]._thread.running || p_thread_pool->_threads[i]._thread.terminate ) continue;
 
-        // Found one
-        goto found_thread;
+            // prepare the task
+            p_thread_pool->_threads[i]._thread.pfn_parallel_task = pfn_parallel_task;
+            p_thread_pool->_threads[i]._thread.p_parameter       = p_parameter;
+            
+            // signal
+            condition_variable_signal(&p_thread_pool->_threads[i]._thread._ready);
+
+            // unlock
+            mutex_unlock(&p_thread_pool->_lock);
+            
+            // success
+            return 1;
+        }
+
+        // wait
+        condition_variable_wait(&p_thread_pool->_ready, &p_thread_pool->_lock);
     }
 
     // unlock
     mutex_unlock(&p_thread_pool->_lock);
 
-    // Defer to other threads
-    sleep(0);
-
-    // Find the idle thread
-    goto try_again;
-
-    found_thread:
- 
-    // Set up the task
-    p_thread_pool->_threads[i]._thread.pfn_parallel_task = pfn_parallel_task;
-    p_thread_pool->_threads[i]._thread.p_parameter       = p_parameter;
-    p_thread_pool->_threads[i]._thread.running           = true;
-
-    sleep(0);
-
-    // Signal the thread
-    monitor_notify(&p_thread_pool->_threads[i]._thread._montior);
-
-    // unlock
-    mutex_unlock(&p_thread_pool->_lock);
-    
-    // success
-    return 1;
+    // error
+    return 0;
 
     // error handling
     {
@@ -360,26 +265,33 @@ int thread_pool_wait_idle ( thread_pool *p_thread_pool )
 {
 
     // argument check
-    if ( p_thread_pool == (void *) 0 ) goto no_thread_pool;
+    if ( NULL == p_thread_pool ) goto no_thread_pool;
 
     // initialized data
     bool is_running = true;
 
-    // Until the thread pool is idle
-    while ( is_running )
+    // lock
+    mutex_lock(&p_thread_pool->_lock);
+
+    // wait
+    while ( is_running && p_thread_pool->terminate == false )
     {
 
+        // clear the running flag
         is_running = false;
 
-        // For all threads in the thread pool ...
+        // iterate through each thread in the pool
         for (size_t i = 0; i < p_thread_pool->thread_quantity; i++)
+            
+            // running?  
+            is_running |= ( p_thread_pool->_threads[i]._thread.pfn_parallel_task || p_thread_pool->_threads[i]._thread.running );
         
-            // ... if a thread is running set the flag ...
-            is_running |= p_thread_pool->_threads[i]._thread.running;
-        
-        // ... defer to other threads 
-        sleep(0);
+        // wait 
+        if ( is_running ) condition_variable_wait(&p_thread_pool->_ready, &p_thread_pool->_lock);
     };
+
+    // unlock
+    mutex_unlock(&p_thread_pool->_lock);
 
     // success
     return 1;
@@ -400,6 +312,152 @@ int thread_pool_wait_idle ( thread_pool *p_thread_pool )
     }
 }
 
+int thread_pool_thread_destroy ( thread_pool_thread *p_thread )
+{
+
+    // argument check
+    if ( NULL == p_thread ) goto no_thread;
+
+    // release the thread
+    if ( p_thread->p_parallel_thread )
+        parallel_thread_join(&p_thread->p_parallel_thread);
+
+    // release the condition variable
+    condition_variable_destroy(&p_thread->_ready);
+
+    // success
+    return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_thread:
+                #ifndef NDEBUG
+                    log_error("[parallel] [thread pool] Null pointer provided for parameter \"p_thread\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int thread_pool_is_idle ( thread_pool *p_thread_pool )
+{
+
+    // argument check
+    if ( NULL == p_thread_pool ) goto no_thread_pool;
+
+    // initialized data
+    int idle = 1;
+
+    // lock
+    mutex_lock(&p_thread_pool->_lock);
+
+    // iterate through each thread in the pool
+    for (size_t i = 0; i < p_thread_pool->thread_quantity; i++)
+
+        // busy?
+        if ( p_thread_pool->_threads[i]._thread.pfn_parallel_task || p_thread_pool->_threads[i]._thread.running )
+        {
+            idle = 0;
+            break;
+        }
+
+    // unlock
+    mutex_unlock(&p_thread_pool->_lock);
+
+    // success
+    return idle;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_thread_pool:
+                #ifndef NDEBUG
+                    log_error("[parallel] [thread pool] Null pointer provided for parameter \"p_thread_pool\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
+int thread_pool_destroy ( thread_pool **pp_thread_pool )
+{
+
+    // argument check
+    if ( NULL == pp_thread_pool ) goto no_thread_pool;
+
+    // initialized data
+    thread_pool *p_thread_pool = *pp_thread_pool;
+
+    // edge case
+    if ( NULL == p_thread_pool ) return 1;
+
+    // no more pointer for caller
+    *pp_thread_pool = NULL;
+
+    // lock
+    mutex_lock(&p_thread_pool->_lock);
+
+    // set the terminate flag
+    p_thread_pool->terminate = true;
+
+    // iterate through each thread
+    for (size_t i = 0; i < p_thread_pool->thread_quantity; i++)
+    {
+
+        // set the terminate flag
+        p_thread_pool->_threads[i]._thread.terminate = true;
+
+        // broadcast
+        condition_variable_broadcast(&p_thread_pool->_threads[i]._thread._ready);
+    }
+
+    // broadcast
+    condition_variable_broadcast(&p_thread_pool->_ready);
+
+    // unlock
+    mutex_unlock(&p_thread_pool->_lock);
+
+    // release the threads
+    for (size_t i = 0; i < p_thread_pool->thread_quantity; i++)
+        thread_pool_thread_destroy(&p_thread_pool->_threads[i]._thread);
+
+    // release the condition variable
+    condition_variable_destroy(&p_thread_pool->_ready);
+
+    // release the lock
+    mutex_destroy(&p_thread_pool->_lock);
+
+    // release the thread pool
+    p_thread_pool = default_allocator(p_thread_pool, 0);
+
+    // success
+    return 1;
+
+    // error handling
+    {
+
+        // argument errors
+        {
+            no_thread_pool:
+                #ifndef NDEBUG
+                    log_error("[parallel] [thread pool] Null pointer provided for parameter \"pp_thread_pool\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+    }
+}
+
 void *thread_pool_work ( thread_pool_work_parameter *p_parameter )
 {
 
@@ -412,35 +470,70 @@ void *thread_pool_work ( thread_pool_work_parameter *p_parameter )
     // lock
     mutex_lock(&p_thread_pool->_lock);
 
-    // Increment the quantity of running threads
+    // increment the quantity of running threads
     p_thread_pool->running_threads++;
+
+    // broadcast
+    condition_variable_broadcast(&p_thread_pool->_ready);
+
+    // wait for the thread pool to start
+    while ( p_thread_pool->started == false && p_thread_pool->terminate == false )
+        condition_variable_wait(&p_thread_pool->_ready, &p_thread_pool->_lock);
+
+    // work loop
+    while ( true )
+    {
+
+        // set the running flag
+        p_parameter->_thread.running = false;
+
+        // broadcast
+        condition_variable_broadcast(&p_thread_pool->_ready);
+
+        // wait for a task or a termination signal
+        while 
+        ( 
+            NULL  == p_parameter->_thread.pfn_parallel_task && 
+            false == p_parameter->_thread.terminate         && 
+            false == p_thread_pool->terminate 
+        )
+
+            // wait
+            condition_variable_wait(&p_parameter->_thread._ready, &p_thread_pool->_lock);
+
+        // Prioritize executing an assigned task over termination
+        if ( p_parameter->_thread.pfn_parallel_task )
+        {
+
+            // initialized data
+            fn_parallel_task *pfn_parallel_task = p_parameter->_thread.pfn_parallel_task;
+            void             *p_task_parameter  = p_parameter->_thread.p_parameter;
+
+            // set the running flag
+            p_parameter->_thread.running = true;
+
+            // clear the previous task
+            p_parameter->_thread.pfn_parallel_task = NULL;
+
+            // unlock
+            mutex_unlock(&p_thread_pool->_lock);
+
+            // run the user's task
+            p_parameter->_thread.ret = pfn_parallel_task(p_task_parameter);
+
+            // lock
+            mutex_lock(&p_thread_pool->_lock);
+
+            // continue
+            continue;
+        }
+
+        // terminate?
+        if ( p_parameter->_thread.terminate || p_thread_pool->terminate ) break;
+    }
 
     // unlock
     mutex_unlock(&p_thread_pool->_lock);
-
-    // Wait for the thread pool to start
-    monitor_wait(&p_thread_pool->_montior);
-
-    wait_for_next_task:
-
-    p_parameter->_thread.running = false;
-
-    // Wait for a task to be assigned
-    monitor_wait(&p_parameter->_thread._montior);
-
-    p_parameter->_thread.running = true;
-
-    // Run the user's task
-    p_parameter->_thread.ret = p_parameter->_thread.pfn_parallel_task(p_parameter->_thread.p_parameter);
-
-    p_parameter->_thread.running = false;
-
-    sleep(0);
-
-    monitor_notify(&p_thread_pool->_montior);
-
-    // Wait for the next task
-    goto wait_for_next_task;    
 
     // success
     return (void *) 1;
