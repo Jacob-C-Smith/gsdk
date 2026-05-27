@@ -1,6 +1,4 @@
 core=(
-    # digital_signature 
-    # rsa
     hash
     interfaces
     log

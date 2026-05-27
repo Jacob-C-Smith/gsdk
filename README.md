@@ -82,12 +82,6 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>⭐ <a href="./documentation/md/crypto/x25519.md">
             <b>x25519</b>
         </a></li>
-        <li>🧪 <a href="./documentation/md/crypto/digital_signature.md">
-            digital signatures
-        </a></li>
-        <li>🧪 <a href="./documentation/md/crypto/rsa.md">
-            rsa
-        </a></li>
         <li>🧪 <a href="./documentation/md/crypto/secure_socket.md">
             secure socket
         </a></li>

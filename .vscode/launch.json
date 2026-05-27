@@ -1126,36 +1126,6 @@
                     "ignoreFailures": true
                 }
             ]
-        },
-        {
-            "name": "utility > digital sign",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/utilities/digital_sign",
-            "args": [
-                "-p", "resources/core/public.key",
-                "-q", "resources/core/private.key",
-                "-i", "resources/core/token.json",
-                "-o", "resources/core/signed.token"
-            ],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "setupCommands":
-            [
-                {
-                    "description": "Enable pretty-printing for lldb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "Set Disassembly Flavor to Intel",
-                    "text": "-lldb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
         }
     ]
 }
