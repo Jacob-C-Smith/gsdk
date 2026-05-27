@@ -658,7 +658,7 @@ jobs:
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/examples/array_example
   
-  avl-example:
+  tree-example:
     needs: [tree-test]
     runs-on: ubuntu-latest
     steps:
@@ -670,47 +670,11 @@ jobs:
           name: build
           path: build
 
-      - name: Run avl example
+      - name: Run tree example
         run: |
-          chmod +x build/examples/avl_example
+          chmod +x build/examples/tree_example
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
-          ./build/examples/avl_example
-
-  binary-example:
-    needs: [tree-test]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build
-          path: build
-
-      - name: Run binary tree example
-        run: |
-          chmod +x build/examples/binary_example
-          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
-          ./build/examples/binary_example
-  
-  red-black-example:
-    needs: [tree-test]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build
-          path: build
-
-      - name: Run red black example
-        run: |
-          chmod +x build/examples/red_black_example
-          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
-          ./build/examples/red_black_example
+          ./build/examples/tree_example
 
   bitmap-example:
     needs: [bitmap-test]
