@@ -47,7 +47,7 @@ jobs:
           path: build   # upload the build directory (relative to workspace)
 
   sha-test:
-    needs: [build, log-example]
+    needs: [log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -65,7 +65,7 @@ jobs:
           ./build/tests/sha_test
   
   hash-test:
-    needs: [build, log-example]
+    needs: [log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -83,7 +83,7 @@ jobs:
           ./build/tests/hash_test
   
   sync-test:
-    needs: [build, log-example]
+    needs: [log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -101,7 +101,7 @@ jobs:
           ./build/tests/sync_test
   
   pack-test:
-    needs: [build, log-example]
+    needs: [build, stream-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -119,7 +119,7 @@ jobs:
           ./build/tests/pack_test
   
   stream-test:
-    needs: [build, log-example]
+    needs: [log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -137,7 +137,7 @@ jobs:
           ./build/tests/stream_test
   
   array-test:
-    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [hash-example, sync-example, pack-example, stream-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -155,7 +155,7 @@ jobs:
           ./build/tests/array_test
   
   tree-test:
-    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [hash-example, sync-example, pack-example, stream-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -173,7 +173,7 @@ jobs:
           ./build/tests/tree_test
 
   bitmap-test:
-    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [hash-example, sync-example, pack-example, stream-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -191,7 +191,7 @@ jobs:
           ./build/tests/bitmap_test
   
   cache-test:
-    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [hash-example, sync-example, pack-example, stream-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -209,7 +209,7 @@ jobs:
           ./build/tests/cache_test
 
   circular-buffer-test:
-    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [hash-example, sync-example, pack-example, stream-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -227,7 +227,7 @@ jobs:
           ./build/tests/circular_buffer_test
 
   dict-test:
-    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [hash-example, sync-example, pack-example, stream-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -245,7 +245,7 @@ jobs:
           ./build/tests/dict_test
 
   double-queue-test:
-    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [hash-example, sync-example, pack-example, stream-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -263,7 +263,7 @@ jobs:
           ./build/tests/double_queue_test
   
   hash-table-test:
-    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [hash-example, sync-example, pack-example, stream-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -281,7 +281,7 @@ jobs:
           ./build/tests/hash_table_test
 
   queue-test:
-    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [hash-example, sync-example, pack-example, stream-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -299,7 +299,7 @@ jobs:
           ./build/tests/queue_test
   
   priority-queue-test:
-    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [hash-example, sync-example, pack-example, stream-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -317,7 +317,7 @@ jobs:
           ./build/tests/priority_queue_test
   
   stack-test:
-    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [hash-example, sync-example, pack-example, stream-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -335,7 +335,7 @@ jobs:
           ./build/tests/stack_test
 
   set-test:
-    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [hash-example, sync-example, pack-example, stream-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -353,7 +353,7 @@ jobs:
           ./build/tests/set_test
 
   tuple-test:
-    needs: [pack-test, sync-test, hash-test, log-example, sync-example, hash-example, pack-example]
+    needs: [hash-example, sync-example, pack-example, stream-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -371,7 +371,7 @@ jobs:
           ./build/tests/tuple_test
   
   base64-test:
-    needs: [build, log-example]
+    needs: [log-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -389,7 +389,7 @@ jobs:
           ./build/tests/base64_test
   
   json-test:
-    needs: [hash-test, sync-test, array-test, dict-test, log-example, hash-example, sync-example, array-example, dict-example]
+    needs: [array-example, dict-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -461,7 +461,7 @@ jobs:
           ./build/examples/log_example
 
   hash-example:
-    needs: [hash-test, log-example]
+    needs: [hash-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -479,7 +479,7 @@ jobs:
           ./build/examples/hash_example
 
   sha-example:
-    needs: [sha-test, log-example]
+    needs: [sha-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -533,7 +533,7 @@ jobs:
           ./build/examples/rsa_example
   
   digital-signature-example:
-    needs: [sha-test, log-example, sha-example, rsa-example]
+    needs: [sha-example, rsa-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -551,7 +551,7 @@ jobs:
           ./build/examples/digital_signature_example
 
   ed25519-example:
-    needs: [log-example, sha-example, pack-example]
+    needs: [sha-example, pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -569,7 +569,7 @@ jobs:
           ./build/examples/ed25519_example
   
   x25519-example:
-    needs: [log-example, pack-example]
+    needs: [pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -587,7 +587,7 @@ jobs:
           ./build/examples/x25519_example
   
   chacha20-example:
-    needs: [log-example, pack-example]
+    needs: [pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -605,7 +605,7 @@ jobs:
           ./build/examples/chacha20_example
 
   poly1305-example:
-    needs: [log-example, pack-example]
+    needs: [pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -623,7 +623,7 @@ jobs:
           ./build/examples/poly1305_example
   
   aead-example:
-    needs: [log-example, pack-example,chacha20-example, poly1305-example]
+    needs: [chacha20-example, poly1305-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -641,7 +641,7 @@ jobs:
           ./build/examples/aead_example
 
   pack-example:
-    needs: [pack-test, log-example]
+    needs: [pack-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -659,7 +659,7 @@ jobs:
           ./build/examples/pack_example
   
   sync-example:
-    needs: [log-example, sync-test]
+    needs: [sync-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -677,7 +677,7 @@ jobs:
           ./build/examples/sync_example
 
   array-example:
-    needs: [array-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
+    needs: [array-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -695,7 +695,7 @@ jobs:
           ./build/examples/array_example
   
   avl-example:
-    needs: [hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example, tree-test]
+    needs: [tree-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -713,7 +713,7 @@ jobs:
           ./build/examples/avl_example
 
   binary-example:
-    needs: [hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example, tree-test]
+    needs: [tree-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -731,7 +731,7 @@ jobs:
           ./build/examples/binary_example
   
   red-black-example:
-    needs: [hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example, tree-test]
+    needs: [tree-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -749,7 +749,7 @@ jobs:
           ./build/examples/red_black_example
 
   bitmap-example:
-    needs: [bitmap-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
+    needs: [bitmap-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -767,7 +767,7 @@ jobs:
           ./build/examples/bitmap_example
 
   cache-example:
-    needs: [hash-test, pack-test, sync-test, cache-test, log-example, sync-example, hash-example, pack-example]
+    needs: [cache-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -785,7 +785,7 @@ jobs:
           ./build/examples/cache_example
   
   circular-buffer-example:
-    needs: [circular-buffer-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
+    needs: [circular-buffer-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -803,7 +803,7 @@ jobs:
           ./build/examples/circular_buffer_example
 
   dict-example:
-    needs: [dict-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
+    needs: [dict-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -821,7 +821,7 @@ jobs:
           ./build/examples/dict_example
   
   double-queue-example:
-    needs: [double-queue-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
+    needs: [double-queue-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -839,7 +839,7 @@ jobs:
           ./build/examples/double_queue_example
   
   hash-table-example:
-    needs: [hash-test, pack-test, sync-test, hash-table-test, log-example, sync-example, hash-example, pack-example]
+    needs: [hash-table-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -857,7 +857,7 @@ jobs:
           ./build/examples/hash_table_example
   
   priority-queue-example:
-    needs: [priority-queue-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
+    needs: [priority-queue-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -875,7 +875,7 @@ jobs:
           ./build/examples/priority_queue_example
   
   queue-example:
-    needs: [queue-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
+    needs: [queue-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -893,7 +893,7 @@ jobs:
           ./build/examples/queue_example
   
   set-example:
-    needs: [set-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
+    needs: [set-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -911,7 +911,7 @@ jobs:
           ./build/examples/set_example
 
   stack-example:
-    needs: [stack-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
+    needs: [stack-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -929,7 +929,7 @@ jobs:
           ./build/examples/stack_example
 
   tuple-example:
-    needs: [tuple-test, hash-test, pack-test, sync-test, log-example, sync-example, hash-example, pack-example]
+    needs: [tuple-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -947,7 +947,7 @@ jobs:
           ./build/examples/tuple_example
 
   base64-example:
-    needs: [build, base64-test, log-example]
+    needs: [base64-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -965,7 +965,7 @@ jobs:
           ./build/examples/base64_example
 
   json-example:
-    needs: [hash-test, sync-test, array-test, dict-test, json-test, log-example, hash-example, sync-example, array-example, dict-example]
+    needs: [json-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -983,7 +983,7 @@ jobs:
           ./build/examples/json_example ${{github.workspace}}/resources/reflection/json_example_1.json
   
   graph-example:
-    needs: [hash-test, log-example, hash-example, sync-example, hash-table-example, queue-test, queue-example, stack-test, stack-example, priority-queue-test, priority-queue-example]
+    needs: [hash-table-example, queue-example, stack-example, priority-queue-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
