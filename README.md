@@ -70,25 +70,26 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 <details open>
     <summary><a href="documentation/md/crypto.md">crypto</a></summary>
     <ul>
-        <li>⭐ <a href="./documentation/md/core/aead.md">
+        <li>⭐ <a href="./documentation/md/crypto/aead.md">
             <b>aead</b>
         </a></li>
-        <li>⭐ <a href="./documentation/md/core/sha.md"><b>
+        <li>⭐ <a href="./documentation/md/crypto/sha.md"><b>
             sha
         </b></a></li>
-        <li>⭐ <a href="./documentation/md/core/ed25519.md"><b>
+        <li>⭐ <a href="./documentation/md/crypto/ed25519.md"><b>
             ed25519
         </b></a></li>
-        <li>🧪 <a href="./documentation/md/core/digital_signature.md">
+        <li>⭐ <a href="./documentation/md/crypto/x25519.md">
+            <b>x25519</b>
+        </a></li>
+        <li>🧪 <a href="./documentation/md/crypto/digital_signature.md">
             digital signatures
         </a></li>
-        <li>🧪 <a href="./documentation/md/core/rsa.md">
+        <li>🧪 <a href="./documentation/md/crypto/rsa.md">
             rsa
         </a></li>
-        <li>🧪 <a href="./documentation/md/core/secure_socket.md">
+        <li>🧪 <a href="./documentation/md/crypto/secure_socket.md">
             secure socket
-        <li>🧪 <a href="./documentation/md/core/x25519.md">
-            x25519
         </a></li>
     </ul>
 </details>

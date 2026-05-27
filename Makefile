@@ -462,7 +462,7 @@ $(BUILD_UTIL_DIR)/secure_echo_client: $(UTILS_DIR)/network/secure/secure_echo_cl
 #########
 # Tests #
 #########
-tests: ed25519_test_vectors aead_test_vectors $(BUILD_TEST_DIR)/sync_test $(BUILD_TEST_DIR)/stream_test $(BUILD_TEST_DIR)/pack_test $(BUILD_TEST_DIR)/hash_test $(BUILD_TEST_DIR)/sha_test $(BUILD_TEST_DIR)/ed25519_test $(BUILD_TEST_DIR)/aead_test $(BUILD_TEST_DIR)/array_test $(BUILD_TEST_DIR)/bitmap_test $(BUILD_TEST_DIR)/cache_test $(BUILD_TEST_DIR)/circular_buffer_test $(BUILD_TEST_DIR)/dict_test $(BUILD_TEST_DIR)/double_queue_test $(BUILD_TEST_DIR)/hash_table_test $(BUILD_TEST_DIR)/tree_test $(BUILD_TEST_DIR)/tuple_test $(BUILD_TEST_DIR)/priority_queue_test $(BUILD_TEST_DIR)/queue_test $(BUILD_TEST_DIR)/set_test $(BUILD_TEST_DIR)/stack_test $(BUILD_TEST_DIR)/base64_test $(BUILD_TEST_DIR)/json_test $(BUILD_TEST_DIR)/thread_pool_test $(BUILD_TEST_DIR)/schedule_test
+tests: aead_test_vectors ed25519_test_vectors x25519_test_vectors $(BUILD_TEST_DIR)/sync_test $(BUILD_TEST_DIR)/stream_test $(BUILD_TEST_DIR)/pack_test $(BUILD_TEST_DIR)/hash_test $(BUILD_TEST_DIR)/sha_test $(BUILD_TEST_DIR)/aead_test $(BUILD_TEST_DIR)/ed25519_test $(BUILD_TEST_DIR)/x25519_test $(BUILD_TEST_DIR)/array_test $(BUILD_TEST_DIR)/bitmap_test $(BUILD_TEST_DIR)/cache_test $(BUILD_TEST_DIR)/circular_buffer_test $(BUILD_TEST_DIR)/dict_test $(BUILD_TEST_DIR)/double_queue_test $(BUILD_TEST_DIR)/hash_table_test $(BUILD_TEST_DIR)/tree_test $(BUILD_TEST_DIR)/tuple_test $(BUILD_TEST_DIR)/priority_queue_test $(BUILD_TEST_DIR)/queue_test $(BUILD_TEST_DIR)/set_test $(BUILD_TEST_DIR)/stack_test $(BUILD_TEST_DIR)/base64_test $(BUILD_TEST_DIR)/json_test $(BUILD_TEST_DIR)/thread_pool_test $(BUILD_TEST_DIR)/schedule_test
 
 $(BUILD_TEST_DIR):
 	@mkdir -p $@
@@ -485,17 +485,21 @@ $(BUILD_TEST_DIR)/hash_test: $(TESTS_DIR)/hash_test.c | $(BUILD_TEST_DIR)
 	@$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) 
 
 # crypto
-$(BUILD_TEST_DIR)/sha_test: $(TESTS_DIR)/sha_test.c | $(BUILD_TEST_DIR)
-	# test > crypto > sha
-	@$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) 
+$(BUILD_TEST_DIR)/aead_test: $(TESTS_DIR)/aead_test.c | $(BUILD_TEST_DIR)
+	# test > crypto > aead
+	@$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(BUILD_LIB_DIR)/aead.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) 
 
 $(BUILD_TEST_DIR)/ed25519_test: $(TESTS_DIR)/ed25519_test.c | $(BUILD_TEST_DIR)
 	# test > crypto > ed25519
 	@$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(BUILD_LIB_DIR)/ed25519.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) 
 
-$(BUILD_TEST_DIR)/aead_test: $(TESTS_DIR)/aead_test.c | $(BUILD_TEST_DIR)
-	# test > crypto > aead
-	@$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(BUILD_LIB_DIR)/aead.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) 
+$(BUILD_TEST_DIR)/sha_test: $(TESTS_DIR)/sha_test.c | $(BUILD_TEST_DIR)
+	# test > crypto > sha
+	@$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) 
+
+$(BUILD_TEST_DIR)/x25519_test: $(TESTS_DIR)/x25519_test.c | $(BUILD_TEST_DIR)
+	# test > crypto > x25519
+	@$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/x25519.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) 
 
 # data
 $(BUILD_TEST_DIR)/array_test: $(TESTS_DIR)/array_test.c | $(BUILD_TEST_DIR)
@@ -578,11 +582,14 @@ valgrind: libs examples
 ################
 # Test vectors #
 ################
+aead_test_vectors:
+	@python3 scripts/aead-test-vectors.py > src/crypto/aead/aead_test.h
+
 ed25519_test_vectors:
 	@awk -f scripts/ed25519-test-vectors.awk scripts/sign.input > src/crypto/ed25519/ed25519_test.h
 
-aead_test_vectors:
-	@python3 scripts/chacha20-poly1305-test-vectors.py > src/crypto/aead/aead_test.h
+x25519_test_vectors:
+	@python3 scripts/x25519-test-vectors.py > src/crypto/x25519/x25519_test.h
 
 #########
 # Clean #

@@ -17,7 +17,7 @@ data = data["testGroups"][0]["tests"]
 print("""/** !
  * aead test vectors
  * 
- * @file src/crypto/aead_test/aead_test.h
+ * @file src/crypto/aead/aead_test.h
  * 
  * @author Jacob Smith
  */
