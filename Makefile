@@ -43,7 +43,7 @@ LIBS = $(CORE_LIBS) $(CRYPTO_LIBS) $(DATA_LIBS) $(REFLECTION_LIBS) $(PERFORMANCE
 UTILS = rsa_key_generator rsa_key_info aes_assert sha256_hash digital_sign digital_verify echo_server certificate_chain_verify ed25519_key_generator certificate_create certificate_info certificate_sign certificate_verify echo_client time_server time_client hash_optimal lisp_syntax_highlighter
 
 # Phony targets
-.PHONY: all clean libs examples tests utils valgrind ed25519_test_vectors
+.PHONY: all clean libs examples tests utils valgrind ed25519_test_vectors aead_test_vectors
 
 #############
 # Libraries #
@@ -462,7 +462,7 @@ $(BUILD_UTIL_DIR)/secure_echo_client: $(UTILS_DIR)/network/secure/secure_echo_cl
 #########
 # Tests #
 #########
-tests: $(BUILD_TEST_DIR)/sync_test $(BUILD_TEST_DIR)/stream_test $(BUILD_TEST_DIR)/pack_test $(BUILD_TEST_DIR)/hash_test $(BUILD_TEST_DIR)/sha_test $(BUILD_TEST_DIR)/ed25519_test $(BUILD_TEST_DIR)/array_test $(BUILD_TEST_DIR)/bitmap_test $(BUILD_TEST_DIR)/cache_test $(BUILD_TEST_DIR)/circular_buffer_test $(BUILD_TEST_DIR)/dict_test $(BUILD_TEST_DIR)/double_queue_test $(BUILD_TEST_DIR)/hash_table_test $(BUILD_TEST_DIR)/tree_test $(BUILD_TEST_DIR)/tuple_test $(BUILD_TEST_DIR)/priority_queue_test $(BUILD_TEST_DIR)/queue_test $(BUILD_TEST_DIR)/set_test $(BUILD_TEST_DIR)/stack_test $(BUILD_TEST_DIR)/base64_test $(BUILD_TEST_DIR)/json_test $(BUILD_TEST_DIR)/thread_pool_test $(BUILD_TEST_DIR)/schedule_test
+tests: ed25519_test_vectors aead_test_vectors $(BUILD_TEST_DIR)/sync_test $(BUILD_TEST_DIR)/stream_test $(BUILD_TEST_DIR)/pack_test $(BUILD_TEST_DIR)/hash_test $(BUILD_TEST_DIR)/sha_test $(BUILD_TEST_DIR)/ed25519_test $(BUILD_TEST_DIR)/aead_test $(BUILD_TEST_DIR)/array_test $(BUILD_TEST_DIR)/bitmap_test $(BUILD_TEST_DIR)/cache_test $(BUILD_TEST_DIR)/circular_buffer_test $(BUILD_TEST_DIR)/dict_test $(BUILD_TEST_DIR)/double_queue_test $(BUILD_TEST_DIR)/hash_table_test $(BUILD_TEST_DIR)/tree_test $(BUILD_TEST_DIR)/tuple_test $(BUILD_TEST_DIR)/priority_queue_test $(BUILD_TEST_DIR)/queue_test $(BUILD_TEST_DIR)/set_test $(BUILD_TEST_DIR)/stack_test $(BUILD_TEST_DIR)/base64_test $(BUILD_TEST_DIR)/json_test $(BUILD_TEST_DIR)/thread_pool_test $(BUILD_TEST_DIR)/schedule_test
 
 $(BUILD_TEST_DIR):
 	@mkdir -p $@
@@ -484,13 +484,18 @@ $(BUILD_TEST_DIR)/hash_test: $(TESTS_DIR)/hash_test.c | $(BUILD_TEST_DIR)
 	# test > core > hash
 	@$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) 
 
+# crypto
 $(BUILD_TEST_DIR)/sha_test: $(TESTS_DIR)/sha_test.c | $(BUILD_TEST_DIR)
-	# test > core > sha
+	# test > crypto > sha
 	@$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/hash.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) 
 
 $(BUILD_TEST_DIR)/ed25519_test: $(TESTS_DIR)/ed25519_test.c | $(BUILD_TEST_DIR)
-	# test > core > ed25519
+	# test > crypto > ed25519
 	@$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(BUILD_LIB_DIR)/ed25519.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) 
+
+$(BUILD_TEST_DIR)/aead_test: $(TESTS_DIR)/aead_test.c | $(BUILD_TEST_DIR)
+	# test > crypto > aead
+	@$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(BUILD_LIB_DIR)/aead.$(SHARED_EXT) $(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(BUILD_LIB_DIR)/sha.$(SHARED_EXT) $(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/pack.$(SHARED_EXT) 
 
 # data
 $(BUILD_TEST_DIR)/array_test: $(TESTS_DIR)/array_test.c | $(BUILD_TEST_DIR)
@@ -570,11 +575,14 @@ valgrind: libs examples
 	@mkdir -p output/valgrind output/valgrind/core output/valgrind/data output/valgrind/reflection output/valgrind/performance
 	@./scripts/packages.sh _example output/valgrind
 
-########################
-# Ed25519 test vectors #
-########################
+################
+# Test vectors #
+################
 ed25519_test_vectors:
-	@awk -f scripts/ed25519-test-vectors.awk scripts/sign.input > src/core/ed25519/ed25519_test.h
+	@awk -f scripts/ed25519-test-vectors.awk scripts/sign.input > src/crypto/ed25519/ed25519_test.h
+
+aead_test_vectors:
+	@python3 scripts/chacha20-poly1305-test-vectors.py > src/crypto/aead/aead_test.h
 
 #########
 # Clean #

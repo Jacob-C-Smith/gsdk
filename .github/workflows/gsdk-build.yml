@@ -47,7 +47,7 @@ jobs:
           path: build   # upload the build directory (relative to workspace)
 
   sha-test:
-    needs: [log-example]
+    needs: [pack-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -63,6 +63,24 @@ jobs:
           chmod +x build/tests/sha_test
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/tests/sha_test
+  
+  aead-test:
+    needs: [pack-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run aead test
+        run: |
+          chmod +x build/tests/aead_test
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/tests/aead_test
   
   hash-test:
     needs: [log-example]
@@ -551,7 +569,7 @@ jobs:
           ./build/examples/x25519_example
   
   chacha20-example:
-    needs: [pack-example]
+    needs: [aead-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -569,7 +587,7 @@ jobs:
           ./build/examples/chacha20_example
 
   poly1305-example:
-    needs: [pack-example]
+    needs: [aead-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -587,7 +605,7 @@ jobs:
           ./build/examples/poly1305_example
   
   aead-example:
-    needs: [chacha20-example, poly1305-example]
+    needs: [aead-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
