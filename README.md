@@ -11,7 +11,7 @@
 </p>
 
 > **Jump to:**  
-> [Features](#features) • [Getting Started](#getting-started) • [Modules](#modules) • [Structure](#structure) • [Build](#build) • [Examples](#examples) • [Tests](#tests) • [License](#license)
+> [Features](#features) • [Getting Started](#getting-started) • [Modules](#modules) • [Structure](#structure) • [Build](#build) • [Examples](#examples) • [Tests](#tests) • [License](#license) • [Attributions](#attributions)
 
 ---
 
@@ -70,15 +70,15 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 <details open>
     <summary><a href="documentation/md/crypto.md">crypto</a></summary>
     <ul>
+        <li>⭐ <a href="./documentation/md/core/aead.md">
+            <b>aead</b>
+        </a></li>
         <li>⭐ <a href="./documentation/md/core/sha.md"><b>
             sha
         </b></a></li>
         <li>⭐ <a href="./documentation/md/core/ed25519.md"><b>
             ed25519
         </b></a></li>
-        <li>🧪 <a href="./documentation/md/core/aead.md">
-            aead
-        </a></li>
         <li>🧪 <a href="./documentation/md/core/digital_signature.md">
             digital signatures
         </a></li>
@@ -200,7 +200,10 @@ $ make tests
 ```
 
 ## License
-See [LICENSE](./LICENSE) for details.
+This project is licensed under the MIT License - see [LICENSE](./LICENSE) for details.
+
+## Attributions
+The test suite includes test vectors from Google's [Project Wycheproof](https://github.com/google/wycheproof), which is licensed under the Apache License 2.0. The relevant license and notice files are preserved in the [scripts/vectors/wycheproof/](./scripts/vectors/wycheproof/) directory.
 
 ### Made with ❤️ for 👥 across 🌎🌍🌏
  
