@@ -371,7 +371,7 @@ jobs:
           ./build/tests/tuple_test
   
   base64-test:
-    needs: [log-example]
+    needs: [stream-example]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
