@@ -82,6 +82,24 @@ jobs:
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/tests/aead_test
   
+  x25519-test:
+    needs: [pack-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run x25519 test
+        run: |
+          chmod +x build/tests/x25519_test
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/tests/x25519_test
+  
   hash-test:
     needs: [log-example]
     runs-on: ubuntu-latest
@@ -551,7 +569,7 @@ jobs:
           ./build/examples/ed25519_example
   
   x25519-example:
-    needs: [pack-example]
+    needs: [x25519-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

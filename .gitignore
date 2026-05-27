@@ -7,5 +7,6 @@ src/utilities/__pycache__/
 output/valgrind/*
 test.bin
 test_stream.bin
-src/crypto/x25519/x25519_test.h
 src/crypto/aead/aead_test.h
+src/crypto/ed25519/ed25519_test.h
+src/crypto/x25519/x25519_test.h
