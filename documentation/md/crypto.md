@@ -3,11 +3,7 @@
 > [crypto](../../src/crypto/)
 >> [aead](./crypto/aead.md)
 >>
->> [digital_signature](./crypto/digital_signature.md)
->>
 >> [ed25519](./crypto/ed25519.md)
->>
->> [rsa](./crypto/rsa.md)
 >>
 >> [secure_socket](./crypto/secure_socket.md)
 >>

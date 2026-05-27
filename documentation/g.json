@@ -111,20 +111,6 @@
             "example" : "src/examples/sha_example.c",
             "icon": "resource/icon/sha.png"
         },
-        "digital signature" : 
-        {
-            "name" : "digital signature",
-            "description" : "Digitally sign / verify data",
-            "path": "src/core/digital_signature",
-            "markdown" : "md/core/digital_signature.md",
-            "tester" : "src/test/digital_signature_test.c",
-            "example" : "src/examples/digital_signature_example.c",
-            "icon": 
-            {
-                "light" : "resource/icon/digital_signature_light.png",
-                "dark" : "resource/icon/digital_signature_dark.png"
-            }
-        },
         "ed25519" : 
         {
             "name": "ed25519",
@@ -134,14 +120,6 @@
             "tester": "src/test/ed25519_test.c",
             "example": "src/examples/ed25519_example.c",
             "icon": "resource/icon/ed25519.png"
-        },
-        "rsa" : 
-        {
-            "name": "rsa",
-            "description": "Asymmetric encryption and decryption",
-            "path": "src/core/rsa",
-            "markdown": "md/core/rsa.md",
-            "icon": "resource/icon/crypto.png"
         },
         "secure socket" : 
         {
