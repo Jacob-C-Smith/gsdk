@@ -406,6 +406,24 @@ jobs:
           export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
           ./build/tests/tuple_test
   
+  graph-test:
+    needs: [hash-table-example, queue-example, stack-example, priority-queue-example]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: build
+
+      - name: Run graph test
+        run: |
+          chmod +x build/tests/graph_test
+          export LD_LIBRARY_PATH=${{github.workspace}}/build/lib:$LD_LIBRARY_PATH
+          ./build/tests/graph_test
+  
   base64-test:
     needs: [stream-example]
     runs-on: ubuntu-latest
@@ -947,7 +965,7 @@ jobs:
           ./build/examples/json_example ${{github.workspace}}/resources/reflection/json_example_1.json
   
   graph-example:
-    needs: [hash-table-example, queue-example, stack-example, priority-queue-example]
+    needs: [graph-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

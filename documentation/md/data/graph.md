@@ -21,8 +21,10 @@
  [Source](../../../src/examples/graph_example.c)
  
  ## Tester
- TODO
-
+ To run the tester program, execute this command 
+ ```
+ $ ./build/tests/graph_test
+ ```
  ## Definitions
  ### Enumeration definitions
  ```c

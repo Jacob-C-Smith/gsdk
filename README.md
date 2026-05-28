@@ -91,6 +91,12 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
 <details open>
     <summary><a href="documentation/md/data.md">data</a></summary>
     <ul>
+        <li>⭐ <a href="./documentation/md/data/graph.md">
+            <b>adjacency list</b>
+        </a></li>
+        <li>⭐ <a href="./documentation/md/data/graph.md">
+            <b>adjacency matrix</b>
+        </a></li>
         <li>⭐ <a href="./documentation/md/data/array.md">
             <b>array</b>
         </a></li>
@@ -115,6 +121,12 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>⭐ <a href="./documentation/md/data/double_queue.md">
             <b>double ended queue</b>
         </a></li>
+        <li>⭐ <a href="./documentation/md/data/graph.md">
+            <b>edge list</b>
+        </a></li>
+        <li>⭐ <a href="./documentation/md/data/graph.md">
+            <b>graph</b>
+        </a></li>
         <li>⭐ <a href="./documentation/md/data/hash_table.md">
             <b>hash table</b>
         </a></li>
@@ -136,10 +148,6 @@ The fastest way to get started is with GitHub Codespaces. You'll be able to view
         <li>⭐ <a href="./documentation/md/data/tuple.md">
             <b>tuple</b>
         </a></li>
-        <li>🧪 <a href="./documentation/md/data/graph.md">adjacency list</a></li>
-        <li>🧪 <a href="./documentation/md/data/graph.md">adjacency matrix</a></li>
-        <li>🧪 <a href="./documentation/md/data/graph.md">edge list</a></li>
-        <li>🧪 <a href="./documentation/md/data/graph.md">graph</a></li>
         <li>🧪 <a href="./documentation/md/data/priority_queue.md">priority queue</a></li>
     </ul>
 </details>
