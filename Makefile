@@ -426,7 +426,7 @@ $(BUILD_UTIL_DIR)/secure_echo_client: $(UTILS_DIR)/network/secure/secure_echo_cl
 #########
 # Tests #
 #########
-tests: aead_test_vectors ed25519_test_vectors x25519_test_vectors $(BUILD_TEST_DIR)/sync_test $(BUILD_TEST_DIR)/stream_test $(BUILD_TEST_DIR)/pack_test $(BUILD_TEST_DIR)/hash_test $(BUILD_TEST_DIR)/sha_test $(BUILD_TEST_DIR)/aead_test $(BUILD_TEST_DIR)/ed25519_test $(BUILD_TEST_DIR)/x25519_test $(BUILD_TEST_DIR)/socket_test $(BUILD_TEST_DIR)/array_test $(BUILD_TEST_DIR)/bitmap_test $(BUILD_TEST_DIR)/cache_test $(BUILD_TEST_DIR)/circular_buffer_test $(BUILD_TEST_DIR)/dict_test $(BUILD_TEST_DIR)/double_queue_test $(BUILD_TEST_DIR)/graph_test $(BUILD_TEST_DIR)/hash_table_test $(BUILD_TEST_DIR)/tree_test $(BUILD_TEST_DIR)/tuple_test $(BUILD_TEST_DIR)/priority_queue_test $(BUILD_TEST_DIR)/queue_test $(BUILD_TEST_DIR)/set_test $(BUILD_TEST_DIR)/stack_test $(BUILD_TEST_DIR)/base64_test $(BUILD_TEST_DIR)/json_test $(BUILD_TEST_DIR)/thread_pool_test $(BUILD_TEST_DIR)/schedule_test
+tests: aead_test_vectors ed25519_test_vectors x25519_test_vectors $(BUILD_TEST_DIR)/sync_test $(BUILD_TEST_DIR)/stream_test $(BUILD_TEST_DIR)/pack_test $(BUILD_TEST_DIR)/hash_test $(BUILD_TEST_DIR)/sha_test $(BUILD_TEST_DIR)/aead_test $(BUILD_TEST_DIR)/ed25519_test $(BUILD_TEST_DIR)/x25519_test $(BUILD_TEST_DIR)/array_test $(BUILD_TEST_DIR)/bitmap_test $(BUILD_TEST_DIR)/cache_test $(BUILD_TEST_DIR)/circular_buffer_test $(BUILD_TEST_DIR)/dict_test $(BUILD_TEST_DIR)/double_queue_test $(BUILD_TEST_DIR)/graph_test $(BUILD_TEST_DIR)/hash_table_test $(BUILD_TEST_DIR)/tree_test $(BUILD_TEST_DIR)/tuple_test $(BUILD_TEST_DIR)/priority_queue_test $(BUILD_TEST_DIR)/queue_test $(BUILD_TEST_DIR)/set_test $(BUILD_TEST_DIR)/stack_test $(BUILD_TEST_DIR)/base64_test $(BUILD_TEST_DIR)/json_test $(BUILD_TEST_DIR)/thread_pool_test $(BUILD_TEST_DIR)/schedule_test
 
 $(BUILD_TEST_DIR):
 	@mkdir -p $@
@@ -435,10 +435,6 @@ $(BUILD_TEST_DIR):
 $(BUILD_TEST_DIR)/sync_test: $(TESTS_DIR)/sync_test.c | $(BUILD_TEST_DIR)
 	# test > core > sync
 	@$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT)  
-
-$(BUILD_TEST_DIR)/socket_test: $(TESTS_DIR)/socket_test.c | $(BUILD_TEST_DIR)
-	# test > core > socket
-	@$(CC) $(CFLAGS) $(RPATH_FLAGS) -o $@ $^ $(ROOT_DIR)/$(BUILD_LIB_DIR)/socket.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/test.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/log.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/sync.$(SHARED_EXT) $(ROOT_DIR)/$(BUILD_LIB_DIR)/interfaces.$(SHARED_EXT)
 
 $(BUILD_TEST_DIR)/stream_test: $(TESTS_DIR)/stream_test.c | $(BUILD_TEST_DIR)
 	# test > core > stream
