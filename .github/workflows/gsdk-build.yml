@@ -965,7 +965,7 @@ jobs:
           ./build/examples/json_example ${{github.workspace}}/resources/reflection/json_example_1.json
   
   graph-example:
-    needs: [graph-example]
+    needs: [graph-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
