@@ -36,12 +36,8 @@ typedef struct tuple_s tuple;
  * Construct a tuple from a list of elements
  *
  * @param pp_tuple result
- * @param elements pointer to null terminated tuple of element pointers
- * @param size     number of elements. 
- *
- * @sa tuple_construct
- * @sa tuple_from_arguments
- * @sa tuple_destroy
+ * @param elements pointer to a list of element pointers
+ * @param size     number of elements
  *
  * @return 1 on success, 0 on error
  */
@@ -53,10 +49,6 @@ int tuple_from_elements ( tuple **const pp_tuple, void *const *const elements, s
  * @param pp_tuple      result
  * @param element_count the quantity of variadic arguments 
  * @param ...           variadic elements
- *
- * @sa tuple_construct
- * @sa tuple_from_elements
- * @sa tuple_destroy
  *
  * @return 1 on success, 0 on error
  */
@@ -71,9 +63,6 @@ int tuple_from_arguments ( tuple **const pp_tuple, size_t element_count, ... );
  * @param index    signed index. 
  * @param pp_value return
  * 
- * @sa tuple_get
- * @sa tuple_slice
- * 
  * @return 1 on success, 0 on error 
  */
 int tuple_index ( const tuple *const p_tuple, signed long long index, void **const pp_value );
@@ -85,9 +74,6 @@ int tuple_index ( const tuple *const p_tuple, signed long long index, void **con
  * @param pp_elements return
  * @param lower_bound the lower bound of the tuple
  * @param upper_bound the upper bound of the tuple
- * 
- * @sa tuple_index
- * @sa tuple_get
  * 
  * @return 1 on success, 0 on error 
 */
@@ -161,7 +147,7 @@ int tuple_unpack ( tuple **pp_tuple, stream *p_stream, fn_unpack *pfn_element );
  * @param p_tuple     the tuple to hash
  * @param pfn_element the hashing function applied to each element
  *
- * @return hash on success, NULL on error
+ * @return hash on success, 0 on error
  */
 hash64 tuple_hash ( tuple *p_tuple, fn_hash64 *pfn_element );
 

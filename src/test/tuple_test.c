@@ -1,7 +1,7 @@
 /** !
  * Tuple tester
  * 
- * @file src/data/tuple_test.c
+ * @file src/test/tuple_test.c
  * 
  * @author Jacob Smith
  */
@@ -10,409 +10,316 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 // gsdk
 /// core
 #include <core/log.h>
 #include <core/sync.h>
+#include <core/test.h>
 
 /// data
 #include <data/tuple.h>
 
-// Possible elements
-char *A_element   = "A",
-     *B_element   = "B",
-     *C_element   = "C",
-     *D_element   = "D",
-     *X_element   = "X";
+// preprocessor macros
+#define A_ELEMENT "A"
+#define B_ELEMENT "B"
+#define C_ELEMENT "C"
+#define D_ELEMENT "D"
 
-// Expected results
-char  *_elements     [] = { 0x0 };
-char  *A_elements    [] = { "A", 0x0 };
-char  *B_elements    [] = { "B", 0x0 };
-char  *C_elements    [] = { "C", 0x0 };
-char  *AB_elements   [] = { "A", "B", 0x0 };
-char  *BC_elements   [] = { "B", "C", 0x0 };
-char  *AC_elements   [] = { "A", "C", 0x0 };
-char  *ABC_elements  [] = { "A", "B", "C", 0x0 };
+// function declarations
+/// scenario constructors
+fn_scenario_constructor construct_empty;
+fn_scenario_constructor construct_A;
+fn_scenario_constructor construct_AB;
+fn_scenario_constructor construct_ABC;
 
-// enumeration definitions
-enum result_e {
-    zero,
-    one,
-    match
+/// test cases
+fn_test_case test_size;
+fn_test_case test_index;
+fn_test_case test_slice;
+fn_test_case test_is_empty;
+
+/// result evaluators
+fn_results_match index_results_match;
+fn_results_match slice_results_match;
+fn_results_match size_results_match;
+fn_results_match is_empty_results_match;
+
+/// allocators
+fn_allocator destruct_tuple;
+
+// data
+/// values
+void *A_elements[]   = { A_ELEMENT, NULL };
+void *AB_elements[]  = { A_ELEMENT, B_ELEMENT, NULL };
+void *ABC_elements[] = { A_ELEMENT, B_ELEMENT, C_ELEMENT, NULL };
+void *_contents[]    = { NULL };
+
+// test
+/// cases
+test_case _empty_test_cases[] = 
+{
+    TEST_CASE ("index 0", test_index   , (void *)0, TEST_RESULT_ZERO),
+    TEST_MATCH("size"   , test_size    , NULL     , size_results_match),
+    TEST_MATCH("empty"  , test_is_empty, NULL     , is_empty_results_match),
 };
 
-// type definitions
-typedef enum result_e result_t;
+test_case _one_element_test_cases[] = 
+{
+    TEST_MATCH("index 0", test_index   , (void *)0, index_results_match),
+    TEST_CASE ("index 1", test_index   , (void *)1, TEST_RESULT_ZERO),
+    TEST_MATCH("size"   , test_size    , NULL     , size_results_match),
+    TEST_MATCH("empty"  , test_is_empty, NULL     , is_empty_results_match),
+    TEST_MATCH("slice 0:0", test_slice , (void *)0x0000000000000000, slice_results_match),
+};
 
-// Data
-int total_tests      = 0,
-    total_passes     = 0,
-    total_fails      = 0,
-    ephemeral_tests  = 0,
-    ephemeral_passes = 0,
-    ephemeral_fails  = 0;
+test_case _two_element_test_cases[] = 
+{
+    TEST_MATCH("index 0", test_index   , (void *)0, index_results_match),
+    TEST_MATCH("index 1", test_index   , (void *)1, index_results_match),
+    TEST_CASE ("index 2", test_index   , (void *)2, TEST_RESULT_ZERO),
+    TEST_MATCH("size"   , test_size    , NULL     , size_results_match),
+    TEST_MATCH("empty"  , test_is_empty, NULL     , is_empty_results_match),
+    TEST_MATCH("slice 0:1", test_slice , (void *)0x0000000000000001, slice_results_match),
+};
 
+test_case _three_element_test_cases[] = 
+{
+    TEST_MATCH("index 0", test_index   , (void *)0, index_results_match),
+    TEST_MATCH("index 1", test_index   , (void *)1, index_results_match),
+    TEST_MATCH("index 2", test_index   , (void *)2, index_results_match),
+    TEST_CASE ("index 3", test_index   , (void *)3, TEST_RESULT_ZERO),
+    TEST_MATCH("index -1", test_index  , (void *)-1, index_results_match),
+    TEST_MATCH("index -2", test_index  , (void *)-2, index_results_match),
+    TEST_MATCH("index -3", test_index  , (void *)-3, index_results_match),
+    TEST_CASE ("index -4", test_index  , (void *)-4, TEST_RESULT_ZERO),
+    TEST_MATCH("size"   , test_size    , NULL     , size_results_match),
+    TEST_MATCH("empty"  , test_is_empty, NULL     , is_empty_results_match),
+    TEST_MATCH("slice 0:2", test_slice , (void *)0x0000000000000002, slice_results_match),
+    TEST_MATCH("slice 1:2", test_slice , (void *)0x0000000100000002, slice_results_match),
+};
 
-// forward declarations
-int print_time_pretty        ( double seconds );
-int run_tests                ( void );
-int print_final_summary      ( void );
-int print_test               ( const char  *scenario_name, const char    *test_name, bool passed );
+/// scenarios
+test_scenario _scenarios[] = 
+{
+    TEST_SCENARIO("empty", _contents   , _empty_test_cases        , construct_empty, destruct_tuple),
+    TEST_SCENARIO("A"    , A_elements  , _one_element_test_cases  , construct_A    , destruct_tuple),
+    TEST_SCENARIO("AB"   , AB_elements , _two_element_test_cases  , construct_AB   , destruct_tuple),
+    TEST_SCENARIO("ABC"  , ABC_elements, _three_element_test_cases, construct_ABC  , destruct_tuple),
+};
 
-int test_empty_tuple         ( int (*tuple_constructor)(tuple **), char  *name );
-int test_one_element_tuple   ( int (*tuple_constructor)(tuple **), char  *name, void **values );
-int test_two_element_tuple   ( int (*tuple_constructor)(tuple **), char  *name, void **values );
-int test_three_element_tuple ( int (*tuple_constructor)(tuple **), char  *name, void **values );
-
-int construct_empty                     ( tuple **pp_tuple );
-int construct_empty_fromelementsABC_ABC ( tuple **pp_tuple );
-int construct_empty_fromelementsAB_AB   ( tuple **pp_tuple );
-int construct_empty_fromelementsA_A     ( tuple **pp_tuple );
+/// suites
+test_suite _suite = TEST_SUITE("tuple", _scenarios);
 
 // entry point
-int main ( int argc, const char* argv[] )
+int main ( int argc, const char *argv[] ) 
 {
-    
-    // Suppress warnings
+
+    // unused
     (void) argc;
     (void) argv;
-
-    // initialized data
-    timestamp t0 = 0,
-              t1 = 0;
-
-    // Formatting
-    printf(
-        "╭──────────────╮\n"\
-        "│ tuple tester │\n"\
-        "╰──────────────╯\n\n"
-    );
+     
+    // run the tests
+    test_suite_test(&_suite); 
     
-    // Start
-    t0 = timer_high_precision();
-
-    // Run tests
-    run_tests();
-
-    // Stop
-    t1 = timer_high_precision();
-
-    // Report the time it took to run the tests
-    log_info("tuple took ");
-    print_time_pretty ( (double)(t1-t0)/(double)timer_seconds_divisor() );
-    log_info(" to test\n");
-
-    // exit
-    return ( total_passes == total_tests ) ? EXIT_SUCCESS : EXIT_FAILURE;
+    // done
+    return (_suite.counters.total.fails == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-int run_tests ( void )
-{
-    // ... -> []
-    test_empty_tuple(construct_empty, "empty");
+// constructors
+int construct_empty ( void **pp_result ) 
+{ 
 
-    // ... -> [ A ]
-    test_one_element_tuple(construct_empty_fromelementsA_A, "empty_fromelementsA_A", (void **)A_elements);
-
-    // ... -> [ A, B ]
-    test_two_element_tuple(construct_empty_fromelementsAB_AB, "empty_fromelementsAB_AB", (void **) AB_elements);
-
-    // ... -> [ A, B, C ]
-    test_three_element_tuple(construct_empty_fromelementsABC_ABC, "empty_fromelementsABC_ABC", (void **)ABC_elements);
-
-    // success
-    return 1;
+    // done
+    return tuple_from_elements((tuple **)pp_result, _contents, 0);
 }
 
-int print_final_summary ( void )
+int construct_A ( void **pp_result ) 
 {
 
-    // Accumulate
-    total_tests  += ephemeral_tests,
-    total_passes += ephemeral_passes,
-    total_fails  += ephemeral_fails;
-
-    // Output
-    log_info("\nTests: %d, Passed: %d, Failed: %d (%%%.3f)\n",  ephemeral_tests, ephemeral_passes, ephemeral_fails, ((float)ephemeral_passes/(float)ephemeral_tests*100.f));
-    log_info("Total: %d, Passed: %d, Failed: %d (%%%.3f)\n\n",  total_tests, total_passes, total_fails, ((float)total_passes/(float)total_tests*100.f));
-
-    // Reset the test counter
-    ephemeral_tests  = 0,
-    ephemeral_passes = 0,
-    ephemeral_fails  = 0;
-
-    // success
-    return 1;
+    // done
+    return tuple_from_elements((tuple **)pp_result, (void **)A_elements, 1);
 }
 
-int print_test ( const char *scenario_name, const char *test_name, bool passed )
+int construct_AB ( void **pp_result ) 
 {
+
+    // done
+    return tuple_from_elements((tuple **)pp_result, (void **)AB_elements, 2);
+}
+
+int construct_ABC ( void **pp_result ) 
+{
+
+    // done
+    return tuple_from_elements((tuple **)pp_result, (void **)ABC_elements, 3);
+}
+
+void *test_size ( test_case *p_test_case, void *p_subject ) 
+{ 
+
+    // unused
+    (void) p_test_case;
+
+    // done
+    return (void *)tuple_size((tuple *)p_subject);
+}
+
+void *test_index ( test_case *p_test_case, void *p_subject ) 
+{ 
 
     // initialized data
-    if   ( passed ) log_pass("%s %s\n", scenario_name, test_name);
-    else            log_fail("%s %s\n", scenario_name, test_name);
+    signed long long index = (signed long long)(size_t)p_test_case->p_parameters;
 
-
-    // Increment the counters
-    if   ( passed ) ephemeral_passes++;
-    else            ephemeral_fails++;
-
-    // Increment the test counter
-    ephemeral_tests++;
+    // test
+    if ( 0 == tuple_index((tuple *)p_subject, index, &p_test_case->p_out) ) return NULL;
 
     // success
-    return 1;
+    return (void *)1;
 }
 
-bool test_size ( int(*tuple_constructor)(tuple **pp_tuple), size_t expected_size, result_t expected )
-{
+void *test_slice ( test_case *p_test_case, void *p_subject ) 
+{ 
+
     // initialized data
-    result_t  result       = 0;
-    tuple    *p_tuple      = 0;
-    signed    size         = -1;
+    size_t             bounds      = (size_t)p_test_case->p_parameters;
+    signed long long   lower       = (signed long long)(bounds >> 32);
+    signed long long   upper       = (signed long long)(bounds & 0xFFFFFFFF);
+    void             **pp_elements = NULL;
 
-    // Build the tuple
-    tuple_constructor(&p_tuple);
+    // test
+    if ( upper < lower ) return NULL;
 
-    // Get the size of the tuple
-    size = (signed) tuple_size(p_tuple);
+    // allocate memory for results
+    pp_elements = default_allocator(NULL, (upper - lower + 1) * sizeof(void *));
 
-    // Match if size is expected ...
-    if ( (size_t) size == expected_size ) result = match;
+    // test
+    if ( 0 == tuple_slice((tuple *)p_subject, (const void **)pp_elements, lower, upper) ) 
+    {
 
-    // ... else zero
-    else result = zero;
+        // release elements
+        pp_elements = default_allocator(pp_elements, 0);
 
-    // Free the tuple
+        // error
+        return (void *)0;
+    }
+
+    // store elements
+    p_test_case->p_out = pp_elements;
+
+    // success
+    return (void *)1;
+}
+
+void *test_is_empty ( test_case *p_test_case, void *p_subject ) 
+{ 
+
+    // unused
+    (void) p_test_case;
+
+    // done
+    return (void *)(size_t)tuple_is_empty((tuple *)p_subject);
+}
+
+bool index_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+
+    // unused
+    (void) p_subject;
+    (void) p_result;
+
+    // initialized data
+    void             **pp_elements = p_scenario->p_data;
+    signed long long   index       = (signed long long)(size_t)p_case->p_parameters;
+    size_t             count       = 0;
+
+    // count elements
+    while ( pp_elements[count] ) count++;
+
+    // positive index
+    if ( index >= 0 )
+        return p_case->p_out == pp_elements[index];
+
+    // negative index
+    return p_case->p_out == pp_elements[count + index];
+}
+
+bool slice_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+
+    // unused
+    (void) p_subject;
+    (void) p_result;
+    
+    // initialized data
+    void             **pp_expected = p_scenario->p_data;
+    void             **pp_actual   = (void **)p_case->p_out;
+    size_t             bounds      = (size_t)p_case->p_parameters;
+    signed long long   lower       = (signed long long)(bounds >> 32);
+    signed long long   upper       = (signed long long)(bounds & 0xFFFFFFFF);
+    bool               match       = true;
+
+    // test
+    if ( NULL == pp_actual ) return false;
+
+    // iterate through each element
+    for (signed long long i = 0; i <= upper - lower; i++)
+
+        // test
+        if ( pp_expected[lower + i] != pp_actual[i] ) match = false;
+
+    // release elements
+    pp_actual = default_allocator(pp_actual, 0);
+
+    // done
+    return match;
+}
+
+bool size_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+
+    // unused
+    (void) p_case;
+    (void) p_subject;
+
+    // initialized data
+    void   **pp_elements = (void **)p_scenario->p_data;
+    size_t   count       = 0;
+
+    // count
+    while ( pp_elements[count] ) count++;
+
+    // done
+    return (size_t)p_result == count;
+}
+
+bool is_empty_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+
+    // unused
+    (void) p_case; (void) p_subject;
+
+    // initialized data
+    void **pp_elements = (void **)p_scenario->p_data;
+    bool   empty       = ( pp_elements[0] == NULL );
+
+    // done
+    return p_result == (void *)(size_t)empty;
+}
+
+void *destruct_tuple ( void *p_pointer, unsigned long long size )
+{
+
+    // unused
+    (void) size;
+
+    // initialized data
+    tuple *p_tuple = (tuple *)p_pointer;
+
+    // release the tuple
     tuple_destroy(&p_tuple, NULL);
 
-    // return result
-    return (result == expected);
-}
-
-bool test_index ( int(*tuple_constructor)(tuple **pp_tuple), signed idx, void *expected_value, result_t expected )
-{
-    // initialized data
-    result_t  result       = 0;
-    tuple    *p_tuple      = 0;
-    void     *result_value = 0;
-
-    // Build the tuple
-    tuple_constructor(&p_tuple);
-
-    // Index the tuple
-    result = (result_t) tuple_index(p_tuple, idx, &result_value);
-    
-    // Match if tuple_index is successful ...
-    if ( result == 1 )
-
-        // ... and the result is the expected value
-        if ( result_value == expected_value ) result = match;
-
-    // Free the tuple
-    tuple_destroy(&p_tuple, NULL);
-
-    // return result
-    return (result == expected);
-}
-
-bool test_slice ( int(*tuple_constructor)(tuple **pp_tuple), signed lower, signed upper, void **expected_value, result_t expected )
-{
-    // initialized data
-    result_t  result       = 0;
-    tuple    *p_tuple      = 0;
-    void     *result_values[] = { 0, 0, 0, 0, (void *) 0 };
-
-    // Build the tuple
-    tuple_constructor(&p_tuple);
-
-    // Slice the tuple
-    result = (result_t) tuple_slice(p_tuple, (const void **const)(&result_values), lower, upper);
-    
-    // error check
-    if ( result == zero ) goto done;
-
-    // True if ...
-    result = match;
-
-    // ... each element in the slice ... 
-    for (size_t i = 0; i < (size_t) (upper - lower); i++)
-
-        // ... is in the expected value
-        if ( result_values[i] != expected_value[i] ) result = zero;
-
-    done:
-
-    // Free the tuple
-    tuple_destroy(&p_tuple, NULL);
-
-    // return result
-    return (result == expected);
-}
-
-int construct_empty ( tuple **pp_tuple )
-{
-
-    // tuple = []
-    tuple_from_arguments(pp_tuple, 0);
-
     // success
-    return 1;
-}
-
-int construct_empty_fromelementsABC_ABC ( tuple **pp_tuple )
-{
-
-    // Construct [ A, B, C ]
-    tuple_from_elements(pp_tuple, (void **)ABC_elements, 3);
-
-    // success
-    return 1;
-}
-
-int construct_empty_fromelementsAB_AB ( tuple **pp_tuple )
-{
-    // Construct [ A, B ]
-    tuple_from_elements(pp_tuple, (void **)AB_elements, 2);
-
-    // success
-    return 1;
-}
-
-int construct_empty_fromelementsA_A ( tuple **pp_tuple )
-{
-
-    // Construct [ A ]
-    tuple_from_elements(pp_tuple, (void **)A_elements, 1);
-
-    // success
-    return 1;
-}
-
-int test_empty_tuple ( int (*tuple_constructor)(tuple **pp_tuple), char *name)
-{
-
-    // Output
-    log_scenario("%s\n", name);
-
-    // Tests
-    print_test(name, "tuple_index0", test_index(tuple_constructor, 0, (void *)0, zero) );
-    print_test(name, "tuple_index1", test_index(tuple_constructor, 1, (void *)0, zero) );
-
-    // Output
-    print_final_summary();
-
-    // success
-    return 1;
-}
-
-int test_one_element_tuple ( int (*tuple_constructor)(tuple **pp_tuple), char *name, void **values )
-{
-
-    // Output
-    log_scenario("%s\n", name);
-
-    // Tests
-    print_test(name, "tuple_size"     , test_size(tuple_constructor, 1, match));
-    print_test(name, "tuple_index0"   , test_index(tuple_constructor, 0, values[0], match) );
-    print_test(name, "tuple_index1"   , test_index(tuple_constructor, 1, (void *)0, zero) );
-    
-    // Output
-    print_final_summary();
-    
-    // success
-    return 1;
-}
-
-int test_two_element_tuple ( int (*tuple_constructor)(tuple **pp_tuple), char *name, void **values )
-{
-
-    // Output
-    log_scenario("%s\n", name);
-
-    // Tests
-    print_test(name, "tuple_size"     , test_size(tuple_constructor, 2, match));
-    print_test(name, "tuple_index0"   , test_index(tuple_constructor, 0, values[0], match) );
-    print_test(name, "tuple_index1"   , test_index(tuple_constructor, 1, values[1], match) );  
-    print_test(name, "tuple_index2"   , test_index(tuple_constructor, 2, (void *)0, zero) );  
-
-    // Output
-    print_final_summary();
-    
-    // success
-    return 1;
-}
-
-int test_three_element_tuple ( int (*tuple_constructor)(tuple **pp_tuple), char *name, void **values )
-{
-
-    // Output
-    log_scenario("%s\n", name);
-
-    // Tests
-    print_test(name, "tuple_size"     , test_size(tuple_constructor, 3, match));
-    print_test(name, "tuple_index0"   , test_index(tuple_constructor, 0, values[0], match) );
-    print_test(name, "tuple_index1"   , test_index(tuple_constructor, 1, values[1], match) );  
-    print_test(name, "tuple_index2"   , test_index(tuple_constructor, 2, values[2], match) );  
-    print_test(name, "tuple_index3"   , test_index(tuple_constructor, 3, (void *)0, zero) );  
-    
-    // Output
-    print_final_summary();
-    
-    // success
-    return 1;
-}
-
-int print_time_pretty ( double seconds )
-{
-
-    // initialized data
-    double _seconds     = seconds;
-    size_t days         = 0,
-           hours        = 0,
-           minutes      = 0,
-           __seconds    = 0,
-           milliseconds = 0,
-           microseconds = 0;
-
-    // Days
-    while ( _seconds > 86400.0 )  { days++        ; _seconds -= 286400.0; };
-
-    // Hours
-    while ( _seconds > 3600.0 )   { hours++       ; _seconds -= 3600.0; };
-
-    // Minutes
-    while ( _seconds > 60.0 )     { minutes++     ; _seconds -= 60.0; };
-
-    // Seconds
-    while ( _seconds > 1.0 )      { __seconds++   ; _seconds -= 1.0; };
-
-    // milliseconds
-    while ( _seconds > 0.001 )    { milliseconds++; _seconds -= 0.001; };
-
-    // Microseconds        
-    while ( _seconds > 0.000001 ) { microseconds++; _seconds -= 0.000001; };
-
-    // Print days
-    if ( days )         log_info("%d D, ", days);
-    
-    // Print hours
-    if ( hours )        log_info("%d h, ", hours);
-
-    // Print minutes
-    if ( minutes )      log_info("%d m, ", minutes);
-
-    // Print seconds
-    if ( __seconds )    log_info("%d s, ", __seconds);
-    
-    // Print milliseconds
-    if ( milliseconds ) log_info("%d ms, ", milliseconds);
-    
-    // Print microseconds
-    if ( microseconds ) log_info("%d us", microseconds);
-    
-    // success
-    return 1;
+    return NULL;
 }

@@ -9,9 +9,9 @@
 // header file
 #include <data/tuple.h>
 
-fn_it_done tuple_iterator_done;
-fn_it_next tuple_iterator_next;
-fn_it_item tuple_iterator_item;
+static fn_it_done tuple_iterator_done;
+static fn_it_next tuple_iterator_next;
+static fn_it_item tuple_iterator_item;
 
 // structure definitions
 struct tuple_s
@@ -27,15 +27,12 @@ struct tuple_s
  * @param pp_tuple result
  * @param size     number of elements in a tuple
  *
- * @sa tuple_create
- * @sa tuple_destroy
- *
  * @return 1 on success, 0 on error
  */
-int tuple_construct ( tuple **const pp_tuple, size_t size );
+static int tuple_construct ( tuple **const pp_tuple, size_t size );
 
 // function definitions
-int tuple_construct ( tuple **const pp_tuple, size_t size )
+static int tuple_construct ( tuple **const pp_tuple, size_t size )
 {
 
     // argument check
@@ -98,7 +95,7 @@ int tuple_from_elements ( tuple **const pp_tuple, void *const *const elements, s
     if ( 0 == tuple_construct(&p_tuple, size) ) goto failed_to_construct_tuple;        
 
     // iterate over each key
-    for (size_t i = 0; elements[i]; i++)
+    for (size_t i = 0; i < size; i++)
         p_tuple->_p_elements[i] = elements[i];
 
     // return a pointer to the caller
@@ -220,7 +217,14 @@ int tuple_index ( const tuple *const p_tuple, signed long long index, void **con
     if ( NULL ==              pp_value ) goto no_value;
 
     // error check
-    if ( p_tuple->element_count == (size_t) llabs(index) ) goto bounds_error;
+    if ( index >= 0 )
+    {
+        if ( (size_t)index >= p_tuple->element_count ) goto bounds_error;
+    }
+    else
+    {
+        if ( (size_t)llabs(index) > p_tuple->element_count ) goto bounds_error;
+    }
 
     // positive index
     if ( index >= 0 )
@@ -248,7 +252,7 @@ int tuple_index ( const tuple *const p_tuple, signed long long index, void **con
 
             no_value:
                 #ifndef NDEBUG
-                    log_error("[tuple] Null pointer provided for parameter \"pp_valUe\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[tuple] Null pointer provided for parameter \"pp_value\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -286,10 +290,13 @@ int tuple_slice
 {
 
     // argument check
-    if ( NULL                   ==              p_tuple ) goto no_tuple;
-    if ( 0                      ==          pp_elements ) goto no_elemenets;
-    if ( 0                       >          lower_bound ) goto erroneous_lower_bound;
-    if ( p_tuple->element_count  < (size_t) upper_bound ) goto erroneous_upper_bound;
+    if ( NULL ==     p_tuple ) goto no_tuple;
+    if ( NULL == pp_elements ) goto no_elements;
+
+    // range check
+    if ( 0                    >             lower_bound ) goto erroneous_lower_bound;
+    if ( (size_t) upper_bound >= p_tuple->element_count ) goto erroneous_upper_bound;
+    if ( lower_bound          >             upper_bound ) goto erroneous_range;
 
     // return the elements
     memcpy(pp_elements, &p_tuple->_p_elements[lower_bound], sizeof(void *) * (size_t) ( upper_bound - lower_bound + 1 ) );
@@ -310,9 +317,17 @@ int tuple_slice
                 // error 
                 return 0;
 
+            no_elements:
+                #ifndef NDEBUG
+                    log_error("[tuple] Null pointer provided for parameter \"pp_elements\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error 
+                return 0;
+
             erroneous_lower_bound:
                 #ifndef NDEBUG
-                    log_error("[tuple] Parameter \"lower_bound\" must be greater than zero in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[tuple] Parameter \"lower_bound\" must be greater than or equal to zero in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error 
@@ -320,15 +335,15 @@ int tuple_slice
                 
             erroneous_upper_bound:
                 #ifndef NDEBUG
-                    log_error("[tuple] Parameter \"upper_bound\" must be less than or equal to tuple size in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[tuple] Parameter \"upper_bound\" must be less than the tuple size in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error 
                 return 0;
 
-            no_elemenets:
+            erroneous_range:
                 #ifndef NDEBUG
-                    log_error("[tuple] Can not slice empty tuple in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[tuple] Parameter \"lower_bound\" must be less than or equal to \"upper_bound\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error 
@@ -441,14 +456,14 @@ iterator tuple_iterator ( tuple *p_tuple )
     };
 }
 
-bool tuple_iterator_done ( iterator *p_iterator ) 
+static bool tuple_iterator_done ( iterator *p_iterator ) 
 {
 
     // done?
     return ((size_t)p_iterator->state.p_state) >= ((tuple *) p_iterator->p_data)->element_count; 
 }
 
-void tuple_iterator_next ( iterator *p_iterator ) 
+static void tuple_iterator_next ( iterator *p_iterator ) 
 {
 
     // update the state
@@ -458,7 +473,7 @@ void tuple_iterator_next ( iterator *p_iterator )
     return;
 }
 
-void *tuple_iterator_item ( iterator *p_iterator ) 
+static void *tuple_iterator_item ( iterator *p_iterator ) 
 {
 
     // done
@@ -564,7 +579,7 @@ int tuple_unpack ( tuple **pp_tuple, stream *p_stream, fn_unpack *pfn_element )
         {
             no_tuple:
                 #ifndef NDEBUG
-                    printf("[tuple] Null pointer provided for parameter \"pp_tuple\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[tuple] Null pointer provided for parameter \"pp_tuple\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -572,7 +587,7 @@ int tuple_unpack ( tuple **pp_tuple, stream *p_stream, fn_unpack *pfn_element )
 
             no_stream:
                 #ifndef NDEBUG
-                    printf("[tuple] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[tuple] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -580,7 +595,7 @@ int tuple_unpack ( tuple **pp_tuple, stream *p_stream, fn_unpack *pfn_element )
 
             no_unpack:
                 #ifndef NDEBUG
-                    printf("[tuple] Null pointer provided for parameter \"pfn_element\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[tuple] Null pointer provided for parameter \"pfn_element\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -641,6 +656,9 @@ int tuple_destroy ( tuple **pp_tuple, fn_allocator *pfn_allocator )
 
     // initialized data
     tuple *p_tuple = *pp_tuple;
+
+    // fast exit
+    if ( NULL == p_tuple ) return 1;
 
     // no more pointer for end user
     *pp_tuple = NULL;
