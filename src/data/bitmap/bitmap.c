@@ -18,9 +18,9 @@ struct bitmap_s
 };
 
 // function declarations
-fn_it_done bitmap_iterator_done;
-fn_it_next bitmap_iterator_next;
-fn_it_item bitmap_iterator_item;
+static fn_it_done bitmap_iterator_done;
+static fn_it_next bitmap_iterator_next;
+static fn_it_item bitmap_iterator_item;
 
 // function definitions
 /// constructors
@@ -29,27 +29,27 @@ int bitmap_construct ( bitmap **pp_bitmap, size_t bits )
 
     // argument check
     if ( NULL == pp_bitmap ) goto no_bitmap;
-    if ( 0    == bits      ) goto no_bits;
+    if ( 0    ==      bits ) goto no_bits;
 
     // initialized data
     bitmap *p_bitmap = NULL;
     size_t  bytes_required = (bits % 8 == 0) ? (bits / 8) : (bits / 8) + 1;
     
     // allocate memory for a bitmap
-    p_bitmap = default_allocator(0, sizeof(bitmap));
+    p_bitmap = default_allocator(NULL, sizeof(bitmap));
     if ( NULL == p_bitmap ) goto no_mem;
 
     // store the quantity of bits
     p_bitmap->max = bits;
 
     // construct a lock
-    mutex_create(&p_bitmap->_lock);
+    if ( 0 == mutex_create(&p_bitmap->_lock) ) goto failed_to_create_mutex;
 
     // allocate memory for the bitmap
-    p_bitmap->p_bitmap = default_allocator(0, bytes_required);
+    p_bitmap->p_bitmap = default_allocator(NULL, bytes_required);
 
     // error check
-    if ( NULL == p_bitmap->p_bitmap ) goto no_mem;
+    if ( NULL == p_bitmap->p_bitmap ) goto no_mem_p_bitmap;
 
     // initialize
     memset(p_bitmap->p_bitmap, 0, bytes_required);
@@ -85,9 +85,26 @@ int bitmap_construct ( bitmap **pp_bitmap, size_t bits )
 
         // standard library errors
         {
+            no_mem_p_bitmap:
+                mutex_destroy(&p_bitmap->_lock);
             no_mem:
+                if ( p_bitmap ) p_bitmap = default_allocator(p_bitmap, 0);
+
                 #ifndef NDEBUG
                     log_error("[bitmap] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // sync errors
+        {
+            failed_to_create_mutex:
+                if ( p_bitmap ) p_bitmap = default_allocator(p_bitmap, 0);
+
+                #ifndef NDEBUG
+                    log_error("[bitmap] Failed to create mutex in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -101,8 +118,8 @@ int bitmap_set ( bitmap *p_bitmap, size_t index )
 {
     
     // argument check
-    if ( NULL == p_bitmap      ) goto no_bitmap;
-    if ( index > p_bitmap->max ) goto out_of_bounds;
+    if ( NULL  ==      p_bitmap ) goto no_bitmap;
+    if ( index >= p_bitmap->max ) goto out_of_bounds;
 
     // initialized data
     unsigned char *p      = NULL;
@@ -136,7 +153,7 @@ int bitmap_set ( bitmap *p_bitmap, size_t index )
 
         out_of_bounds:
             #ifndef NDEBUG
-                log_error("[bitmap] Parameter \"index\" is out of range [0, %d) in call to function \"%s\"\n", p_bitmap->max, __FUNCTION__);
+                log_error("[bitmap] Parameter \"index\" is out of range [0, %zu) in call to function \"%s\"\n", p_bitmap->max, __FUNCTION__);
             #endif
 
             // error
@@ -148,8 +165,8 @@ int bitmap_clear ( bitmap *p_bitmap, size_t index )
 {
     
     // argument check
-    if ( NULL == p_bitmap      ) goto no_bitmap;
-    if ( index > p_bitmap->max ) goto out_of_bounds;
+    if ( NULL  ==      p_bitmap ) goto no_bitmap;
+    if ( index >= p_bitmap->max ) goto out_of_bounds;
 
     // initialized data
     unsigned char *p      = NULL;
@@ -169,7 +186,7 @@ int bitmap_clear ( bitmap *p_bitmap, size_t index )
     mutex_unlock(&p_bitmap->_lock);
 
     // success
-    return 0;
+    return 1;
 
     // error handling
     {
@@ -183,7 +200,7 @@ int bitmap_clear ( bitmap *p_bitmap, size_t index )
 
         out_of_bounds:
             #ifndef NDEBUG
-                log_error("[bitmap] Parameter \"index\" is out of range [0, %d) in call to function \"%s\"\n", p_bitmap->max, __FUNCTION__);
+                log_error("[bitmap] Parameter \"index\" is out of range [0, %zu) in call to function \"%s\"\n", p_bitmap->max, __FUNCTION__);
             #endif
 
             // error
@@ -196,8 +213,8 @@ int bitmap_test ( bitmap *p_bitmap, size_t index )
 {
     
     // argument check
-    if ( NULL == p_bitmap      ) goto no_bitmap;
-    if ( index > p_bitmap->max ) goto out_of_bounds;
+    if ( NULL  ==      p_bitmap ) goto no_bitmap;
+    if ( index >= p_bitmap->max ) goto out_of_bounds;
 
     // initialized data
     int            result = 0;
@@ -232,7 +249,7 @@ int bitmap_test ( bitmap *p_bitmap, size_t index )
 
         out_of_bounds:
             #ifndef NDEBUG
-                log_error("[bitmap] Parameter \"index\" is out of range [0, %d) in call to function \"%s\"\n", p_bitmap->max, __FUNCTION__);
+                log_error("[bitmap] Parameter \"index\" is out of range [0, %zu) in call to function \"%s\"\n", p_bitmap->max, __FUNCTION__);
             #endif
 
             // error
@@ -267,7 +284,7 @@ int bitmap_print ( bitmap *p_bitmap )
                select = i % 8;
 
         // print the bit
-        printf("%c", (p[offset] & ( 1 << select )) ? '@' : '.'),
+        printf("%c", (p[offset] & ( 1 << select )) ? '@' : '.');
         
         // iterate
         i++;
@@ -322,7 +339,7 @@ int bitmap_fori ( bitmap *p_bitmap, fn_fori *pfn_fori )
                select = i % 8;
 
         // call the fori function
-        pfn_fori((void*)(size_t)(p[offset] & ( 1 << select )), i),
+        pfn_fori((void*)(size_t)(p[offset] & ( 1 << select )), i);
         
         // iterate
         i++;
@@ -385,7 +402,7 @@ int bitmap_foreach ( bitmap *p_bitmap, fn_foreach *pfn_foreach )
                select = i % 8;
 
         // call the foreach function
-        pfn_foreach((void*)(size_t)(p[offset] & ( 1 << select ))),
+        pfn_foreach((void*)(size_t)(p[offset] & ( 1 << select )));
         
         // iterate
         i++;
@@ -435,14 +452,14 @@ iterator bitmap_iterator ( bitmap *p_bitmap )
     };
 }
 
-bool bitmap_iterator_done ( iterator *p_iterator ) 
+static bool bitmap_iterator_done ( iterator *p_iterator ) 
 {
 
     // done?
     return ((size_t)p_iterator->state.p_state) >= ((bitmap *) p_iterator->p_data)->max; 
 }
 
-void bitmap_iterator_next ( iterator *p_iterator ) 
+static void bitmap_iterator_next ( iterator *p_iterator ) 
 {
 
     // update the state
@@ -452,7 +469,7 @@ void bitmap_iterator_next ( iterator *p_iterator )
     return;
 }
 
-void *bitmap_iterator_item ( iterator *p_iterator ) 
+static void *bitmap_iterator_item ( iterator *p_iterator ) 
 {
 
     // initialized data
@@ -533,15 +550,15 @@ int bitmap_unpack ( bitmap **pp_bitmap, stream *p_stream )
 
     // initialized data
     bitmap *p_bitmap       = NULL;
-    size_t  written        = 0;
+    size_t  read           = 0;
     size_t  len            = 0,
             bytes_required = 0;
             
     // unpack the length
-    written += pack_unpack(p_stream, "%i64", &len);
+    read += pack_unpack(p_stream, "%i64", &len);
 
     // construct an bitmap
-    bitmap_construct(&p_bitmap, len);
+    if ( 0 == bitmap_construct(&p_bitmap, len) ) goto failed_to_construct;
 
     // compute the required quantity of bytes
     bytes_required = (p_bitmap->max % 8 == 0) ? 
@@ -552,13 +569,13 @@ int bitmap_unpack ( bitmap **pp_bitmap, stream *p_stream )
     for (size_t i = 0; i < bytes_required; i++)
 
         // unpack 8 bits at a time
-        written += pack_unpack(p_stream, "%i8", &((char *)p_bitmap->p_bitmap)[i]);
+        read += pack_unpack(p_stream, "%i8", &((char *)p_bitmap->p_bitmap)[i]);
     
     // return the bitmap to the caller
     *pp_bitmap = p_bitmap;
 
     // success
-    return written;
+    return read;
     
     // error handling
     {
@@ -576,6 +593,17 @@ int bitmap_unpack ( bitmap **pp_bitmap, stream *p_stream )
             no_stream:
                 #ifndef NDEBUG
                     log_error("[bitmap] Null pointer provided for parameter \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // constructor errors
+        {
+            failed_to_construct:
+                #ifndef NDEBUG
+                    log_error("[bitmap] Failed to construct bitmap in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -638,6 +666,9 @@ int bitmap_destroy ( bitmap **pp_bitmap )
     // initialized data
     bitmap *p_bitmap = *pp_bitmap;
 
+    // fast exit
+    if ( NULL == p_bitmap ) return 0;
+
     // lock
     mutex_lock(&p_bitmap->_lock);
 
@@ -647,8 +678,11 @@ int bitmap_destroy ( bitmap **pp_bitmap )
     // unlock
     mutex_unlock(&p_bitmap->_lock);
 
+    // destroy the mutex
+    mutex_destroy(&p_bitmap->_lock);
+
     // release the bits
-    p_bitmap->p_bitmap = default_allocator(p_bitmap->p_bitmap, 0),
+    p_bitmap->p_bitmap = default_allocator(p_bitmap->p_bitmap, 0);
 
     // release the bitmap
     p_bitmap = default_allocator(p_bitmap, 0);
@@ -663,7 +697,7 @@ int bitmap_destroy ( bitmap **pp_bitmap )
         {
             no_bitmap:
                 #ifndef NDEBUG
-                    log_error("[bitmap] Null pointer provided for parameter \"pp_bitmap\" in call to function \"%s\"\n");
+                    log_error("[bitmap] Null pointer provided for parameter \"pp_bitmap\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error

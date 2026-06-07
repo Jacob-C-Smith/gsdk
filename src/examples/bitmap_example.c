@@ -9,6 +9,7 @@
 // standard library
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 // gsdk
 /// core
@@ -29,16 +30,12 @@ int checkpoint ( bitmap *p_bitmap, const char *p_event );
 /// bit
 fn_fori bit_print;
 
-/// file for reflection
-FILE *p_f = NULL;
-
 /// hashes
 hash64 h1 = 0,
        h2 = 0;
 
 /// working bitmap
 bitmap *p_bitmap = NULL;
-size_t file_len = 0;
 
 // entry point
 int main ( int argc, const char* argv[] )
@@ -106,7 +103,7 @@ int main ( int argc, const char* argv[] )
         stream_from_path(&p_stream, "resources/reflection/bitmap.bin");
 
         // reflect the bitmap to a buffer
-        bitmap_pack(p_stream, p_bitmap),
+        bitmap_pack(p_stream, p_bitmap);
         
         // close the file
         stream_destroy(&p_stream);
@@ -159,7 +156,7 @@ int main ( int argc, const char* argv[] )
         stream_from_path(&p_stream, "resources/reflection/bitmap.bin");
         
         // reflect a bitmap from the buffer
-        bitmap_unpack(&p_bitmap, p_stream),
+        bitmap_unpack(&p_bitmap, p_stream);
 
         // close the file
         stream_destroy(&p_stream);
@@ -212,8 +209,10 @@ int checkpoint ( bitmap *p_bitmap, const char *p_event )
 
     // print the bitmap
     if ( NULL == p_bitmap )
-        log_info("#%d - Bitmap %s: ", step, p_event),
+    {
+        log_info("#%d - Bitmap %s: ", step, p_event);
         printf("NULL\n");
+    }
     else
     {
 
@@ -226,8 +225,10 @@ int checkpoint ( bitmap *p_bitmap, const char *p_event )
 
         // iterate through the bitmap
         for ( iterator it = bitmap_iterator(p_bitmap); !it.done(&it); it.next(&it) )
-            bit_print(it.item(&it), i),
+        {
+            bit_print(it.item(&it), i);
             i++;
+        }
 
         // formatting
         putchar('>');

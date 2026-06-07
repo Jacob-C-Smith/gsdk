@@ -33,7 +33,7 @@ typedef struct bitmap_s bitmap;
 // function declarations
 /// constructors
 /** !
- * Allocate a bitmap
+ * Construct a bitmap
  * 
  * @param pp_bitmap result
  * @param bits      the quantity of bits in the bitmap

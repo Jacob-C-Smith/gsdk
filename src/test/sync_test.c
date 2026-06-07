@@ -438,7 +438,6 @@ void test_semaphore ( const char *name )
     {
         .lim = 1,
         ._spots = { 0 },
-        ._semaphore = 0
     };
 
     // log
