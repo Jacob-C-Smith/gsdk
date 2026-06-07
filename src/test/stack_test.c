@@ -1,500 +1,322 @@
 /** !
- * stack library tester
+ * stack tester
  * 
- * @file stack_tester.c
+ * @file src/test/stack_test.c
  *
  * @author Jacob Smith
 */
 
-// Include
+// standard library
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 
-// core
+// gsdk
+/// core
 #include <core/log.h>
 #include <core/sync.h>
+#include <core/test.h>
 
-// data
+/// data
 #include <data/stack.h>
 
-// Possible values
-void *A_value = (void *) 0x0000000000000001,
-     *B_value = (void *) 0x0000000000000002,
-     *C_value = (void *) 0x0000000000000003,
-     *X_value = (void *) 0xFFFFFFFFFFFFFFFF;
+// preprocessor macros
+#define A_KEY "A"
+#define B_KEY "B"
+#define C_KEY "C"
+#define X_KEY "X"
 
-// Possible keys
-char *A_key   = "A",
-     *B_key   = "B",
-     *C_key   = "C",
-     *X_key   = "X";
+// function declarations
+/// scenario constructors
+fn_scenario_constructor construct_empty;
+fn_scenario_constructor construct_empty_pushA_A;
+fn_scenario_constructor construct_A_pop_empty;
+fn_scenario_constructor construct_A_pushB_AB;
+fn_scenario_constructor construct_AB_pop_A;
+fn_scenario_constructor construct_AB_pushC_ABC;
+fn_scenario_constructor construct_ABC_pop_AB;
 
-// Expected results
-char  *_keys     [] = { 0x0 };
-char  *A_keys    [] = { "A", 0x0 };
-char  *AB_keys   [] = { "A", "B", 0x0 };
-char  *ABC_keys  [] = { "A", "B", "C", 0x0 };
+/// test cases
+fn_test_case test_push;
+fn_test_case test_pop;
+fn_test_case test_peek;
+fn_test_case test_is_empty;
 
-// Test results
-enum result_e {
-    zero,
-    one,
-    match
+/// result evaluators
+fn_results_match pop_results_match;
+fn_results_match peek_results_match;
+fn_results_match is_empty_results_match;
+
+/// allocators
+fn_allocator destruct_stack;
+
+// data
+/// values
+char  *_keys     [] = { NULL };
+char  *A_keys    [] = { A_KEY, NULL };
+char  *AB_keys   [] = { A_KEY, B_KEY, NULL };
+char  *ABC_keys  [] = { A_KEY, B_KEY, C_KEY, NULL };
+
+// test
+/// cases
+test_case _empty_test_cases[] = 
+{
+    TEST_CASE ("push A"  , test_push    , A_KEY, TEST_RESULT_ONE),
+    TEST_CASE ("pop"     , test_pop     , (void *)1, TEST_RESULT_ZERO),
+    TEST_CASE ("peek"    , test_peek    , NULL , TEST_RESULT_ZERO),
+    TEST_MATCH("is empty", test_is_empty, NULL , is_empty_results_match),
 };
 
-typedef enum result_e result_t;
+test_case _one_element_test_cases[] = 
+{
+    TEST_CASE ("push B"  , test_push    , B_KEY, TEST_RESULT_ONE),
+    TEST_MATCH("pop"     , test_pop     , (void *)1, pop_results_match),
+    TEST_CASE ("pop(2)"  , test_pop     , (void *)2, TEST_RESULT_ZERO),
+    TEST_MATCH("peek"    , test_peek    , NULL , peek_results_match),
+    TEST_MATCH("is empty", test_is_empty, NULL , is_empty_results_match),
+};
 
-int total_tests      = 0,
-    total_passes     = 0,
-    total_fails      = 0,
-    ephemeral_tests  = 0,
-    ephemeral_passes = 0,
-    ephemeral_fails  = 0;
+test_case _two_element_test_cases[] = 
+{
+    TEST_CASE ("push C"  , test_push    , C_KEY, TEST_RESULT_ONE),
+    TEST_MATCH("pop"     , test_pop     , (void *)1, pop_results_match),
+    TEST_MATCH("pop(2)"  , test_pop     , (void *)2, pop_results_match),
+    TEST_CASE ("pop(3)"  , test_pop     , (void *)3, TEST_RESULT_ZERO),
+    TEST_MATCH("peek"    , test_peek    , NULL , peek_results_match),
+    TEST_MATCH("is empty", test_is_empty, NULL , is_empty_results_match),
+};
 
+test_case _three_element_test_cases[] = 
+{
+    TEST_CASE ("push X"  , test_push    , X_KEY, TEST_RESULT_ZERO),
+    TEST_MATCH("pop"     , test_pop     , (void *)1, pop_results_match),
+    TEST_MATCH("pop(2)"  , test_pop     , (void *)2, pop_results_match),
+    TEST_MATCH("pop(3)"  , test_pop     , (void *)3, pop_results_match),
+    TEST_CASE ("pop(4)"  , test_pop     , (void *)4, TEST_RESULT_ZERO),
+    TEST_MATCH("peek"    , test_peek    , NULL , peek_results_match),
+    TEST_MATCH("is empty", test_is_empty, NULL , is_empty_results_match),
+};
 
-// forward declarations
-int run_tests           ( void );
-int print_final_summary ( void );
-int print_test          ( const char  *scenario_name, const char *test_name, bool passed );
+/// scenarios
+test_scenario _scenarios[] = 
+{
+    TEST_SCENARIO("empty"          , _keys   , _empty_test_cases        , construct_empty          , destruct_stack),
+    TEST_SCENARIO("empty_pushA_A"  , A_keys  , _one_element_test_cases  , construct_empty_pushA_A  , destruct_stack),
+    TEST_SCENARIO("A_pop_empty"    , _keys   , _empty_test_cases        , construct_A_pop_empty    , destruct_stack),
+    TEST_SCENARIO("A_pushB_AB"     , AB_keys , _two_element_test_cases  , construct_A_pushB_AB     , destruct_stack),
+    TEST_SCENARIO("AB_pop_A"       , A_keys  , _one_element_test_cases  , construct_AB_pop_A       , destruct_stack),
+    TEST_SCENARIO("AB_pushC_ABC"   , ABC_keys, _three_element_test_cases, construct_AB_pushC_ABC   , destruct_stack),
+    TEST_SCENARIO("ABC_pop_AB"     , AB_keys , _two_element_test_cases  , construct_ABC_pop_AB     , destruct_stack),
+};
 
-int print_time_pretty ( double seconds );
-
-bool test_push ( int (*stack_constructor)(stack **), char  *value         , result_t expected );
-bool test_peek ( int (*stack_constructor)(stack **), char  *expected_value, result_t expected );
-bool test_pop  ( int (*stack_constructor)(stack **), char  *expected_value, size_t   pops,    result_t expected );
-
-int test_empty_stack         ( int (*stack_constructor)(stack **), char *name );
-int test_one_element_stack   ( int (*stack_constructor)(stack **), char *name, char **keys );
-int test_two_element_stack   ( int (*stack_constructor)(stack **), char *name, char **keys );
-int test_three_element_stack ( int (*stack_constructor)(stack **), char *name, char **keys );
-
-int construct_empty         ( stack **pp_stack );
-int construct_empty_pushA_A ( stack **pp_stack );
-int construct_A_pop_empty   ( stack **pp_stack );
-int construct_A_pushB_BA    ( stack **pp_stack );
-int construct_AB_pop_A      ( stack **pp_stack );
-int construct_AB_pushC_ABC  ( stack **pp_stack );
-int construct_ABC_pop_AB    ( stack **pp_stack );
+/// suites
+test_suite _suite = TEST_SUITE("stack", _scenarios);
 
 // entry point
-int main ( int argc, const char* argv[] )
+int main ( int argc, const char *argv[] ) 
 {
-
-    // initialized data
-    timestamp t0 = 0,
-              t1 = 0;
 
     // unused
     (void) argc;
     (void) argv;
-
-    // Formatting
-    printf(
-        "╭──────────────╮\n"\
-        "│ stack tester │\n"\
-        "╰──────────────╯\n\n"
-    );
-
-    // Start
-    t0 = timer_high_precision();
-
-    // Run tests
-    run_tests();
-
-    // Stop
-    t1 = timer_high_precision();
-
-    // Report the time it took to run the tests
-    log_info("stack took ");
-    print_time_pretty ( (double)(t1-t0)/(double)timer_seconds_divisor() );
-    log_info(" to test\n");
-
-    // Flush stdio
-    fflush(stdout);
-
-    // exit
-    return ( total_passes == total_tests ) ? EXIT_SUCCESS : EXIT_FAILURE;
-}
-
-int print_time_pretty ( double seconds )
-{
-
-    // initialized data
-    double _seconds     = seconds;
-    size_t days         = 0,
-           hours        = 0,
-           minutes      = 0,
-           __seconds    = 0,
-           milliseconds = 0,
-           microseconds = 0;
-
-    // Days
-    while ( _seconds > 86400.0 ) { days++;_seconds-=286400.0; };
-
-    // Hours
-    while ( _seconds > 3600.0 ) { hours++;_seconds-=3600.0; };
-
-    // Minutes
-    while ( _seconds > 60.0 ) { minutes++;_seconds-=60.0; };
-
-    // Seconds
-    while ( _seconds > 1.0 ) { __seconds++;_seconds-=1.0; };
-
-    // milliseconds
-    while ( _seconds > 0.001 ) { milliseconds++;_seconds-=0.001; };
-
-    // Microseconds        
-    while ( _seconds > 0.000001 ) { microseconds++;_seconds-=0.000001; };
-
-    // Print days
-    if ( days ) 
-        log_info("%zd D, ", days);
+     
+    // run the tests
+    test_suite_test(&_suite); 
     
-    // Print hours
-    if ( hours )
-        log_info("%zd h, ", hours);
-
-    // Print minutes
-    if ( minutes )
-        log_info("%zd m, ", minutes);
-
-    // Print seconds
-    if ( __seconds )
-        log_info("%zd s, ", __seconds);
-    
-    // Print milliseconds
-    if ( milliseconds )
-        log_info("%zd ms, ", milliseconds);
-    
-    // Print microseconds
-    if ( microseconds )
-        log_info("%zd us", microseconds);
-    
-    // success
-    return 1;
+    // done
+    return (_suite.counters.total.fails == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-int run_tests ( void )
-{
-
-    // stack notation: bottom is left, top is right.
-
-    // ... -> [ _, _, _ ]
-    test_empty_stack(construct_empty, "empty");
-
-    // [ _, _, _ ] -> push(A) -> [ A, _, _ ]
-    test_one_element_stack(construct_empty_pushA_A, "empty_pushA_A", (char **)A_keys);
-
-    // [ A, _, _ ] -> pop() -> [ _, _, _ ]
-    test_empty_stack(construct_A_pop_empty, "A_pop_empty");
-
-    // [ A, _, _ ] -> push(B) -> [ A, B, _ ]
-    test_two_element_stack(construct_A_pushB_BA, "A_pushB_AB", (char **)AB_keys);
-
-    // [ A, B, _ ] -> pop() -> [ A, _, _ ]
-    test_one_element_stack(construct_AB_pop_A, "AB_pop_A", (char **)A_keys);
-
-    // [ A, B, _ ] -> push(C) -> [ A, B, C ]
-    test_three_element_stack(construct_AB_pushC_ABC, "AB_pushC_ABC", (char **)ABC_keys);
-
-    // [ A, B, C ] -> pop() -> [ A, B, _ ]
-    test_two_element_stack(construct_ABC_pop_AB, "ABC_pop_AB", (char **)AB_keys);
-
-    // success
-    return 1;
-}
-
-int construct_empty ( stack **pp_stack )
-{
-    // Construct a stack
-    stack_construct(pp_stack, 3);
-
-    // stack = [ _, _, _ ]
-    return 1;
-}
-
-int construct_A_pop_empty ( stack **pp_stack )
-{
-
-    // Construct a [ A, _, _ ] stack
-    construct_AB_pop_A(pp_stack);
-
-    // pop ()
-    stack_pop(*pp_stack, 0);
-
-    // stack = [ _, _, _ ]
-    // success
-    return 1;
-
-}
-
-int construct_empty_pushA_A ( stack **pp_stack )
-{
-
-    // Construct a [ _, _, _ ] stack
-    construct_empty(pp_stack);
-
-    // push (A)
-    stack_push(*pp_stack, A_key);
-
-    // stack = [ A, _, _ ]
-    // success
-    return 1;
-}
-
-int construct_A_pushB_BA ( stack **pp_stack )
-{
-
-    // Construct a [ A, _, _ ] stack
-    construct_empty_pushA_A(pp_stack);
-
-    // push (B)
-    stack_push(*pp_stack, B_key);
-
-    // stack = [ A, B, _ ]
-    // success
-    return 1;
-}
-
-int construct_AB_pop_A ( stack **pp_stack )
-{
-    // Construct a [ A, B, _ ] stack
-    construct_ABC_pop_AB(pp_stack);
-
-    // pop ()
-    stack_pop(*pp_stack, 0);
-
-    // stack = [ A, _, _ ]
-    // success
-    return 1;
-}
-
-int construct_AB_pushC_ABC ( stack **pp_stack )
-{
-
-    // Construct a [ A, B, _ ] stack
-    construct_A_pushB_BA(pp_stack);
-
-    // push (C)
-    stack_push(*pp_stack, C_key);
-
-    // stack = [ A, B, C ]
-    // success
-    return 1;
-}
-
-int construct_ABC_pop_AB ( stack **pp_stack )
-{
-
-    // Construct a [ A, B, C ] stack
-    construct_AB_pushC_ABC(pp_stack);
-
-    // pop ()
-    stack_pop(*pp_stack, 0);
-
-    // stack = [ A, B, _ ]
-    // success
-    return 1;
-}
-
-int test_empty_stack ( int (*stack_constructor)(stack **pp_stack), char *name )
-{
-
-    // Print the name of the scenario
-    log_scenario("%s\n", name);
-
-    print_test(name, "stack_push_A", test_push(stack_constructor, A_key, one) );
-    print_test(name, "stack_pop"   , test_pop (stack_constructor, (void *)0, 1, zero) );
-    print_test(name, "stack_peek"  , test_peek(stack_constructor, (void *)0, zero) );
-
-    print_final_summary();
-
-    // success
-    return 1;
-}
-
-int test_one_element_stack ( int (*stack_constructor)(stack **), char *name, char **keys )
-{
-
-    // Print the name of the scenario
-    log_scenario("%s\n", name);
-
-    print_test(name, "stack_push_B" , test_push(stack_constructor, B_key, one) );
-    print_test(name, "stack_pop"    , test_pop(stack_constructor, keys[0], 1, match) );
-    print_test(name, "stack_pop_pop", test_pop(stack_constructor, (void *)0, 2, zero) );
-    print_test(name, "stack_peek"   , test_peek(stack_constructor, keys[0], match) );
-
-    print_final_summary();
-
-    // success
-    return 1;
-}
-
-int test_two_element_stack ( int (*stack_constructor)(stack **), char *name, char **keys )
-{
-
-    // Print the name of the scenario
-    log_scenario("%s\n", name);
-
-    print_test(name, "stack_push_C"     , test_push(stack_constructor, C_key, one) );
-    print_test(name, "stack_pop"        , test_pop(stack_constructor, keys[1], 1, match) );
-    print_test(name, "stack_pop_pop"    , test_pop(stack_constructor, keys[0], 2, match) );
-    print_test(name, "stack_pop_pop_pop", test_pop(stack_constructor, (void *)0, 3, zero) );
-    print_test(name, "stack_peek"       , test_peek(stack_constructor, keys[1], match) );
-
-    print_final_summary();
-
-    // success
-    return 1;
-}
-
-int test_three_element_stack ( int (*stack_constructor)(stack **), char *name, char **keys )
-{
-
-    // Print the name of the scenario
-    log_scenario("%s\n", name);
-
-    print_test(name, "stack_push_X"         , test_push(stack_constructor, X_key, zero) );
-    print_test(name, "stack_pop"            , test_pop(stack_constructor, keys[2], 1, match) );
-    print_test(name, "stack_pop_pop"        , test_pop(stack_constructor, keys[1], 2, match) );
-    print_test(name, "stack_pop_pop_pop"    , test_pop(stack_constructor, keys[0], 3, match) );
-    print_test(name, "stack_pop_pop_pop_pop", test_pop(stack_constructor, (void *)0, 4, zero) );
-    print_test(name, "stack_peek"           , test_peek(stack_constructor, keys[2], match) );
-
-    print_final_summary();
-
-    // success
-    return 1;
-}
-
-int print_test ( const char *scenario_name, const char *test_name, bool passed )
+int construct_empty ( void **pp_result ) 
 { 
 
-    if ( passed ) 
-        log_pass("%s %s\n", scenario_name, test_name);
-    else
-        log_fail("%s %s\n", scenario_name, test_name);
-
-    // Increment the counters
-    {
-        if (passed)
-        {
-            ephemeral_passes++;
-        }
-        else
-        {
-            ephemeral_fails++;
-        }
-
-        ephemeral_tests++;
-    }
-
-    // success
-    return 1;
+    // ... -> [ ]
+    return stack_construct((stack **)pp_result, 3);
 }
 
-int print_final_summary ( void )
-{
+int construct_empty_pushA_A ( void **pp_result ) 
+{ 
 
-    // Accumulate
-    total_tests  += ephemeral_tests,
-    total_passes += ephemeral_passes,
-    total_fails  += ephemeral_fails;
+    // [ ]
+    construct_empty(pp_result);
 
-    // Print
-    log_info("\nTests: %d, Passed: %d, Failed: %d (%%%.3f)\n",  ephemeral_tests, ephemeral_passes, ephemeral_fails, ((float)ephemeral_passes/(float)ephemeral_tests*100.f));
-    log_info("Total: %d, Passed: %d, Failed: %d (%%%.3f)\n\n",  total_tests, total_passes, total_fails, ((float)total_passes/(float)total_tests*100.f));
-
-    ephemeral_tests  = 0;
-    ephemeral_passes = 0;
-    ephemeral_fails  = 0;
-
-    // success
-    return 1;
+    // [ ] -> push(A) -> [ A ]
+    return stack_push(*((stack **)pp_result), A_KEY); 
 }
 
-bool test_push ( int (*stack_constructor)(stack **), char *value, result_t expected )
+int construct_A_pop_empty ( void **pp_result ) 
+{ 
+
+    // [ A ]
+    construct_empty_pushA_A(pp_result);
+
+    // [ A ] -> pop() -> [ ]
+    return stack_pop(*((stack **)pp_result), NULL); 
+}
+
+int construct_A_pushB_AB ( void **pp_result ) 
+{ 
+
+    // [ A ]
+    construct_empty_pushA_A(pp_result);
+
+    // [ A ] -> push(B) -> [ A, B ]
+    return stack_push(*((stack **)pp_result), B_KEY); 
+}
+
+int construct_AB_pop_A ( void **pp_result )
 {
+
+    // [ A, B ]
+    construct_A_pushB_AB(pp_result);
+
+    // [ A, B ] -> pop() -> [ A ]
+    return stack_pop(*((stack **)pp_result), NULL); 
+}
+
+int construct_AB_pushC_ABC ( void **pp_result ) 
+{ 
+
+    // [ A, B ]
+    construct_A_pushB_AB(pp_result);
+
+    // [ A, B ] -> push(C) -> [ A, B, C ]
+    return stack_push(*((stack **)pp_result), C_KEY); 
+}
+
+int construct_ABC_pop_AB ( void **pp_result ) 
+{ 
+
+    // [ A, B, C ]
+    construct_AB_pushC_ABC(pp_result);
+
+    // [ A, B, C ] -> pop() -> [ A, B ]
+    return stack_pop(*((stack **)pp_result), NULL); 
+}
+
+void *test_push ( test_case *p_test_case, void *p_subject ) 
+{ 
 
     // initialized data
-    result_t  result  = 0;
-    stack    *p_stack = 0;
-
-    // Build the stack
-    stack_constructor(&p_stack);
-
-    result = (result_t) stack_push(p_stack, value);
-
-    // Free the stack
-    stack_destroy(&p_stack);
-
-    // return result
-    return (result == expected);
+    stack *p_stack = (stack *)p_subject;
+    
+    // test
+    return (void *)(size_t)stack_push(p_stack, p_test_case->p_parameters); 
 }
 
-bool test_peek ( int (*stack_constructor)(stack **), char *expected_value, result_t expected )
-{
-
-    // argument check
-    //if ( expected_value == (void *) 0 ) return false;
+void *test_pop ( test_case *p_test_case, void *p_subject ) 
+{ 
 
     // initialized data
-    result_t  result       = 0;
-    stack    *p_stack      = 0;
-    void     *result_value = 0;
+    stack  *p_stack = (stack *)p_subject;
+    size_t  pops    = (size_t)p_test_case->p_parameters;
+    void   *p_res   = NULL;
 
-    // Build the stack
-    stack_constructor(&p_stack);
-
-    // Peek the stack
-    result = (result_t) stack_peek(p_stack, &result_value);
-
-    if (result == zero)
-        goto done;
-    else if ( strcmp(result_value, expected_value) == 0 )
-        result = match;
-
-    done:
-    // Free the stack
-    stack_destroy(&p_stack);
-
-    // return result
-    return (result == expected);
-}
-
-bool test_pop ( int (*stack_constructor)(stack **), char *expected_value, size_t pops, result_t expected )
-{
-
-    // argument check
-    //if ( expected_value == (void *) 0 ) return false;
-
-    // initialized data
-    result_t  result       = 0;
-    stack    *p_stack      = 0;
-    void     *result_value = 0;
-
-    // Build the stack
-    stack_constructor(&p_stack);
-
-    // Pop N times
+    // test
     for (size_t i = 0; i < pops; i++)
-    {
-        result = (result_t) stack_pop(p_stack, &result_value);
+        if ( 0 == stack_pop(p_stack, &p_res) ) return NULL;
 
-        if ( result == zero ) goto done;
-    }
+    // store the result
+    p_test_case->p_out = p_res;
 
-    if ( result == zero )
-        goto done;
-    else if ( strcmp(result_value, expected_value) == 0 )
-        result = match;
+    // success
+    return (void *)1;
+}
 
-    done:
-    // Free the stack
-    stack_destroy(&p_stack);
+void *test_peek ( test_case *p_test_case, void *p_subject ) 
+{ 
 
-    // return result
-    return (result == expected);
+    // initialized data
+    stack *p_stack = (stack *)p_subject;
+    
+    // test
+    if ( 0 == stack_peek(p_stack, &p_test_case->p_out) ) return NULL;
+
+    // success
+    return (void *)1;
+}
+
+void *test_is_empty ( test_case *p_test_case, void *p_subject ) 
+{ 
+
+    // unused
+    (void) p_test_case;
+
+    // initialized data
+    stack *p_stack = (stack *)p_subject;
+
+    // done
+    return (void *)(size_t) stack_is_empty(p_stack);
+}
+
+bool pop_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+    
+    // unused
+    (void) p_subject;
+    (void) p_result;
+
+    // initialized data
+    char   **pp_keys = p_scenario->p_data;
+    size_t   pops    = (size_t)p_case->p_parameters;
+    size_t   count   = 0;
+
+    // find the end
+    while ( pp_keys[count] )
+        count++;
+
+    // done
+    return p_case->p_out == pp_keys[count - pops];
+}
+
+bool peek_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+    
+    // unused
+    (void) p_subject;
+    (void) p_result;
+
+    // initialized data
+    char   **pp_keys = p_scenario->p_data;
+    size_t   count   = 0;
+
+    // find the end
+    while ( pp_keys[count] )
+        count++;
+
+    // done
+    return p_case->p_out == pp_keys[count - 1];
+}
+
+bool is_empty_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+    
+    // unused
+    (void) p_scenario;
+    (void) p_case;
+    (void) p_subject;
+
+    // initialized data
+    char **pp_keys = p_scenario->p_data;
+    bool   result  = ( pp_keys[0] == NULL );
+
+    // done
+    return p_result == (void *)(size_t)result;
+}
+
+void *destruct_stack ( void *p_pointer, unsigned long long size )
+{
+
+    // unused
+    (void) size;
+
+    // initialized data
+    stack *p_stack = (stack *)p_pointer;
+
+    // release the stack
+    stack_destroy(&p_stack, NULL);
+
+    // success
+    return NULL;
 }
