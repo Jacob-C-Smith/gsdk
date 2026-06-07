@@ -39,15 +39,6 @@ static const i256 L  = 0x1000000000000000000000000000000014DEF9DEA2F79CD65812631
 i256 expmod ( i256 b, i256 e, i256 m );
 
 /** !
- * Modular inverse 
- * 
- * @param x the number
- * 
- * @return the modular inverse of x mod 2^255-19
- */
-i256 inv ( i256 x );
-
-/** !
  * Recover the x-coordinate on a twisted Edwards curve given a y-coordinate
  * 
  * @param y the y-coordinate
@@ -65,7 +56,7 @@ i256 xrecover ( i256 y );
  * 
  * @return void
  */
-void edwards ( i256 P[2], i256 _Q[2], i256 R[2] );
+void edwards ( i256 P[4], i256 _Q[4], i256 R[4] );
 
 /** !
  * Scalar multiplication of a point on a twisted Edwards curve
@@ -76,7 +67,7 @@ void edwards ( i256 P[2], i256 _Q[2], i256 R[2] );
  * 
  * @return void
  */
-void scalarmult ( i256 P[2], i256 e, i256 R[2] );
+void scalarmult ( i256 P[4], i256 e, i256 R[4] );
 
 /** !
  * Get the n'th bit of some data
@@ -106,7 +97,7 @@ void encodeint ( i256 y, unsigned char *out );
  * 
  * @return void
  */
-void encodepoint ( i256 P[2], unsigned char *out );
+void encodepoint ( i256 P[4], unsigned char *out );
 
 /** !
  * Load a 256-bit integer from a buffer
@@ -125,7 +116,7 @@ i256 decodeint ( const unsigned char *s );
  * 
  * @return 1 on success, 0 on error
  */
-int decodepoint ( const unsigned char *s, i256 P[2] );
+int decodepoint ( const unsigned char *s, i256 P[4] );
 
 /** !
  * Hash a message with SHA512
@@ -159,11 +150,11 @@ i256 Hint ( const unsigned char *m, size_t len );
 void public_key_derive ( const unsigned char *sk, unsigned char *pk );
 
 // function definitions
-i256 add_mod ( i256 a, i256 b, i256 m ) { return (a + b) % m; }
-i256 sub_mod ( i256 a, i256 b, i256 m ) { return (a - b + m) % m; }
-i256 mul_mod ( i256 a, i256 b, i256 m ) { return ((i512)a * b) % m; }
-i256 sqr_mod ( i256 a, i256 m )         { return mul_mod(a, a, m); }
-i256 inv     ( i256 x )                 { return expmod(x, Q - 2, Q); }
+static inline i256 add_mod ( i256 a, i256 b, i256 m ) { i256 r = a + b; return (r >= m) ? r - m : r; }
+static inline i256 sub_mod ( i256 a, i256 b, i256 m ) { return (a >= b) ? a - b : m - (b - a); }
+static inline i256 mul_mod ( i256 a, i256 b, i256 m ) { return (i256)(((i512)a * b) % m); }
+static inline i256 sqr_mod ( i256 a, i256 m )         { return mul_mod(a, a, m); }
+static inline i256 inv     ( i256 x )                 { return expmod(x, Q - 2, Q); }
 
 i256 expmod ( i256 b, i256 e, i256 m )
 {
@@ -176,13 +167,13 @@ i256 expmod ( i256 b, i256 e, i256 m )
     {
 
         // odd exponent 
-        if (e % 2 == 1) t = mul_mod(t, b, m);
+        if (e & 1) t = mul_mod(t, b, m);
 
         // square
         b = sqr_mod(b, m);
 
         // shift
-        e /= 2;
+        e >>= 1;
     }
     
     // done
@@ -234,81 +225,44 @@ i256 xrecover ( i256 y )
     return x;
 }
 
-void edwards ( i256 P[2], i256 _Q[2], i256 R[2] )
+void edwards ( i256 P[4], i256 _Q[4], i256 R[4] )
 {
 
     // initialized data
-    i256 x1 =  P[0], y1 =  P[1];
-    i256 x2 = _Q[0], y2 = _Q[1];
-    i256 x1y2 = 0, x2y1  = 0,
-         y1y2 = 0, x1x2  = 0;
-    i256 x_num = 0, x_den = 0;
-    i256 y_num = 0, y_den = 0;
-    i256 temp  = 0;
+    i256 A = mul_mod(sub_mod(P[1], P[0], Q), sub_mod(_Q[1], _Q[0], Q), Q);
+    i256 B = mul_mod(add_mod(P[1], P[0], Q), add_mod(_Q[1], _Q[0], Q), Q);
+    i256 C = mul_mod(mul_mod(P[3], _Q[3], Q), mul_mod(2, D, Q), Q);
+    i256 D_ = mul_mod(mul_mod(P[2], _Q[2], Q), 2, Q);
+    i256 E = sub_mod(B, A, Q);
+    i256 F = sub_mod(D_, C, Q);
+    i256 G = add_mod(D_, C, Q);
+    i256 H = add_mod(B, A, Q);
 
-    // compute intermediate products
-    x1y2 = mul_mod(x1, y2, Q),
-    x2y1 = mul_mod(x2, y1, Q),
-    y1y2 = mul_mod(y1, y2, Q),
-    x1x2 = mul_mod(x1, x2, Q);
-
-    // compute the denominator term
-    temp = mul_mod(
-        D, 
-        mul_mod(
-            x1x2, 
-            y1y2, 
-            Q
-        ), 
-        Q
-    );
-
-    // compute x
-    x_num = add_mod(x1y2, x2y1, Q),
-    x_den = add_mod(1, temp, Q);
-
-    // compute y
-    y_num = add_mod(y1y2, x1x2, Q),
-    y_den = sub_mod(1, temp, Q);
-    
-    // store the results
-    R[0] = mul_mod(
-        x_num, 
-        inv(x_den), 
-        Q
-    ),
-
-    R[1] = mul_mod(
-        y_num, 
-        inv(y_den), 
-        Q
-    );
-
-    // done
-    return;
+    // compute the result
+    R[0] = mul_mod(E, F, Q);
+    R[1] = mul_mod(G, H, Q);
+    R[2] = mul_mod(F, G, Q);
+    R[3] = mul_mod(E, H, Q);
 }
 
-void scalarmult ( i256 P[2], i256 e, i256 R[2] )
+void scalarmult ( i256 P[4], i256 e, i256 R[4] )
 {
 
     // initialized data
-    i256 _Q[2] = { P[0], P[1] };
+    i256 _Q[4] = { P[0], P[1], P[2], P[3] };
 
     // store initial point
-    R[0] = 0; R[1] = 1;
+    R[0] = 0; R[1] = 1; R[2] = 1; R[3] = 0;
     
     while (e > 0)
     {
 
-        // initialized data
-        i256 T[2] = { 0, 0 };
-
         // odd
-        if (e % 2 == 1)
+        if (e & 1)
         {
             
             // initialized data
-            i256 T[2] = { 0, 0 };
+            i256 T[4] = { 0, 0, 0, 0 };
 
             // add points
             edwards(R, _Q, T);
@@ -316,17 +270,28 @@ void scalarmult ( i256 P[2], i256 e, i256 R[2] )
             // store result
             R[0] = T[0], 
             R[1] = T[1];
+            R[2] = T[2];
+            R[3] = T[3];
         }
 
         // add points
-        edwards(_Q, _Q, T);
+        if (e > 1)
+        {
+            // initialized data
+            i256 T[4] = { 0, 0, 0, 0 };
 
-        // store result
-        _Q[0] = T[0],
-        _Q[1] = T[1];
+            // add points
+            edwards(_Q, _Q, T);
+
+            // store result
+            _Q[0] = T[0],
+            _Q[1] = T[1];
+            _Q[2] = T[2];
+            _Q[3] = T[3];
+        }
 
         // iterate
-        e /= 2;
+        e >>= 1;
     }
 }
 
@@ -348,11 +313,13 @@ void encodeint ( i256 y, unsigned char *out )
     return;
 }
 
-void encodepoint ( i256 P[2], unsigned char *out )
+void encodepoint ( i256 P[4], unsigned char *out )
 {
 
     // initialized data
-    i256 x = P[0], y = P[1];
+    i256 z_inv = inv(P[2]);
+    i256 x = mul_mod(P[0], z_inv, Q), 
+         y = mul_mod(P[1], z_inv, Q);
 
     // encode y
     encodeint(y, out);
@@ -375,7 +342,7 @@ i256 decodeint ( const unsigned char *s )
     return sum;
 }
 
-int decodepoint ( const unsigned char *s, i256 P[2] )
+int decodepoint ( const unsigned char *s, i256 P[4] )
 {
 
     // initialized data
@@ -446,7 +413,7 @@ int decodepoint ( const unsigned char *s, i256 P[2] )
     if ( lhs != 0 ) return 0; 
     
     // store the result
-    P[0] = x, P[1] = y;
+    P[0] = x; P[1] = y; P[2] = 1; P[3] = mul_mod(x, y, Q);
 
     // success
     return 1;
@@ -498,10 +465,12 @@ void public_key_derive ( const unsigned char *sk, unsigned char *pk )
 {
 
     // initialized data
-    i256          A[2]  = { 0, 0 },
-                  B[2]  = { Bx, By };
+    i256          A[4]  = { 0, 0, 0, 0 },
+                  B[4]  = { Bx, By, 1, 0 };
     i256          a     = 0;
     unsigned char h[64] = { 0 };
+
+    B[3] = mul_mod(Bx, By, Q);
 
     // RFC 8032 Section 5.1.5 > 1
     H(sk, 32, h);
@@ -621,12 +590,15 @@ int ed25519_sign
     unsigned char h[64] = { 0 };
     i256 a = 0;
     i256 r = 0;
-    i256 B[2] = { Bx, By };
-    i256 R[2] = { 0, 0 };
+    i256 B[4] = { Bx, By, 1, 0 };
+    i256 R[4] = { 0, 0, 0, 0 };
     i256 h_ram = 0;
     i256 S = 0;
     unsigned char R_enc[32];
     unsigned char *temp = NULL;
+
+    // store B3
+    B[3] = mul_mod(Bx, By, Q);
 
     // allocate memory for the signing process
     temp = default_allocator(0, 32 + message_len);
@@ -745,15 +717,20 @@ int ed25519_verify
     if ( NULL ==  p_public_key ) goto no_public_key;
 
     // initialized data
-    i256 R[2]           = { 0, 0 };
-    i256 A[2]           = { 0, 0 };
+    i256 R[4]           = { 0, 0, 0, 0 };
+    i256 A[4]           = { 0, 0, 0, 0 };
     i256 S              = 0;
     i256 h_ram          = 0;
-    i256 B[2]           = { Bx, By };
-    i256 SB[2]          = { 0, 0 };
-    i256 hA[2]          = { 0, 0 };
-    i256 RhA[2]         = { 0, 0 };
+    i256 B[4]           = { Bx, By, 1, 0 };
+    i256 SB[4]          = { 0, 0, 0, 0 };
+    i256 hA[4]          = { 0, 0, 0, 0 };
+    i256 RhA[4]         = { 0, 0, 0, 0 };
+    i256 x_match        = 0;
+    i256 y_match        = 0;
     unsigned char *temp = NULL;
+
+    // store B3
+    B[3] = mul_mod(Bx, By, Q);
 
     // RFC 8032 > 5.1.7 > 1
     if ( 0 ==  decodepoint((const unsigned char *)p_signature, R) ) return 0;
@@ -788,7 +765,11 @@ int ed25519_verify
     edwards(R, hA, RhA);
     
     // done
-    return ( SB[0] == RhA[0] && SB[1] == RhA[1] ) ? 1 : 0;
+    x_match = (mul_mod(SB[0], RhA[2], Q) == mul_mod(RhA[0], SB[2], Q));
+    y_match = (mul_mod(SB[1], RhA[2], Q) == mul_mod(RhA[1], SB[2], Q));
+
+    // done
+    return (x_match && y_match) ? 1 : 0;
 
     // error handling
     {
