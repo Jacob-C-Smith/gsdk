@@ -118,7 +118,7 @@ int main ( int argc, const char* argv[] )
         // initialized data
         void *p_value = NULL;
         
-        // find yellow
+        // find Blue
         cache_find(p_cache, "Blue", &p_value);
 
         // checkpoint
@@ -136,7 +136,7 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_cache, "after adding < Red, Orange, Yellow >");
     }
 
-    // #5 - find (miss)
+    // #5 - find
     {
         
         // initialized data
@@ -148,7 +148,7 @@ int main ( int argc, const char* argv[] )
                 log_error("\"%s\" not found\n", _p_colors[_color]);
 
         // checkpoint
-        checkpoint(p_cache, "after find < Blue -> Green -> Yellow -> ... >");
+        checkpoint(p_cache, "after find < Blue -> Green -> Yellow -> Orange >");
     }
 
     // #6 - peek
@@ -272,7 +272,7 @@ int main ( int argc, const char* argv[] )
         // initialized data
         void *p_value = NULL;
         
-        // find yellow
+        // find Blue
         cache_find(p_cache, "Blue", &p_value);
 
         // checkpoint

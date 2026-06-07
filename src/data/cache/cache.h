@@ -42,7 +42,7 @@ typedef struct cache_s cache;
  * 
  * @param pfn_equality     pointer to equality function IF NOT NULL ELSE default
  * @param pfn_key_accessor pointer to key accessor function IF NOT NULL ELSE default
- * @param pfn_allocator    pointer to allocator function IF NOT NULL ELSE default
+ * @param pfn_allocator    pointer to allocator function IF NOT NULL ELSE unused
  * 
  * @return 1 on success, 0 on error
  */
@@ -94,7 +94,7 @@ size_t cache_size ( cache *p_cache );
  * 
  * @param p_cache       the cache
  * @param p_value       the value
- * @param pfn_allocator pointer to allocator function IF NOT NULL ELSE default
+ * @param pfn_allocator pointer to allocator function IF NOT NULL ELSE unused
  * 
  * @return 1 on success, 0 on error
  */
@@ -141,7 +141,7 @@ int cache_fori ( cache *p_cache, fn_fori pfn_fori );
  * Call a function on each element of a cache
  * 
  * @param p_cache      the cache
- * @param pfn_function pointer to the function
+ * @param pfn_foreach  pointer to the function
  * 
  * @return 1 on success, 0 on error
  */
@@ -160,9 +160,9 @@ iterator cache_iterator ( cache *p_cache );
 /** !
  * Pack a cache into a stream
  * 
- * @param p_stream     the stream
- * @param p_cache      the cache
- * @param pfn_elemenet pointer to pack function IF not null ELSE default
+ * @param p_stream    the stream
+ * @param p_cache     the cache
+ * @param pfn_element pointer to pack function 
  * 
  * @return bytes written on success, 0 on error
  */
@@ -171,13 +171,13 @@ int cache_pack ( stream *p_stream, cache *p_cache, fn_pack *pfn_element );
 /** !
  * Unpack a stream into a cache
  * 
- * @param pp_cache     result
- * @param p_stream     the stream
- * @param pfn_elemenet pointer to unpack function IF not null ELSE default
+ * @param pp_cache    result
+ * @param p_stream    the stream
+ * @param pfn_element pointer to unpack function
  * 
- * @param pfn_equality  pointer to equality function IF NOT NULL ELSE default
- * @param pfn_key_get   pointer to key accessor function IF NOT NULL ELSE default
- * @param pfn_allocator pointer to allocator function IF NOT NULL ELSE default
+ * @param pfn_equality      pointer to equality function IF NOT NULL ELSE default
+ * @param pfn_key_accessor  pointer to key accessor function IF NOT NULL ELSE default
+ * @param pfn_allocator     pointer to allocator function IF NOT NULL ELSE default
  *  
  * @return bytes read on success, 0 on error
  */
@@ -197,7 +197,7 @@ int cache_unpack
  * Compute a 64-bit hash of a cache
  * 
  * @param p_cache     the cache
- * @param pfn_element pointer to hashing function
+ * @param pfn_element pointer to hashing function IF NOT NULL ELSE default
  * 
  * @return hash on success, 0 on error
  */
