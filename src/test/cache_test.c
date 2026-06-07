@@ -5,7 +5,7 @@
  * 
  * @author Jacob Smith
  */
- 
+
 // standard library
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,366 +14,315 @@
 
 // gsdk
 /// core
-#include <core/hash.h>
-#include <core/interfaces.h>
 #include <core/log.h>
 #include <core/sync.h>
+#include <core/test.h>
 
 /// data
 #include <data/cache.h>
 
-// enumeration definitions
-enum result_e {
-    zero,
-    one,
-    match
-};
+// preprocessor macros
+#define A_ELEMENT "A"
+#define B_ELEMENT "B"
+#define C_ELEMENT "C"
+#define D_ELEMENT "D"
+#define X_ELEMENT "X"
 
-// type definitions
-typedef enum result_e result_t;
+// function declarations
+/// scenario constructors
+fn_scenario_constructor construct_empty;
+fn_scenario_constructor construct_A;
+fn_scenario_constructor construct_BA;
+fn_scenario_constructor construct_CBA;
+fn_scenario_constructor construct_ACB;
+fn_scenario_constructor construct_DCB;
+fn_scenario_constructor construct_CA;
 
-// global variables
-int total_tests      = 0,
-    total_passes     = 0,
-    total_fails      = 0,
-    ephemeral_tests  = 0,
-    ephemeral_passes = 0,
-    ephemeral_fails  = 0;
+/// test cases
+fn_test_case test_insert;
+fn_test_case test_find;
+fn_test_case test_remove;
+fn_test_case test_size;
 
-// Test data
-const char *A_element = "A",
-           *B_element = "B",
-           *C_element = "C",
-           *D_element = "D",
-           *X_element = "X";
+/// result evaluators
+fn_results_match find_results_match;
+fn_results_match remove_results_match;
+fn_results_match size_results_match;
 
+/// allocators
+fn_allocator destruct_cache;
+
+/// helpers
+int string_equality(const void *a, const void *b);
+
+// data
+/// values
 const char *A_elements[]   = { "A", NULL };
 const char *BA_elements[]  = { "B", "A", NULL };
 const char *CBA_elements[] = { "C", "B", "A", NULL };
 const char *ACB_elements[] = { "A", "C", "B", NULL };
 const char *DCB_elements[] = { "D", "C", "B", NULL };
 const char *CA_elements[]  = { "C", "A", NULL };
+const char *_contents[]    = { NULL };
 
-// Forward declarations
-void print_time_pretty ( double seconds );
-void run_tests ( void );
-void print_final_summary ( void );
-void print_test ( const char *scenario_name, const char *test_name, bool passed );
+// test
+/// cases
+test_case _empty_test_cases[] = 
+{
+    TEST_CASE ("insert A" , test_insert, A_ELEMENT, TEST_RESULT_ONE),
+    TEST_CASE ("find X"   , test_find  , X_ELEMENT, TEST_RESULT_ZERO),
+    TEST_CASE ("remove X" , test_remove, X_ELEMENT, TEST_RESULT_ZERO),
+    TEST_MATCH("size"     , test_size  , NULL     , size_results_match),
+};
 
-// Custom equality and key accessor for string keys
-int string_equality(const void *a, const void *b) {
-    if (a == NULL || b == NULL) return a == b;
-    return strcmp((const char *)a, (const char *)b) == 0;
-}
+test_case _one_element_test_cases[] = 
+{
+    TEST_CASE ("insert B" , test_insert, B_ELEMENT, TEST_RESULT_ONE),
+    TEST_MATCH("find A"   , test_find  , A_ELEMENT, find_results_match),
+    TEST_CASE ("find X"   , test_find  , X_ELEMENT, TEST_RESULT_ZERO),
+    TEST_MATCH("size"     , test_size  , NULL     , size_results_match),
+};
 
-const void *key_accessor(const void *value) {
-    return value;
-}
+test_case _two_element_test_cases[] = 
+{
+    TEST_CASE ("insert C" , test_insert, C_ELEMENT, TEST_RESULT_ONE),
+    TEST_MATCH("find A"   , test_find  , A_ELEMENT, find_results_match),
+    TEST_MATCH("find B"   , test_find  , B_ELEMENT, find_results_match),
+    TEST_MATCH("size"     , test_size  , NULL     , size_results_match),
+};
 
-// Test helpers
-bool test_insert(void (*constructor)(cache **), const void *value, result_t expected);
-bool test_find(void (*constructor)(cache **), const char *key, const void *expected_value, result_t expected);
-bool test_remove(void (*constructor)(cache **), const char *key, const void *expected_value, result_t expected);
-bool test_size(void (*constructor)(cache **), size_t expected_count);
+test_case _full_test_cases[] = 
+{
+    TEST_CASE ("insert D (evict)", test_insert, D_ELEMENT, TEST_RESULT_ONE),
+    TEST_MATCH("find A"          , test_find  , A_ELEMENT, find_results_match),
+    TEST_MATCH("find B"          , test_find  , B_ELEMENT, find_results_match),
+    TEST_MATCH("find C"          , test_find  , C_ELEMENT, find_results_match),
+    TEST_MATCH("size"            , test_size  , NULL     , size_results_match),
+};
 
-// Constructor functions
-void construct_empty(cache **pp_cache);
-void construct_A(cache **pp_cache);
-void construct_BA(cache **pp_cache);
-void construct_CBA(cache **pp_cache);
-void construct_ACB(cache **pp_cache);
-void construct_DCB(cache **pp_cache);
-void construct_CA(cache **pp_cache);
+test_case _eviction_test_cases[] = 
+{
+    TEST_CASE ("find A (miss)", test_find  , A_ELEMENT, TEST_RESULT_ZERO),
+    TEST_MATCH("find D"       , test_find  , D_ELEMENT, find_results_match),
+    TEST_MATCH("size"         , test_size  , NULL     , size_results_match),
+};
 
-// Test scenarios
-void test_empty_cache_scenario();
-void test_one_element_cache_scenario();
-void test_two_element_cache_scenario();
-void test_full_cache_scenario();
-void test_eviction_scenario();
-void test_lru_find_scenario();
-void test_remove_scenario();
+test_case _lru_test_cases[] = 
+{
+    TEST_MATCH("find B"   , test_find  , B_ELEMENT, find_results_match),
+    TEST_MATCH("find C"   , test_find  , C_ELEMENT, find_results_match),
+    TEST_MATCH("find A"   , test_find  , A_ELEMENT, find_results_match),
+    TEST_MATCH("size"     , test_size  , NULL     , size_results_match),
+};
+
+test_case _remove_test_cases[] = 
+{
+    TEST_MATCH("remove B" , test_remove, B_ELEMENT, remove_results_match),
+    TEST_CASE ("remove X" , test_remove, X_ELEMENT, TEST_RESULT_ZERO),
+    TEST_MATCH("size"     , test_size  , NULL     , size_results_match),
+};
+
+/// scenarios
+test_scenario _scenarios[] = 
+{
+    TEST_SCENARIO("empty"    , _contents   , _empty_test_cases      , construct_empty, destruct_cache),
+    TEST_SCENARIO("A"        , A_elements  , _one_element_test_cases, construct_A    , destruct_cache),
+    TEST_SCENARIO("BA"       , BA_elements , _two_element_test_cases, construct_BA   , destruct_cache),
+    TEST_SCENARIO("CBA"      , CBA_elements, _full_test_cases       , construct_CBA  , destruct_cache),
+    TEST_SCENARIO("DCB"      , DCB_elements, _eviction_test_cases   , construct_DCB  , destruct_cache),
+    TEST_SCENARIO("ACB"      , ACB_elements, _lru_test_cases        , construct_ACB  , destruct_cache),
+    TEST_SCENARIO("remove"   , CBA_elements, _remove_test_cases     , construct_CBA  , destruct_cache),
+};
+
+/// suites
+test_suite _suite = TEST_SUITE("cache", _scenarios);
 
 // entry point
-int main ( int argc, const char* argv[] )
+int main ( int argc, const char *argv[] ) 
 {
-    
+
     // unused
     (void) argc;
     (void) argv;
+     
+    // run the tests
+    test_suite_test(&_suite); 
+    
+    // done
+    return (_suite.counters.total.fails == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+// helpers
+int string_equality(const void *a, const void *b)
+{
+    if ( a == NULL || b == NULL ) return a == b;
+
+    return ( 0 == strcmp((const char *)a, (const char *)b) );
+}
+
+// constructors
+int construct_empty ( void **pp_result ) 
+{ 
+    return cache_construct((cache **)pp_result, 3, string_equality, NULL, NULL);
+}
+
+int construct_A ( void **pp_result ) 
+{ 
+
+    // [ ] 
+    construct_empty(pp_result);
+
+    // [ ] -> insert(A) -> [ A ]
+    return cache_insert(*((cache **)pp_result), A_ELEMENT, NULL);
+}
+
+int construct_BA ( void **pp_result ) 
+{ 
+
+    // [ A ] 
+    construct_A(pp_result);
+
+    // [ A ] -> insert(B) -> [ B, A ]
+    return cache_insert(*((cache **)pp_result), B_ELEMENT, NULL);
+}
+
+int construct_CBA ( void **pp_result ) 
+{ 
+
+    // [ B, A ] 
+    construct_BA(pp_result);
+
+    // [ B, A ] -> insert(C) -> [ C, B, A ]
+    return cache_insert(*((cache **)pp_result), C_ELEMENT, NULL);
+}
+
+int construct_ACB ( void **pp_result ) 
+{ 
+
+    // [ C, B, A ] 
+    construct_CBA(pp_result);
+
+    // [ C, B, A ] -> find(A) -> [ A, C, B ]
+    return cache_find(*((cache **)pp_result), A_ELEMENT, NULL);
+}
+
+int construct_DCB ( void **pp_result ) 
+{ 
+
+    // [ C, B, A ] 
+    construct_CBA(pp_result);
+
+    // [ C, B, A ] -> insert(D) -> [ D, C, B ] 
+    return cache_insert(*((cache **)pp_result), D_ELEMENT, NULL);
+}
+
+int construct_CA ( void **pp_result ) 
+{ 
+
+    // [ C, B, A ] 
+    construct_CBA(pp_result);
+
+    // [ C, B, A ] -> remove(B) -> [ C, A ]
+    return cache_remove(*((cache **)pp_result), B_ELEMENT, NULL);
+}
+
+void *test_insert ( test_case *p_test_case, void *p_subject ) 
+{ 
+
+    // insert
+    return (void *)(size_t)cache_insert((cache *)p_subject, p_test_case->p_parameters, NULL); 
+}
+
+void *test_find ( test_case *p_test_case, void *p_subject ) 
+{ 
+
+    // test
+    if ( 0 == cache_find((cache *)p_subject, p_test_case->p_parameters, &p_test_case->p_out) ) return NULL;
+    
+    // success
+    return (void *)1;
+}
+
+void *test_remove ( test_case *p_test_case, void *p_subject ) 
+{ 
+
+    // test
+    if ( 0 == cache_remove((cache *)p_subject, p_test_case->p_parameters, &p_test_case->p_out) ) return NULL;
+
+    // success
+    return (void *)1;
+}
+
+void *test_size ( test_case *p_test_case, void *p_subject ) 
+{ 
+
+    // unused
+    (void) p_test_case;
+
+    // done
+    return (void *)cache_size((cache *)p_subject);
+}
+
+bool find_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+
+    // unused
+    (void) p_scenario;
+    (void) p_subject;
+    (void) p_result;
+
+    // fast exit
+    if ( NULL == p_case->p_out ) return false;
+
+    // done
+    return ( 0 == strcmp((const char *)p_case->p_out, (const char *)p_case->p_parameters) );
+}
+
+bool remove_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+
+    // unused
+    (void) p_scenario;
+    (void) p_subject;
+    (void) p_result;
+
+    // fast exit
+    if ( NULL == p_case->p_out ) return false;
+
+    // done
+    return ( 0 == strcmp((const char *)p_case->p_out, (const char *)p_case->p_parameters) );
+}
+
+bool size_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+
+    // unused
+    (void) p_case;
+    (void) p_subject;
+    
+    // initialized data
+    const char **pp_elements = (const char **)p_scenario->p_data;
+    size_t       count       = 0;
+
+    // count
+    while ( pp_elements[count] ) count++;
+
+    // done
+    return (size_t)p_result == count;
+}
+
+void *destruct_cache ( void *p_pointer, unsigned long long size )
+{
+
+    // unused
+    (void) size;
 
     // initialized data
-    timestamp t0 = 0,
-              t1 = 0;
+    cache *p_cache = (cache *)p_pointer;
 
-    // Formatting
-    printf(
-        "╭──────────────╮\n"\
-        "│ cache tester │\n"\
-        "╰──────────────╯\n\n"
-    );
-    
-    // Start
-    t0 = timer_high_precision();
-
-    // Run tests
-    run_tests();
-
-    // Stop
-    t1 = timer_high_precision();
-
-    // Report the time it took to run the tests
-    log_info("cache took ");
-    print_time_pretty ( (double)(t1-t0)/(double)timer_seconds_divisor() );
-    log_info(" to test\n");
-
-    // Flush stdio
-    fflush(stdout);
-
-    // exit
-    return ( total_passes == total_tests ) ? EXIT_SUCCESS : EXIT_FAILURE;
-}
-
-void print_time_pretty ( double seconds )
-{
-    // initialized data
-    double _seconds     = seconds;
-    size_t days         = 0,
-           hours        = 0,
-           minutes      = 0,
-           __seconds    = 0,
-           milliseconds = 0,
-           microseconds = 0;
-
-    // Days
-    while ( _seconds > 86400.0 ) { days++;_seconds-=86400.0; };
-    // Hours
-    while ( _seconds > 3600.0 ) { hours++;_seconds-=3600.0; };
-    // Minutes
-    while ( _seconds > 60.0 ) { minutes++;_seconds-=60.0; };
-    // Seconds
-    while ( _seconds > 1.0 ) { __seconds++;_seconds-=1.0; };
-    // milliseconds
-    while ( _seconds > 0.001 ) { milliseconds++;_seconds-=0.001; };
-    // Microseconds        
-    while ( _seconds > 0.000001 ) { microseconds++;_seconds-=0.000001; };
-
-    if ( days ) log_info("%zu D, ", days);
-    if ( hours ) log_info("%zu h, ", hours);
-    if ( minutes ) log_info("%zu m, ", minutes);
-    if ( __seconds ) log_info("%zu s, ", __seconds);
-    if ( milliseconds ) log_info("%zu ms, ", milliseconds);
-    if ( microseconds ) log_info("%zu us", microseconds);
-}
-
-void run_tests ( void )
-{
-
-    // empty 
-    test_empty_cache_scenario();
-
-    // one element
-    test_one_element_cache_scenario();
-
-    // two element
-    test_two_element_cache_scenario();
-
-    // full
-    test_full_cache_scenario();
-
-    
-    test_eviction_scenario();
-    test_lru_find_scenario();
-    test_remove_scenario();
-}
-
-void print_final_summary ( void )
-{
-    total_tests  += ephemeral_tests;
-    total_passes += ephemeral_passes;
-    total_fails  += ephemeral_fails;
-
-    log_info("\nTests: %d, Passed: %d, Failed: %d (%%%.3f)\n",  ephemeral_tests, ephemeral_passes, ephemeral_fails, ((float)ephemeral_passes/(float)ephemeral_tests*100.f));
-    log_info("Total: %d, Passed: %d, Failed: %d (%%%.3f)\n\n",  total_tests, total_passes, total_fails, ((float)total_passes/(float)total_tests*100.f));
-    
-    ephemeral_tests  = 0;
-    ephemeral_passes = 0;
-    ephemeral_fails  = 0;
-}
-
-void print_test ( const char *scenario_name, const char *test_name, bool passed )
-{
-    if ( passed )
-        log_pass("%s %s\n", scenario_name, test_name);
-    else
-        log_fail("%s %s\n", scenario_name, test_name);
-
-    if (passed)
-        ephemeral_passes++;
-    else
-        ephemeral_fails++;
-
-    ephemeral_tests++;
-}
-
-void construct_empty(cache **pp_cache) {
-    cache_construct(pp_cache, 3, string_equality, NULL, NULL);
-}
-
-void construct_A(cache **pp_cache) {
-    construct_empty(pp_cache);
-    cache_insert(*pp_cache, A_element, NULL);
-}
-
-void construct_BA(cache **pp_cache) {
-    construct_A(pp_cache);
-    cache_insert(*pp_cache, B_element, NULL);
-}
-
-void construct_CBA(cache **pp_cache) {
-    construct_BA(pp_cache);
-    cache_insert(*pp_cache, C_element, NULL);
-}
-
-void construct_ACB(cache **pp_cache) {
-    construct_CBA(pp_cache);
-    cache_find(*pp_cache, A_element, NULL);
-}
-
-void construct_DCB(cache **pp_cache) {
-    construct_CBA(pp_cache);
-    cache_insert(*pp_cache, D_element, NULL);
-}
-
-void construct_CA(cache **pp_cache) {
-    construct_CBA(pp_cache);
-    cache_remove(*pp_cache, B_element, NULL);
-}
-
-bool test_insert(void (*constructor)(cache **), const void *value, result_t expected) {
-    cache *p_cache = NULL;
-    constructor(&p_cache);
-    result_t result = (result_t)cache_insert(p_cache, value, NULL);
+    // destroy the cache
     cache_destroy(&p_cache);
-    return result == expected;
-}
 
-bool test_find(void (*constructor)(cache **), const char *key, const void *expected_value, result_t expected) {
-    cache *p_cache = NULL;
-    constructor(&p_cache);
-    void *found_value = NULL;
-    result_t result;
-
-    int ret = cache_find(p_cache, key, &found_value);
-
-    if (ret == 1) { // Hit
-        if (expected_value != NULL && found_value != NULL && strcmp(found_value, expected_value) == 0)
-            result = match;
-        else
-            result = one;
-    } else { // Miss
-        result = zero;
-    }
-    
-    cache_destroy(&p_cache);
-    return result == expected;
-}
-
-bool test_remove(void (*constructor)(cache **), const char *key, const void *expected_value, result_t expected) {
-    cache *p_cache = NULL;
-    constructor(&p_cache);
-    void *removed_value = (void*)-1;
-    result_t result;
-
-    cache_remove(p_cache, key, &removed_value);
-
-    if (expected_value != NULL) { // Expect to find and remove
-        if (removed_value != (void*)-1 && removed_value != NULL && strcmp(removed_value, expected_value) == 0)
-            result = match;
-        else
-            result = zero;
-    } else { // Expect not to find
-        if (removed_value == NULL)
-            result = one;
-        else
-            result = zero;
-    }
-
-    cache_destroy(&p_cache);
-    return result == expected;
-}
-
-bool test_size(void (*constructor)(cache **), size_t expected_count) {
-    cache *p_cache = NULL;
-    constructor(&p_cache);
-
-    if (cache_size(p_cache) != expected_count) {
-        cache_destroy(&p_cache);
-        return false;
-    }
- 
-    cache_destroy(&p_cache);
-    return true;
-}
-
-void test_empty_cache_scenario() {
-    log_scenario("empty cache\n");
-    print_test("empty", "insert A", test_insert(construct_empty, A_element, one));
-    print_test("empty", "find X", test_find(construct_empty, X_element, NULL, zero));
-    print_test("empty", "remove X", test_remove(construct_empty, X_element, NULL, one));
-    print_test("empty", "contents", test_size(construct_empty, 0));
-    print_final_summary();
-}
-
-void test_one_element_cache_scenario() {
-    log_scenario("one element cache\n");
-    print_test("A", "insert B", test_insert(construct_A, B_element, one));
-    print_test("A", "find A", test_find(construct_A, A_element, A_element, match));
-    print_test("A", "find X", test_find(construct_A, X_element, NULL, zero));
-    print_test("A", "contents", test_size(construct_A, 1));
-    print_final_summary();
-}
-
-void test_two_element_cache_scenario() {
-    log_scenario("two element cache\n");
-    print_test("BA", "insert C", test_insert(construct_BA, C_element, one));
-    print_test("BA", "find A", test_find(construct_BA, A_element, A_element, match));
-    print_test("BA", "find B", test_find(construct_BA, B_element, B_element, match));
-    print_test("BA", "contents", test_size(construct_BA, 2));
-    print_final_summary();
-}
-
-void test_full_cache_scenario() {
-    log_scenario("full cache\n");
-    print_test("CBA", "insert D (evict)", test_insert(construct_CBA, D_element, one));
-    print_test("CBA", "find A", test_find(construct_CBA, A_element, A_element, match));
-    print_test("CBA", "find B", test_find(construct_CBA, B_element, B_element, match));
-    print_test("CBA", "find C", test_find(construct_CBA, C_element, C_element, match));
-    print_test("CBA", "contents", test_size(construct_CBA, 3));
-    print_final_summary();
-}
-
-void test_eviction_scenario() {
-    log_scenario("eviction scenario\n");
-    print_test("DCB", "find A (miss)", test_find(construct_DCB, A_element, NULL, zero));
-    print_test("DCB", "find D", test_find(construct_DCB, D_element, D_element, match));
-    print_test("DCB", "contents", test_size(construct_DCB, 3));
-    print_final_summary();
-}
-
-void test_lru_find_scenario() {
-    log_scenario("lru find scenario\n");
-    print_test("ACB", "find B", test_find(construct_ACB, B_element, B_element, match));
-    print_test("ACB", "find C", test_find(construct_ACB, C_element, C_element, match));
-    print_test("ACB", "find A", test_find(construct_ACB, A_element, A_element, match));
-    print_test("ACB", "contents", test_size(construct_ACB, 3));
-    print_final_summary();
-}
-
-void test_remove_scenario() {
-    log_scenario("remove scenario\n");
-    print_test("CBA", "remove B", test_remove(construct_CBA, B_element, B_element, match));
-    print_test("CA", "contents after remove", test_size(construct_CA, 2));
-    print_test("CBA", "remove X", test_remove(construct_CBA, X_element, NULL, one));
-    print_final_summary();
+    // success
+    return NULL;
 }

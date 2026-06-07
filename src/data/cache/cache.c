@@ -80,7 +80,7 @@ int cache_construct
     }
 
     // construct a lock
-    mutex_create(&p_cache->_lock);
+    if ( 0 == mutex_create(&p_cache->_lock) ) goto failed_to_create_lock;
 
     // return a pointer to the caller
     *pp_cache = p_cache;
@@ -115,6 +115,24 @@ int cache_construct
             no_mem:
                 #ifndef NDEBUG
                     log_error("[cache] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+        }
+
+        // lock errors
+        {
+            failed_to_create_lock:
+
+                // release the cache data
+                p_cache->properties.pp_data = default_allocator(p_cache->properties.pp_data, 0);
+
+                // release the cache
+                p_cache = default_allocator(p_cache, 0);
+
+                #ifndef NDEBUG
+                    log_error("[cache] Failed to create lock in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -290,7 +308,7 @@ size_t cache_size ( cache *p_cache )
         {
             no_cache:
                 #ifndef NDEBUG
-                    log_error("[cache] Null pointer provided for parameter \"pp_cache\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[cache] Null pointer provided for parameter \"p_cache\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
@@ -571,7 +589,7 @@ int cache_fori ( cache *p_cache, fn_fori pfn_fori )
     // lock
     mutex_lock(&p_cache->_lock);
 
-    // iterate through the properties
+    // iterate through the elements
     for (size_t i = 0; i < p_cache->properties.count; i++)
         pfn_fori(p_cache->properties.pp_data[i], i);    
             
@@ -615,7 +633,7 @@ int cache_for_each ( cache *p_cache, fn_foreach pfn_foreach )
     // lock
     mutex_lock(&p_cache->_lock);
 
-    // iterate through the properties
+    // iterate through the elements
     for (size_t i = 0; i < p_cache->properties.count; i++)
         pfn_foreach(p_cache->properties.pp_data[i]);    
 
@@ -778,7 +796,7 @@ int cache_unpack
         &max
     );
 
-    // construct an cache
+    // construct a cache
     if ( 0 == cache_construct(&p_cache, max, pfn_equality, pfn_key_accessor, pfn_allocator) ) goto failed_to_construct_cache;
 
     // iterate through each element in the cache
@@ -792,7 +810,7 @@ int cache_unpack
 		written += pfn_element(&p_element, p_stream);
         
         // Add the element to the cache
-        cache_insert(p_cache, p_element, NULL);
+        cache_insert(p_cache, p_element, pfn_allocator);
     }
 
     // return the cache to the caller
@@ -808,7 +826,7 @@ int cache_unpack
         {
             no_cache:
                 #ifndef NDEBUG
-                    log_error("[cache] Null pointer provided for \"p_cache\" in call to function \"%s\"\n", __FUNCTION__);
+                    log_error("[cache] Null pointer provided for \"pp_cache\" in call to function \"%s\"\n", __FUNCTION__);
                 #endif
 
                 // error
