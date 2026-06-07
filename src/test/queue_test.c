@@ -1,678 +1,430 @@
 /** !
- * Queue tester
+ * queue tester
  * 
- * @file queue_test.c
+ * @file src/test/queue_test.c
  * 
  * @author Jacob Smith
 */
-
-// TODO: Improve documentation
 
 // standard library
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
-// core
+// gsdk
+/// core
 #include <core/log.h>
 #include <core/sync.h>
+#include <core/test.h>
 
-// data
+/// data
 #include <data/queue.h>
 
-// Possible elements
-void *A_element = (void *)0x1,
-     *B_element = (void *)0x2,
-     *C_element = (void *)0x3,
-     *D_element = (void *)0x4,
-     *X_element = (void *)0xFFFFFFFFFFFFFFFF;
+// preprocessor macros
+#define A_ELEMENT (void *)0x1
+#define B_ELEMENT (void *)0x2
+#define C_ELEMENT (void *)0x3
+#define D_ELEMENT (void *)0x4
 
-// Expected results
-void  *_contents    [] = { (void *)0x0 };
-void  *A_contents   [] = { (void *)0x1, (void *)0x0 };
-void  *B_contents   [] = { (void *)0x2, (void *)0x0 };
-void  *AB_contents  [] = { (void *)0x1, (void *)0x2, (void *)0x0 };
-void  *BA_contents  [] = { (void *)0x2, (void *)0x1, (void *)0x0 };
-void  *BC_contents  [] = { (void *)0x2, (void *)0x3, (void *)0x0 };
-void  *CA_contents  [] = { (void *)0x3, (void *)0x1, (void *)0x0 };
-void  *CB_contents  [] = { (void *)0x3, (void *)0x2, (void *)0x0 };
-void  *CAB_contents [] = { (void *)0x3, (void *)0x1, (void *)0x2,  (void *)0x0 };
-void  *CBA_contents [] = { (void *)0x3, (void *)0x2, (void *)0x1,  (void *)0x0 };
+// function declarations
+/// scenario constructors
+fn_scenario_constructor construct_empty;
+fn_scenario_constructor construct_empty_enqueueA_A;
+fn_scenario_constructor construct_empty_enqueueB_B;
+fn_scenario_constructor construct_A_dequeue_empty;
+fn_scenario_constructor construct_B_dequeue_empty;
+fn_scenario_constructor construct_A_enqueueB_BA;
+fn_scenario_constructor construct_B_enqueueA_AB;
+fn_scenario_constructor construct_AB_dequeue_A;
+fn_scenario_constructor construct_BA_dequeue_B;
+fn_scenario_constructor construct_AB_enqueueC_CAB;
+fn_scenario_constructor construct_BA_enqueueC_CBA;
+fn_scenario_constructor construct_CAB_dequeue_CA;
+fn_scenario_constructor construct_CBA_dequeue_CB;
 
-// Test results
-enum result_e {
-    zero=0,
-    False=0,
-    Underflow=0,
-    Overflow=0,
-    one=1,
-    True=1,
-    match
+/// test cases
+fn_test_case test_enqueue;
+fn_test_case test_dequeue;
+fn_test_case test_front;
+fn_test_case test_rear;
+fn_test_case test_empty;
+
+/// result evaluators
+fn_results_match dequeue_results_match;
+fn_results_match front_results_match;
+fn_results_match rear_results_match;
+fn_results_match empty_results_match;
+
+/// allocators
+fn_allocator destruct_queue;
+
+// data
+/// values
+void *_contents    [] = { NULL };
+void *A_contents   [] = { A_ELEMENT, NULL };
+void *B_contents   [] = { B_ELEMENT, NULL };
+void *AB_contents  [] = { A_ELEMENT, B_ELEMENT, NULL };
+void *BA_contents  [] = { B_ELEMENT, A_ELEMENT, NULL };
+void *BC_contents  [] = { B_ELEMENT, C_ELEMENT, NULL };
+void *CA_contents  [] = { C_ELEMENT, A_ELEMENT, NULL };
+void *CB_contents  [] = { C_ELEMENT, B_ELEMENT, NULL };
+void *CAB_contents [] = { C_ELEMENT, A_ELEMENT, B_ELEMENT, NULL };
+void *CBA_contents [] = { C_ELEMENT, B_ELEMENT, A_ELEMENT, NULL };
+
+// test
+/// cases
+test_case _empty_test_cases[] = 
+{
+    TEST_CASE ("enqueue A", test_enqueue, A_ELEMENT, TEST_RESULT_ONE),
+    TEST_CASE ("dequeue"  , test_dequeue, (void *)1, TEST_RESULT_ZERO),
+    TEST_CASE ("front"    , test_front  , NULL     , TEST_RESULT_ZERO),
+    TEST_CASE ("rear"     , test_rear   , NULL     , TEST_RESULT_ZERO),
+    TEST_MATCH("empty"    , test_empty  , NULL     , empty_results_match),
 };
 
-typedef enum result_e result_t;
+test_case _one_element_test_cases[] = 
+{
+    TEST_CASE ("enqueue D"  , test_enqueue, D_ELEMENT, TEST_RESULT_ONE),
+    TEST_MATCH("dequeue"    , test_dequeue, (void *)1, dequeue_results_match),
+    TEST_CASE ("dequeue(3)" , test_dequeue, (void *)3, TEST_RESULT_ZERO),
+    TEST_MATCH("front"      , test_front  , NULL     , front_results_match),
+    TEST_MATCH("rear"       , test_rear   , NULL     , rear_results_match),
+    TEST_MATCH("empty"      , test_empty  , NULL     , empty_results_match),
+};
 
-int total_tests      = 0,
-    total_passes     = 0,
-    total_fails      = 0,
-    ephemeral_tests  = 0,
-    ephemeral_passes = 0,
-    ephemeral_fails  = 0;
+test_case _two_element_test_cases[] = 
+{
+    TEST_CASE ("enqueue D"  , test_enqueue, D_ELEMENT, TEST_RESULT_ONE),
+    TEST_MATCH("dequeue"    , test_dequeue, (void *)1, dequeue_results_match),
+    TEST_MATCH("dequeue(2)" , test_dequeue, (void *)2, dequeue_results_match),
+    TEST_CASE ("dequeue(3)" , test_dequeue, (void *)3, TEST_RESULT_ZERO),
+    TEST_MATCH("front"      , test_front  , NULL     , front_results_match),
+    TEST_MATCH("rear"       , test_rear   , NULL     , rear_results_match),
+    TEST_MATCH("empty"      , test_empty  , NULL     , empty_results_match),
+};
 
-// forward declarations
-int run_tests           ( void );
-int print_final_summary ( void );
-int print_test          ( const char  *scenario_name, const char *test_name, bool passed );
-int print_time_pretty   ( double seconds );
+test_case _three_element_test_cases[] = 
+{
+    TEST_CASE ("enqueue D"  , test_enqueue, D_ELEMENT, TEST_RESULT_ONE),
+    TEST_MATCH("dequeue"    , test_dequeue, (void *)1, dequeue_results_match),
+    TEST_MATCH("dequeue(2)" , test_dequeue, (void *)2, dequeue_results_match),
+    TEST_MATCH("dequeue(3)" , test_dequeue, (void *)3, dequeue_results_match),
+    TEST_CASE ("dequeue(4)" , test_dequeue, (void *)4, TEST_RESULT_ZERO),
+    TEST_MATCH("front"      , test_front  , NULL     , front_results_match),
+    TEST_MATCH("rear"       , test_rear   , NULL     , rear_results_match),
+    TEST_MATCH("empty"      , test_empty  , NULL     , empty_results_match),
+};
 
-bool test_front   ( int (*queue_constructor)(queue **), void *expected_value  , result_t expected );
-bool test_rear    ( int (*queue_constructor)(queue **), void *expected_value  , result_t expected );
-bool test_enqueue ( int (*queue_constructor)(queue **), void *value           , result_t expected );
-bool test_dequeue ( int (*queue_constructor)(queue **), void *expected_value  , size_t   num_dequeues, result_t expected );
-bool test_empty   ( int (*queue_constructor)(queue **), void **expected_values, result_t expected );
+/// scenarios
+test_scenario _scenarios[] = 
+{
+    TEST_SCENARIO("empty"            , _contents   , _empty_test_cases        , construct_empty            , destruct_queue),
+    TEST_SCENARIO("empty_enqueueA_A" , A_contents  , _one_element_test_cases  , construct_empty_enqueueA_A , destruct_queue),
+    TEST_SCENARIO("empty_enqueueB_B" , B_contents  , _one_element_test_cases  , construct_empty_enqueueB_B , destruct_queue),
+    TEST_SCENARIO("A_dequeue_empty"  , _contents   , _empty_test_cases        , construct_A_dequeue_empty  , destruct_queue),
+    TEST_SCENARIO("B_dequeue_empty"  , _contents   , _empty_test_cases        , construct_B_dequeue_empty  , destruct_queue),
+    TEST_SCENARIO("A_enqueueB_BA"    , BA_contents , _two_element_test_cases  , construct_A_enqueueB_BA    , destruct_queue),
+    TEST_SCENARIO("B_enqueueA_AB"    , AB_contents , _two_element_test_cases  , construct_B_enqueueA_AB    , destruct_queue),
+    TEST_SCENARIO("AB_dequeue_A"     , A_contents  , _one_element_test_cases  , construct_AB_dequeue_A     , destruct_queue),
+    TEST_SCENARIO("BA_dequeue_B"     , B_contents  , _one_element_test_cases  , construct_BA_dequeue_B     , destruct_queue),
+    TEST_SCENARIO("AB_enqueueC_CAB"  , CAB_contents, _three_element_test_cases, construct_AB_enqueueC_CAB  , destruct_queue),
+    TEST_SCENARIO("BA_enqueueC_CBA"  , CBA_contents, _three_element_test_cases, construct_BA_enqueueC_CBA  , destruct_queue),
+    TEST_SCENARIO("CAB_dequeue_CA"   , CA_contents , _two_element_test_cases  , construct_CAB_dequeue_CA   , destruct_queue),
+    TEST_SCENARIO("CBA_dequeue_CB"   , CB_contents , _two_element_test_cases  , construct_CBA_dequeue_CB   , destruct_queue),
+};
 
-int test_empty_queue         ( int (*queue_constructor)(queue **), char *name );
-int test_one_element_queue   ( int (*queue_constructor)(queue **), char *name, void **elements );
-int test_two_element_queue   ( int (*queue_constructor)(queue **), char *name, void **elements );
-int test_three_element_queue ( int (*queue_constructor)(queue **), char *name, void **elements );
-
-int construct_empty            ( queue **pp_queue );
-int construct_empty_enqueueA_A ( queue **pp_queue );
-int construct_empty_enqueueB_B ( queue **pp_queue );
-int construct_A_dequeue_empty  ( queue **pp_queue ); 
-int construct_B_dequeue_empty  ( queue **pp_queue ); 
-int construct_A_enqueueB_BA    ( queue **pp_queue ); 
-int construct_B_enqueueA_AB    ( queue **pp_queue ); 
-int construct_AB_dequeue_A     ( queue **pp_queue ); 
-int construct_BA_dequeue_B     ( queue **pp_queue );
-int construct_AB_enqueueC_CAB  ( queue **pp_queue );
-int construct_BA_enqueueC_CBA  ( queue **pp_queue );
-int construct_CAB_dequeue_CA   ( queue **pp_queue );
-int construct_CBA_dequeue_CB   ( queue **pp_queue );
+/// suites
+test_suite _suite = TEST_SUITE("queue", _scenarios);
 
 // entry point
-int main ( int argc, const char* argv[] )
+int main ( int argc, const char *argv[] ) 
 {
 
     // unused
     (void) argc;
     (void) argv;
-
-    // initialized data
-    timestamp t0 = 0,
-              t1 = 0;
-
-    // Formatting
-    printf(
-        "╭──────────────╮\n"\
-        "│ queue tester │\n"\
-        "╰──────────────╯\n\n"
-    );
+     
+    // run the tests
+    test_suite_test(&_suite); 
     
-    // Start
-    t0 = timer_high_precision();
-
-    // Run tests
-    run_tests();
-
-    // Stop
-    t1 = timer_high_precision();
-
-    // Report the time it took to run the tests
-    log_info("queue took ");
-    print_time_pretty ( (double)(t1-t0)/(double)timer_seconds_divisor() );
-    log_info(" to test\n");
-
-    // exit
-    return ( total_passes == total_tests ) ? EXIT_SUCCESS : EXIT_FAILURE;
+    // done
+    return (_suite.counters.total.fails == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-int print_time_pretty ( double seconds )
-{
-
-    // initialized data
-    double _seconds     = seconds;
-    size_t days         = 0,
-           hours        = 0,
-           minutes      = 0,
-           __seconds    = 0,
-           milliseconds = 0,
-           microseconds = 0;
-
-    // Days
-    while ( _seconds > 86400.0 ) { days++;_seconds-=286400.0; };
-
-    // Hours
-    while ( _seconds > 3600.0 ) { hours++;_seconds-=3600.0; };
-
-    // Minutes
-    while ( _seconds > 60.0 ) { minutes++;_seconds-=60.0; };
-
-    // Seconds
-    while ( _seconds > 1.0 ) { __seconds++;_seconds-=1.0; };
-
-    // milliseconds
-    while ( _seconds > 0.001 ) { milliseconds++;_seconds-=0.001; };
-
-    // Microseconds        
-    while ( _seconds > 0.000001 ) { microseconds++;_seconds-=0.000001; };
-
-    // Print days
-    if ( days ) 
-        log_info("%d D, ", days);
-    
-    // Print hours
-    if ( hours )
-        log_info("%d h, ", hours);
-
-    // Print minutes
-    if ( minutes )
-        log_info("%d m, ", minutes);
-
-    // Print seconds
-    if ( __seconds )
-        log_info("%d s, ", __seconds);
-    
-    // Print milliseconds
-    if ( milliseconds )
-        log_info("%d ms, ", milliseconds);
-    
-    // Print microseconds
-    if ( microseconds )
-        log_info("%d us", microseconds);
-    
-    // success
-    return 1;
-}
-
-int run_tests ( void )
-{
+int construct_empty ( void **pp_result ) 
+{ 
 
     // ... -> []
-    test_empty_queue(construct_empty, "empty");
+    return queue_construct((queue **)pp_result);
+}
+
+int construct_empty_enqueueA_A ( void **pp_result ) 
+{ 
+
+    // []
+    construct_empty(pp_result);
 
     // [] -> enqueue(A) -> [A]
-    test_one_element_queue(construct_empty_enqueueA_A, "empty_enqueueA_A", (void **) A_contents);
+    return queue_enqueue(*((queue **)pp_result), A_ELEMENT); 
+}
+
+int construct_empty_enqueueB_B ( void **pp_result ) 
+{ 
+
+    // []
+    construct_empty(pp_result);
 
     // [] -> enqueue(B) -> [B]
-    test_one_element_queue(construct_empty_enqueueB_B, "empty_enqueueB_B", (void **) B_contents);
+    return queue_enqueue(*((queue **)pp_result), B_ELEMENT); 
+}
+
+int construct_A_dequeue_empty ( void **pp_result ) 
+{ 
+
+    // [A]
+    construct_empty_enqueueA_A(pp_result);
 
     // [A] -> dequeue() -> []
-    test_empty_queue(construct_A_dequeue_empty, "A_dequeue_empty");
+    return queue_dequeue(*((queue **)pp_result), NULL); 
+}
+
+int construct_B_dequeue_empty ( void **pp_result ) 
+{ 
+
+    // [B]
+    construct_empty_enqueueB_B(pp_result);
 
     // [B] -> dequeue() -> []
-    test_empty_queue(construct_B_dequeue_empty, "B_dequeue_empty");
-
-    // [A] -> enqueue(B) -> [B,A]
-    test_two_element_queue(construct_A_enqueueB_BA, "A_enqueueB_BA", (void **) BA_contents);
-    
-    // [B] -> enqueue(A) -> [A,B]
-    test_two_element_queue(construct_B_enqueueA_AB, "B_enqueueA_AB", (void **) AB_contents);
-
-    // [A,B] -> dequeue() -> [A]
-    test_one_element_queue(construct_AB_dequeue_A, "construct_AB_dequeue_A", (void **) A_contents);
-
-    // [B,A] -> dequeue() -> [B]
-    test_one_element_queue(construct_BA_dequeue_B, "construct_BA_dequeue_B", (void **) B_contents);
-
-    // [A,B] -> enqueue(C) -> [C,A,B]
-    test_three_element_queue(construct_AB_enqueueC_CAB, "AB_enqueueC_CAB", (void **) CAB_contents);
-    
-    // [A,B] -> enqueue(C) -> [C,B,A]
-    test_three_element_queue(construct_BA_enqueueC_CBA, "BA_enqueueC_CBA", (void **) CBA_contents);
-    
-    // [C,A,B] -> dequeue() -> [C,A]
-    test_two_element_queue(construct_CAB_dequeue_CA, "CAB_dequeue_CA", (void **) CA_contents);
-
-    // [C,B,A] -> dequeue() -> [C,B]
-    test_two_element_queue(construct_CBA_dequeue_CB, "CBA_dequeue_CB", (void **)CB_contents);
-
-    // success
-    return 1;
+    return queue_dequeue(*((queue **)pp_result), NULL); 
 }
 
-int construct_empty ( queue **pp_queue )
-{
+int construct_A_enqueueB_BA ( void **pp_result ) 
+{ 
 
-    // Construct a queue
-    queue_construct(pp_queue);
+    // [A]
+    construct_empty_enqueueA_A(pp_result);
 
-    // queue = []
-    return 1;
+    // [A] -> enqueue(B) -> [B, A]
+    return queue_enqueue(*((queue **)pp_result), B_ELEMENT); 
 }
 
-int construct_empty_enqueueA_A(queue **pp_queue)
-{
+int construct_B_enqueueA_AB ( void **pp_result ) 
+{ 
 
-    // Construct a [] queue
-    construct_empty(pp_queue);
+    // [B]
+    construct_empty_enqueueB_B(pp_result);
 
-    // enqueue(A)
-    queue_enqueue(*pp_queue, A_element);
-
-    // queue = [A]
-    // success
-    return 1;
+    // [B] -> enqueue(A) -> [A, B]
+    return queue_enqueue(*((queue **)pp_result), A_ELEMENT); 
 }
 
-int construct_empty_enqueueB_B(queue **pp_queue)
+int construct_AB_dequeue_A ( void **pp_result )
 {
 
-    // Construct a [] queue
-    construct_empty(pp_queue);
+    // [A, B]
+    construct_B_enqueueA_AB(pp_result);
 
-    // enqueue(B)
-    queue_enqueue(*pp_queue, B_element);
-
-    // queue = [B]
-    // success
-    return 1;
+    // [A, B] -> dequeue() -> [A]
+    return queue_dequeue(*((queue **)pp_result), NULL); 
 }
 
-int construct_A_dequeue_empty(queue **pp_queue)
+int construct_BA_dequeue_B ( void **pp_result )
 {
 
-    // Construct a [A] queue
-    construct_empty_enqueueA_A(pp_queue);
+    // [B, A]
+    construct_A_enqueueB_BA(pp_result);
 
-    // dequeue()
-    queue_dequeue(*pp_queue, (void **)0);
-
-    // queue = []
-    // success
-    return 1;
+    // [B, A] -> dequeue() -> [B]
+    return queue_dequeue(*((queue **)pp_result), NULL); 
 }
 
-int construct_B_dequeue_empty ( queue **pp_queue )
-{
-    // Construct a [B] queue
-    construct_empty_enqueueB_B(pp_queue);
+int construct_AB_enqueueC_CAB ( void **pp_result ) 
+{ 
 
-    // dequeue()
-    queue_dequeue(*pp_queue, (void **)0);
+    // [A, B]
+    construct_B_enqueueA_AB(pp_result);
 
-    // queue = []
-    // success
-    return 1;
+    // [A, B] -> enqueue(C) -> [C, A, B]
+    return queue_enqueue(*((queue **)pp_result), C_ELEMENT); 
 }
 
-int construct_A_enqueueB_BA ( queue **pp_queue )
-{
-    // Construct a [A] queue
-    construct_empty_enqueueA_A(pp_queue);
+int construct_BA_enqueueC_CBA ( void **pp_result ) 
+{ 
 
-    // enqueue(B)
-    queue_enqueue(*pp_queue, B_element);
+    // [B, A]
+    construct_A_enqueueB_BA(pp_result);
 
-    // queue = [B,A]
-    // success
-    return 1;
+    // [B, A] -> enqueue(C) -> [C, B, A]
+    return queue_enqueue(*((queue **)pp_result), C_ELEMENT); 
 }
 
-int construct_B_enqueueA_AB ( queue **pp_queue )
-{
-    // Construct a [B] queue
-    construct_empty_enqueueB_B(pp_queue);
+int construct_CAB_dequeue_CA ( void **pp_result ) 
+{ 
 
-    // enqueue(A)
-    queue_enqueue(*pp_queue, A_element);
-    
-    // queue = [A,B]
-    // success
-    return 1;
+    // [C, A, B]
+    construct_AB_enqueueC_CAB(pp_result);
+
+    // [C, A, B] -> dequeue() -> [C, A]
+    return queue_dequeue(*((queue **)pp_result), NULL); 
 }
 
-int construct_AB_dequeue_A ( queue **pp_queue )
-{
-    // Construct a [A,B] queue
-    construct_B_enqueueA_AB(pp_queue);
+int construct_CBA_dequeue_CB ( void **pp_result ) 
+{ 
 
-    // dequeue()
-    queue_dequeue(*pp_queue, (void **)0);
+    // [C, B, A]
+    construct_BA_enqueueC_CBA(pp_result);
 
-    // queue = [A]
-    // success
-    return 1;
+    // [C, B, A] -> dequeue() -> [C, B]
+    return queue_dequeue(*((queue **)pp_result), NULL); 
 }
 
-int construct_BA_dequeue_B ( queue **pp_queue )
-{
-    // Construct a [B,A] queue
-    construct_A_enqueueB_BA(pp_queue);
-
-    // dequeue()
-    queue_dequeue(*pp_queue, (void **)0);
-
-    // queue = [B]
-    // success
-    return 1;
-}
-
-int construct_AB_enqueueC_CAB ( queue **pp_queue )
-{
-    // Construct a [] queue
-    construct_B_enqueueA_AB(pp_queue);
-
-    // enqueue(C)
-    queue_enqueue(*pp_queue, C_element);
-
-    // queue = [C,A,B]
-    // success
-    return 1;
-}
-
-int construct_BA_enqueueC_CBA ( queue **pp_queue )
-{
-    // Construct a [B,A] queue
-    construct_A_enqueueB_BA(pp_queue);
-
-    // enqueue(C)
-    queue_enqueue(*pp_queue, C_element);
-
-    // queue = [C,B,A]
-    // success
-    return 1;
-}
-
-int construct_CAB_dequeue_CA ( queue **pp_queue )
-{
-    // Construct a [C,A,B] queue
-    construct_AB_enqueueC_CAB(pp_queue);
-
-    // dequeue()
-    queue_dequeue(*pp_queue, (void **)0);
-
-    // queue = [C,A]
-    // success
-    return 1;
-}
-
-int construct_CBA_dequeue_CB ( queue **pp_queue )
-{
-    // Construct a [C,B,A] queue
-    construct_BA_enqueueC_CBA(pp_queue);
-
-    // dequeue()
-    queue_dequeue(*pp_queue, (void **)0);
-
-    // queue = [C,B]
-    // success
-    return 1;
-}
-
-int test_empty_queue(int(*queue_constructor)(queue **pp_queue), char *name)
-{
-
-    log_info("Scenario: %s\n", name);
-
-    print_test(name, "queue_front"  , test_front(queue_constructor, (void *)0, zero) );
-    print_test(name, "queue_rear"   , test_rear(queue_constructor, (void *)0, zero) );
-    print_test(name, "queue_enqueue", test_enqueue(queue_constructor, A_element, one) );
-    print_test(name, "queue_dequeue", test_dequeue(queue_constructor, (void **)zero, 1, Underflow) );    
-    print_test(name, "queue_empty"  , test_empty(queue_constructor, 0, True) );
-
-    print_final_summary();
-
-    return 1;
-}
-
-int test_one_element_queue   ( int (*queue_constructor)(queue **), char *name, void **elements )
-{
-
-    log_info("Scenario: %s\n", name);
-
-    print_test(name, "queue_front"    , test_front(queue_constructor, elements[0], match) );
-    print_test(name, "queue_rear"     , test_rear(queue_constructor, elements[0], match) );
-    print_test(name, "queue_enqueue"  , test_enqueue(queue_constructor, D_element, one) );
-    print_test(name, "queue_dequeue_0", test_dequeue(queue_constructor, elements[0], 1, match) );
-    print_test(name, "queue_dequeue_3", test_dequeue(queue_constructor, 0, 3, Underflow) );
-    print_test(name, "queue_empty"    , test_empty(queue_constructor, 0, False) );
-
-    print_final_summary();
-
-    // success
-    return 1;
-}
-
-int test_two_element_queue   ( int (*queue_constructor)(queue **), char *name, void **elements )
-{
-
-    log_info("Scenario: %s\n", name);
-
-    print_test(name, "queue_front"  , test_front(queue_constructor, elements[1], match) );
-    print_test(name, "queue_rear"   , test_rear(queue_constructor, elements[0], match) );
-    print_test(name, "queue_enqueue", test_enqueue(queue_constructor, D_element, one) );
-    print_test(name, "queue_dequeue_0", test_dequeue(queue_constructor, elements[0], 2, match) );
-    print_test(name, "queue_dequeue_1", test_dequeue(queue_constructor, elements[1], 1, match) );
-    // Force an underflow
-    print_test(name, "queue_dequeue_3", test_dequeue(queue_constructor, 0, 3, Underflow) );
-
-    print_test(name, "queue_empty"  , test_empty(queue_constructor, 0, False) );
-
-    print_final_summary();
-
-    // success
-    return 1;
-}
-
-int test_three_element_queue   ( int (*queue_constructor)(queue **), char *name, void **elements )
-{
-
-    log_info("Scenario: %s\n", name);
-
-    print_test(name, "queue_front"  , test_front(queue_constructor, elements[2], match) );
-    print_test(name, "queue_rear"   , test_rear(queue_constructor, elements[0], match) );
-    print_test(name, "queue_enqueue", test_enqueue(queue_constructor, D_element, one) );
-   
-    for (size_t i = 0; elements[i]; i++)
-    {
-        char *test_name = calloc(15+1, sizeof(char));
-        sprintf(test_name, "queue_dequeue_%zu", i);
-        print_test(name, test_name , test_dequeue(queue_constructor, elements[2-i], i+1, match) );
-        free(test_name);
-    }
-    
-    // Force an underflow
-    print_test(name, "queue_dequeue_3", test_dequeue(queue_constructor, 0, 3, Underflow) );
-
-    print_test(name, "queue_empty"  , test_empty(queue_constructor, 0, False) );
-
-    print_final_summary();
-
-    // success
-    return 1;
-}
-
-int print_test ( const char *scenario_name, const char *test_name, bool passed )
-{
+void *test_enqueue ( test_case *p_test_case, void *p_subject ) 
+{ 
 
     // initialized data
-    if ( passed )
-        log_pass("%s %s\n", scenario_name, test_name);
-    else
-        log_fail("%s %s\n", scenario_name, test_name);
+    queue *p_queue = (queue *)p_subject;
+    
+    // done
+    return (void *)(size_t)queue_enqueue(p_queue, p_test_case->p_parameters); 
+}
 
+void *test_dequeue ( test_case *p_test_case, void *p_subject ) 
+{ 
 
-    // Increment the counters
-    {
-        if (passed)
-        {
-            ephemeral_passes++;
-        }
-        else
-        {
-            ephemeral_fails++;
-        }
+    // initialized data
+    queue  *p_queue  = (queue *)p_subject;
+    size_t  dequeues = (size_t)p_test_case->p_parameters;
+    void   *p_result = NULL;
 
-        ephemeral_tests++;
-    }
+    // test
+    for (size_t i = 0; i < dequeues; i++)
+        if ( 0 == queue_dequeue(p_queue, &p_result) ) return NULL;
+
+    // store the result
+    p_test_case->p_out = p_result;
+
+    // done
+    return (void *)1;
+}
+
+void *test_front ( test_case *p_test_case, void *p_subject ) 
+{ 
+
+    // initialized data
+    queue *p_queue = (queue *)p_subject;
+    
+    // test
+    if ( 0 == queue_front(p_queue, &p_test_case->p_out) ) return NULL;
+
+    // done
+    return (void *)1;
+}
+
+void *test_rear ( test_case *p_test_case, void *p_subject ) 
+{ 
+
+    // initialized data
+    queue *p_queue = (queue *)p_subject;
+    
+    // test
+    if ( 0 == queue_rear(p_queue, &p_test_case->p_out) ) return NULL;
+
+    // done
+    return (void *)1;
+}
+
+void *test_empty ( test_case *p_test_case, void *p_subject ) 
+{ 
+
+    // unused
+    (void) p_test_case;
+
+    // initialized data
+    queue *p_queue = (queue *)p_subject;
+
+    // done
+    return (void *)(size_t) queue_empty(p_queue);
+}
+
+bool dequeue_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+    
+    // unused
+    (void) p_subject;
+    (void) p_result;
+
+    // initialized data
+    void **pp_contents = p_scenario->p_data;
+    size_t dequeues    = (size_t)p_case->p_parameters;
+    size_t count       = 0;
+
+    // find the end
+    while ( pp_contents[count] ) count++;
+
+    // done
+    return p_case->p_out == pp_contents[count - dequeues];
+}
+
+bool front_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+    
+    // unused
+    (void) p_subject;
+    (void) p_result;
+
+    // initialized data
+    void **pp_contents = p_scenario->p_data;
+    size_t count       = 0;
+
+    // find the end
+    while ( pp_contents[count] ) count++;
+
+    // done
+    return p_case->p_out == pp_contents[count - 1];
+}
+
+bool rear_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+    
+    // unused
+    (void) p_subject;
+    (void) p_result;
+
+    // initialized data
+    void **pp_contents = p_scenario->p_data;
+
+    // done
+    return p_case->p_out == pp_contents[0];
+}
+
+bool empty_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+    
+    // unused
+    (void) p_scenario;
+    (void) p_case;
+    (void) p_subject;
+
+    // initialized data
+    void **pp_contents = p_scenario->p_data;
+    bool   result      = ( pp_contents[0] == NULL );
+
+    // done
+    return p_result == (void *)(size_t)result;
+}
+
+void *destruct_queue ( void *p_pointer, unsigned long long size )
+{
+
+    // unused
+    (void) size;
+
+    // initialized data
+    queue *p_queue = (queue *)p_pointer;
+
+    // release the queue
+    queue_destroy(&p_queue, NULL);
 
     // success
-    return 1;
-}
-
-int print_final_summary ( void )
-{
-
-    // Accumulate
-    total_tests  += ephemeral_tests,
-    total_passes += ephemeral_passes,
-    total_fails  += ephemeral_fails;
-
-    // Print
-    log_info("\nTests: %d, Passed: %d, Failed: %d (%%%.3f)\n",  ephemeral_tests, ephemeral_passes, ephemeral_fails, ((float)ephemeral_passes/(float)ephemeral_tests*100.f));
-    log_info("Total: %d, Passed: %d, Failed: %d (%%%.3f)\n\n",  total_tests, total_passes, total_fails, ((float)total_passes/(float)total_tests*100.f));
-    
-    ephemeral_tests  = 0;
-    ephemeral_passes = 0;
-    ephemeral_fails  = 0;
-
-    // success
-    return 1;
-}
-
-bool test_front ( int (*queue_constructor)(queue **), void *expected_value, result_t expected )
-{
-
-    // initialized data
-    result_t  result       = 0;
-    queue    *p_queue      = 0;
-    void     *result_value = 0;
-
-    // Build the queue
-    queue_constructor(&p_queue);
-
-    // Get the front
-    result = (result_t) queue_front(p_queue, &result_value);
-
-    // Check the result
-    if (result == zero)
-    {
-        goto exit;
-    }
-    else if (result_value == expected_value)
-    {
-        result = match; // Match implies queue_front reutrned 1
-    }
-    else
-    {
-        result = one;
-    }
-
-    exit:
-
-    // Free the queue
-    queue_destroy(&p_queue);
-
-    // return result
-    return (result == expected);
-}
-
-bool test_rear ( int (*queue_constructor)(queue **), void *expected_value, result_t expected )
-{
-    
-    // initialized data
-    result_t  result       = 0;
-    queue    *p_queue      = 0;
-    void     *result_value = 0;
-
-    // Build the queue
-    queue_constructor(&p_queue);
-
-    // Get the rear
-    result = (result_t) queue_rear(p_queue, &result_value);
-
-    // Check the result
-    if (result == zero)
-    {
-        goto exit;
-    }
-    else if (result_value == expected_value)
-    {
-        result = match; // Match implies queue_rear reutrned 1
-    }
-    else
-    {
-        result = zero;
-    }
-
-    exit:
-
-    // Free the queue
-    queue_destroy(&p_queue);
-
-    // return result
-    return (result == expected);
-}
-
-bool test_enqueue ( int (*queue_constructor)(queue **), void *value, result_t  expected )
-{
-
-    // initialized data
-    result_t  result = 0;
-    queue    *p_queue = 0;
-
-    // Build the queue
-    queue_constructor(&p_queue);
-
-    result = (result_t) queue_enqueue(p_queue, value);
-
-    // Free the queue
-    queue_destroy(&p_queue);
-
-    // return result
-    return (result == expected);
-}
-
-bool test_dequeue ( int (*queue_constructor)(queue **), void *expected_value  , size_t   num_dequeues, result_t expected )
-{
-
-    // initialized data
-    result_t  result       = 0;
-    queue    *p_queue      = 0;
-    void     *result_value = 0;
-
-    // Build the queue
-    queue_constructor(&p_queue);
-    
-    for (size_t i = 0; i < num_dequeues; i++)
-        result = (result_t) queue_dequeue(p_queue, &result_value);
-    
-    
-    // Check the result
-    if (result == Underflow)
-        goto exit;
-    else if (result_value == expected_value)
-        result = match;
-    else
-        result = zero;
-
-    exit:
-    // Free the queue
-    queue_destroy(&p_queue);
-
-    // return result
-    return (result == expected);
-}
-
-bool test_empty ( int (*queue_constructor)(queue **), void **expected_values, result_t  expected )
-{
-
-    // initialized data
-    result_t  result = 0;
-    queue    *p_queue = 0;
-
-    // Unused
-    (void) expected_values;
-
-    // Build the queue
-    queue_constructor(&p_queue);
-
-    result = queue_empty(p_queue);
-
-    // Free the queue
-    queue_destroy(&p_queue);
-
-    // return result
-    return (result == expected);
+    return NULL;
 }

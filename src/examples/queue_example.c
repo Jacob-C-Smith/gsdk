@@ -174,7 +174,7 @@ int main ( int argc, const char* argv[] )
     {
 
         // destroy the queue
-	    queue_destroy(&p_queue);
+	    queue_destroy(&p_queue, NULL);
         
         // checkpoint
         checkpoint(p_queue, "after destroy");
@@ -189,9 +189,10 @@ int main ( int argc, const char* argv[] )
         // read a buffer from a file
         stream_from_path(&p_stream, "resources/reflection/queue.bin");
 
-        // reflect an queue from the buffer
+        // reflect a queue from the buffer
         queue_unpack(&p_queue, p_stream, string_unpack);
 
+        // destroy the stream
         stream_destroy(&p_stream);
 
         // checkpoint
@@ -212,6 +213,16 @@ int main ( int argc, const char* argv[] )
 
         // checkpoint
         checkpoint(p_queue, "after hash 2");
+    }
+
+    // #11 - destroy
+    {
+
+        // destroy the queue
+	    queue_destroy(&p_queue, default_allocator);
+        
+        // checkpoint
+        checkpoint(p_queue, "after destroy");
     }
 
     // #12 - end
