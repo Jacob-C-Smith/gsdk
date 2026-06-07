@@ -1,995 +1,704 @@
 /** !
  * Tester for array module
  * 
- * @file array_test.c
+ * @file src/test/array_test.c
  * 
  * @author Jacob Smith
  */
 
-// Include
+// standard library
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
-// log module
+// gsdk
+/// core
 #include <core/log.h>
-
-// sync module
 #include <core/sync.h>
+#include <core/test.h>
 
-// array module
+/// data
 #include <data/array.h>
 
-// enumeration definitions
-enum result_e {
-    zero,
-    one,
-    match
+// preprocessor macros
+#define A_ELEMENT "A"
+#define B_ELEMENT "B"
+#define C_ELEMENT "C"
+#define D_ELEMENT "D"
+#define X_ELEMENT "X"
+
+// function declarations
+/// scenario constructors
+fn_scenario_constructor construct_empty;
+fn_scenario_constructor construct_empty_addA_A;
+fn_scenario_constructor construct_empty_addB_B;
+fn_scenario_constructor construct_empty_addC_C;
+fn_scenario_constructor construct_A_addB_AB;
+fn_scenario_constructor construct_ABC_remove1_AC;
+fn_scenario_constructor construct_B_addA_BA;
+fn_scenario_constructor construct_B_addC_BC;
+fn_scenario_constructor construct_C_addA_CA;
+fn_scenario_constructor construct_C_addB_CB;
+fn_scenario_constructor construct_AB_addC_ABC;
+fn_scenario_constructor construct_AC_addB_ACB;
+fn_scenario_constructor construct_BA_addC_BAC;
+fn_scenario_constructor construct_BC_addA_BCA;
+fn_scenario_constructor construct_CA_addB_CAB;
+fn_scenario_constructor construct_CB_addA_CBA;
+fn_scenario_constructor construct_empty_fromelementsA_A;
+fn_scenario_constructor construct_empty_fromelementsAB_AB;
+fn_scenario_constructor construct_empty_fromelementsABC_ABC;
+fn_scenario_constructor construct_empty_fromargumentsA_A;
+fn_scenario_constructor construct_empty_fromargumentsAB_AB;
+fn_scenario_constructor construct_empty_fromargumentsABC_ABC;
+fn_scenario_constructor construct_A_remove0_empty;
+fn_scenario_constructor construct_AB_remove1_A;
+fn_scenario_constructor construct_ABC_remove2_AB;
+
+/// test cases
+fn_test_case test_add;
+fn_test_case test_remove;
+fn_test_case test_index;
+fn_test_case test_size;
+fn_test_case test_is_empty;
+fn_test_case test_get;
+fn_test_case test_slice;
+
+/// result evaluators
+fn_results_match remove_results_match;
+fn_results_match index_results_match;
+fn_results_match size_results_match;
+fn_results_match is_empty_results_match;
+fn_results_match get_results_match;
+fn_results_match slice_results_match;
+
+/// allocators
+fn_allocator destruct_array;
+
+// data
+/// values
+void *_contents   [] = { NULL };
+void *A_elements  [] = { A_ELEMENT, NULL };
+void *B_elements  [] = { B_ELEMENT, NULL };
+void *C_elements  [] = { C_ELEMENT, NULL };
+void *AB_elements [] = { A_ELEMENT, B_ELEMENT, NULL };
+void *AC_elements [] = { A_ELEMENT, C_ELEMENT, NULL };
+void *BA_elements [] = { B_ELEMENT, A_ELEMENT, NULL };
+void *BC_elements [] = { B_ELEMENT, C_ELEMENT, NULL };
+void *CA_elements [] = { C_ELEMENT, A_ELEMENT, NULL };
+void *CB_elements [] = { C_ELEMENT, B_ELEMENT, NULL };
+void *ABC_elements[] = { A_ELEMENT, B_ELEMENT, C_ELEMENT, NULL };
+void *ACB_elements[] = { A_ELEMENT, C_ELEMENT, B_ELEMENT, NULL };
+void *BAC_elements[] = { B_ELEMENT, A_ELEMENT, C_ELEMENT, NULL };
+void *BCA_elements[] = { B_ELEMENT, C_ELEMENT, A_ELEMENT, NULL };
+void *CAB_elements[] = { C_ELEMENT, A_ELEMENT, B_ELEMENT, NULL };
+void *CBA_elements[] = { C_ELEMENT, B_ELEMENT, A_ELEMENT, NULL };
+
+// test
+/// cases
+test_case _empty_test_cases[] = 
+{
+    TEST_CASE ("add A"    , test_add     , A_ELEMENT, TEST_RESULT_ONE),
+    TEST_CASE ("add B"    , test_add     , B_ELEMENT, TEST_RESULT_ONE),
+    TEST_CASE ("index 0"  , test_index   , (void *)0, TEST_RESULT_ZERO),
+    TEST_CASE ("remove 0" , test_remove  , (void *)0, TEST_RESULT_ZERO),
+    TEST_MATCH("size"     , test_size    , NULL     , size_results_match),
+    TEST_MATCH("is empty" , test_is_empty, NULL     , is_empty_results_match),
 };
 
-// type definitions
-typedef enum result_e result_t;
+test_case _one_element_test_cases[] = 
+{
+    TEST_CASE ("add D"    , test_add     , D_ELEMENT                 , TEST_RESULT_ONE),
+    TEST_MATCH("index 0"  , test_index   , (void *)0                 , index_results_match),
+    TEST_CASE ("index 1"  , test_index   , (void *)1                 , TEST_RESULT_ZERO),
+    TEST_MATCH("remove 0" , test_remove  , (void *)0                 , remove_results_match),
+    TEST_CASE ("remove 1" , test_remove  , (void *)1                 , TEST_RESULT_ZERO),
+    TEST_MATCH("size"     , test_size    , NULL                      , size_results_match),
+    TEST_MATCH("is empty" , test_is_empty, NULL                      , is_empty_results_match),
+    TEST_MATCH("get"      , test_get     , NULL                      , get_results_match),
+    TEST_MATCH("slice 0:0", test_slice   , (void *)0x0000000000000000, slice_results_match),
+};
 
-// global variables
-int total_tests      = 0,
-    total_passes     = 0,
-    total_fails      = 0,
-    ephemeral_tests  = 0,
-    ephemeral_passes = 0,
-    ephemeral_fails  = 0;
+test_case _two_element_test_cases[] = 
+{
+    TEST_CASE ("add D"    , test_add     , D_ELEMENT                 , TEST_RESULT_ONE),
+    TEST_MATCH("index 0"  , test_index   , (void *)0                 , index_results_match),
+    TEST_MATCH("index 1"  , test_index   , (void *)1                 , index_results_match),
+    TEST_CASE ("index 2"  , test_index   , (void *)2                 , TEST_RESULT_ZERO),
+    TEST_MATCH("remove 0" , test_remove  , (void *)0                 , remove_results_match),
+    TEST_MATCH("remove 1" , test_remove  , (void *)1                 , remove_results_match),
+    TEST_CASE ("remove 2" , test_remove  , (void *)2                 , TEST_RESULT_ZERO),
+    TEST_MATCH("size"     , test_size    , NULL                      , size_results_match),
+    TEST_MATCH("is empty" , test_is_empty, NULL                      , is_empty_results_match),
+    TEST_MATCH("get"      , test_get     , NULL                      , get_results_match),
+    TEST_MATCH("slice 0:0", test_slice   , (void *)0x0000000000000000, slice_results_match),
+    TEST_MATCH("slice 1:1", test_slice   , (void *)0x0000000100000001, slice_results_match),
+    TEST_MATCH("slice 0:1", test_slice   , (void *)0x0000000000000001, slice_results_match),
+};
 
-// Possible elements
-char  *A_element      = "A",
-      *B_element      = "B",
-      *C_element      = "C",
-      *D_element      = "D",
-      *X_element      = "X",
-      *_elements   [] = { 0x0 },
-      *A_elements  [] = { "A", 0x0 },
-      *B_elements  [] = { "B", 0x0 },
-      *C_elements  [] = { "C", 0x0 },
-      *AB_elements [] = { "A", "B", 0x0 },
-      *BC_elements [] = { "B", "C", 0x0 },
-      *AC_elements [] = { "A", "C", 0x0 },
-      *ABC_elements[] = { "A", "B", "C", 0x0 };
+test_case _three_element_test_cases[] = 
+{
+    TEST_CASE ("add D"    , test_add     , D_ELEMENT                 , TEST_RESULT_ONE),
+    TEST_MATCH("index 0"  , test_index   , (void *)0                 , index_results_match),
+    TEST_MATCH("index 1"  , test_index   , (void *)1                 , index_results_match),
+    TEST_MATCH("index 2"  , test_index   , (void *)2                 , index_results_match),
+    TEST_CASE ("index 3"  , test_index   , (void *)3                 , TEST_RESULT_ZERO),
+    TEST_MATCH("remove 0" , test_remove  , (void *)0                 , remove_results_match),
+    TEST_MATCH("remove 1" , test_remove  , (void *)1                 , remove_results_match),
+    TEST_MATCH("remove 2" , test_remove  , (void *)2                 , remove_results_match),
+    TEST_CASE ("remove 3" , test_remove  , (void *)3                 , TEST_RESULT_ZERO),
+    TEST_MATCH("size"     , test_size    , NULL                      , size_results_match),
+    TEST_MATCH("is empty" , test_is_empty, NULL                      , is_empty_results_match),
+    TEST_MATCH("get"      , test_get     , NULL                      , get_results_match),
+    TEST_MATCH("slice 0:0", test_slice   , (void *)0x0000000000000000, slice_results_match),
+    TEST_MATCH("slice 1:1", test_slice   , (void *)0x0000000100000001, slice_results_match),
+    TEST_MATCH("slice 2:2", test_slice   , (void *)0x0000000200000002, slice_results_match),
+    TEST_MATCH("slice 0:1", test_slice   , (void *)0x0000000000000001, slice_results_match),
+    TEST_MATCH("slice 1:2", test_slice   , (void *)0x0000000100000002, slice_results_match),
+    TEST_MATCH("slice 0:2", test_slice   , (void *)0x0000000000000002, slice_results_match),
+};
 
-// forward declarations
-/** !
- * Print the time formatted in days, hours, minutes, seconds, miliseconds, microseconds
- * 
- * @param seconds the time in seconds
- * 
- * @return void
- */
-void print_time_pretty ( double seconds );
+/// scenarios
+test_scenario _scenarios[] = 
+{
+    TEST_SCENARIO("empty"                       , _contents   , _empty_test_cases        , construct_empty                    , destruct_array),
+    TEST_SCENARIO("empty_addA_A"                , A_elements  , _one_element_test_cases  , construct_empty_addA_A             , destruct_array),
+    TEST_SCENARIO("empty_fromelementsA_A"       , A_elements  , _one_element_test_cases  , construct_empty_fromelementsA_A    , destruct_array),
+    TEST_SCENARIO("empty_fromargumentsA_A"      , A_elements  , _one_element_test_cases  , construct_empty_fromargumentsA_A   , destruct_array),
+    TEST_SCENARIO("empty_addB_B"                , B_elements  , _one_element_test_cases  , construct_empty_addB_B             , destruct_array),
+    TEST_SCENARIO("empty_addC_C"                , C_elements  , _one_element_test_cases  , construct_empty_addC_C             , destruct_array),
+    TEST_SCENARIO("A_addB_AB"                   , AB_elements , _two_element_test_cases  , construct_A_addB_AB                , destruct_array),
+    TEST_SCENARIO("empty_fromelementsAB_AB"     , AB_elements , _two_element_test_cases  , construct_empty_fromelementsAB_AB  , destruct_array),
+    TEST_SCENARIO("empty_fromargumentsAB_AB"    , AB_elements , _two_element_test_cases  , construct_empty_fromargumentsAB_AB , destruct_array),
+    TEST_SCENARIO("ABC_remove1_AC"              , AC_elements , _two_element_test_cases  , construct_ABC_remove1_AC           , destruct_array),
+    TEST_SCENARIO("B_addA_BA"                   , BA_elements , _two_element_test_cases  , construct_B_addA_BA                , destruct_array),
+    TEST_SCENARIO("B_addC_BC"                   , BC_elements , _two_element_test_cases  , construct_B_addC_BC                , destruct_array),
+    TEST_SCENARIO("C_addA_CA"                   , CA_elements , _two_element_test_cases  , construct_C_addA_CA                , destruct_array),
+    TEST_SCENARIO("C_addB_CB"                   , CB_elements , _two_element_test_cases  , construct_C_addB_CB                , destruct_array),
+    TEST_SCENARIO("AB_addC_ABC"                 , ABC_elements, _three_element_test_cases, construct_AB_addC_ABC              , destruct_array),
+    TEST_SCENARIO("empty_fromelementsABC_ABC"   , ABC_elements, _three_element_test_cases, construct_empty_fromelementsABC_ABC, destruct_array),
+    TEST_SCENARIO("empty_fromargumentsABC_ABC"  , ABC_elements, _three_element_test_cases, construct_empty_fromargumentsABC_ABC, destruct_array),
+    TEST_SCENARIO("AC_addB_ACB"                 , ACB_elements, _three_element_test_cases, construct_AC_addB_ACB              , destruct_array),
+    TEST_SCENARIO("BA_addC_BAC"                 , BAC_elements, _three_element_test_cases, construct_BA_addC_BAC              , destruct_array),
+    TEST_SCENARIO("BC_addA_BCA"                 , BCA_elements, _three_element_test_cases, construct_BC_addA_BCA              , destruct_array),
+    TEST_SCENARIO("CA_addB_CAB"                 , CAB_elements, _three_element_test_cases, construct_CA_addB_CAB              , destruct_array),
+    TEST_SCENARIO("CB_addA_CBA"                 , CBA_elements, _three_element_test_cases, construct_CB_addA_CBA              , destruct_array),
+};
 
-/** !
- * Run all the tests
- * 
- * @param void
- * 
- * @return void
- */
-void run_tests ( void );
-
-/** !
- * Print a summary of the test scenario
- * 
- * @param void
- * 
- * @return void
- */
-void print_final_summary ( void );
-
-/** !
- * Print the result of a single test
- * 
- * @param scenario_name the name of the scenario
- * @param test_name     the name of the test
- * @param passed        true if test passes, false if test fails
- * 
- * @return void
- */
-void print_test ( const char *scenario_name, const char *test_name, bool passed );
-
-/** !
- * Test the add function
- * 
- * @param array_constructor array constructor function
- * @param value             the value to add
- * @param expected          < zero | one | match > 
- * 
- * @return true if test passes, false if test fails
- */
-bool test_add ( void (*array_constructor)(array **), void *value , result_t expected );
-
-/** !
- * Test the remove function
- * 
- * @param array_constructor array constructor function
- * @param value             the expected value at index
- * @param index             the index to remove
- * @param expected          < zero | one | match > 
- * 
- * @return true if test passes, false if test fails
- */
-bool test_remove ( void(*array_constructor)(array **pp_array), void *value, signed index, result_t expected );
-
-/** !
- * Test the get function
- * 
- * @param array_constructor array constructor function
- * @param expected_values   the expected values of the get 
- * @param expected          < zero | one | match > 
- * 
- * @return true if test passes, false if test fails
- */
-bool test_get ( void (*array_constructor)(array **), void **expected_values, result_t expected );
-
-/** !
- * Test the secondary return of the get function
- * 
- * @param array_constructor array constructor function
- * @param expected_size     the expected quantity of elements in the array
- * @param expected          < zero | one | match > 
- * 
- * @return true if test passes, false if test fails
- */
-bool test_get_count ( void(*array_constructor)(array **pp_array), size_t expected_size, result_t expected );
-
-/** !
- * Test the size function
- * 
- * @param array_constructor array constructor function
- * @param expected_size     the expected quantity of elements in the array
- * @param expected          < zero | one | match > 
- * 
- * @return true if test passes, false if test fails
- */
-bool test_size ( void(*array_constructor)(array **pp_array), size_t expected_size, result_t expected );
-
-/** !
- * Test the index function
- * 
- * @param array_constructor array constructor function
- * @param idx               the index to access
- * @param expected_value    the expected values of the index
- * @param expected          < zero | one | match > 
- * 
- * @return true if test passes, false if test fails
- */
-bool test_index ( void(*array_constructor)(array **pp_array), signed idx, void *expected_value, result_t expected );
-
-/** !
- * Test the slice function
- * 
- * @param array_constructor array constructor function
- * @param lower             the lower bound of the slice
- * @param upper             the upper bound of the slice
- * @param expected_value    the expected values of the slice
- * @param expected          < zero | one | match > 
- * 
- * @return true if test passes, false if test fails
- */
-bool test_slice ( void(*array_constructor)(array **pp_array), signed lower, signed upper, void **expected_value, result_t expected );
-
-/** !
- * Test an array with no elements
- * 
- * @param array_constructor function to construct array
- * @param name              the name of the test
- * 
- * @return void
- */
-void test_empty_array ( void (*array_constructor)(array **), char *name );
-
-/** !
- * Test an array with one element
- * 
- * @param array_constructor function to construct array
- * @param name              the name of the test
- * @param values            the expected values of the array
- * 
- * @return void
- */
-void test_one_element_array ( void (*array_constructor)(array **), char *name, void **values );
-
-/** !
- * Test an array with two elements
- * 
- * @param array_constructor function to construct array
- * @param name              the name of the test
- * @param values            the expected values of the array
- * 
- * @return void
- */
-void test_two_element_array ( void (*array_constructor)(array **), char *name, void **values );
-
-/** !
- * Test an array with three elements
- * 
- * @param array_constructor function to construct array
- * @param name              the name of the test
- * @param values            the expected values of the array
- * 
- * @return void
- */
-void test_three_element_array ( void (*array_constructor)(array **), char *name, void **values );
-
-/** !
- * Construct an empty array, return the result 
- * 
- * @param pp_array []
- * 
- * @return void
- */
-void construct_empty ( array **pp_array );
-
-/** !
- * Construct an empty array, add "A", return the result 
- * 
- * @param pp_array [A]
- * 
- * @return void
- */
-void construct_empty_addA_A ( array **pp_array );
-
-/** !
- * Construct an [A] array, add "B", return the result 
- * 
- * @param pp_array [A, B]
- * 
- * @return void
- */
-void construct_A_addB_AB ( array **pp_array ); 
-
-/** !
- * Construct an [A, B] array, add "C", return the result 
- * 
- * @param pp_array [A, B, C]
- * 
- * @return void
- */
-void construct_AB_addC_ABC ( array **pp_array );
-
-/** !
- * Construct an [A, B, C] array, clear the array, return the result 
- * 
- * @param pp_array []
- * 
- * @return void
- */
-void construct_ABC_clear_empty ( array **pp_array );
-
-/** !
- * Construct an [A, B] array, clear the array, return the result 
- * 
- * @param pp_array []
- * 
- * @return void
- */
-void construct_AB_clear_empty ( array **pp_array );
-
-/** !
- * Construct an [A] array, clear the array, return the result 
- * 
- * @param pp_array []
- * 
- * @return void
- */
-void construct_A_clear_empty ( array **pp_array );
-
-/** !
- * Construct an [A, B, C] array, return the result 
- * 
- * @param pp_array [A, B, C]
- * 
- * @return void
- */
-void construct_empty_fromelementsABC_ABC ( array **pp_array );
-
-/** !
- * Construct an [A, B] array, return the result 
- * 
- * @param pp_array [A, B]
- * 
- * @return void
- */
-void construct_empty_fromelementsAB_AB ( array **pp_array );
-
-/** !
- * Construct an [A] array, return the result 
- * 
- * @param pp_array [A]
- * 
- * @return void
- */
-void construct_empty_fromelementsA_A ( array **pp_array );
-
-/** !
- * Construct an [A, B, C] array, return the result 
- * 
- * @param pp_array [A, B, C]
- * 
- * @return void
- */
-void construct_empty_fromargumentsABC_ABC ( array **pp_array );
-
-/** !
- * Construct an [A, B] array, return the result 
- * 
- * @param pp_array [A, B]
- * 
- * @return void
- */
-void construct_empty_fromargumentsAB_AB ( array **pp_array );
-
-/** !
- * Construct an [A] array, return the result 
- * 
- * @param pp_array [A]
- * 
- * @return void
- */
-void construct_empty_fromargumentsA_A ( array **pp_array );
-
-/** !
- * Construct an [A] array, remove 0, return the result 
- * 
- * @param pp_array []
- * 
- * @return void
- */
-void construct_A_remove0_empty ( array **pp_array );
-
-/** !
- * Construct an [A, B] array, remove 1, return the result 
- * 
- * @param pp_array [A]
- * 
- * @return void
- */
-void construct_AB_remove1_A ( array **pp_array );
-
-/** !
- * Construct an [A, B, C] array, remove 2, return the result 
- * 
- * @param pp_array [A, B]
- * 
- * @return void
- */
-void construct_ABC_remove2_AB  ( array **pp_array );   
+/// suites
+test_suite _suite = TEST_SUITE("array", _scenarios);
 
 // entry point
-int main ( int argc, const char* argv[] )
+int main ( int argc, const char *argv[] ) 
 {
-    
+
     // unused
     (void) argc;
     (void) argv;
-
-    // initialized data
-    timestamp t0 = 0,
-              t1 = 0;
-
-    // Formatting
-    printf(
-        "╭──────────────╮\n"\
-        "│ array tester │\n"\
-        "╰──────────────╯\n\n"
-    );
+     
+    // run the tests
+    test_suite_test(&_suite); 
     
-    // Start
-    t0 = timer_high_precision();
-
-    // Run tests
-    run_tests();
-
-    // Stop
-    t1 = timer_high_precision();
-
-    // Report the time it took to run the tests
-    log_info("array took ");
-    print_time_pretty ( (double)(t1-t0)/(double)timer_seconds_divisor() );
-    log_info(" to test\n");
-
-    // Flush stdio
-    fflush(stdout);
-
-    // exit
-    return ( total_passes == total_tests ) ? EXIT_SUCCESS : EXIT_FAILURE;
+    // done
+    return (_suite.counters.total.fails == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-void run_tests ( void )
-{
+int construct_empty ( void **pp_result ) 
+{ 
 
     // ... -> []
-    test_empty_array(construct_empty, "empty");
+    return array_construct((array **)pp_result, 4);
+}
 
-    // ... -> from_elements(A) -> [A]
-    test_one_element_array(construct_empty_fromelementsA_A, "empty_fromelementsA_A", (void **)A_elements);
+int construct_empty_addB_B ( void **pp_result ) 
+{ 
 
-    // ... -> from_elements(A, B) -> [A, B]
-    test_two_element_array(construct_empty_fromelementsAB_AB, "empty_fromelementsAB_AB", (void **)AB_elements);
-
-    // ... -> from_elements(A, B, C) -> [A, B, C]
-    test_three_element_array(construct_empty_fromelementsABC_ABC, "empty_fromelementsABC_ABC", (void **)ABC_elements);
-
-    // ... -> from_arguments(A) -> [A]
-    test_one_element_array(construct_empty_fromargumentsA_A, "empty_fromargumentsA_A", (void **)A_elements);
-
-    // ... -> from_arguments(A, B) -> [A, B]
-    test_two_element_array(construct_empty_fromargumentsAB_AB, "empty_fromargumentsAB_AB", (void **)AB_elements);
-
-    // ... -> from_arguments(A, B, C) -> [A, B, C]
-    test_three_element_array(construct_empty_fromargumentsABC_ABC, "empty_fromargumentsABC_ABC", (void **)ABC_elements);
+    // [] -> add(B) -> [B]
+    construct_empty(pp_result);
     
+    // done
+    return array_add(*((array **)pp_result), B_ELEMENT); 
+}
+
+int construct_empty_addC_C ( void **pp_result ) 
+{ 
+
+    // [] -> add(C) -> [C]
+    construct_empty(pp_result);
+    
+    // done
+    return array_add(*((array **)pp_result), C_ELEMENT); 
+}
+
+int construct_ABC_remove1_AC ( void **pp_result ) 
+{ 
+
+    // [A, B, C] -> remove(1) -> [A, C]
+    construct_AB_addC_ABC(pp_result);
+    
+    // done
+    return array_remove(*((array **)pp_result), 1, NULL); 
+}
+
+int construct_B_addA_BA ( void **pp_result ) 
+{ 
+
+    // [B] -> add(A) -> [B, A]
+    construct_empty_addB_B(pp_result);
+    
+    // done
+    return array_add(*((array **)pp_result), A_ELEMENT); 
+}
+
+int construct_B_addC_BC ( void **pp_result ) 
+{ 
+
+    // [B] -> add(C) -> [B, C]
+    construct_empty_addB_B(pp_result);
+    
+    // done
+    return array_add(*((array **)pp_result), C_ELEMENT); 
+}
+
+int construct_C_addA_CA ( void **pp_result ) 
+{ 
+
+    // [C] -> add(A) -> [C, A]
+    construct_empty_addC_C(pp_result);
+    
+    // done
+    return array_add(*((array **)pp_result), A_ELEMENT); 
+}
+
+int construct_C_addB_CB ( void **pp_result ) 
+{ 
+
+    // [C] -> add(B) -> [C, B]
+    construct_empty_addC_C(pp_result);
+    
+    // done
+    return array_add(*((array **)pp_result), B_ELEMENT); 
+}
+
+int construct_AC_addB_ACB ( void **pp_result ) 
+{ 
+
+    // [AC] -> add(B) -> [A, C, B]
+    construct_ABC_remove1_AC(pp_result);
+    
+    // done
+    return array_add(*((array **)pp_result), B_ELEMENT); 
+}
+
+int construct_BA_addC_BAC ( void **pp_result ) 
+{ 
+
+    // [BA] -> add(C) -> [B, A, C]
+    construct_B_addA_BA(pp_result);
+    
+    // done
+    return array_add(*((array **)pp_result), C_ELEMENT); 
+}
+
+int construct_BC_addA_BCA ( void **pp_result ) 
+{ 
+
+    // [BC] -> add(A) -> [B, C, A]
+    construct_B_addC_BC(pp_result);
+    
+    // done
+    return array_add(*((array **)pp_result), A_ELEMENT); 
+}
+
+int construct_CA_addB_CAB ( void **pp_result ) 
+{ 
+
+    // [CA] -> add(B) -> [C, A, B]
+    construct_C_addA_CA(pp_result);
+    
+    // done
+    return array_add(*((array **)pp_result), B_ELEMENT); 
+}
+
+int construct_CB_addA_CBA ( void **pp_result ) 
+{ 
+
+    // [CB] -> add(A) -> [C, B, A]
+    construct_C_addB_CB(pp_result);
+    
+    // done
+    return array_add(*((array **)pp_result), A_ELEMENT); 
+}
+
+int construct_empty_addA_A ( void **pp_result ) 
+{ 
+
+    // []
+    construct_empty(pp_result);
+
     // [] -> add(A) -> [A]
-    test_one_element_array(construct_empty_addA_A, "empty_addA_A", (void **)A_elements);
+    return array_add(*((array **)pp_result), A_ELEMENT); 
+}
+
+int construct_A_addB_AB ( void **pp_result ) 
+{ 
+
+    // [A]
+    construct_empty_addA_A(pp_result);
 
     // [A] -> add(B) -> [A, B]
-    test_two_element_array(construct_A_addB_AB, "A_addB_AB", (void **)AB_elements);
+    return array_add(*((array **)pp_result), B_ELEMENT); 
+}
+
+int construct_AB_addC_ABC ( void **pp_result ) 
+{ 
+
+    // [A, B]
+    construct_A_addB_AB(pp_result);
 
     // [A, B] -> add(C) -> [A, B, C]
-    test_three_element_array(construct_AB_addC_ABC, "AB_addC_ABC", (void **)ABC_elements);
-
-    // [A] -> remove(0) -> []
-    test_empty_array(construct_A_remove0_empty, "A_remove0_empty");
-
-    // [A, B] -> remove(1) -> [A]
-    test_one_element_array(construct_AB_remove1_A, "AB_remove1_A", (void **)A_elements);
-
-    // [A, B, C] -> remove(2) -> [A, B]
-    test_two_element_array(construct_ABC_remove2_AB, "ABC_remove2_AB", (void **)AB_elements);
-
-    // done
-    return;
+    return array_add(*((array **)pp_result), C_ELEMENT); 
 }
 
-void print_final_summary ( void )
-{
-
-    // Accumulate
-    total_tests  += ephemeral_tests,
-    total_passes += ephemeral_passes,
-    total_fails  += ephemeral_fails;
-
-    // Print
-    log_info("\nTests: %d, Passed: %d, Failed: %d (%%%.3f)\n",  ephemeral_tests, ephemeral_passes, ephemeral_fails, ((float)ephemeral_passes/(float)ephemeral_tests*100.f));
-    log_info("Total: %d, Passed: %d, Failed: %d (%%%.3f)\n\n",  total_tests, total_passes, total_fails, ((float)total_passes/(float)total_tests*100.f));
-    
-    // Clear test counters for this test
-    ephemeral_tests  = 0;
-    ephemeral_passes = 0;
-    ephemeral_fails  = 0;
-
-    // done
-    return;
-}
-
-void print_test ( const char *scenario_name, const char *test_name, bool passed )
-{
-
-    // initialized data
-    if ( passed )
-        log_pass("%s %s\n", scenario_name, test_name);
-    else
-        log_fail("%s %s\n", scenario_name, test_name);
-
-
-    // Increment the pass/fail counter
-    if (passed)
-        ephemeral_passes++;
-    else
-        ephemeral_fails++;
-
-    // Increment the test counter
-    ephemeral_tests++;
-
-    // done
-    return;
-}
-
-bool test_add ( void(*array_constructor)(array **pp_array), void *value, result_t expected )
-{
-
-    // initialized data
-    result_t  result = 0;
-    array     *p_array = 0;
-
-    // Build the array
-    array_constructor(&p_array);
-
-    // Add an element
-    result = (result_t) array_add(p_array, value);
-
-    // Free the array
-    array_destroy(&p_array, NULL);
-
-    // return result
-    return (result == expected);
-}
-
-bool test_remove ( void(*array_constructor)(array **pp_array), void *value, signed index, result_t expected )
-{
-
-    // initialized data
-    result_t  result  = 0;
-    array    *p_array = 0;
-    void     *p_ret   = (void*) -1;
-
-    // Build the array
-    array_constructor(&p_array);
-
-    // Remove an element
-    result = (result_t) array_remove(p_array, index, &p_ret);
-    
-    // Check for a match
-    result = ( value == p_ret ) ? match : result;
-
-    // Free the array
-    array_destroy(&p_array, NULL);
-
-    // return result
-    return (result == expected);
-}
-
-bool test_get ( void(*array_constructor)(array **pp_array), void **expected_values, result_t expected )
-{
-
-    // initialized data
-    result_t  result       = 0;
-    array    *p_array      = 0;
-    void     *result_value = 0;
-
-    // Build the array
-    array_constructor(&p_array);
-
-    // Get a key 
-    //result_value = array_get(p_array, key);
-
-    result = (result_value == expected_values) ? match : zero;
-
-    // Free the array
-    array_destroy(&p_array, NULL);
-
-    // return result
-    return (result == expected);
-}
-
-bool test_get_count ( void(*array_constructor)(array **pp_array), size_t expected_size, result_t expected )
-{
-
-    // initialized data
-    result_t  result       = 0;
-    array    *p_array      = 0;
-    size_t    result_value = 0;
-
-    // Build the array
-    array_constructor(&p_array);
-
-    // Get the size of the array
-    array_get(p_array, 0, &result_value);
-
-    // 
-    result = (result_value == expected_size) ? match : zero;
-
-    // Free the array
-    array_destroy(&p_array, NULL);
-
-    // return result
-    return (result == expected);
-}
-
-bool test_size ( void(*array_constructor)(array **pp_array), size_t expected_size, result_t expected )
-{
-
-    // initialized data
-    result_t  result  = 0;
-    array    *p_array = 0;
-
-    // Build the array
-    array_constructor(&p_array);
-
-    // Get the result of the size operation
-    result = ( array_size(p_array) == expected_size ) ? match : zero;
-
-    // Free the array
-    array_destroy(&p_array, NULL);
-
-    // return result
-    return (result == expected);
-}
-
-bool test_index ( void(*array_constructor)(array **pp_array), signed idx, void *expected_value, result_t expected )
-{
-
-    // initialized data
-    result_t  result       = 0;
-    array    *p_array      = 0;
-    void     *result_value = 0;
-
-    // Build the array
-    array_constructor(&p_array);
-
-    // Index the array
-    result = (result_t) array_index(p_array, idx, &result_value);
-    
-    if ( result == 1 )
-        if ( result_value == expected_value )
-            result = match;
-
-    // Free the array
-    array_destroy(&p_array, NULL);
-
-    // return result
-    return (result == expected);
-}
-
-bool test_slice ( void(*array_constructor)(array **pp_array), signed lower, signed upper, void **expected_value, result_t expected )
-{
-
-    // initialized data
-    result_t  result          = 0;
-    array    *p_array         = 0;
-    void     *result_values[] = { 0, 0, 0, 0, (void *) 0 };
-
-    // Build the array
-    array_constructor(&p_array);
-
-    // Index the array
-    result = (result_t) array_slice(p_array, result_values, lower, upper);
-    
-    // error check
-    if ( result == zero ) goto done;
-
-    // Test is successful if ...
-    result = match;
-
-    // ... each element in the slice ...
-    for (signed i = 0; i < upper-lower; i++)
-
-        // ... matches each expected value ...
-        if ( result_values[i] != expected_value[i] )
-
-            // ... else the test failed
-            result = zero;
-
-    done:
-
-    // Free the array
-    array_destroy(&p_array, NULL);
-
-    // return result
-    return (result == expected);
-}
-
-void construct_empty ( array **pp_array )
-{
-
-    // Construct an array
-    array_construct(pp_array, 4);
-
-    // array = []
-    return;
-}
-
-void construct_empty_addA_A ( array **pp_array )
-{
-
-    // Construct a [] array
-    construct_empty(pp_array);
-
-    // [] -> add(A) -> [A]
-    array_add(*pp_array, A_element);
- 
-    // array = [A]
-    return;
-}
-
-void construct_A_addB_AB ( array **pp_array )
-{
-
-    // Construct an [A] array 
-    construct_empty_addA_A(pp_array);
-
-    // [A] -> add(B) -> [B]
-    array_add(*pp_array , B_element);
- 
-    // array = [A, B]
-    return;
-}
-
-void construct_AB_addC_ABC ( array **pp_array )
-{
-
-    // Construct an [A, B] array
-    construct_A_addB_AB(pp_array);
-
-    // [A, B] -> add(C) -> [A, B, C]
-    array_add(*pp_array, C_element);
-
-    // array = [A, B, C]
-    return;
-}
-
-void construct_empty_fromelementsABC_ABC ( array **pp_array )
-{
-
-    // ... -> from_elements(A, B, C) -> [A, B, C]
-    array_from_elements(pp_array, (void **)ABC_elements, 3);
-    
-    // array = [A, B, C]
-    return;
-}
-
-void construct_empty_fromelementsAB_AB ( array **pp_array )
-{
-
-    // ... -> from_elements(A, B) -> [A, B]
-    array_from_elements(pp_array, (void **)AB_elements, 2);
-
-    // array = [A, B]
-    return;
-}
-
-void construct_empty_fromelementsA_A ( array **pp_array )
-{
+int construct_empty_fromelementsA_A ( void **pp_result ) 
+{ 
 
     // ... -> from_elements(A) -> [A]
-    array_from_elements(pp_array, (void **)A_elements, 1);
-
-    // array = [A]
-    return;
+    return array_from_elements((array **)pp_result, (void **)A_elements, 1);
 }
 
-void construct_empty_fromargumentsABC_ABC ( array **pp_array )
-{
+int construct_empty_fromelementsAB_AB ( void **pp_result ) 
+{ 
 
-    // ... -> from_arguments(A, B, C) -> [A, B, C]
-    array_from_arguments(pp_array, 3, 3, "A", "B", "C");
-    
-    // array = [A, B, C]
-    return;
+    // ... -> from_elements(A, B) -> [A, B]
+    return array_from_elements((array **)pp_result, (void **)AB_elements, 2);
 }
 
-void construct_empty_fromargumentsAB_AB ( array **pp_array )
-{
+int construct_empty_fromelementsABC_ABC ( void **pp_result ) 
+{ 
 
-    // ... -> from_arguments(A, B) -> [A, B]
-    array_from_arguments(pp_array, 2, 2, "A", "B");
-
-    // array = [A, B]
-    return;
+    // ... -> from_elements(A, B, C) -> [A, B, C]
+    return array_from_elements((array **)pp_result, (void **)ABC_elements, 3);
 }
 
-void construct_empty_fromargumentsA_A ( array **pp_array )
-{
+int construct_empty_fromargumentsA_A ( void **pp_result ) 
+{ 
 
     // ... -> from_arguments(A) -> [A]
-    array_from_arguments(pp_array, 1, 1, "A");
-
-    // array = [A]
-    return;
+    return array_from_arguments((array **)pp_result, 1, 1, A_ELEMENT);
 }
 
-void construct_A_remove0_empty ( array **pp_array )
-{
+int construct_empty_fromargumentsAB_AB ( void **pp_result ) 
+{ 
 
-    // Construct an [A] array
-    construct_empty_addA_A(pp_array);
+    // ... -> from_arguments(A, B) -> [A, B]
+    return array_from_arguments((array **)pp_result, 2, 2, A_ELEMENT, B_ELEMENT);
+}
+
+int construct_empty_fromargumentsABC_ABC ( void **pp_result ) 
+{ 
+
+    // ... -> from_arguments(A, B, C) -> [A, B, C]
+    return array_from_arguments((array **)pp_result, 3, 3, A_ELEMENT, B_ELEMENT, C_ELEMENT);
+}
+
+int construct_A_remove0_empty ( void **pp_result ) 
+{ 
+
+    // [A]
+    construct_empty_addA_A(pp_result);
 
     // [A] -> remove(0) -> []
-    array_remove(*pp_array, 0, (void *)0);
-
-    // array = []
-    return;
+    return array_remove(*((array **)pp_result), 0, NULL); 
 }
 
-void construct_AB_remove1_A ( array **pp_array )
-{
+int construct_AB_remove1_A ( void **pp_result ) 
+{ 
 
-    // Construct an [A, B] array
-    construct_A_addB_AB(pp_array);
+    // [A, B]
+    construct_A_addB_AB(pp_result);
 
     // [A, B] -> remove(1) -> [A]
-    array_remove(*pp_array, 1, (void *)0);
-
-    // array = []
-    return;
+    return array_remove(*((array **)pp_result), 1, NULL); 
 }
 
-void construct_ABC_remove2_AB ( array **pp_array )
-{
+int construct_ABC_remove2_AB ( void **pp_result ) 
+{ 
 
-    // Construct an [A, B, C] array
-    construct_AB_addC_ABC(pp_array);
+    // [A, B, C]
+    construct_AB_addC_ABC(pp_result);
 
     // [A, B, C] -> remove(2) -> [A, B]
-    array_remove(*pp_array, 2, (void *)0);
-
-    // array = []
-    return;
+    return array_remove(*((array **)pp_result), 2, NULL); 
 }
 
-void test_empty_array ( void (*array_constructor)(array **pp_array), char *name)
-{
-
-    // Formatting
-    log_info("Scenario: %s\n", name);
-
-    // Test the add function
-    print_test(name, "array_add_A", test_add(array_constructor, A_element, one) );
-    print_test(name, "array_add_B", test_add(array_constructor, B_element, one) );
-
-    // Test the index function
-    print_test(name, "array_index0", test_index(array_constructor, 0, (void *)0, zero) );
-    print_test(name, "array_index1", test_index(array_constructor, 1, (void *)0, zero) );
-
-    // Test the get function
-    print_test(name, "array_get", test_get(array_constructor, (void **)_elements, zero) );    
-
-    // Test the count 
-    print_test(name, "array_get_count", test_get_count(array_constructor, 0, match) );
-    
-    // Test the remove function
-    print_test(name, "array_remove0", test_remove(array_constructor, (void *)0, 0, zero) );
-
-    // Print the summary of this test
-    print_final_summary();
-
-    // done
-    return;
-}
-
-void test_one_element_array ( void (*array_constructor)(array **pp_array), char *name, void **values )
-{
-
-    // Formatting
-    log_info("SCENARIO: %s\n", name);
-
-    // Test the add function
-    print_test(name, "array_add_D", test_add(array_constructor, D_element, one) );
-    
-    // Test the get function
-    print_test(name, "array_get"      , test_get(array_constructor, values, zero) );
-    print_test(name, "array_get_count", test_get_count(array_constructor, 1, match) );
-
-    // Test the size function
-    print_test(name, "array_size", test_size(array_constructor, 1, match));
-    
-    // Test the index function
-    print_test(name, "array_index0", test_index(array_constructor, 0, values[0], match) );
-    print_test(name, "array_index1", test_index(array_constructor, 1, (void *)0, zero) );
-
-    // Test the remove function
-    print_test(name, "array_remove0", test_remove(array_constructor, values[0], 0, match) );
-    print_test(name, "array_remove1", test_remove(array_constructor, (void *)0, 1, zero) );
-
-    // Print the summary of this test   
-    print_final_summary();
-    
-    // done
-    return;
-}
-
-void test_two_element_array ( void (*array_constructor)(array **pp_array), char *name, void **values )
-{
-    
-    // Formatting
-    log_info("SCENARIO: %s\n", name);
-
-    // Test the add function
-    print_test(name, "array_add_D", test_add(array_constructor, D_element, one) );
-    
-    // Test the get function
-    print_test(name, "array_get"      , test_get(array_constructor, values, zero) );
-    print_test(name, "array_get_count", test_get_count(array_constructor, 2, match) );
-
-    // Test the size function
-    print_test(name, "array_size", test_size(array_constructor, 2, match));
-    
-    // Test the index function
-    print_test(name, "array_index0", test_index(array_constructor, 0, values[0], match) );
-    print_test(name, "array_index1", test_index(array_constructor, 1, values[1], match) );  
-    print_test(name, "array_index2", test_index(array_constructor, 2, (void *)0, zero) );  
-
-    // Test the remove function    
-    print_test(name, "array_remove0", test_remove(array_constructor, values[0], 0, match) );
-    print_test(name, "array_remove1", test_remove(array_constructor, values[1], 1, match) );
-    print_test(name, "array_remove2", test_remove(array_constructor, (void *)0, 2, zero) );
-
-    // Print the summary of this test
-    print_final_summary();
-    
-    // done
-    return;
-}
-
-void test_three_element_array ( void (*array_constructor)(array **pp_array), char *name, void **values )
-{
-
-    // Formatting
-    log_info("SCENARIO: %s\n", name);
-
-    // Test the add function
-    print_test(name, "array_add_D", test_add(array_constructor, D_element, one) );
-    
-    // Test the get function
-    print_test(name, "array_get", test_get(array_constructor, values, zero) );
-    print_test(name, "array_get_count", test_get_count(array_constructor, 3, match) );
-
-    // Test the size function
-    print_test(name, "array_size", test_size(array_constructor, 3, match));
-    
-    // Test the index function
-    print_test(name, "array_index0"   , test_index(array_constructor, 0, values[0], match) );
-    print_test(name, "array_index1"   , test_index(array_constructor, 1, values[1], match) );  
-    print_test(name, "array_index2"   , test_index(array_constructor, 2, values[2], match) );  
-    print_test(name, "array_index3"   , test_index(array_constructor, 3, (void *)0, zero) );  
-
-    // Test the remove function
-    print_test(name, "array_remove0"  , test_remove(array_constructor, values[0], 0, match) );
-    print_test(name, "array_remove1"  , test_remove(array_constructor, values[1], 1, match) );
-    print_test(name, "array_remove2"  , test_remove(array_constructor, values[2], 2, match) );
-    print_test(name, "array_remove3"  , test_remove(array_constructor, (void *)0, 3, zero) );
-
-    // Print the summary of this test
-    print_final_summary();
-    
-    // done
-    return;
-}
-
-
-void print_time_pretty ( double seconds )
-{
+void *test_add ( test_case *p_test_case, void *p_subject ) 
+{ 
 
     // initialized data
-    double _seconds     = seconds;
-    size_t days         = 0,
-           hours        = 0,
-           minutes      = 0,
-           __seconds    = 0,
-           milliseconds = 0,
-           microseconds = 0;
-
-    // Days
-    while ( _seconds > 86400.0 ) { days++;_seconds-=286400.0; };
-
-    // Hours
-    while ( _seconds > 3600.0 ) { hours++;_seconds-=3600.0; };
-
-    // Minutes
-    while ( _seconds > 60.0 ) { minutes++;_seconds-=60.0; };
-
-    // Seconds
-    while ( _seconds > 1.0 ) { __seconds++;_seconds-=1.0; };
-
-    // milliseconds
-    while ( _seconds > 0.001 ) { milliseconds++;_seconds-=0.001; };
-
-    // Microseconds        
-    while ( _seconds > 0.000001 ) { microseconds++;_seconds-=0.000001; };
-
-    // Print days
-    if ( days ) log_info("%zu D, ", days);
+    array *p_array = (array *)p_subject;
     
-    // Print hours
-    if ( hours ) log_info("%zu h, ", hours);
+    // success
+    return (void *)(size_t)array_add(p_array, p_test_case->p_parameters); 
+}
 
-    // Print minutes
-    if ( minutes ) log_info("%zu m, ", minutes);
+void *test_remove ( test_case *p_test_case, void *p_subject ) 
+{ 
 
-    // Print seconds
-    if ( __seconds ) log_info("%zu s, ", __seconds);
+    // initialized data
+    array  *p_array = (array *)p_subject;
+    signed  index   = (signed)(size_t)p_test_case->p_parameters;
+
+    // test
+    if ( 0 == array_remove(p_array, index, &p_test_case->p_out) ) return NULL;
+
+    // success
+    return (void *)1;
+}
+
+void *test_index ( test_case *p_test_case, void *p_subject ) 
+{ 
+
+    // initialized data
+    array  *p_array = (array *)p_subject;
+    signed  index   = (signed)(size_t)p_test_case->p_parameters;
     
-    // Print milliseconds
-    if ( milliseconds ) log_info("%zu ms, ", milliseconds);
+    // test
+    if ( 0 == array_index(p_array, index, &p_test_case->p_out) ) return NULL;
+
+    // success
+    return (void *)1;
+}
+
+void *test_size ( test_case *p_test_case, void *p_subject ) 
+{ 
+
+    // unused
+    (void) p_test_case;
+
+    // initialized data
+    array *p_array = (array *)p_subject;
+
+    // success
+    return (void *)array_size(p_array);
+}
+
+void *test_is_empty ( test_case *p_test_case, void *p_subject ) 
+{ 
+
+    // unused
+    (void) p_test_case;
+
+    // initialized data
+    array *p_array = (array *)p_subject;
+
+    // success
+    return (void *)(size_t)array_is_empty(p_array);
+}
+
+void *test_get ( test_case *p_test_case, void *p_subject ) 
+{ 
+
+    // initialized data
+    array   *p_array     = (array *)p_subject;
+    size_t   count       = 0;
+    void   **pp_elements = NULL;
+
+    // store the size
+    count = array_size(p_array);
+    if ( count == 0 ) return NULL;
+
+    // allocate
+    pp_elements = default_allocator(NULL, (count + 1) * sizeof(void *));
+
+    // test
+    if ( 0 == array_get(p_array, pp_elements, &count) ) 
+    {
+
+        // release the elements
+        pp_elements = default_allocator(pp_elements, 0);
+
+        // error
+        return NULL;
+    }
+
+    // store the result
+    p_test_case->p_out = pp_elements;
+
+    // success
+    return (void *)1;
+}
+
+void *test_slice ( test_case *p_test_case, void *p_subject ) 
+{ 
+
+    // initialized data
+    array   *p_array     = (array *)p_subject;
+    size_t   bounds      = (size_t)p_test_case->p_parameters;
+    signed   lower       = (signed)(bounds >> 32);
+    signed   upper       = (signed)(bounds & 0xFFFFFFFF);
+    void   **pp_elements = NULL;
+
+    // fast fail
+    if ( upper < lower ) return NULL;
+
+    // allocate
+    pp_elements = default_allocator(NULL, (upper - lower + 1) * sizeof(void *));
+
+    // test
+    if ( 0 == array_slice(p_array, pp_elements, lower, upper) ) 
+    {
+
+        // release the elements
+        pp_elements = default_allocator(pp_elements, 0);
+
+        // error
+        return NULL;
+    }
+
+    // store the result
+    p_test_case->p_out = pp_elements;
+
+    // success
+    return (void *)1;
+}
+
+bool remove_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
     
-    // Print microseconds
-    if ( microseconds ) log_info("%zu us", microseconds);
+    // unused
+    (void) p_subject;
+    (void) p_result;
+
+    // initialized data
+    void   **pp_elements = p_scenario->p_data;
+    signed   index       = (signed)(size_t)p_case->p_parameters;
+
+    // success
+    return p_case->p_out == pp_elements[index];
+}
+
+bool index_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
     
+    // unused
+    (void) p_subject;
+    (void) p_result;
+
+    // initialized data
+    void   **pp_elements = p_scenario->p_data;
+    signed   index       = (signed)(size_t)p_case->p_parameters;
+
     // done
-    return;
+    return p_case->p_out == pp_elements[index];
+}
+
+bool size_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+    
+    // unused
+    (void) p_case;
+    (void) p_subject;
+
+    // initialized data
+    void   **pp_elements = p_scenario->p_data;
+    size_t   count       = 0;
+
+    // count
+    while ( pp_elements[count] ) count++;
+
+    // done
+    return (size_t)p_result == count;
+}
+
+bool is_empty_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+    
+    // unused
+    (void) p_scenario;
+    (void) p_case;
+    (void) p_subject;
+
+    // initialized data
+    void **pp_elements = p_scenario->p_data;
+    bool   empty       = ( pp_elements[0] == NULL );
+
+    // done
+    return p_result == (void *)(size_t)empty;
+}
+
+bool get_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+    
+    // unused
+    (void) p_subject;
+    (void) p_result;
+
+    // initialized data
+    void **pp_expected = p_scenario->p_data;
+    void **pp_actual   = p_case->p_out;
+    bool   match       = true;
+
+    // error check
+    if ( NULL == pp_actual ) return false;
+
+    // iterate through each element
+    for (size_t i = 0; pp_expected[i]; i++)
+
+        // test
+        if ( pp_expected[i] != pp_actual[i] ) match = false;
+
+    // release the elements
+    pp_actual = default_allocator(pp_actual, 0);
+
+    // done
+    return match;
+}
+
+bool slice_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+    
+    // unused
+    (void) p_subject;
+    (void) p_result;
+
+    // initialized data
+    void   **pp_expected = p_scenario->p_data;
+    void   **pp_actual   = p_case->p_out;
+    size_t   bounds      = (size_t)p_case->p_parameters;
+    signed   lower       = (signed)(bounds >> 32);
+    signed   upper       = (signed)(bounds & 0xFFFFFFFF);
+    bool     match       = true;
+
+    // error check
+    if ( NULL == pp_actual ) return false;
+
+    // iterate through each element
+    for (signed i = 0; i <= upper - lower; i++)
+
+        // test
+        if ( pp_expected[lower + i] != pp_actual[i] ) match = false;
+
+    // release the elements
+    pp_actual = default_allocator(pp_actual, 0);
+
+    // done
+    return match;
+}
+
+void *destruct_array ( void *p_pointer, unsigned long long size )
+{
+
+    // unused
+    (void) size;
+
+    // initialized data
+    array *p_array = (array *)p_pointer;
+
+    // release the array
+    array_destroy(&p_array, NULL);
+
+    // success
+    return NULL;
 }

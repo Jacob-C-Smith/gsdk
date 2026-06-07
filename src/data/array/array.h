@@ -1,7 +1,7 @@
 ﻿/** !
  * Include header for array library
  * 
- * @file array/array.h 
+ * @file src/data/array/array.h 
  * 
  * @author Jacob Smith
  */
@@ -203,9 +203,9 @@ iterator array_iterator ( array *p_array );
 /** !
  * Pack an array into a buffer
  * 
- * @param p_stream     the stream
- * @param p_array      the array
- * @param pfn_elemenet pointer to pack function IF not null ELSE default
+ * @param p_stream    the stream
+ * @param p_array     the array
+ * @param pfn_element pointer to pack function IF not null ELSE default
  * 
  * @return 1 on success, 0 on error
  */
@@ -214,9 +214,9 @@ int array_pack ( stream *p_stream, array *p_array, fn_pack *pfn_element );
 /** !
  * Unpack a buffer into an array
  * 
- * @param pp_array     result
- * @param p_stream     the stream
- * @param pfn_elemenet pointer to unpack function IF not null ELSE default
+ * @param pp_array    result
+ * @param p_stream    the stream
+ * @param pfn_element pointer to unpack function IF not null ELSE default
  * 
  * @return 1 on success, 0 on error
  */
@@ -229,7 +229,7 @@ int array_unpack ( array **pp_array, stream *p_stream, fn_unpack *pfn_element );
  * @param p_array     the array
  * @param pfn_element hashing function applied to each element
  * 
- * @return hash on success, NULL on error
+ * @return 64-bit hash on success, 0 on error
  */
 hash64 array_hash ( array *p_array, fn_hash64 *pfn_element );
 
