@@ -34,15 +34,15 @@ int queue_create ( queue **const pp_queue )
 {
 
 	// argument check
-	if ( pp_queue == (void *) 0 ) goto no_queue;
+	if ( NULL == pp_queue ) goto no_queue;
 
 	// initialized data
 	queue *ret = default_allocator(0, sizeof(queue));
 
 	// error check
-	if ( ret == (void *)0 ) goto no_mem;
+	if ( NULL == ret ) goto no_mem;
 
-	// Zero set
+	// zero set
 	memset(ret, 0, sizeof(queue));
 
 	// return the queue
@@ -82,19 +82,19 @@ int queue_construct ( queue **const pp_queue )
 {
 
 	// argument check
-	if ( pp_queue == (void *) 0 ) goto no_queue;
+	if ( NULL == pp_queue ) goto no_queue;
 
 	// initialized data
 	queue *p_queue = 0;
 
-	// allocate for a queue
-	if ( queue_create(pp_queue) == 0 ) goto failed_to_create_queue;
+	// allocate a queue
+	if ( 0 == queue_create(&p_queue) ) goto failed_to_create_queue;
 
-	// Get a pointer to the allocated memory
-	p_queue = *pp_queue;
+	// construct a mutex
+    if ( 0 == mutex_create(&p_queue->_lock) ) goto failed_to_create_mutex;
 
-	// Create a mutex
-    if ( mutex_create(&p_queue->_lock) == 0 ) goto failed_to_create_mutex;
+	// return a pointer to the caller
+	*pp_queue = p_queue;
 
 	// success
 	return 1;
@@ -113,7 +113,7 @@ int queue_construct ( queue **const pp_queue )
 				return 0;
 		}
 
-		// Queue errors
+		// queue errors
 		{
 			failed_to_create_queue:
 				#ifndef NDEBUG
@@ -138,9 +138,9 @@ int queue_from_contents ( queue **const pp_queue, void* const* const pp_contents
 {
 
 	// argument check
-	if ( pp_queue    == (void *) 0 ) goto no_queue;
-	if ( pp_contents == (void *) 0 ) goto no_queue_contents;
-	if ( size        ==          0 ) goto no_queue_contents;
+	if ( NULL ==    pp_queue ) goto no_queue;
+	if ( NULL == pp_contents ) goto no_queue_contents;
+	if ( 0    ==        size ) goto no_queue_contents;
 
 	// Construct a queue
 	if ( queue_construct(pp_queue) == 0 ) goto failed_to_construct_queue;
@@ -178,7 +178,7 @@ int queue_from_contents ( queue **const pp_queue, void* const* const pp_contents
 				return 0;
 		}
 
-		// Queue errors
+		// queue errors
 		{
 			failed_to_construct_queue:
 				#ifndef NDEBUG
@@ -195,7 +195,7 @@ int queue_front ( queue *const p_queue, void ** const pp_value )
 {
 
 	// argument check
-	if ( p_queue == (void *) 0 ) goto no_queue;
+	if ( NULL == p_queue ) goto no_queue;
 
 	// lock
 	mutex_lock(&p_queue->_lock);
@@ -244,7 +244,7 @@ int queue_rear ( queue *const p_queue, void **const pp_value )
 {
 
 	// argument check
-	if ( p_queue == (void *) 0 ) goto no_queue;
+	if ( NULL == p_queue ) goto no_queue;
 	
 	// lock
 	mutex_lock(&p_queue->_lock);
@@ -293,7 +293,7 @@ int queue_enqueue ( queue *const p_queue, void *const data )
 {
 
 	// argument check
-	if ( p_queue == (void *) 0 ) goto no_queue;
+	if ( NULL == p_queue ) goto no_queue;
 
 	// lock
 	mutex_lock(&p_queue->_lock);
@@ -303,7 +303,7 @@ int queue_enqueue ( queue *const p_queue, void *const data )
 	                    *r = default_allocator(0, sizeof(struct queue_node_s));
 	
 	// error check
-	if ( r == (void *) 0 ) goto no_mem;
+	if ( NULL == r ) goto no_mem;
 
 	// zero set
 	memset(r, 0, sizeof(struct queue_node_s));
@@ -370,7 +370,7 @@ int queue_dequeue ( queue *const p_queue, void **const pp_value )
 {
 	
 	// argument check
-	if ( p_queue == (void *) 0 ) goto no_queue;
+	if ( NULL == p_queue ) goto no_queue;
 	
 	// lock
 	mutex_lock(&p_queue->_lock);
@@ -421,11 +421,9 @@ int queue_dequeue ( queue *const p_queue, void **const pp_value )
 				return 0;
 		}
 
-		// Queue errors
+		// queue errors
 		{
 			queue_empty:
-
-				// No output...
 				
 				// unlock
 				mutex_unlock(&p_queue->_lock);
@@ -440,7 +438,7 @@ bool queue_empty ( queue *const p_queue )
 {
 	
 	// argument check
-	if ( p_queue == (void *)0 ) goto no_queue;
+	if ( NULL == p_queue ) goto no_queue;
 
 	// lock
 	mutex_lock(&p_queue->_lock);
@@ -474,7 +472,7 @@ bool queue_size ( queue *const p_queue )
 {
 	
 	// argument check
-	if ( p_queue == (void *)0 ) goto no_queue;
+	if ( NULL == p_queue ) goto no_queue;
 
 	// lock
 	mutex_lock(&p_queue->_lock);
@@ -603,9 +601,9 @@ int queue_pack ( stream *p_stream, queue *p_queue, fn_pack *pfn_element )
 {
     
     // argument check
-    if ( p_queue     == (void *) 0 ) goto no_queue;
-    if ( p_stream    == (void *) 0 ) return 0;
-    if ( pfn_element == (void *) 0 ) return 0;
+    if ( NULL ==      p_queue ) goto no_queue;
+    if ( NULL ==     p_stream ) goto no_stream;
+    if ( NULL ==  pfn_element ) goto no_element;
 
     // initialized data 
     size_t written = 0;
@@ -647,6 +645,22 @@ int queue_pack ( stream *p_stream, queue *p_queue, fn_pack *pfn_element )
 
                 // error
                 return 0;
+
+			no_stream:
+                #ifndef NDEBUG
+                    log_error("[queue] Null pointer provided for \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+			no_element:
+                #ifndef NDEBUG
+                    log_error("[queue] Null pointer provided for \"pfn_element\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
         }
     }
 }
@@ -655,9 +669,9 @@ int queue_unpack ( queue **pp_queue, stream *p_stream, fn_unpack *pfn_element )
 {
     
     // argument check
-    if ( pp_queue    == (void *) 0 ) goto no_queue;
-    if ( p_stream    == (void *) 0 ) return 0;
-    if ( pfn_element == (void *) 0 ) return 0;
+    if ( NULL ==    pp_queue ) goto no_queue;
+    if ( NULL ==    p_stream ) goto no_stream;
+    if ( NULL == pfn_element ) goto no_unpack;
 
     // initialized data
     queue *p_queue = NULL;
@@ -702,6 +716,22 @@ int queue_unpack ( queue **pp_queue, stream *p_stream, fn_unpack *pfn_element )
 
                 // error
                 return 0;
+			
+			no_stream:
+                #ifndef NDEBUG
+                    log_error("[queue] Null pointer provided for \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+			no_unpack:
+                #ifndef NDEBUG
+                    log_error("[queue] Null pointer provided for \"pfn_element\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
         }
     }
 }
@@ -710,8 +740,8 @@ hash64 queue_hash ( queue *p_queue, fn_hash64 *pfn_element )
 {
 
     // argument check
-    if ( p_queue == (void *) 0 ) goto no_queue;
-    if ( pfn_element == (void *) 0 ) goto no_pfn_element;
+    if ( NULL ==     p_queue ) goto no_queue;
+    if ( NULL == pfn_element ) goto no_pfn_element;
 
     // initialized data
     hash64 result = 0;
@@ -762,11 +792,11 @@ hash64 queue_hash ( queue *p_queue, fn_hash64 *pfn_element )
     }
 }
 
-int queue_destroy ( queue **const pp_queue )
+int queue_destroy ( queue **const pp_queue, fn_allocator *pfn_allocator )
 {
 
 	// argument check
-	if ( pp_queue == (void *) 0 ) goto no_queue;
+	if ( NULL == pp_queue ) goto no_queue;
 
 	// initialized data
 	queue *p_queue = *pp_queue;
@@ -774,13 +804,31 @@ int queue_destroy ( queue **const pp_queue )
 	// lock
 	mutex_lock(&p_queue->_lock);
 
-	// No more queue for end user
+	// no more queue for end user
 	*pp_queue = 0;
+
+	// release elements
+	while ( p_queue->front )
+	{
+
+		// initialized data
+		struct queue_node_s *p_element = p_queue->front;
+
+		// release the element data
+		if ( pfn_allocator )
+			p_element->content = pfn_allocator(p_element->content, 0);
+
+		// step
+		p_queue->front = p_queue->front->next;
+
+		// release the element
+		p_element = default_allocator(p_element, 0);
+	}
 
 	// unlock
 	mutex_unlock(&p_queue->_lock);
 
-	// Free the memory
+	// release the queue
 	p_queue = default_allocator(p_queue, 0);
 		
 	// success

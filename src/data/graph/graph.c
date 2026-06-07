@@ -368,7 +368,7 @@ int graph_algorithm_bfs
     }
 
     // destroy the queue
-    queue_destroy(&p_queue);
+    queue_destroy(&p_queue, NULL);
 
     // destroy the hash table
     hash_table_destroy(&p_visited, NULL);
@@ -433,7 +433,7 @@ int graph_algorithm_bfs
                 #endif
 
                 // destroy the queue and hash table
-                if ( p_queue )   queue_destroy(&p_queue);
+                if ( p_queue )   queue_destroy(&p_queue, NULL);
                 if ( p_visited ) hash_table_destroy(&p_visited, NULL);
 
                 // error
@@ -445,7 +445,7 @@ int graph_algorithm_bfs
                 #endif
 
                 // destroy the queue and hash table
-                if ( p_queue )   queue_destroy(&p_queue);
+                if ( p_queue )   queue_destroy(&p_queue, NULL);
                 if ( p_visited ) hash_table_destroy(&p_visited, NULL);
 
                 // error
@@ -460,7 +460,7 @@ int graph_algorithm_bfs
                 #endif
 
                 // destroy the queue
-                if ( p_queue ) queue_destroy(&p_queue);
+                if ( p_queue ) queue_destroy(&p_queue, NULL);
 
                 // error
                 return 0;
@@ -471,7 +471,7 @@ int graph_algorithm_bfs
                 #endif
 
                 // destroy the queue and hash table
-                if ( p_queue )   queue_destroy(&p_queue);
+                if ( p_queue )   queue_destroy(&p_queue, NULL);
                 if ( p_visited ) hash_table_destroy(&p_visited, NULL);
 
                 // error

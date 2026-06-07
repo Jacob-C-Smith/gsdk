@@ -170,8 +170,9 @@ hash64 queue_hash ( queue *p_queue, fn_hash64 *pfn_element );
 /** !
  *  Destroy and deallocate a queue
  *
- * @param pp_queue the queue
+ * @param pp_queue      the queue
+ * @param pfn_allocator pointer to allocator function IF NOT NULL ELSE unused
  *
  * @return 1 on success, 0 on error
  */
-int queue_destroy ( queue **const pp_queue );
+int queue_destroy ( queue **const pp_queue, fn_allocator *pfn_allocator );
