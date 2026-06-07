@@ -1,7 +1,7 @@
 /** !
- * Include header for stack library
+ * stack interface
  * 
- * @file core/stack.h 
+ * @file src/data/stack/stack.h 
  * 
  * @author Jacob Smith 
  */
@@ -33,8 +33,7 @@ typedef struct stack_s stack;
  * Construct a stack of a specified size
  * 
  * @param pp_stack result
- * 
- * @sa stack_destroy
+ * @param size     the capacity of the stack
  * 
  * @return 1 on success, 0 on error
 */
@@ -47,8 +46,6 @@ int stack_construct ( stack **const pp_stack, size_t size );
  * @param p_stack the stack
  * @param p_value the value
  * 
- * @sa stack_pop
- * 
  * @return 1 on success, 0 on error
 */
 int stack_push ( stack *const p_stack, void *const p_value );
@@ -57,9 +54,7 @@ int stack_push ( stack *const p_stack, void *const p_value );
  * Pop a value off a stack
  * 
  * @param p_stack the stack
- * @param ret result
- * 
- * @sa stack_push
+ * @param ret     result
  * 
  * @return 1 on success, 0 on error
 */
@@ -80,8 +75,6 @@ bool stack_is_empty ( stack *const p_stack );
  * 
  * @param p_stack the stack
  * @param ret     result
- * 
- * @sa stack_pop
  * 
  * @return 1 on success, 0 on error
 */
@@ -113,7 +106,7 @@ iterator stack_iterator ( stack *p_stack );
  * 
  * @param p_stream     the stream
  * @param p_stack      the stack
- * @param pfn_elemenet pointer to pack function IF not null ELSE default
+ * @param pfn_element  pointer to pack function IF not null ELSE default
  * 
  * @return bytes written on success, 0 on error
  */
@@ -124,7 +117,7 @@ int stack_pack ( stream *p_stream, stack *p_stack, fn_pack *pfn_element );
  * 
  * @param pp_stack     result
  * @param p_stream     the stream
- * @param pfn_elemenet pointer to unpack function IF not null ELSE default
+ * @param pfn_element  pointer to unpack function IF not null ELSE default
  * 
  * @return bytes read on success, 0 on error
  */
@@ -134,20 +127,20 @@ int stack_unpack ( stack **pp_stack, stream *p_stream, fn_unpack *pfn_element );
 /** !
  * Compute a 64-bit hash of a stack
  * 
- * @param p_stack
+ * @param p_stack     the stack
+ * @param pfn_element the element hashing function
  * 
- * @return hash on success, NULL on error
+ * @return hash on success, 0 on error
  */
 hash64 stack_hash ( stack *p_stack, fn_hash64 *pfn_element );
 
 /// destructors
 /** !
- * Deallocate a stack
+ * Release a stack
  * 
- * @param pp_stack pointer to stack pointer
- * 
- * @sa stack_construct
+ * @param pp_stack      pointer to stack pointer
+ * @param pfn_allocator pointer to allocator function IF NOT NULL ELSE unused
  * 
  * @return 1 on success, 0 on error
 */
-int stack_destroy ( stack **const pp_stack );
+int stack_destroy ( stack **const pp_stack, fn_allocator *pfn_allocator );

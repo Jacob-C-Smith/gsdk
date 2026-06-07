@@ -133,10 +133,10 @@ int main ( int argc, const char* argv[] )
         // open a file for writing
         stream_from_path(&p_stream, "resources/reflection/stack.bin");
 
-        // reflect the stack to a buffer
+        // reflect the stack to a stream
         stack_pack(p_stream, p_stack, string_pack);
         
-        // close the file
+        // close the stream
         stream_destroy(&p_stream);
 
         // checkpoint
@@ -186,7 +186,7 @@ int main ( int argc, const char* argv[] )
     {
 
         // destroy the stack
-	    stack_destroy(&p_stack);
+	    stack_destroy(&p_stack, NULL);
         
         // checkpoint
         checkpoint(p_stack, "after destroy");
@@ -204,6 +204,7 @@ int main ( int argc, const char* argv[] )
         // reflect an stack from the buffer
         stack_unpack(&p_stack, p_stream, string_unpack);
 
+        // release the stream
         stream_destroy(&p_stream);
 
         // checkpoint
@@ -227,7 +228,17 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_stack, "after hash 2");
     }
 
-    // #12 - end
+    // #12 - destroy
+    {
+
+        // destroy the stack
+	    stack_destroy(&p_stack, default_allocator);
+        
+        // checkpoint
+        checkpoint(p_stack, "after destroy");
+    }
+
+    // #13 - end
     checkpoint(p_stack, "end");
     
     // success
@@ -304,7 +315,7 @@ int string_unpack ( void *const p_value, stream *p_stream )
     char       **pp_value        = (char **) p_value;
     int          result          = 0;
     char        *p_string        = NULL;
-    const char   _string  [1024] = { 0 };
+    char         _string  [1024] = { 0 };
 
     // unpack the buffer
     result = pack_unpack(p_stream, "%s", &_string);

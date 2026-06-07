@@ -1,17 +1,13 @@
 /** !
- * stack library
+ * stack implementation
  * 
- * @file src/core/stack/stack.c 
+ * @file src/data/stack/stack.c 
  * 
  * @author Jacob Smith
  */
 
 // header
 #include <data/stack.h>
-
-fn_it_done stack_iterator_done;
-fn_it_next stack_iterator_next;
-fn_it_item stack_iterator_item;
 
 // structure declarations
 struct stack_s
@@ -23,17 +19,23 @@ struct stack_s
 };
 
 // function definitions
+static fn_it_done stack_iterator_done;
+static fn_it_next stack_iterator_next;
+static fn_it_item stack_iterator_item;
+
+// function definitions
 int stack_construct ( stack **const pp_stack, size_t size )
 {
 
 	// argument check
-	if ( pp_stack == (void *) 0 ) goto no_stack;
-	if ( size < 1 ) goto no_size;
+	if ( NULL == pp_stack ) goto no_stack;
+	if ( size <         1 ) goto no_size;
 
 	// initialized data
-	stack *p_stack = default_allocator(NULL, sizeof(stack) + ( size * sizeof(void *) ) );
+	stack *p_stack = NULL;
 
 	// allocate a stack
+	p_stack = default_allocator(NULL, sizeof(stack) + ( size * sizeof(void *) ) );
 	if ( NULL == p_stack ) goto no_mem;
 
 	// initialize
@@ -43,7 +45,7 @@ int stack_construct ( stack **const pp_stack, size_t size )
 	p_stack->size = size;
 
 	// create a lock
-    if ( mutex_create(&p_stack->_lock) == 0 ) goto failed_to_mutex_create;
+    if ( 0 == mutex_create(&p_stack->_lock) ) goto failed_to_mutex_create;
 
 	// return a pointer to the caller
 	*pp_stack = p_stack;
@@ -88,7 +90,7 @@ int stack_construct ( stack **const pp_stack, size_t size )
 		{
 			no_mem:
 				#ifndef NDEBUG
-					log_error("[standard library] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
+					log_error("[stack] Failed to allocate memory in call to function \"%s\"\n", __FUNCTION__);
 				#endif
 
 				// error
@@ -101,14 +103,14 @@ int stack_push ( stack *const p_stack, void *const p_value )
 {
 
 	// argument check
-	if ( p_stack == (void *) 0 ) goto no_stack;
-	if ( p_value == (void *) 0 ) goto no_value;
-
-	// error checking
-	if ( p_stack->size == p_stack->offset ) goto stack_overflow;
+	if ( NULL == p_stack ) goto no_stack;
+	if ( NULL == p_value ) goto no_value;
 
 	// lock
     mutex_lock(&p_stack->_lock);
+
+	// error checking
+	if ( p_stack->size == p_stack->offset ) goto stack_overflow;
 
 	// push the data onto the stack
 	p_stack->_p_data[p_stack->offset++] = p_value;
@@ -146,8 +148,11 @@ int stack_push ( stack *const p_stack, void *const p_value )
 		{
 			stack_overflow:
 				#ifndef NDEBUG
-					log_error("[stack] Stack overflow!\n");
+					log_error("[stack] Stack overflow in call to function \"%s\"\n", __FUNCTION__);
 				#endif
+
+				// unlock
+				mutex_unlock(&p_stack->_lock);
 
 				// error
 				return 0;
@@ -159,7 +164,7 @@ bool stack_is_empty ( stack *const p_stack )
 {
 
     // argument check
-    if ( p_stack == (void *) 0 ) return true;
+    if ( NULL == p_stack ) return true;
 
     // lock
     mutex_lock(&p_stack->_lock);
@@ -178,25 +183,29 @@ int stack_pop ( stack *const p_stack, void **const ret )
 {
 
 	// argument check
-	if ( p_stack == (void *) 0 ) goto no_stack;
-
-	// error checking
-	if ( p_stack->offset < 1 ) goto stack_underflow;
+	if ( NULL == p_stack ) goto no_stack;
 
 	// lock
 	mutex_lock(&p_stack->_lock);
 
+	// error check
+	if ( p_stack->offset < 1 ) goto stack_underflow;
+
 	// return the value to the caller
 	if ( ret )
+	{
 
 		// pop the stack and write the result
-		*ret = p_stack->_p_data[--p_stack->offset],
+		*ret = p_stack->_p_data[--p_stack->offset];
 		p_stack->_p_data[p_stack->offset] = NULL;
+	}
 	
 	// don't return a value to the caller
 	else
-		--p_stack->offset,
+	{
+		--p_stack->offset;
 		p_stack->_p_data[p_stack->offset] = NULL;
+	}
 
 	// unlock
 	mutex_unlock(&p_stack->_lock);
@@ -211,8 +220,11 @@ int stack_pop ( stack *const p_stack, void **const ret )
 		{
 			stack_underflow:
 				#ifndef NDEBUG
-					log_error("[stack] Stack Underflow!\n");
+					log_error("[stack] Stack Underflow in call to function \"%s\"\n", __FUNCTION__);
 				#endif
+
+				// unlock
+				mutex_unlock(&p_stack->_lock);
 
 				// error
 				return 0;
@@ -235,14 +247,14 @@ int stack_peek ( stack *p_stack, void **ret )
 {
 
 	// argument check
-	if ( p_stack == (void *) 0 ) goto no_stack;
-	if ( ret     == (void *) 0 ) goto no_ret;
-
-	// error checking
-	if ( p_stack->offset < 1 ) goto stack_underflow;
+	if ( NULL == p_stack ) goto no_stack;
+	if ( NULL ==     ret ) goto no_ret;
 
 	// lock
 	mutex_lock(&p_stack->_lock);
+
+	// error checking
+	if ( p_stack->offset < 1 ) goto stack_underflow;
 
 	// peek the stack and write the result
 	*ret = p_stack->_p_data[p_stack->offset-1];
@@ -260,8 +272,11 @@ int stack_peek ( stack *p_stack, void **ret )
 		{
 			stack_underflow:
 				#ifndef NDEBUG
-					log_error("[stack] Stack Underflow!\n");
+					log_error("[stack] Stack Underflow in call to function \"%s\"\n", __FUNCTION__);
 				#endif
+
+				// unlock
+				mutex_unlock(&p_stack->_lock);
 
 				// error
 				return 0;
@@ -292,7 +307,7 @@ int stack_fori ( stack *p_stack, fn_fori *pfn_fori )
 {
 
     // argument check
-    if ( NULL == p_stack  ) goto no_stack;
+    if ( NULL ==  p_stack ) goto no_stack;
     if ( NULL == pfn_fori ) goto no_fn_fori;
 
     // lock
@@ -302,7 +317,7 @@ int stack_fori ( stack *p_stack, fn_fori *pfn_fori )
     for (size_t i = 0; i < p_stack->offset; i++)
         
         // call the function (casting away const as the interface expects non-const)
-        pfn_fori((void *)p_stack->_p_data[i], i);
+        pfn_fori((void *)p_stack->_p_data[i], (int)i);
 
     // unlock
     mutex_unlock(&p_stack->_lock);
@@ -348,14 +363,14 @@ iterator stack_iterator ( stack *p_stack )
     };
 }
 
-bool stack_iterator_done ( iterator *p_iterator ) 
+static bool stack_iterator_done ( iterator *p_iterator ) 
 {
 
     // done?
     return ((size_t)p_iterator->state.p_state) >= ((stack *) p_iterator->p_data)->offset; 
 }
 
-void stack_iterator_next ( iterator *p_iterator ) 
+static void stack_iterator_next ( iterator *p_iterator ) 
 {
 
     // update the state
@@ -365,7 +380,7 @@ void stack_iterator_next ( iterator *p_iterator )
     return;
 }
 
-void *stack_iterator_item ( iterator *p_iterator ) 
+static void *stack_iterator_item ( iterator *p_iterator ) 
 {
 
     // done
@@ -376,9 +391,9 @@ int stack_pack ( stream *p_stream, stack *p_stack, fn_pack *pfn_element )
 {
     
     // argument check
-    if ( p_stack     == (void *) 0 ) goto no_stack;
-    if ( p_stream    == (void *) 0 ) return 0;
-    if ( pfn_element == (void *) 0 ) return 0;
+    if ( NULL ==    p_stream ) goto no_stream;
+    if ( NULL ==     p_stack ) goto no_stack;
+    if ( NULL == pfn_element ) goto no_pack;
 
     // initialized data 
     size_t written = 0;
@@ -402,7 +417,7 @@ int stack_pack ( stream *p_stream, stack *p_stack, fn_pack *pfn_element )
     mutex_unlock(&p_stack->_lock);
 
     // success
-    return written;
+    return (int)written;
 
     // error handling
     {
@@ -416,6 +431,22 @@ int stack_pack ( stream *p_stream, stack *p_stack, fn_pack *pfn_element )
 
                 // error
                 return 0;
+
+			no_stream:
+                #ifndef NDEBUG
+                    log_error("[stack] Null pointer provided for \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+
+			no_pack:
+                #ifndef NDEBUG
+                    log_error("[stack] Null pointer provided for \"pfn_element\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
         }
     }
 }
@@ -424,21 +455,21 @@ int stack_unpack ( stack **pp_stack, stream *p_stream, fn_unpack *pfn_element )
 {
     
     // argument check
-    if ( pp_stack    == (void *) 0 ) goto no_stack;
-    if ( p_stream    == (void *) 0 ) return 0;
-    if ( pfn_element == (void *) 0 ) return 0;
+    if ( NULL ==    pp_stack ) goto no_stack;
+    if ( NULL ==    p_stream ) goto no_stream;
+    if ( NULL == pfn_element ) goto no_unpack;
 
     // initialized data
     stack *p_stack = NULL;
-    size_t written = 0;
-    size_t size = 0;
-    size_t off = 0;
+    size_t read    = 0;
+    size_t size    = 0;
+    size_t off     = 0;
 
     // unpack the size
-    written += pack_unpack(p_stream, "%i64", &size);
+    read += pack_unpack(p_stream, "%i64", &size);
 
     // unpack the offset
-    written += pack_unpack(p_stream, "%i64", &off);
+    read += pack_unpack(p_stream, "%i64", &off);
 
     // construct a stack
     stack_construct(&p_stack, size);
@@ -451,7 +482,7 @@ int stack_unpack ( stack **pp_stack, stream *p_stream, fn_unpack *pfn_element )
         void *p_element = NULL;
 
         // unpack the element
-        written += pfn_element(&p_element, p_stream);
+        read += pfn_element(&p_element, p_stream);
         
         // add the element to the stack
         stack_push(p_stack, p_element);
@@ -461,7 +492,7 @@ int stack_unpack ( stack **pp_stack, stream *p_stream, fn_unpack *pfn_element )
     *pp_stack = p_stack;
 
     // success
-    return written;
+    return (int)read;
     
     // error handling
     {
@@ -475,6 +506,22 @@ int stack_unpack ( stack **pp_stack, stream *p_stream, fn_unpack *pfn_element )
 
                 // error
                 return 0;
+			
+			no_stream:
+                #ifndef NDEBUG
+                    log_error("[stack] Null pointer provided for \"p_stream\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
+			
+			no_unpack:
+                #ifndef NDEBUG
+                    log_error("[stack] Null pointer provided for \"pfn_element\" in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // error
+                return 0;
         }
     }
 }
@@ -483,8 +530,11 @@ hash64 stack_hash ( stack *p_stack, fn_hash64 *pfn_element )
 {
 
     // argument check
-    if ( p_stack == (void *) 0 ) goto no_stack;
-    if ( pfn_element == (void *) 0 ) goto no_pfn_element;
+    if ( NULL ==     p_stack ) goto no_stack;
+    if ( NULL == pfn_element ) goto no_pfn_element;
+
+    // lock
+    mutex_lock(&p_stack->_lock);
 
     // initialized data
     hash64 result = 0;
@@ -492,6 +542,9 @@ hash64 stack_hash ( stack *p_stack, fn_hash64 *pfn_element )
     // iterate through each element in the stack
     for (size_t i = 0; i < p_stack->offset; i++)
         result ^= pfn_element(p_stack->_p_data[i], 8);
+
+    // unlock
+    mutex_unlock(&p_stack->_lock);
 
     // success
     return result;
@@ -520,31 +573,40 @@ hash64 stack_hash ( stack *p_stack, fn_hash64 *pfn_element )
     }
 }
 
-int stack_destroy ( stack **const pp_stack )
+int stack_destroy ( stack **const pp_stack, fn_allocator *pfn_allocator )
 {
 
 	// argument check
-	if ( pp_stack == (void *) 0 ) goto no_stack;
+	if ( NULL == pp_stack ) goto no_stack;
 
 	// initialized data
 	stack *p_stack = *pp_stack;
 
-	// error checking
-	if ( p_stack == (void *) 0 ) goto pointer_to_null_pointer;
+	// fast exit
+	if ( NULL == p_stack ) return 1;
 
 	// lock
     mutex_lock(&p_stack->_lock);
 
 	// no more pointer for caller
-	*pp_stack = 0;
+	*pp_stack = NULL;
 
 	// unlock
     mutex_unlock(&p_stack->_lock);
 
 	// destroy the mutex
     mutex_destroy(&p_stack->_lock);
-	
-	// free the stack
+
+	// release stack elements
+	if ( pfn_allocator )
+
+		// iterate through each element in the stack
+		for (size_t i = 0; i < p_stack->offset; i++)
+
+			// release the element
+			p_stack->_p_data[i] = pfn_allocator(p_stack->_p_data[i], 0);
+
+	// release the stack
 	p_stack = default_allocator(p_stack, 0);
 
 	// success
@@ -558,14 +620,6 @@ int stack_destroy ( stack **const pp_stack )
 			no_stack:
 				#ifndef NDEBUG
 					log_error("[stack] Null pointer provided for \"pp_stack\" in call to function \"%s\"\n", __FUNCTION__);
-				#endif
-
-				// error
-				return 0;
-
-			pointer_to_null_pointer:
-				#ifndef NDEBUG
-					log_error("[stack] Parameter \"pp_stack\" points to null pointer in call to function \"%s\"\n", __FUNCTION__);
 				#endif
 
 				// error

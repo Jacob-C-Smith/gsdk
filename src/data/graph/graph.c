@@ -564,7 +564,7 @@ int graph_algorithm_dfs
     }
 
     // destroy the stack 
-    stack_destroy(&p_stack);
+    stack_destroy(&p_stack, NULL);
 
     // destroy the hash table
     hash_table_destroy(&p_visited, NULL);
@@ -629,7 +629,7 @@ int graph_algorithm_dfs
                 #endif
 
                 // destroy the stack and hash table
-                if ( p_stack )   stack_destroy(&p_stack);
+                if ( p_stack )   stack_destroy(&p_stack, NULL);
                 if ( p_visited ) hash_table_destroy(&p_visited, NULL);
 
                 // error
@@ -644,7 +644,7 @@ int graph_algorithm_dfs
                 #endif
 
                 // destroy the stack
-                if ( p_stack ) stack_destroy(&p_stack);
+                if ( p_stack ) stack_destroy(&p_stack, NULL);
 
                 // error
                 return 0;
@@ -655,7 +655,7 @@ int graph_algorithm_dfs
                 #endif
 
                 // destroy the stack and hash table
-                if ( p_stack )   stack_destroy(&p_stack);
+                if ( p_stack )   stack_destroy(&p_stack, NULL);
                 if ( p_visited ) hash_table_destroy(&p_visited, NULL);
 
                 // error
