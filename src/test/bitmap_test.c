@@ -71,7 +71,7 @@ test_case _1_bit_test_cases[] =
 {
     TEST_MATCH("test 0" , test_test , (void *)0, test_results_match),
     TEST_CASE ("set 0"  , test_set  , (void *)0, TEST_RESULT_ONE),
-    TEST_CASE ("clear 0", test_clear, (void *)0, TEST_RESULT_ZERO),
+    TEST_CASE ("clear 0", test_clear, (void *)0, TEST_RESULT_ONE),
 };
 
 test_case _2_bit_test_cases[] = 
@@ -80,8 +80,8 @@ test_case _2_bit_test_cases[] =
     TEST_MATCH("test 1" , test_test , (void *)1, test_results_match),
     TEST_CASE ("set 0"  , test_set  , (void *)0, TEST_RESULT_ONE),
     TEST_CASE ("set 1"  , test_set  , (void *)1, TEST_RESULT_ONE),
-    TEST_CASE ("clear 0", test_clear, (void *)0, TEST_RESULT_ZERO),
-    TEST_CASE ("clear 1", test_clear, (void *)1, TEST_RESULT_ZERO),
+    TEST_CASE ("clear 0", test_clear, (void *)0, TEST_RESULT_ONE),
+    TEST_CASE ("clear 1", test_clear, (void *)1, TEST_RESULT_ONE),
 };
 
 test_case _3_bit_test_cases[] = 
@@ -92,9 +92,9 @@ test_case _3_bit_test_cases[] =
     TEST_CASE ("set 0"  , test_set  , (void *)0, TEST_RESULT_ONE),
     TEST_CASE ("set 1"  , test_set  , (void *)1, TEST_RESULT_ONE),
     TEST_CASE ("set 2"  , test_set  , (void *)2, TEST_RESULT_ONE),
-    TEST_CASE ("clear 0", test_clear, (void *)0, TEST_RESULT_ZERO),
-    TEST_CASE ("clear 1", test_clear, (void *)1, TEST_RESULT_ZERO),
-    TEST_CASE ("clear 2", test_clear, (void *)2, TEST_RESULT_ZERO),
+    TEST_CASE ("clear 0", test_clear, (void *)0, TEST_RESULT_ONE),
+    TEST_CASE ("clear 1", test_clear, (void *)1, TEST_RESULT_ONE),
+    TEST_CASE ("clear 2", test_clear, (void *)2, TEST_RESULT_ONE),
 };
 
 /// scenarios
