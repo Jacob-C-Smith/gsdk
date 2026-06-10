@@ -40,13 +40,13 @@ enum planet_e
 int checkpoint ( set *p_set, const char *name, const char *p_event );
 
 /// string
-void    string_print(void *p_string, size_t unused);
-int     string_compare ( const void *const p_a, const void *const p_b );
-void   *string_upper_case ( void *p_value );
-void   *string_lower_case ( void *p_value );
-hash64  string_hash ( const void *const string, unsigned long long unused );
-int     string_pack ( stream *p_stream, const void *const p_value );
-int     string_unpack ( void *const p_value, stream *p_stream );
+fn_foreach    string_print;
+fn_comparator string_compare;
+fn_map        string_upper_case;
+fn_map        string_lower_case;
+fn_hash64     string_hash;
+fn_pack       string_pack;
+fn_unpack     string_unpack;
  
 // data
 /// immutable planet strings
@@ -62,14 +62,9 @@ const char *_p_planets[PLANET_QUANTITY] =
     [NEPTUNE] = "Neptune"
 };
 
-/// file for reflection
-FILE   *p_f      = NULL;
-size_t  file_len = 0;
-
 /// hashes
 hash64 h1 = 0,
-       h2 = 0,
-       h3 = 0;
+       h2 = 0;
 
 /// working sets
 set *p_a            = NULL,
@@ -206,7 +201,7 @@ int main ( int argc, const char* argv[] )
     {
 
         // destroy
-        set_destroy(&p_difference);
+        set_destroy(&p_difference, NULL);
 
         // checkpoint
         checkpoint(p_difference, "A Δ B", "after destroy");
@@ -220,25 +215,6 @@ int main ( int argc, const char* argv[] )
 
         // checkpoint
         checkpoint(p_union, "A ∪ B", "after removing 'Mars'");
-    }
-
-    // #13 - hash 2
-    {
-
-        // hash the array
-        h2 = set_hash(p_union, (fn_hash64 *)string_hash);
-
-        // print the hash
-        printf("hash 2 -> 0x%llx\n", h2);
-
-        // error check
-        if ( h1 != h2 ) 
-
-            // abort
-            log_error("Error: hash 1 != hash 2\n"), exit(EXIT_FAILURE);
-
-        // checkpoint
-        checkpoint(p_union, "A ∪ B", "after hash 2");
     }
 
     // #14 - pop
@@ -275,30 +251,30 @@ int main ( int argc, const char* argv[] )
         checkpoint(p_difference, "A Δ B", "after parse");
     }
 
-    // #16 - hash 3
+    // #16 - hash 2
     {
 
         // hash the array
-        h3 = set_hash(p_difference, (fn_hash64 *)string_hash);
+        h2 = set_hash(p_difference, (fn_hash64 *)string_hash);
 
         // print the hash
-        printf("hash 3 -> 0x%llx\n", h3);
+        printf("hash 2 -> 0x%llx\n", h2);
 
         // error check
-        if ( h1 != h3 ) 
+        if ( h1 != h2 ) 
 
             // abort
-            log_error("Error: hash 1 != hash 3\n"), exit(EXIT_FAILURE);
+            log_error("Error: hash 1 != hash 2\n"), exit(EXIT_FAILURE);
 
         // checkpoint
-        checkpoint(p_difference, "A Δ B", "after hash 3");
+        checkpoint(p_difference, "A Δ B", "after hash 2");
     }
 
     // #17 - destroy A
     {
 
         // destroy
-        set_destroy(&p_a);
+        set_destroy(&p_a, NULL);
         
         // checkpoint
         checkpoint(p_a, "A", "after destroy");
@@ -308,7 +284,7 @@ int main ( int argc, const char* argv[] )
     {
 
         // destroy
-        set_destroy(&p_b);
+        set_destroy(&p_b, NULL);
         
         // checkpoint
         checkpoint(p_b, "B", "after destroy");
@@ -318,7 +294,7 @@ int main ( int argc, const char* argv[] )
     {
 
         // destroy
-        set_destroy(&p_union);
+        set_destroy(&p_union, NULL);
 
         // checkpoint
         checkpoint(p_union, "A ∪ B", "after destroy");
@@ -328,7 +304,7 @@ int main ( int argc, const char* argv[] )
     {
 
         // destroy
-        set_destroy(&p_intersection);
+        set_destroy(&p_intersection, NULL);
 
         // checkpoint
         checkpoint(p_intersection, "A ∩ B", "after destroy");
@@ -338,7 +314,7 @@ int main ( int argc, const char* argv[] )
     {
 
         // destroy
-        set_destroy(&p_difference);
+        set_destroy(&p_difference, default_allocator);
 
         // checkpoint
         checkpoint(p_difference, "A Δ B", "after destroy");
@@ -372,7 +348,7 @@ int checkpoint ( set *p_set, const char *name, const char *p_event )
 
         // iterate through the set
         for ( iterator it = set_iterator(p_set); !it.done(&it); it.next(&it) )
-            string_print(it.item(&it), i),
+            string_print(it.item(&it)),
             i++;
 
         // formatting
@@ -386,11 +362,8 @@ int checkpoint ( set *p_set, const char *name, const char *p_event )
     return 1;
 }
 
-void string_print ( void *const p_string, size_t unused )
+void string_print ( void *const p_string )
 {
-
-    // unused
-    (void) unused;
 
     // log
     printf("%s\n", (char *)p_string);

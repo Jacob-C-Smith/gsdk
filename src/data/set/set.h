@@ -1,7 +1,7 @@
 /** !
- * Include header for set library
+ * set interface
  * 
- * @file set/set.h 
+ * @file src/data/set/set.h 
  * 
  * @author Jacob Smith
  */
@@ -26,63 +26,59 @@
 struct set_s;
 
 // type definitions
-/** !
- *  @brief The type definition of a set struct
- */
 typedef struct set_s set;
 
 // function declarations
 /// constructors
 /** !
- *  Construct a set with a specific number of elements
+ * Construct a set with a specific number of elements
  *
- * @param pp_set       return
- * @param size         number of set elements. 
- * @param pfn_equality function for testing equality of elements in set IF parameter is not null ELSE default
- *
- * @return 1 on success, 0 on error
- */
-int set_construct ( set **const pp_set, size_t size, fn_equality *pfn_equality );
-
-/** !
- *  Construct a set from an array of elements
- *
- * @param pp_set       return
- * @param pp_elements  pointer to array of elements
- * @param size         quantity of elements in element parameter. 
- * @param pfn_equality function for testing equality of elements in set IF parameter is not null ELSE default
+ * @param pp_set         result
+ * @param size           quantity of elements
+ * @param pfn_comparator pointer to comparator function IF NOT NULL ELSE default
  *
  * @return 1 on success, 0 on error
  */
-int set_from_elements ( set **const pp_set, void **const pp_elements, size_t size, fn_equality *pfn_equality );
+int set_construct ( set **const pp_set, size_t size, fn_comparator *pfn_comparator );
 
 /** !
- *  Construct a set from the union of set A and set B
+ * Construct a set from an array of elements
  *
- * @param pp_set return
- * @param p_a    pointer to set A
- * @param p_b    pointer to set B
+ * @param pp_set         result
+ * @param pp_elements    pointer to array of elements
+ * @param size           quantity of elements 
+ * @param pfn_comparator pointer to comparator function IF NOT NULL ELSE default
+ *
+ * @return 1 on success, 0 on error
+ */
+int set_from_elements ( set **const pp_set, void **const pp_elements, size_t size, fn_comparator *pfn_comparator );
+
+/** !
+ * Construct a set from the union of set A and set B
+ *
+ * @param pp_set result
+ * @param p_a    set A
+ * @param p_b    set B
  *
  * @return 1 on success, 0 on error
  */
 int set_union ( set **const pp_set, const set *const p_a, const set *const p_b );
 
 /** !
- *  Construct a set from the difference of set A and set B
+ * Construct a set from the difference of set A and set B
  * 
- * @param pp_set return
+ * @param pp_set result
  * @param p_a    set A
  * @param p_b    set B
- * @param pfn_equality function for testing equality of elements in set IF parameter is not null ELSE default
  *
  * @return 1 on success, 0 on error
 */
 int set_difference ( set **const pp_set, const set *const p_a, const set *const p_b );
 
 /** !
- *  Construct a set from the intersection of set A and set B
+ * Construct a set from the intersection of set A and set B
  * 
- * @param pp_set return
+ * @param pp_set result
  * @param p_a    set A
  * @param p_b    set B
  *
@@ -92,7 +88,37 @@ int set_intersection ( set **const pp_set, const set *const p_a, const set *cons
 
 /// accessors
 /** !
- *  Return the quantity of elements in the set
+ * Test if set A and set B are disjoint
+ * 
+ * @param p_a set A
+ * @param p_b set B
+ * 
+ * @return true IF disjoint ELSE false
+ */
+bool set_isdisjoint ( const set *const p_a, const set *const p_b );
+
+/** !
+ * Test if set A is a subset of set B
+ * 
+ * @param p_a set A
+ * @param p_b set B
+ * 
+ * @return true IF A is a subset of B ELSE false
+ */
+bool set_issubset ( const set *const p_a, const set *const p_b );
+
+/** !
+ * Test if set A is a superset of set B
+ * 
+ * @param p_a set A
+ * @param p_b set B
+ * 
+ * @return true IF A is a superset of B ELSE false
+ */
+bool set_issuperset ( const set *const p_a, const set *const p_b );
+
+/** !
+ * Return the quantity of elements in the set
  * 
  * @param p_set the set
  * 
@@ -101,7 +127,7 @@ int set_intersection ( set **const pp_set, const set *const p_a, const set *cons
 size_t set_count ( const set *const p_set );
 
 /** !
- *  Get the contents of a set
+ * Get the contents of a set
  * 
  * @param p_set       the set
  * @param pp_contents the contents of the set
@@ -112,31 +138,45 @@ int set_contents ( set *const p_set, void **const pp_contents );
 
 // mutators
 /** !
- *  Add an element to a set. 
+ * Add an element to a set. 
  *
- * @param p_set   pointer to the set
- * @param p_value the element
+ * @param p_set     the set
+ * @param p_element the element
  *
  * @return 1 on success, 0 on error
  */
 int set_add ( set *const p_set, void *const p_element );
 
-// Remove and return an element from a set
+/** !
+ * Remove and return an element from a set
+ *
+ * @param p_set    the set
+ * @param pp_value result
+ *
+ * @return 1 on success, 0 on error
+ */
 int set_pop ( set *const p_set, void **const pp_value );
 
-// Remove an element from a set.
+/** !
+ * Remove an element from a set.
+ *  
+ * @param p_set     the set
+ * @param p_element the element
+ * 
+ * @return 1 on success, 0 on error
+ */
 int set_remove ( set *const p_set, void *const p_element );
 
 /// iterators
 /** !
- * Call function on every element in p_set
+ * Call function on every element in a set
  *
- * @param p_set set
- * @param function pointer to function of type void (*)(void *value, size_t index)
+ * @param p_set       the set
+ * @param pfn_foreach pointer to foreach function
  * 
  * @return 1 on success, 0 on error
  */
-int set_foreach_i ( set *const p_set, void (*function)(void *const value, size_t index) );
+int set_foreach ( set *const p_set, fn_foreach *pfn_foreach );
 
 /** !
  * Construct an iterator for a set
@@ -153,7 +193,7 @@ iterator set_iterator ( set *p_set );
  * 
  * @param p_stream     the stream
  * @param p_set        the set
- * @param pfn_elemenet pointer to pack function IF not null ELSE default
+ * @param pfn_elemenet pointer to pack function 
  * 
  * @return bytes written on success, 0 on error
  */
@@ -162,62 +202,34 @@ int set_pack ( stream *p_stream, set *p_set, fn_pack *pfn_element );
 /** !
  * Unpack a stream into a set
  * 
- * @param pp_set       result
- * @param p_stream     the stream
- * @param pfn_elemenet pointer to unpack function IF not null ELSE default
- * @param pfn_equality function for testing equality of elements in set IF parameter is not null ELSE default
+ * @param pp_set         result
+ * @param p_stream       the stream
+ * @param pfn_elemenet   pointer to unpack function
+ * @param pfn_comparator pointer to comparator function
  * 
  * @return bytes read on success, 0 on error
  */
-int set_unpack ( set **pp_set, stream *p_stream, fn_unpack *pfn_element, fn_equality *pfn_equality );
+int set_unpack ( set **pp_set, stream *p_stream, fn_unpack *pfn_element, fn_comparator *pfn_comparator );
 
 /// hash
 /** !
  * Compute a 64-bit hash of a set
  * 
  * @param p_set       the set
- * @param pfn_element hashing function applied to each element
+ * @param pfn_element pointer to hashing function IF NOT NULL ELSE default
  * 
- * @return hash on success, NULL on error
+ * @return hash on success, 0 on error
  */
 hash64 set_hash ( set *p_set, fn_hash64 *pfn_element );
 
 // destructors
 /** !
- *  Destroy and deallocate a set 
+ * Destroy and deallocate a set 
  *
- * @param pp_set pointer to a set pointer
+ * @param pp_set        pointer to set pointer
+ * @param pfn_allocator pointer to allocator function IF NOT NULL ELSE unused
  *
  * @return 1 on success, 0 on error
  */
-int set_destroy ( set **const pp_set );
+int set_destroy ( set **const pp_set, fn_allocator *pfn_allocator );
 
-// TODO: Test if set A and set B are disjoint
-// bool set_isdisjoint ( const set *const p_a, const set *const p_b );
-
-// TODO: Test if set A is a subset of set B
-// bool set_issubset ( const set *const p_a, const set *const p_b );
-
-// TODO: Test if set A is a superset of set B
-// bool set_issuperset ( const set *const p_a, const set *const p_b );
-
-// TODO: Remove all elements from a set
-// int set_clear ( set *const p_set );
-
-// TODO: Remove all elements from a set, and deallocate values with pfn_free_func
-// int set_free_clear ( set *const p_set, void (*pfn_free_func) );
-
-// TODO: Make a shallow copy of a set
-// int set_copy ( const set *const p_set, set **const pp_set );
-
-// TODO: Remove an element form an existing set
-// void set_discard ( set *const p_set, void *p_element );
-
-// TODO: Update an existing set with the difference of itself and another set 
-// int set_difference_update ( set *const p_a, const set *const p_b );
-
-// TODO: Update an existing set with the intersection of itself and another set 
-// int set_intersection_update ( set *const p_a, const set *const p_b );
-
-// TODO: Update an existing set with the union of itself and another set 
-// int set_update ( set *const p_a, const set *const p_b );
