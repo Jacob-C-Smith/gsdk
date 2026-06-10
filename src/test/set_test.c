@@ -1,1381 +1,1332 @@
 /** !
- * Tester for set module
+ * set tester
  * 
- * @file set_test.c
+ * @file src/test/set_test.c
  * 
  * @author Jacob Smith
  */
 
-// Include
+// standard library
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 // gsdk
 /// core
 #include <core/log.h>
+#include <core/sync.h>
+#include <core/test.h>
+
+/// data
 #include <data/set.h>
 
-// enumeration definitions
-enum result_e {
-    zero,
-    one,
-    match
+// preprocessor macros
+#define A_VALUE "A"
+#define B_VALUE "B"
+#define C_VALUE "C"
+#define D_VALUE "D"
+#define X_VALUE "X"
+
+// function declarations
+/// scenario constructors
+fn_scenario_constructor construct_empty;
+fn_scenario_constructor construct_A_removeA_empty;
+fn_scenario_constructor construct_B_removeB_empty;
+fn_scenario_constructor construct_C_removeC_empty;
+fn_scenario_constructor construct_empty_addA_A;
+fn_scenario_constructor construct_empty_addB_B;
+fn_scenario_constructor construct_empty_addC_C;
+fn_scenario_constructor construct_AB_removeB_A;
+fn_scenario_constructor construct_AB_removeA_B;
+fn_scenario_constructor construct_AC_removeC_A;
+fn_scenario_constructor construct_AC_removeA_C;
+fn_scenario_constructor construct_BC_removeB_C;
+fn_scenario_constructor construct_BC_removeC_B;
+fn_scenario_constructor construct_A_addB_AB; 
+fn_scenario_constructor construct_A_addC_AC; 
+fn_scenario_constructor construct_B_addA_AB; 
+fn_scenario_constructor construct_B_addC_BC; 
+fn_scenario_constructor construct_C_addB_BC; 
+fn_scenario_constructor construct_C_addA_AC; 
+fn_scenario_constructor construct_ABC_removeC_AB;
+fn_scenario_constructor construct_ABC_removeB_AC;
+fn_scenario_constructor construct_ABC_removeA_BC;
+fn_scenario_constructor construct_AB_addC_ABC;
+fn_scenario_constructor construct_AC_addB_ABC;
+fn_scenario_constructor construct_BC_addA_ABC;
+
+/// test cases
+fn_test_case test_add;
+fn_test_case test_remove;
+fn_test_case test_count;
+fn_test_case test_union;
+fn_test_case test_intersection;
+fn_test_case test_difference;
+fn_test_case test_issubset;
+fn_test_case test_issuperset;
+
+/// result evaluators
+fn_results_match remove_results_match;
+fn_results_match count_results_match;
+fn_results_match set_union_results_match;
+fn_results_match set_intersection_results_match;
+fn_results_match set_difference_results_match;
+fn_results_match set_subset_results_match;
+fn_results_match set_superset_results_match;
+
+/// allocators
+fn_allocator destruct_set;
+
+// data
+/// values
+const char *const _values   [] = { NULL };
+const char *const A_values  [] = { A_VALUE, NULL };
+const char *const B_values  [] = { B_VALUE, NULL };
+const char *const C_values  [] = { C_VALUE, NULL };
+const char *const AB_values [] = { A_VALUE, B_VALUE, NULL };
+const char *const BC_values [] = { B_VALUE, C_VALUE, NULL };
+const char *const AC_values [] = { A_VALUE, C_VALUE, NULL };
+const char *const ABC_values[] = { A_VALUE, B_VALUE, C_VALUE, NULL };
+
+// test
+/// cases
+test_case _empty_test_cases[] = 
+{
+    TEST_CASE ("add A"        , test_add         , A_VALUE   , TEST_RESULT_ONE),
+    TEST_CASE ("add B"        , test_add         , B_VALUE   , TEST_RESULT_ONE),
+    TEST_CASE ("add C"        , test_add         , C_VALUE   , TEST_RESULT_ONE),
+    TEST_CASE ("remove A"     , test_remove      , A_VALUE   , TEST_RESULT_ZERO),
+    TEST_CASE ("remove B"     , test_remove      , B_VALUE   , TEST_RESULT_ZERO),
+    TEST_CASE ("remove C"     , test_remove      , C_VALUE   , TEST_RESULT_ZERO),
+    TEST_MATCH("count"        , test_count       , NULL      , count_results_match),
+
+    TEST_MATCH("∪ { A }"      , test_union       , A_values  , set_union_results_match),
+    TEST_MATCH("∪ { B }"      , test_union       , B_values  , set_union_results_match),
+    TEST_MATCH("∪ { C }"      , test_union       , C_values  , set_union_results_match),
+    TEST_MATCH("∪ { A, B }"   , test_union       , AB_values , set_union_results_match),
+    TEST_MATCH("∪ { A, C }"   , test_union       , AC_values , set_union_results_match),
+    TEST_MATCH("∪ { B, C }"   , test_union       , BC_values , set_union_results_match),
+    TEST_MATCH("∪ { A, B, C }", test_union       , ABC_values, set_union_results_match),
+
+    TEST_MATCH("∩ { A }"      , test_intersection, A_values  , set_intersection_results_match),
+    TEST_MATCH("∩ { B }"      , test_intersection, B_values  , set_intersection_results_match),
+    TEST_MATCH("∩ { C }"      , test_intersection, C_values  , set_intersection_results_match),
+    TEST_MATCH("∩ { A, B }"   , test_intersection, AB_values , set_intersection_results_match),
+    TEST_MATCH("∩ { A, C }"   , test_intersection, AC_values , set_intersection_results_match),
+    TEST_MATCH("∩ { B, C }"   , test_intersection, BC_values , set_intersection_results_match),
+    TEST_MATCH("∩ { A, B, C }", test_intersection, ABC_values, set_intersection_results_match),
+
+    TEST_MATCH("Δ { A }"      , test_difference  , A_values  , set_difference_results_match),
+    TEST_MATCH("Δ { B }"      , test_difference  , B_values  , set_difference_results_match),
+    TEST_MATCH("Δ { C }"      , test_difference  , C_values  , set_difference_results_match),
+    TEST_MATCH("Δ { A, B }"   , test_difference  , AB_values , set_difference_results_match),
+    TEST_MATCH("Δ { A, C }"   , test_difference  , AC_values , set_difference_results_match),
+    TEST_MATCH("Δ { B, C }"   , test_difference  , BC_values , set_difference_results_match),
+    TEST_MATCH("Δ { A, B, C }", test_difference  , ABC_values, set_difference_results_match),
+
+    TEST_MATCH("⊂ { A }"      , test_issubset    , A_values  , set_subset_results_match),
+    TEST_MATCH("⊂ { B }"      , test_issubset    , B_values  , set_subset_results_match),
+    TEST_MATCH("⊂ { C }"      , test_issubset    , C_values  , set_subset_results_match),
+    TEST_MATCH("⊂ { A, B }"   , test_issubset    , AB_values , set_subset_results_match),
+    TEST_MATCH("⊂ { A, C }"   , test_issubset    , AC_values , set_subset_results_match),
+    TEST_MATCH("⊂ { B, C }"   , test_issubset    , BC_values , set_subset_results_match),
+    TEST_MATCH("⊂ { A, B, C }", test_issubset    , ABC_values, set_subset_results_match),
+
+    TEST_MATCH("⊃ { A }"      , test_issuperset  , A_values  , set_superset_results_match),
+    TEST_MATCH("⊃ { B }"      , test_issuperset  , B_values  , set_superset_results_match),
+    TEST_MATCH("⊃ { C }"      , test_issuperset  , C_values  , set_superset_results_match),
+    TEST_MATCH("⊃ { A, B }"   , test_issuperset  , AB_values , set_superset_results_match),
+    TEST_MATCH("⊃ { A, C }"   , test_issuperset  , AC_values , set_superset_results_match),
+    TEST_MATCH("⊃ { B, C }"   , test_issuperset  , BC_values , set_superset_results_match),
+    TEST_MATCH("⊃ { A, B, C }", test_issuperset  , ABC_values, set_superset_results_match),
 };
 
-// type definitions
-typedef enum result_e result_t;
+test_case _one_element_test_cases[] = 
+{
+    TEST_CASE ("add A"        , test_add         , A_VALUE   , TEST_RESULT_ONE),
+    TEST_CASE ("add B"        , test_add         , B_VALUE   , TEST_RESULT_ONE),
+    TEST_CASE ("add C"        , test_add         , C_VALUE   , TEST_RESULT_ONE),
+    TEST_MATCH("remove A"     , test_remove      , A_VALUE   , remove_results_match),
+    TEST_MATCH("remove B"     , test_remove      , B_VALUE   , remove_results_match),
+    TEST_MATCH("remove C"     , test_remove      , C_VALUE   , remove_results_match),
+    TEST_MATCH("count"        , test_count       , NULL      , count_results_match),
 
-// global variables
-int total_tests      = 0,
-    total_passes     = 0,
-    total_fails      = 0,
-    ephemeral_tests  = 0,
-    ephemeral_passes = 0,
-    ephemeral_fails  = 0;
+    TEST_MATCH("∪ { A }"      , test_union       , A_values  , set_union_results_match),
+    TEST_MATCH("∪ { B }"      , test_union       , B_values  , set_union_results_match),
+    TEST_MATCH("∪ { C }"      , test_union       , C_values  , set_union_results_match),
+    TEST_MATCH("∪ { A, B }"   , test_union       , AB_values , set_union_results_match),
+    TEST_MATCH("∪ { A, C }"   , test_union       , AC_values , set_union_results_match),
+    TEST_MATCH("∪ { B, C }"   , test_union       , BC_values , set_union_results_match),
+    TEST_MATCH("∪ { A, B, C }", test_union       , ABC_values, set_union_results_match),
 
-// Possible elements
-void  *A_element      = "A",
-      *B_element      = "B",
-      *C_element      = "C",
-      *D_element      = "D",
-      *X_element      = "X",
-      *_elements   [] = { 0x0 },
-      *A_elements  [] = { "A", 0x0 },
-      *B_elements  [] = { "B", 0x0 },
-      *C_elements  [] = { "C", 0x0 },
-      *AB_elements [] = { "A", "B", 0x0 },
-      *BC_elements [] = { "B", "C", 0x0 },
-      *AC_elements [] = { "A", "C", 0x0 },
-      *ABC_elements[] = { "A", "B", "C", 0x0 };
+    TEST_MATCH("∩ { A }"      , test_intersection, A_values  , set_intersection_results_match),
+    TEST_MATCH("∩ { B }"      , test_intersection, B_values  , set_intersection_results_match),
+    TEST_MATCH("∩ { C }"      , test_intersection, C_values  , set_intersection_results_match),
+    TEST_MATCH("∩ { A, B }"   , test_intersection, AB_values , set_intersection_results_match),
+    TEST_MATCH("∩ { A, C }"   , test_intersection, AC_values , set_intersection_results_match),
+    TEST_MATCH("∩ { B, C }"   , test_intersection, BC_values , set_intersection_results_match),
+    TEST_MATCH("∩ { A, B, C }", test_intersection, ABC_values, set_intersection_results_match),
 
-// forward declarations
-/** !
- * Print the time formatted in days, hours, minutes, seconds, miliseconds, microseconds
- * 
- * @param seconds the time in seconds
- * 
- * @return void
- */
-void print_time_pretty ( double seconds );
+    TEST_MATCH("Δ { A }"      , test_difference  , A_values  , set_difference_results_match),
+    TEST_MATCH("Δ { B }"      , test_difference  , B_values  , set_difference_results_match),
+    TEST_MATCH("Δ { C }"      , test_difference  , C_values  , set_difference_results_match),
+    TEST_MATCH("Δ { A, B }"   , test_difference  , AB_values , set_difference_results_match),
+    TEST_MATCH("Δ { A, C }"   , test_difference  , AC_values , set_difference_results_match),
+    TEST_MATCH("Δ { B, C }"   , test_difference  , BC_values , set_difference_results_match),
+    TEST_MATCH("Δ { A, B, C }", test_difference  , ABC_values, set_difference_results_match),
 
-/** !
- * Run all the tests
- * 
- * @param void
- * 
- * @return void
- */
-void run_tests ( void );
+    TEST_MATCH("⊂ { A }"      , test_issubset    , A_values  , set_subset_results_match),
+    TEST_MATCH("⊂ { B }"      , test_issubset    , B_values  , set_subset_results_match),
+    TEST_MATCH("⊂ { C }"      , test_issubset    , C_values  , set_subset_results_match),
+    TEST_MATCH("⊂ { A, B }"   , test_issubset    , AB_values , set_subset_results_match),
+    TEST_MATCH("⊂ { A, C }"   , test_issubset    , AC_values , set_subset_results_match),
+    TEST_MATCH("⊂ { B, C }"   , test_issubset    , BC_values , set_subset_results_match),
+    TEST_MATCH("⊂ { A, B, C }", test_issubset    , ABC_values, set_subset_results_match),
 
-/** !
- * Print a summary of the test scenario
- * 
- * @param void
- * 
- * @return void
- */
-void print_final_summary ( void );
+    TEST_MATCH("⊃ { A }"      , test_issuperset  , A_values  , set_superset_results_match),
+    TEST_MATCH("⊃ { B }"      , test_issuperset  , B_values  , set_superset_results_match),
+    TEST_MATCH("⊃ { C }"      , test_issuperset  , C_values  , set_superset_results_match),
+    TEST_MATCH("⊃ { A, B }"   , test_issuperset  , AB_values , set_superset_results_match),
+    TEST_MATCH("⊃ { A, C }"   , test_issuperset  , AC_values , set_superset_results_match),
+    TEST_MATCH("⊃ { B, C }"   , test_issuperset  , BC_values , set_superset_results_match),
+    TEST_MATCH("⊃ { A, B, C }", test_issuperset  , ABC_values, set_superset_results_match),
+};
 
-/** !
- * Print the result of a single test
- * 
- * @param scenario_name the name of the scenario
- * @param test_name     the name of the test
- * @param passed        true if test passes, false if test fails
- * 
- * @return void
- */
-void print_test ( const char *scenario_name, const char *test_name, bool passed );
+test_case _two_element_test_cases[] = 
+{
+    TEST_CASE ("add A"        , test_add         , A_VALUE   , TEST_RESULT_ONE),
+    TEST_CASE ("add B"        , test_add         , B_VALUE   , TEST_RESULT_ONE),
+    TEST_CASE ("add C"        , test_add         , C_VALUE   , TEST_RESULT_ONE),
+    TEST_MATCH("remove A"     , test_remove      , A_VALUE   , remove_results_match),
+    TEST_MATCH("remove B"     , test_remove      , B_VALUE   , remove_results_match),
+    TEST_MATCH("remove C"     , test_remove      , C_VALUE   , remove_results_match),
+    TEST_MATCH("count"        , test_count       , NULL      , count_results_match),
 
-/** !
- * Test the add function
- * 
- * @param set_constructor set constructor function
- * @param value             the value to add
- * @param expected          < zero | one | match > 
- * 
- * @return true if test passes, false if test fails
- */
-bool test_add ( void (*set_constructor)(set **), void *value , result_t expected );
+    TEST_MATCH("∪ { A }"      , test_union       , A_values  , set_union_results_match),
+    TEST_MATCH("∪ { B }"      , test_union       , B_values  , set_union_results_match),
+    TEST_MATCH("∪ { C }"      , test_union       , C_values  , set_union_results_match),
+    TEST_MATCH("∪ { A, B }"   , test_union       , AB_values , set_union_results_match),
+    TEST_MATCH("∪ { A, C }"   , test_union       , AC_values , set_union_results_match),
+    TEST_MATCH("∪ { B, C }"   , test_union       , BC_values , set_union_results_match),
+    TEST_MATCH("∪ { A, B, C }", test_union       , ABC_values, set_union_results_match),
 
-/** !
- * Test the count function
- * 
- * @param set_constructor set constructor function
- * @param count           expected size
- * @param expected        < zero | match > 
- * 
- * @return true if test passes, false if test fails
- */
-bool test_count ( void(*set_constructor)(set **pp_set), size_t count, result_t expected );
+    TEST_MATCH("∩ { A }"      , test_intersection, A_values  , set_intersection_results_match),
+    TEST_MATCH("∩ { B }"      , test_intersection, B_values  , set_intersection_results_match),
+    TEST_MATCH("∩ { C }"      , test_intersection, C_values  , set_intersection_results_match),
+    TEST_MATCH("∩ { A, B }"   , test_intersection, AB_values , set_intersection_results_match),
+    TEST_MATCH("∩ { A, C }"   , test_intersection, AC_values , set_intersection_results_match),
+    TEST_MATCH("∩ { B, C }"   , test_intersection, BC_values , set_intersection_results_match),
+    TEST_MATCH("∩ { A, B, C }", test_intersection, ABC_values, set_intersection_results_match),
 
-bool test_union ( void(*set_constructor)(set **pp_set), void(*set_constructor2)(set **pp_set), result_t expected );
+    TEST_MATCH("Δ { A }"      , test_difference  , A_values  , set_difference_results_match),
+    TEST_MATCH("Δ { B }"      , test_difference  , B_values  , set_difference_results_match),
+    TEST_MATCH("Δ { C }"      , test_difference  , C_values  , set_difference_results_match),
+    TEST_MATCH("Δ { A, B }"   , test_difference  , AB_values , set_difference_results_match),
+    TEST_MATCH("Δ { A, C }"   , test_difference  , AC_values , set_difference_results_match),
+    TEST_MATCH("Δ { B, C }"   , test_difference  , BC_values , set_difference_results_match),
+    TEST_MATCH("Δ { A, B, C }", test_difference  , ABC_values, set_difference_results_match),
 
-bool test_intersection ( void(*set_constructor)(set **pp_set), void(*set_constructor2)(set **pp_set), result_t expected );
+    TEST_MATCH("⊂ { A }"      , test_issubset    , A_values  , set_subset_results_match),
+    TEST_MATCH("⊂ { B }"      , test_issubset    , B_values  , set_subset_results_match),
+    TEST_MATCH("⊂ { C }"      , test_issubset    , C_values  , set_subset_results_match),
+    TEST_MATCH("⊂ { A, B }"   , test_issubset    , AB_values , set_subset_results_match),
+    TEST_MATCH("⊂ { A, C }"   , test_issubset    , AC_values , set_subset_results_match),
+    TEST_MATCH("⊂ { B, C }"   , test_issubset    , BC_values , set_subset_results_match),
+    TEST_MATCH("⊂ { A, B, C }", test_issubset    , ABC_values, set_subset_results_match),
 
-bool test_difference( void(*set_constructor)(set **pp_set), void(*set_constructor2)(set **pp_set), result_t expected );
+    TEST_MATCH("⊃ { A }"      , test_issuperset  , A_values  , set_superset_results_match),
+    TEST_MATCH("⊃ { B }"      , test_issuperset  , B_values  , set_superset_results_match),
+    TEST_MATCH("⊃ { C }"      , test_issuperset  , C_values  , set_superset_results_match),
+    TEST_MATCH("⊃ { A, B }"   , test_issuperset  , AB_values , set_superset_results_match),
+    TEST_MATCH("⊃ { A, C }"   , test_issuperset  , AC_values , set_superset_results_match),
+    TEST_MATCH("⊃ { B, C }"   , test_issuperset  , BC_values , set_superset_results_match),
+    TEST_MATCH("⊃ { A, B, C }", test_issuperset  , ABC_values, set_superset_results_match),
+};
 
-/** !
- * Test an set with no elements
- * 
- * @param set_constructor function to construct set
- * @param name              the name of the test
- * 
- * @return void
- */
-void test_empty_set ( void (*set_constructor)(set **), char *name );
+test_case _three_element_test_cases[] = 
+{
+    TEST_CASE ("add A"        , test_add         , A_VALUE   , TEST_RESULT_ONE),
+    TEST_CASE ("add B"        , test_add         , B_VALUE   , TEST_RESULT_ONE),
+    TEST_CASE ("add C"        , test_add         , C_VALUE   , TEST_RESULT_ONE),
+    TEST_MATCH("remove A"     , test_remove      , A_VALUE   , remove_results_match),
+    TEST_MATCH("remove B"     , test_remove      , B_VALUE   , remove_results_match),
+    TEST_MATCH("remove C"     , test_remove      , C_VALUE   , remove_results_match),
+    TEST_MATCH("count"        , test_count       , NULL      , count_results_match),
 
-/** !
- * Test an set with one element
- * 
- * @param set_constructor function to construct set
- * @param name              the name of the test
- * 
- * @return void
- */
-void test_one_element_set ( void (*set_constructor)(set **), char *name );
+    TEST_MATCH("∪ { A }"      , test_union       , A_values  , set_union_results_match),
+    TEST_MATCH("∪ { B }"      , test_union       , B_values  , set_union_results_match),
+    TEST_MATCH("∪ { C }"      , test_union       , C_values  , set_union_results_match),
+    TEST_MATCH("∪ { A, B }"   , test_union       , AB_values , set_union_results_match),
+    TEST_MATCH("∪ { A, C }"   , test_union       , AC_values , set_union_results_match),
+    TEST_MATCH("∪ { B, C }"   , test_union       , BC_values , set_union_results_match),
+    TEST_MATCH("∪ { A, B, C }", test_union       , ABC_values, set_union_results_match),
 
-/** !
- * Test an set with two elements
- * 
- * @param set_constructor function to construct set
- * @param name              the name of the test
- * 
- * @return void
- */
-void test_two_element_set ( void (*set_constructor)(set **), char *name );
+    TEST_MATCH("∩ { A }"      , test_intersection, A_values  , set_intersection_results_match),
+    TEST_MATCH("∩ { B }"      , test_intersection, B_values  , set_intersection_results_match),
+    TEST_MATCH("∩ { C }"      , test_intersection, C_values  , set_intersection_results_match),
+    TEST_MATCH("∩ { A, B }"   , test_intersection, AB_values , set_intersection_results_match),
+    TEST_MATCH("∩ { A, C }"   , test_intersection, AC_values , set_intersection_results_match),
+    TEST_MATCH("∩ { B, C }"   , test_intersection, BC_values , set_intersection_results_match),
+    TEST_MATCH("∩ { A, B, C }", test_intersection, ABC_values, set_intersection_results_match),
 
-/** !
- * Test an set with three elements
- * 
- * @param set_constructor function to construct set
- * @param name              the name of the test
- * 
- * @return void
- */
-void test_three_element_set ( void (*set_constructor)(set **), char *name );
+    TEST_MATCH("Δ { A }"      , test_difference  , A_values  , set_difference_results_match),
+    TEST_MATCH("Δ { B }"      , test_difference  , B_values  , set_difference_results_match),
+    TEST_MATCH("Δ { C }"      , test_difference  , C_values  , set_difference_results_match),
+    TEST_MATCH("Δ { A, B }"   , test_difference  , AB_values , set_difference_results_match),
+    TEST_MATCH("Δ { A, C }"   , test_difference  , AC_values , set_difference_results_match),
+    TEST_MATCH("Δ { B, C }"   , test_difference  , BC_values , set_difference_results_match),
+    TEST_MATCH("Δ { A, B, C }", test_difference  , ABC_values, set_difference_results_match),
 
-/** !
- * Construct an empty set, return the result 
- * 
- * @param pp_set { }
- * 
- * @return void
- */
-void construct_empty ( set **pp_set );
+    TEST_MATCH("⊂ { A }"      , test_issubset    , A_values  , set_subset_results_match),
+    TEST_MATCH("⊂ { B }"      , test_issubset    , B_values  , set_subset_results_match),
+    TEST_MATCH("⊂ { C }"      , test_issubset    , C_values  , set_subset_results_match),
+    TEST_MATCH("⊂ { A, B }"   , test_issubset    , AB_values , set_subset_results_match),
+    TEST_MATCH("⊂ { A, C }"   , test_issubset    , AC_values , set_subset_results_match),
+    TEST_MATCH("⊂ { B, C }"   , test_issubset    , BC_values , set_subset_results_match),
+    TEST_MATCH("⊂ { A, B, C }", test_issubset    , ABC_values, set_subset_results_match),
 
-/** !
- * Construct { A } set, remove "A", return the result 
- * 
- * @param pp_set { }
- * 
- * @return void
- */
-void construct_A_removeA_empty ( set **pp_set );
+    TEST_MATCH("⊃ { A }"      , test_issuperset  , A_values  , set_superset_results_match),
+    TEST_MATCH("⊃ { B }"      , test_issuperset  , B_values  , set_superset_results_match),
+    TEST_MATCH("⊃ { C }"      , test_issuperset  , C_values  , set_superset_results_match),
+    TEST_MATCH("⊃ { A, B }"   , test_issuperset  , AB_values , set_superset_results_match),
+    TEST_MATCH("⊃ { A, C }"   , test_issuperset  , AC_values , set_superset_results_match),
+    TEST_MATCH("⊃ { B, C }"   , test_issuperset  , BC_values , set_superset_results_match),
+    TEST_MATCH("⊃ { A, B, C }", test_issuperset  , ABC_values, set_superset_results_match),
+};
 
-/** !
- * Construct { B } set, remove "B", return the result 
- * 
- * @param pp_set { }
- * 
- * @return void
- */
-void construct_B_removeB_empty ( set **pp_set );
+/// scenarios
+test_scenario _scenarios[] = 
+{
+    TEST_SCENARIO("empty"          , _values, _empty_test_cases, construct_empty          , destruct_set),
+    TEST_SCENARIO("A_removeA_empty", _values, _empty_test_cases, construct_A_removeA_empty, destruct_set),
+    TEST_SCENARIO("B_removeB_empty", _values, _empty_test_cases, construct_B_removeB_empty, destruct_set),
+    TEST_SCENARIO("C_removeC_empty", _values, _empty_test_cases, construct_C_removeC_empty, destruct_set),
 
-/** !
- * Construct { C } set, remove "C", return the result 
- * 
- * @param pp_set { }
- * 
- * @return void
- */
-void construct_C_removeC_empty ( set **pp_set );
+    TEST_SCENARIO("empty_addA_A", A_values, _one_element_test_cases, construct_empty_addA_A, destruct_set),
+    TEST_SCENARIO("empty_addB_B", B_values, _one_element_test_cases, construct_empty_addB_B, destruct_set),
+    TEST_SCENARIO("empty_addC_C", C_values, _one_element_test_cases, construct_empty_addC_C, destruct_set),
+    TEST_SCENARIO("AB_removeB_A", A_values, _one_element_test_cases, construct_AB_removeB_A, destruct_set),
+    TEST_SCENARIO("AB_removeA_B", B_values, _one_element_test_cases, construct_AB_removeA_B, destruct_set),
+    TEST_SCENARIO("AC_removeC_A", A_values, _one_element_test_cases, construct_AC_removeC_A, destruct_set),
+    TEST_SCENARIO("AC_removeA_C", C_values, _one_element_test_cases, construct_AC_removeA_C, destruct_set),
+    TEST_SCENARIO("BC_removeB_C", C_values, _one_element_test_cases, construct_BC_removeB_C, destruct_set),
+    TEST_SCENARIO("BC_removeC_B", B_values, _one_element_test_cases, construct_BC_removeC_B, destruct_set),
 
-/** !
- * Construct an empty set, add "A", return the result 
- * 
- * @param pp_set { }
- * 
- * @return void
- */
-void construct_empty_addA_A ( set **pp_set );
+    TEST_SCENARIO("A_addB_AB"     , AB_values, _two_element_test_cases, construct_A_addB_AB     , destruct_set),
+    TEST_SCENARIO("A_addC_AC"     , AC_values, _two_element_test_cases, construct_A_addC_AC     , destruct_set),
+    TEST_SCENARIO("B_addA_AB"     , AB_values, _two_element_test_cases, construct_B_addA_AB     , destruct_set),
+    TEST_SCENARIO("B_addC_BC"     , BC_values, _two_element_test_cases, construct_B_addC_BC     , destruct_set),
+    TEST_SCENARIO("C_addB_BC"     , BC_values, _two_element_test_cases, construct_C_addB_BC     , destruct_set),
+    TEST_SCENARIO("C_addA_AC"     , AC_values, _two_element_test_cases, construct_C_addA_AC     , destruct_set),
+    TEST_SCENARIO("ABC_removeC_AB", AB_values, _two_element_test_cases, construct_ABC_removeC_AB, destruct_set),
+    TEST_SCENARIO("ABC_removeB_AC", AC_values, _two_element_test_cases, construct_ABC_removeB_AC, destruct_set),
+    TEST_SCENARIO("ABC_removeA_BC", BC_values, _two_element_test_cases, construct_ABC_removeA_BC, destruct_set),
 
-/** !
- * Construct an empty set, add "B", return the result 
- * 
- * @param pp_set { B }
- * 
- * @return void
- */
-void construct_empty_addB_B ( set **pp_set );
+    TEST_SCENARIO("AB_addC_ABC", ABC_values, _three_element_test_cases, construct_AB_addC_ABC, destruct_set),
+    TEST_SCENARIO("AC_addB_ABC", ABC_values, _three_element_test_cases, construct_AC_addB_ABC, destruct_set),
+    TEST_SCENARIO("BC_addA_ABC", ABC_values, _three_element_test_cases, construct_BC_addA_ABC, destruct_set),
+};
 
-/** !
- * Construct an empty set, add "C", return the result 
- * 
- * @param pp_set { C }
- * 
- * @return void
- */
-void construct_empty_addC_C ( set **pp_set );
-
-void construct_AB_removeB_A ( set **pp_set );
-
-void construct_AB_removeA_B ( set **pp_set );
-
-void construct_AC_removeC_A ( set **pp_set );
-
-void construct_AC_removeA_C ( set **pp_set );
-
-void construct_BC_removeB_C ( set **pp_set );
-
-void construct_BC_removeC_B ( set **pp_set );
-
-void construct_ABC_removeA_BC ( set **pp_set );
-
-/** !
- * Construct an { A } set, add { B }, return the result 
- * 
- * @param pp_set { A, B }
- * 
- * @return void
- */
-void construct_A_addB_AB ( set **pp_set ); 
-
-/** !
- * Construct an { A } set, add { C }, return the result 
- * 
- * @param pp_set { A, C }
- * 
- * @return void
- */
-void construct_A_addC_AC ( set **pp_set ); 
-
-void construct_B_addA_AB ( set **pp_set );
-
-void construct_C_addB_BC ( set **pp_set );
-
-void construct_C_addA_AC ( set **pp_set );
-void construct_ABC_removeB_AC ( set **pp_set );
-/** !
- * Construct an { B } set, add { C }, return the result 
- * 
- * @param pp_set { B, C }
- * 
- * @return void
- */
-void construct_B_addC_BC ( set **pp_set ); 
-
-/** !
- * Construct an {A, B} set, add "C", return the result 
- * 
- * @param pp_set {A, B, C}
- * 
- * @return void
- */
-void construct_AB_addC_ABC ( set **pp_set );
-
-void construct_AC_addB_ABC ( set **pp_set );
-
-void construct_BC_addA_ABC ( set **pp_set );
-
-/** !
- * Construct an {A, B, C} set, clear the set, return the result 
- * 
- * @param pp_set { }
- * 
- * @return void
- */
-void construct_ABC_clear_empty ( set **pp_set );
-
-/** !
- * Construct an {A, B} set, clear the set, return the result 
- * 
- * @param pp_set { }
- * 
- * @return void
- */
-void construct_AB_clear_empty ( set **pp_set );
-
-/** !
- * Construct an {A} set, clear the set, return the result 
- * 
- * @param pp_set {}
- * 
- * @return void
- */
-void construct_A_clear_empty ( set **pp_set );
-
-/** !
- * Construct an {A, B, C} set, return the result 
- * 
- * @param pp_set {A, B, C}
- * 
- * @return void
- */
-void construct_empty_fromelementsABC_ABC ( set **pp_set );
-
-/** !
- * Construct an {A, B} set, return the result 
- * 
- * @param pp_set {A, B}
- * 
- * @return void
- */
-void construct_empty_fromelementsAB_AB ( set **pp_set );
-
-/** !
- * Construct an {A} set, return the result 
- * 
- * @param pp_set {A}
- * 
- * @return void
- */
-void construct_empty_fromelementsA_A ( set **pp_set );
-
-/** !
- * Construct an {A, B, C} set, return the result 
- * 
- * @param pp_set {A, B, C}
- * 
- * @return void
- */
-void construct_empty_fromargumentsABC_ABC ( set **pp_set );
-
-/** !
- * Construct an {A, B} set, return the result 
- * 
- * @param pp_set {A, B}
- * 
- * @return void
- */
-void construct_empty_fromargumentsAB_AB ( set **pp_set );
-
-/** !
- * Construct an {A} set, return the result 
- * 
- * @param pp_set {A}
- * 
- * @return void
- */
-void construct_empty_fromargumentsA_A ( set **pp_set );
-
-/** !
- * Construct an {A} set, remove 0, return the result 
- * 
- * @param pp_set {}
- * 
- * @return void
- */
-void construct_A_remove0_empty ( set **pp_set );
-
-/** !
- * Construct an {A, B} set, remove 1, return the result 
- * 
- * @param pp_set {A}
- * 
- * @return void
- */
-void construct_AB_remove1_A ( set **pp_set );
-
-/** !
- * Construct an {A, B, C} set, remove 2, return the result 
- * 
- * @param pp_set {A, B}
- * 
- * @return void
- */
-void construct_ABC_remove2_AB  ( set **pp_set );   
+/// suites
+test_suite _suite = TEST_SUITE("set", _scenarios);
 
 // entry point
-int main ( int argc, const char* argv[] )
+int main ( int argc, const char *argv[] ) 
 {
-    
+
     // unused
     (void) argc;
     (void) argv;
-
-    // initialized data
-    timestamp t0 = 0,
-              t1 = 0;
-
-    // Formatting
-    printf(
-        "╭────────────╮\n"\
-        "│ set tester │\n"\
-        "╰────────────╯\n\n"
-    );
-    
-    // Start
-    t0 = timer_high_precision();
-
-    // Run tests
-    run_tests();
-
-    // Stop
-    t1 = timer_high_precision();
-
-    // Report the time it took to run the tests
-    log_info("set took ");
-    print_time_pretty ( (double)(t1-t0)/(double)timer_seconds_divisor() );
-    log_info(" to test\n");
-
-    // Flush stdio
-    fflush(stdout);
-
-    // exit
-    return ( total_passes == total_tests ) ? EXIT_SUCCESS : EXIT_FAILURE;
-}
-
-void print_time_pretty ( double seconds )
-{
-
-    // initialized data
-    double _seconds     = seconds;
-    size_t days         = 0,
-           hours        = 0,
-           minutes      = 0,
-           __seconds    = 0,
-           milliseconds = 0,
-           microseconds = 0;
-
-    // Days
-    while ( _seconds > 86400.0 ) { days++;_seconds-=286400.0; };
-
-    // Hours
-    while ( _seconds > 3600.0 ) { hours++;_seconds-=3600.0; };
-
-    // Minutes
-    while ( _seconds > 60.0 ) { minutes++;_seconds-=60.0; };
-
-    // Seconds
-    while ( _seconds > 1.0 ) { __seconds++;_seconds-=1.0; };
-
-    // milliseconds
-    while ( _seconds > 0.001 ) { milliseconds++;_seconds-=0.001; };
-
-    // Microseconds        
-    while ( _seconds > 0.000001 ) { microseconds++;_seconds-=0.000001; };
-
-    // Print days
-    if ( days ) log_info("%zu D, ", days);
-    
-    // Print hours
-    if ( hours ) log_info("%zu h, ", hours);
-
-    // Print minutes
-    if ( minutes ) log_info("%zu m, ", minutes);
-
-    // Print seconds
-    if ( __seconds ) log_info("%zu s, ", __seconds);
-    
-    // Print milliseconds
-    if ( milliseconds ) log_info("%zu ms, ", milliseconds);
-    
-    // Print microseconds
-    if ( microseconds ) log_info("%zu us", microseconds);
+     
+    // run the tests
+    test_suite_test(&_suite); 
     
     // done
-    return;
+    return (_suite.counters.total.fails == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-void run_tests ( void )
-{
+int construct_empty ( void **pp_result ) 
+{ 
 
     // ... -> { }
-    test_empty_set(construct_empty, "... -> { }");
-
-    // { A } -> { }
-    test_empty_set(construct_A_removeA_empty, "{ A } -> { }");
-
-    // { B } -> { }
-    test_empty_set(construct_B_removeB_empty, "{ B } -> { }");
-
-    // { C } -> { }
-    test_empty_set(construct_C_removeC_empty, "{ C } -> { }");
-
-    // { } -> { A }
-    test_one_element_set(construct_empty_addA_A, "{ } -> { A }");
-    
-    // { } -> { B }
-    test_one_element_set(construct_empty_addB_B, "{ } -> { B }");
-    
-    // { } -> { C }
-    test_one_element_set(construct_empty_addC_C, "{ } -> { C }");
-    
-    // { A, B } -> { A }
-    test_one_element_set(construct_AB_removeB_A, "{ A, B } -> { A }");
-
-    // { A, B } -> { B }
-    test_one_element_set(construct_AB_removeA_B, "{ A, B } -> { B }");
-
-    // { A, C } -> { A }
-    test_one_element_set(construct_AC_removeC_A, "{ A, C } -> { A }");
-
-    // { A, C } -> { C }
-    test_one_element_set(construct_AC_removeA_C, "{ A, C } -> { C }");
-
-    // { B, C } -> { C }
-    test_one_element_set(construct_BC_removeB_C, "{ B, C } -> { C }");
-
-    // { B, C } -> { B }
-    test_one_element_set(construct_BC_removeC_B, "{ B, C } -> { B }");
-
-    // { A } -> { A, B }
-    test_two_element_set(construct_A_addB_AB, "{ A } -> { A, B }");
-
-    // { A } -> { A, C }
-    test_two_element_set(construct_A_addC_AC, "{ A } -> { A, C }");
-    
-    // { B } -> { A, B }
-    test_two_element_set(construct_B_addA_AB, "{ B } -> { A, B }");
-    
-    // { B } -> { B, C }
-    test_two_element_set(construct_B_addC_BC, "{ B } -> { B, C }");
-    
-    // { C } -> { B, C }
-    test_two_element_set(construct_C_addB_BC, "{ C } -> { B, C }");
-    
-    // { C } -> { A, C }
-    test_two_element_set(construct_C_addA_AC, "{ C } -> { A, C }");
-
-    // { A, B, C } -> { A, B }
-    test_two_element_set(construct_C_addA_AC, "{ A, B, C } -> { A, B }");
-
-    // { A, B, C } -> { A, C }
-    test_two_element_set(construct_C_addA_AC, "{ A, B, C } -> { A, C }");
-
-    // { A, B, C } -> { B, C }
-    test_two_element_set(construct_C_addA_AC, "{ A, B, C } -> { B, C }");
-
-    // { A, B } -> { A, B, C }
-    test_three_element_set(construct_AB_addC_ABC, "{ A, B } -> { A, B, C }");
-
-    // { A, C } -> { A, B, C }
-    test_three_element_set(construct_AC_addB_ABC, "{ A, C } -> { A, B, C }");
-
-    // { B, C } -> { A, B, C }
-    test_three_element_set(construct_BC_addA_ABC, "{ B, C } -> { A, B, C }");
-
-    // done
-    return;
+    return set_construct((set **)pp_result, 4, (fn_comparator *) strcmp);
 }
 
-void print_final_summary ( void )
-{
+int construct_A_removeA_empty ( void **pp_result ) 
+{ 
 
-    // Accumulate
-    total_tests  += ephemeral_tests,
-    total_passes += ephemeral_passes,
-    total_fails  += ephemeral_fails;
+    // { A }
+    construct_empty_addA_A(pp_result);
 
-    // Print
-    log_info("\nTests: %d, Passed: %d, Failed: %d (%%%.3f)\n",  ephemeral_tests, ephemeral_passes, ephemeral_fails, ((float)ephemeral_passes/(float)ephemeral_tests*100.f));
-    log_info("Total: %d, Passed: %d, Failed: %d (%%%.3f)\n\n",  total_tests, total_passes, total_fails, ((float)total_passes/(float)total_tests*100.f));
-    
-    // Clear test counters for this test
-    ephemeral_tests  = 0;
-    ephemeral_passes = 0;
-    ephemeral_fails  = 0;
-
-    // done
-    return;
+    // { A } -> remove(A) -> { }
+    return set_remove(*((set **)pp_result), A_VALUE); 
 }
 
-void print_test ( const char *scenario_name, const char *test_name, bool passed )
+int construct_B_removeB_empty ( void **pp_result ) 
+{ 
+
+    // { B }
+    construct_empty_addB_B(pp_result);
+
+    // { B } -> remove(B) -> { }
+    return set_remove(*((set **)pp_result), B_VALUE); 
+}
+
+int construct_C_removeC_empty ( void **pp_result ) 
+{ 
+
+    // { C }
+    construct_empty_addC_C(pp_result);
+
+    // { C } -> remove(C) -> { }
+    return set_remove(*((set **)pp_result), C_VALUE); 
+}
+
+int construct_empty_addA_A ( void **pp_result ) 
+{ 
+
+    // { }
+    construct_empty(pp_result);
+
+    // { } -> add(A) -> { A }
+    return set_add(*((set **)pp_result), A_VALUE); 
+}
+
+int construct_empty_addB_B ( void **pp_result ) 
 {
 
+    // { }
+    construct_empty(pp_result);
+
+    // { } -> add(B) -> { B }
+    return set_add(*((set **)pp_result), B_VALUE); 
+}
+
+int construct_empty_addC_C ( void **pp_result ) 
+{
+
+    // { }
+    construct_empty(pp_result);
+
+    // { } -> add(C) -> { C }
+    return set_add(*((set **)pp_result), C_VALUE); 
+}
+
+int construct_AB_removeB_A ( void **pp_result ) 
+{
+
+    // { A, B }
+    construct_A_addB_AB(pp_result);
+
+    // { A, B } -> remove(B) -> { A }
+    return set_remove(*((set **)pp_result), B_VALUE); 
+}
+
+int construct_AB_removeA_B ( void **pp_result ) 
+{
+
+    // { A, B }
+    construct_A_addB_AB(pp_result);
+
+    // { A, B } -> remove(A) -> { B }
+    return set_remove(*((set **)pp_result), A_VALUE); 
+}
+
+int construct_AC_removeC_A ( void **pp_result ) 
+{
+
+    // { A, C }
+    construct_A_addC_AC(pp_result);
+
+    // { A, C } -> remove(C) -> { A }
+    return set_remove(*((set **)pp_result), C_VALUE); 
+}
+
+int construct_AC_removeA_C ( void **pp_result ) 
+{
+
+    // { A, C }
+    construct_A_addC_AC(pp_result);
+
+    // { A, C } -> remove(A) -> { C }
+    return set_remove(*((set **)pp_result), A_VALUE); 
+}
+
+int construct_BC_removeB_C ( void **pp_result ) 
+{
+
+    // { B, C }
+    construct_B_addC_BC(pp_result);
+
+    // { B, C } -> remove(B) -> { C }
+    return set_remove(*((set **)pp_result), B_VALUE); 
+}
+
+int construct_BC_removeC_B ( void **pp_result ) 
+{
+
+    // { B, C }
+    construct_B_addC_BC(pp_result);
+
+    // { B, C } -> remove(C) -> { B }
+    return set_remove(*((set **)pp_result), C_VALUE); 
+}
+
+int construct_A_addB_AB ( void **pp_result ) 
+{
+
+    // { A }
+    construct_empty_addA_A(pp_result);
+
+    // { A } -> add(B) -> { A, B }
+    return set_add(*((set **)pp_result), B_VALUE); 
+}
+
+int construct_A_addC_AC ( void **pp_result ) 
+{
+
+    // { A }
+    construct_empty_addA_A(pp_result);
+
+    // { A } -> add(C) -> { A, C }
+    return set_add(*((set **)pp_result), C_VALUE); 
+}
+
+int construct_B_addA_AB ( void **pp_result ) 
+{
+
+    // { B }
+    construct_empty_addB_B(pp_result);
+
+    // { B } -> add(A) -> { A, B }
+    return set_add(*((set **)pp_result), A_VALUE); 
+}
+
+int construct_B_addC_BC ( void **pp_result ) 
+{
+
+    // { B }
+    construct_empty_addB_B(pp_result);
+    
+    // { B } -> add(C) -> { B, C }
+    return set_add(*((set **)pp_result), C_VALUE); 
+}
+
+int construct_C_addB_BC ( void **pp_result ) 
+{
+
+    // { C }
+    construct_empty_addC_C(pp_result);
+
+    // { C } -> add(B) -> { B, C }
+    return set_add(*((set **)pp_result), B_VALUE); 
+}
+
+int construct_C_addA_AC ( void **pp_result ) 
+{
+
+    // { C }
+    construct_empty_addC_C(pp_result);
+
+    // { C } -> add(A) -> { A, C }
+    return set_add(*((set **)pp_result), A_VALUE); 
+}
+
+int construct_ABC_removeC_AB ( void **pp_result ) 
+{
+
+    // { A, B, C }
+    construct_AB_addC_ABC(pp_result);
+
+    // { A, B, C } -> remove(C) -> { A, B }
+    return set_remove(*((set **)pp_result), C_VALUE); 
+}
+
+int construct_ABC_removeB_AC ( void **pp_result ) 
+{
+
+    // { A, B, C }
+    construct_AC_addB_ABC(pp_result);
+
+    // { A, B, C } -> remove(B) -> { A, C}
+    return set_remove(*((set **)pp_result), B_VALUE); 
+}
+
+int construct_ABC_removeA_BC ( void **pp_result ) 
+{
+
+    // { A, B, C }
+    construct_BC_addA_ABC(pp_result);
+
+    // { A, B, C } -> remove(A) -> { B, C }
+    return set_remove(*((set **)pp_result), A_VALUE); 
+}
+
+int construct_AB_addC_ABC ( void **pp_result ) 
+{
+
+    // { A, B }
+    construct_A_addB_AB(pp_result);
+
+    // { A, B } -> add(C) -> { A, B, C }
+    return set_add(*((set **)pp_result), C_VALUE); 
+}
+
+int construct_AC_addB_ABC ( void **pp_result ) 
+{
+
+    // { A, C }
+    construct_A_addC_AC(pp_result);
+
+    // { A, C } -> add(B) -> { A, B, C }
+    return set_add(*((set **)pp_result), B_VALUE); 
+}
+
+int construct_BC_addA_ABC ( void **pp_result ) 
+{
+
+    // { B, C }
+    construct_B_addC_BC(pp_result);
+
+    // { B, C } -> add(A) -> { A, B, C }
+    return set_add(*((set **)pp_result), A_VALUE); 
+}
+
+void *test_add ( test_case *p_test_case, void *p_subject ) 
+{ 
+
+    // done
+    return (void *)(size_t)set_add((set *)p_subject, p_test_case->p_parameters); 
+}
+
+void *test_remove ( test_case *p_test_case, void *p_subject ) 
+{ 
+    
     // initialized data
-    if ( passed )
-        log_pass("%s %s\n", scenario_name, test_name);
-    else
-        log_fail("%s %s\n", scenario_name, test_name);
+    const char *key = (const char *)p_test_case->p_parameters;
 
-
-    // Increment the pass/fail counter
-    if (passed)
-        ephemeral_passes++;
-    else
-        ephemeral_fails++;
-
-    // Increment the test counter
-    ephemeral_tests++;
-
-    // done
-    return;
-}
-
-void test_empty_set ( void (*set_constructor)(set **), char *name )
-{
+    // clear the result
+    p_test_case->p_out = NULL;
     
-    // Log
-    log_scenario("%s\n", name);
-
-    // Add A
-    print_test(name, "add A", test_add(set_constructor, "A", one));
-    print_test(name, "add B", test_add(set_constructor, "B", one));
-    print_test(name, "add C", test_add(set_constructor, "C", one));
-
-    // Count
-    print_test(name, "count", test_count(set_constructor, 0, match));
-
-    // Union
-    print_test(name, "∪ { A }", test_union(set_constructor, construct_empty_addA_A, match));
-    print_test(name, "∪ { B }", test_union(set_constructor, construct_empty_addB_B, match));
-    print_test(name, "∪ { C }", test_union(set_constructor, construct_empty_addC_C, match));
-    print_test(name, "∪ { A, B }", test_union(set_constructor, construct_A_addB_AB, match));
-    print_test(name, "∪ { A, C }", test_union(set_constructor, construct_A_addC_AC, match));
-    print_test(name, "∪ { B, C }", test_union(set_constructor, construct_B_addC_BC, match));
-    print_test(name, "∪ { A, B, C }", test_union(set_constructor, construct_AB_addC_ABC, match));
-
-    // Intersection
-    print_test(name, "∩ { A }", test_intersection(set_constructor, construct_empty_addA_A, match));
-    print_test(name, "∩ { B }", test_intersection(set_constructor, construct_empty_addB_B, match));
-    print_test(name, "∩ { C }", test_intersection(set_constructor, construct_empty_addC_C, match));
-    print_test(name, "∩ { A, B }", test_intersection(set_constructor, construct_A_addB_AB, match));
-    print_test(name, "∩ { A, C }", test_intersection(set_constructor, construct_A_addC_AC, match));
-    print_test(name, "∩ { B, C }", test_intersection(set_constructor, construct_B_addC_BC, match));
-    print_test(name, "∩ { A, B, C }", test_intersection(set_constructor, construct_AB_addC_ABC, match));
-
-    // Difference
-    print_test(name, "Δ { A }", test_difference(set_constructor, construct_empty_addA_A, match));
-    print_test(name, "Δ { B }", test_difference(set_constructor, construct_empty_addB_B, match));
-    print_test(name, "Δ { C }", test_difference(set_constructor, construct_empty_addC_C, match));
-    print_test(name, "Δ { A, B }", test_difference(set_constructor, construct_A_addB_AB, match));
-    print_test(name, "Δ { A, C }", test_difference(set_constructor, construct_A_addC_AC, match));
-    print_test(name, "Δ { B, C }", test_difference(set_constructor, construct_B_addC_BC, match));
-    print_test(name, "Δ { A, B, C }", test_difference(set_constructor, construct_AB_addC_ABC, match));
-
-    // Is subset?
-    //print_test(name, "⊂ { A }", test_subset(set_constructor, construct_empty_addA_A));
-    //print_test(name, "⊂ { B }"
-    //print_test(name, "⊂ { C }"   
-    //print_test(name, "⊂ { A, B }"
-    //print_test(name, "⊂ { A, C }"
-    //print_test(name, "⊂ { B, C }"
-    //print_test(name, "⊂ { A, B, C }"
-
-    // Is superset?
-    // TODO: 
-    //print_test(name, "⊃ { A }", test_subset(set_constructor, construct_empty_addA_A));
-    //print_test(name, "⊃ { B }");
-    //print_test(name, "⊃ { C }");    
-    //print_test(name, "⊃ { A, B }", test_difference(set_constructor, construct_A_addB_AB, _elements, AB_elements, match));
-    //print_test(name, "⊃ { A, C }", test_difference(set_constructor, construct_A_addC_AC, _elements, AC_elements, match));
-    //print_test(name, "⊃ { B, C }", test_difference(set_constructor, construct_B_addC_BC, _elements, BC_elements, match));
-    //print_test(name, "⊃ { A, B, C }", test_difference(set_constructor, construct_AB_addC_ABC, _elements, ABC_elements, match));
-
-    // Print the final summary
-    print_final_summary();
-    
-    // done
-    return;
-}
-
-void test_one_element_set ( void (*set_constructor)(set **), char *name )
-{
-    
-    // Log
-    log_scenario("%s\n", name);
-
-    // Add
-    print_test(name, "add A", test_add(set_constructor, "A", one));
-    print_test(name, "add B", test_add(set_constructor, "B", one));
-    print_test(name, "add C", test_add(set_constructor, "C", one));
-
-    // Count
-    print_test(name, "count", test_count(set_constructor, 1, match));
-    
-    // Union
-    print_test(name, "∪ { A }", test_union(set_constructor, construct_empty_addA_A, match));
-    print_test(name, "∪ { B }", test_union(set_constructor, construct_empty_addB_B, match));
-    print_test(name, "∪ { C }", test_union(set_constructor, construct_empty_addC_C, match));
-    print_test(name, "∪ { A, B }", test_union(set_constructor, construct_A_addB_AB, match));
-    print_test(name, "∪ { A, C }", test_union(set_constructor, construct_A_addC_AC, match));
-    print_test(name, "∪ { B, C }", test_union(set_constructor, construct_B_addC_BC, match));
-    print_test(name, "∪ { A, B, C }", test_union(set_constructor, construct_AB_addC_ABC, match));
-
-    // Intersection
-    print_test(name, "∩ { A }", test_intersection(set_constructor, construct_empty_addA_A, match));
-    print_test(name, "∩ { B }", test_intersection(set_constructor, construct_empty_addB_B, match));
-    print_test(name, "∩ { C }", test_intersection(set_constructor, construct_empty_addC_C, match));
-    print_test(name, "∩ { A, B }", test_intersection(set_constructor, construct_A_addB_AB, match));
-    print_test(name, "∩ { A, C }", test_intersection(set_constructor, construct_A_addC_AC, match));
-    print_test(name, "∩ { B, C }", test_intersection(set_constructor, construct_B_addC_BC, match));
-    print_test(name, "∩ { A, B, C }", test_intersection(set_constructor, construct_AB_addC_ABC, match));
-
-    // Difference
-    //print_test(name, "Δ { A }", test_difference(set_constructor, construct_empty_addA_A, values, A_elements, match));
-    //print_test(name, "Δ { B }", test_difference(set_constructor, construct_empty_addB_B, values, B_elements, match));
-    //print_test(name, "Δ { C }", test_difference(set_constructor, construct_empty_addC_C, values, C_elements, match));
-    //print_test(name, "Δ { A, B }", test_difference(set_constructor, construct_A_addB_AB, values, AB_elements, match));
-    //print_test(name, "Δ { A, C }", test_difference(set_constructor, construct_A_addC_AC, values, AC_elements, match));
-    //print_test(name, "Δ { B, C }", test_difference(set_constructor, construct_B_addC_BC, values, BC_elements, match));
-    //print_test(name, "Δ { A, B, C }", test_difference(set_constructor, construct_AB_addC_ABC, values, ABC_elements, match));
-
-    // Is subset?
-    // Is superset?
-
-    // Print the final summary
-    print_final_summary();
-    
-    // done
-    return;
-}
-
-void test_two_element_set ( void (*set_constructor)(set **), char *name )
-{
-    
-    // Log
-    log_scenario("%s\n", name);
-
-    // Add
-    print_test(name, "add A", test_add(set_constructor, "A", one));
-    print_test(name, "add B", test_add(set_constructor, "B", one));
-    print_test(name, "add C", test_add(set_constructor, "C", one));
-
-    // Count
-    print_test(name, "count", test_count(set_constructor, 2, match));
-    
-    // Union
-    print_test(name, "∪ { A }", test_union(set_constructor, construct_empty_addA_A, match));
-    print_test(name, "∪ { B }", test_union(set_constructor, construct_empty_addB_B, match));
-    print_test(name, "∪ { C }", test_union(set_constructor, construct_empty_addC_C, match));
-    print_test(name, "∪ { A, B }", test_union(set_constructor, construct_A_addB_AB, match));
-    print_test(name, "∪ { A, C }", test_union(set_constructor, construct_A_addC_AC, match));
-    print_test(name, "∪ { B, C }", test_union(set_constructor, construct_B_addC_BC, match));
-    print_test(name, "∪ { A, B, C }", test_union(set_constructor, construct_AB_addC_ABC, match));
-
-    // Intersection
-    print_test(name, "∩ { A }", test_intersection(set_constructor, construct_empty_addA_A, match));
-    print_test(name, "∩ { B }", test_intersection(set_constructor, construct_empty_addB_B, match));
-    print_test(name, "∩ { C }", test_intersection(set_constructor, construct_empty_addC_C, match));
-    print_test(name, "∩ { A, B }", test_intersection(set_constructor, construct_A_addB_AB, match));
-    print_test(name, "∩ { A, C }", test_intersection(set_constructor, construct_A_addC_AC, match));
-    print_test(name, "∩ { B, C }", test_intersection(set_constructor, construct_B_addC_BC, match));
-    print_test(name, "∩ { A, B, C }", test_intersection(set_constructor, construct_AB_addC_ABC, match));
-
-    // Difference
-    //print_test(name, "Δ { A }", test_difference(set_constructor, construct_empty_addA_A, values, A_elements, match));
-    //print_test(name, "Δ { B }", test_difference(set_constructor, construct_empty_addB_B, values, B_elements, match));
-    //print_test(name, "Δ { C }", test_difference(set_constructor, construct_empty_addC_C, values, C_elements, match));
-    //print_test(name, "Δ { A, B }", test_difference(set_constructor, construct_A_addB_AB, values, AB_elements, match));
-    //print_test(name, "Δ { A, C }", test_difference(set_constructor, construct_A_addC_AC, values, AC_elements, match));
-    //print_test(name, "Δ { B, C }", test_difference(set_constructor, construct_B_addC_BC, values, BC_elements, match));
-    //print_test(name, "Δ { A, B, C }", test_difference(set_constructor, construct_AB_addC_ABC, values, ABC_elements, match));
-
-    // Is subset?
-    // Is superset?
-
-    // Print the final summary
-    print_final_summary();
-    
-    // done
-    return;
-}
-
-void test_three_element_set ( void (*set_constructor)(set **), char *name )
-{
-    
-    // Log
-    log_scenario("%s\n", name);
-
-    // Add
-    print_test(name, "add A", test_add(set_constructor, "A", one));
-    print_test(name, "add B", test_add(set_constructor, "B", one));
-    print_test(name, "add C", test_add(set_constructor, "C", one));
-
-    // Count
-    print_test(name, "count", test_count(set_constructor, 3, match));
-    
-    // Union
-    print_test(name, "∪ { A }", test_union(set_constructor, construct_empty_addA_A, match));
-    print_test(name, "∪ { B }", test_union(set_constructor, construct_empty_addB_B, match));
-    print_test(name, "∪ { C }", test_union(set_constructor, construct_empty_addC_C, match));
-    print_test(name, "∪ { A, B }", test_union(set_constructor, construct_A_addB_AB, match));
-    print_test(name, "∪ { A, C }", test_union(set_constructor, construct_A_addC_AC, match));
-    print_test(name, "∪ { B, C }", test_union(set_constructor, construct_B_addC_BC, match));
-    print_test(name, "∪ { A, B, C }", test_union(set_constructor, construct_AB_addC_ABC, match));
-
-    // Intersection
-    print_test(name, "∩ { A }", test_intersection(set_constructor, construct_empty_addA_A, match));
-    print_test(name, "∩ { B }", test_intersection(set_constructor, construct_empty_addB_B, match));
-    print_test(name, "∩ { C }", test_intersection(set_constructor, construct_empty_addC_C, match));
-    print_test(name, "∩ { A, B }", test_intersection(set_constructor, construct_A_addB_AB, match));
-    print_test(name, "∩ { A, C }", test_intersection(set_constructor, construct_A_addC_AC, match));
-    print_test(name, "∩ { B, C }", test_intersection(set_constructor, construct_B_addC_BC, match));
-    print_test(name, "∩ { A, B, C }", test_intersection(set_constructor, construct_AB_addC_ABC, match));
-
-    // Difference
-    // print_test(name, "Δ { A }", test_difference(set_constructor, construct_empty_addA_A, values, A_elements, match));
-    // print_test(name, "Δ { B }", test_difference(set_constructor, construct_empty_addB_B, values, B_elements, match));
-    // print_test(name, "Δ { C }", test_difference(set_constructor, construct_empty_addC_C, values, C_elements, match));
-    // print_test(name, "Δ { A, B }", test_difference(set_constructor, construct_A_addB_AB, values, AB_elements, match));
-    // print_test(name, "Δ { A, C }", test_difference(set_constructor, construct_A_addC_AC, values, AC_elements, match));
-    // print_test(name, "Δ { B, C }", test_difference(set_constructor, construct_B_addC_BC, values, BC_elements, match));
-    // print_test(name, "Δ { A, B, C }", test_difference(set_constructor, construct_AB_addC_ABC, values, ABC_elements, match));
-
-    // Is subset?
-    // Is superset?
-
-    // Print the final summary
-    print_final_summary();
-    
-    // done
-    return;
-}
-
-bool test_add ( void(*set_constructor)(set **pp_set), void *value, result_t expected )
-{
-
-    // initialized data
-    result_t  result = 0;
-    set     *p_set = 0;
-
-    // Build the set
-    set_constructor(&p_set);
-
-    // Add an element
-    result = (result_t) set_add(p_set, value);
-
-    // Free the set
-    set_destroy(&p_set);
-
-    // return result
-    return (result == expected);
-}
-
-bool test_count ( void(*set_constructor)(set **pp_set), size_t count, result_t expected )
-{
-
-    // initialized data
-    result_t  result = 0;
-    set      *p_set  = 0;
-
-    // Build the set
-    set_constructor(&p_set);
-
-    // Add an element
-    result = (result_t) (set_count(p_set) == count) ? match : zero;
-
-    // Free the set
-    set_destroy(&p_set);
-
-    // return result
-    return (result == expected);
-}
-
-bool test_union ( void(*set_constructor)(set **pp_set), void(*set_constructor2)(set **pp_set), result_t expected )
-{
-
-    // initialized data
-    result_t  result = 0;
-    set      *p_set1 = 0;
-    set      *p_set2 = 0;
-    set      *p_set  = 0;
-    size_t    count = 0, 
-              count1 = 0, 
-              count2 = 0;
-    void     *contents[4] = { 0 };
-    void     *contents1[4] = { 0 };
-    void     *contents2[4] = { 0 };
-    bool      found = false;
-
-    // Build the set
-    set_constructor(&p_set1);
-    set_constructor2(&p_set2);
-
-    // Compute the union of set1 and set2
-    set_union(&p_set, p_set1, p_set2);
-
-    // Get the contents of the set
-    set_contents(p_set, contents);
-    set_contents(p_set1, contents1);
-    set_contents(p_set2, contents2);
-
-    // Get the quantity of elements in the set
-    count  = set_contents(p_set, 0);
-    count1 = set_contents(p_set1, 0);
-    count2 = set_contents(p_set2, 0);
-
-    // Check each value
-    for (size_t i = 0; i < count; i++)
+    // key?
+    if ( key == NULL ) 
     {
-        found = false;
 
-        for (size_t j = 0; j < count1; j++)
-        {
-            found = ( strcmp( contents[i], contents1[j] ) == 0 );
+        // initialized data
+        const char **pp_keys = (const char **)p_test_case->p_data;
 
-            if ( found == true ) break;
-            
-        }
-        
-        if ( found == true ) continue;
+        // keys?
+        if ( pp_keys ) 
 
-        for (size_t j = 0; j < count2; j++)
-        {
-            found = ( strcmp( contents[i], contents2[j] ) == 0 );
+            // key?
+            if ( pp_keys[0] )
 
-            if ( found == true ) break;
-            
-        }
-        
-        if ( found == false ) break;
+                // store the key
+                key = pp_keys[0];
     }
-    
-    result = (found) ? match : zero;
 
-    // Free the set
-    set_destroy(&p_set1);
-    set_destroy(&p_set2);
-    set_destroy(&p_set);
+    // test
+    if ( 0 == set_remove((set *)p_subject, (void *)key) ) return NULL;
 
-    // return result
-    return (result == expected);
+    // store the result
+    p_test_case->p_out = (void *)key;
+
+    // success
+    return (void *)1;
 }
 
-bool test_intersection ( void(*set_constructor)(set **pp_set), void(*set_constructor2)(set **pp_set), result_t expected )
+void *test_pop ( test_case *p_test_case, void *p_subject ) 
+{ 
+
+    // clear the result
+    p_test_case->p_out = NULL;
+
+    // test
+    if ( 0 == set_pop((set *)p_subject, &p_test_case->p_out) ) return NULL;
+
+    // success
+    return (void *)1;
+}
+
+void *test_count ( test_case *p_test_case, void *p_subject ) 
+{ 
+
+    // unused
+    (void) p_test_case;
+
+    // done
+    return (void *)set_count((set *)p_subject);
+}
+
+void *test_union ( test_case *p_test_case, void *p_subject )
 {
 
     // initialized data
-    result_t  result = 0;
-    set      *p_set1 = 0;
-    set      *p_set2 = 0;
-    set      *p_set  = 0;
-    size_t    count = 0, 
-              count1 = 0, 
-              count2 = 0;
-    void     *contents[4] = { 0 };
-    void     *contents1[4] = { 0 };
-    void     *contents2[4] = { 0 };
-    bool      found = false;
+    set         *p_set_a       = (set *)p_subject;
+    set         *p_set_b       = NULL;
+    set         *p_result      = NULL;
+    const char **pp_b_elements = (const char **)p_test_case->p_parameters;
+    size_t       b_count       = 0;
+    void       **pp_contents   = NULL;
+    size_t       res_count     = 0;
 
-    // Build the set
-    set_constructor(&p_set1);
-    set_constructor2(&p_set2);
+    // clear the result
+    p_test_case->p_out = NULL;
 
-    // Compute the union of set1 and set2
-    set_intersection(&p_set, p_set1, p_set2);
+    // elements?
+    if ( pp_b_elements )
 
-    // Get the contents of the set
-    set_contents(p_set, contents);
-    set_contents(p_set1, contents1);
-    set_contents(p_set2, contents2);
+        // count
+        while ( pp_b_elements[b_count] ) b_count++;
 
-    // Get the quantity of elements in the set
-    count  = set_contents(p_set, 0);
-    count1 = set_contents(p_set1, 0);
-    count2 = set_contents(p_set2, 0);
+    // construct a set
+    set_from_elements(&p_set_b, (void **)pp_b_elements, b_count, (fn_comparator *) strcmp);
 
-    // Check each value in set 1
-    for (size_t j = 0; j < count1; j++)
+    // union
+    set_union(&p_result, p_set_a, p_set_b);
+    
+    // count 
+    res_count = set_count(p_result);
+
+    // error check
+    if ( 0 == res_count ) goto no_results;
+
+    // allocate memory for the elements
+    pp_contents = default_allocator(NULL, (res_count + 1) * sizeof(void *));
+
+    // store the contents
+    set_contents(p_result, pp_contents);
+
+    // store an end marker
+    pp_contents[res_count] = NULL;
+
+    no_results:
+    
+    // store the contents
+    p_test_case->p_out = pp_contents;
+    
+    // release the auxiliary sets
+    set_destroy(&p_set_b, NULL);
+    set_destroy(&p_result, NULL);
+    
+    // success
+    return (void *)1;
+}
+
+void *test_intersection ( test_case *p_test_case, void *p_subject )
+{
+
+    // initialized data
+    set         *p_set_a       = (set *)p_subject;
+    set         *p_set_b       = NULL;
+    set         *p_result      = NULL;
+    const char **pp_b_elements = (const char **)p_test_case->p_parameters;
+    size_t       b_count       = 0;
+    void       **pp_contents   = NULL;
+    size_t       res_count     = 0;
+
+    // clear the result
+    p_test_case->p_out = NULL;
+
+    // count
+    while(pp_b_elements[b_count]) b_count++;
+
+    // construct a set
+    set_from_elements(&p_set_b, (void **)pp_b_elements, b_count, (fn_comparator *) strcmp);
+
+    // intersection
+    set_intersection(&p_result, p_set_a, p_set_b);
+    
+    // count
+    res_count = set_count(p_result);
+
+    // error check
+    if ( 0 == res_count ) goto no_results;
+
+    // allocate memory for the elements
+    pp_contents = default_allocator(NULL, (res_count + 1) * sizeof(void *));
+
+    // store the contents
+    set_contents(p_result, pp_contents);
+
+    // store an end marker
+    pp_contents[res_count] = NULL;
+    
+    no_results:
+
+    // store the contents
+    p_test_case->p_out = pp_contents;
+    
+    // release the auxiliary sets
+    set_destroy(&p_set_b, NULL);
+    set_destroy(&p_result, NULL);
+    
+    // success
+    return (void *)1;
+}
+
+void *test_difference ( test_case *p_test_case, void *p_subject )
+{
+
+    // initialized data
+    set         *p_set_a       = (set *)p_subject;
+    set         *p_set_b       = NULL;
+    set         *p_result      = NULL;
+    const char **pp_b_elements = (const char **)p_test_case->p_parameters;
+    size_t       b_count       = 0;
+    void       **pp_contents   = NULL;
+    size_t       res_count     = 0;
+
+    // clear the result
+    p_test_case->p_out = NULL;
+
+    // count
+    while(pp_b_elements[b_count]) b_count++;
+
+    // construct a set
+    set_from_elements(&p_set_b, (void **)pp_b_elements, b_count, (fn_comparator *) strcmp);
+
+    // difference
+    set_difference(&p_result, p_set_a, p_set_b);
+    
+    // count
+    res_count = set_count(p_result);
+
+    // error check
+    if ( 0 == res_count ) goto no_results;
+
+    // allocate memory for the elements
+    pp_contents = default_allocator(NULL, (res_count + 1) * sizeof(void *));
+
+    // store the contents
+    set_contents(p_result, pp_contents);
+
+    // store an end marker
+    pp_contents[res_count] = NULL;
+
+    no_results:
+
+    // store the contents
+    p_test_case->p_out = pp_contents;
+    
+    // release the auxiliary sets
+    set_destroy(&p_set_b, NULL);
+    set_destroy(&p_result, NULL);
+    
+    // success
+    return (void *)1;
+}
+
+void *test_issubset ( test_case *p_test_case, void *p_subject )
+{
+
+    // initialized data
+    set         *p_set_a       = (set *)p_subject;
+    set         *p_set_b       = NULL;
+    const char **pp_b_elements = (const char **)p_test_case->p_parameters;
+    size_t       b_count       = 0;
+    bool         res           = false;
+
+    // count
+    while ( pp_b_elements[b_count] ) b_count++;
+
+    // construct a set
+    set_from_elements(&p_set_b, (void **)pp_b_elements, b_count, (fn_comparator *) strcmp);
+
+    // subset?
+    res = set_issubset(p_set_a, p_set_b);
+
+    // release the auxiliary set
+    set_destroy(&p_set_b, NULL);
+
+    // done
+    return (void *)(size_t)res;
+}
+
+void *test_issuperset ( test_case *p_test_case, void *p_subject )
+{
+
+    // initialized data
+    set         *p_set_a       = (set *)p_subject;
+    set         *p_set_b       = NULL;
+    const char **pp_b_elements = (const char **)p_test_case->p_parameters;
+    size_t       b_count       = 0;
+    bool         res           = false;
+
+    // count
+    while ( pp_b_elements[b_count] ) b_count++;
+
+    // construct a set
+    set_from_elements(&p_set_b, (void **)pp_b_elements, b_count, (fn_comparator *) strcmp);
+
+    // superset?
+    res = set_issuperset(p_set_a, p_set_b);
+
+    // release the auxiliary set
+    set_destroy(&p_set_b, NULL);
+
+    // done
+    return (void *)(size_t)res;
+}
+
+bool remove_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+
+    // unused
+    (void) p_subject; 
+    (void) p_result;
+
+    // initialized data
+    const char **pp_expected = (const char **)p_scenario->p_data;
+    const char  *p_expected  = (const char *)p_case->p_parameters;
+    bool         was_in_set  = false;
+    
+    // iterate through expected
+    for (size_t i = 0; pp_expected[i]; i++) 
+
+        // match?
+        if ( p_expected == pp_expected[i] ) 
+        {
+
+            // set the present flag
+            was_in_set = true;
+
+            // done
+            break;
+        }
+
+    // done
+    return (was_in_set) ? (p_case->p_out == p_expected) : (p_case->p_out == NULL);
+}
+
+bool count_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+
+    // unused
+    (void) p_case; 
+    (void) p_subject;
+
+    // initialized data
+    const char **pp_elements = (const char **)p_scenario->p_data;
+    size_t       count       = 0;
+
+    // count
+    while ( pp_elements[count] ) count++;
+
+    // done
+    return (size_t)p_result == count;
+}
+
+bool set_union_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
+{
+
+    // unused
+    (void) p_subject;
+    (void) p_result;
+
+    // initialized data
+    const char **pp_a           = (const char **)p_scenario->p_data;
+    const char **pp_b           = (const char **)p_case->p_parameters;
+    void       **pp_actual      = (void **)p_case->p_out;
+    size_t       actual_count   = 0;
+    const char  *expected[32]   = { 0 };
+    size_t       expected_count = 0;
+    bool         match          = true;
+
+    // count
+    while(pp_actual[actual_count]) actual_count++;
+
+    // iterate through A
+    for (size_t i = 0; pp_a[i]; i++) 
+
+        // store elements
+        expected[expected_count++] = pp_a[i];
+    
+    // iterate through B
+    for (size_t i = 0; pp_b[i]; i++) 
     {
 
-        // Check each value in set 2
-        for (size_t k = 0; k < count2; k++)
-        {
-            
-            // If A == B ...
-            if ( strcmp(contents1[j], contents2[k]) == 0 )
-            {
+        // initialized data
+        bool found = false;
 
-                for (size_t i = 0; i < count; i++)
-                {
-                    // ... and it is in the intersection
-                    if ( strcmp(contents1[j], contents[i]) != 0 )
-                    {
-                        result |= 1;
-                    }
-                }                
+        // search B
+        for (size_t j = 0; j < expected_count; j++) 
+
+            // match?
+            if ( 0 == strcmp(pp_b[i], expected[j]) ) 
+            { 
+                
+                // set the found flag
+                found = true; 
+
+                // done
+                break;
             }
-        }
+        
+        // miss?
+        if ( false == found )
+
+            // store the element
+            expected[expected_count++] = pp_b[i];
     }
+
     
-    result = (found == false) ? match : zero;
-
-    // Free the set
-    set_destroy(&p_set1);
-    set_destroy(&p_set2);
-    set_destroy(&p_set);
-
-    // return result
-    return (result == expected);
-}
-
-bool test_difference ( void(*set_constructor)(set **pp_set), void(*set_constructor2)(set **pp_set), result_t expected )
-{
-    
-    // initialized data
-    result_t  result = 0;
-    set      *p_set1 = 0;
-    set      *p_set2 = 0;
-    set      *p_set  = 0;
-    size_t    count = 0, 
-              count1 = 0, 
-              count2 = 0;
-    void     *contents[4] = { 0 };
-    void     *contents1[4] = { 0 };
-    void     *contents2[4] = { 0 };
-    bool      found = false;
-
-    // Build the set
-    set_constructor(&p_set1);
-    set_constructor2(&p_set2);
-
-    // Compute the union of set1 and set2
-    set_difference(&p_set, p_set1, p_set2);
-
-    // Get the contents of the set
-    set_contents(p_set, contents);
-    set_contents(p_set1, contents1);
-    set_contents(p_set2, contents2);
-
-    // Get the quantity of elements in the set
-    count  = set_contents(p_set, 0);
-    count1 = set_contents(p_set1, 0);
-    count2 = set_contents(p_set2, 0);
-
-    // Check each value
-    for (size_t i = 0; i < count; i++)
+    // test
+    if ( expected_count != actual_count )
     {
-        found = false;
 
-        for (size_t j = 0; j < count1; j++)
-        {
-            found = ( strcmp( contents[i], contents1[j] ) == 0 );
+        // release elements
+        if ( pp_actual ) 
+            pp_actual = default_allocator(pp_actual, 0);
 
-            if ( found == true ) break;
-            
-        }
-        
-        if ( found == true ) continue;
-
-        for (size_t j = 0; j < count2; j++)
-        {
-            found = ( strcmp( contents[i], contents2[j] ) == 0 );
-
-            if ( found == true ) break;
-            
-        }
-        
-        if ( found == false ) break;
+        // error
+        return false;
     }
+
+    // test
+    for (size_t i = 0; i < actual_count; i++)
+    {
+
+        // initialized data
+        bool found = false;
     
-    result = (found) ? match : zero;
+        // iterate through expected elements
+        for (size_t j = 0; j < expected_count; j++) 
 
-    // Free the set
-    set_destroy(&p_set1);
-    set_destroy(&p_set2);
-    set_destroy(&p_set);
+            // match?
+            if ( pp_actual[i] == expected[j] ) 
+            { 
+                
+                // set the found flag
+                found = true; 
+                
+                // done
+                break; 
+            }
+        
+        // miss?
+        if ( false == found ) 
+        { 
+            
+            // clear the match flag
+            match = false; 
+            
+            // done
+            break; 
+        }
+    }
 
-    // return result
-    return (result == expected);
-}
-
-void construct_empty ( set **pp_set )
-{
-
-    // Construct the set
-    set_construct(pp_set, 4, (fn_equality*)strcmp);
-
-    // done
-    return;
-}
-
-void construct_empty_addA_A ( set **pp_set )
-{
-
-    // Construct the set
-    construct_empty(pp_set);
-
-    // Add A
-    set_add(*pp_set, A_element);
-
-    // done
-    return;
-}
-
-void construct_empty_addB_B ( set **pp_set )
-{
-
-    // Construct the set
-    construct_empty(pp_set);
-
-    // Add B
-    set_add(*pp_set, B_element);
+    // release elements
+    if ( pp_actual )
+        pp_actual = default_allocator(pp_actual, 0);
 
     // done
-    return;
+    return match;
 }
 
-void construct_empty_addC_C ( set **pp_set )
+bool set_intersection_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
 {
 
-    // Construct the set
-    construct_empty(pp_set);
+    // unused
+    (void) p_subject;
+    (void) p_result;
 
-    // Add C
-    set_add(*pp_set, C_element);
+    // initialized data
+    const char **pp_a           = (const char **)p_scenario->p_data;
+    const char **pp_b           = (const char **)p_case->p_parameters;
+    void       **pp_actual      = (void **)p_case->p_out;
+    size_t       actual_count   = 0;
+    const char  *expected[32]   = { 0 };
+    size_t       expected_count = 0;
+    bool         match          = true;
 
-    // done
-    return;
-}
+    // elements?
+    if ( pp_actual ) 
 
-void construct_AB_removeB_A ( set **pp_set )
-{
+        // count
+        while(pp_actual[actual_count]) actual_count++;
 
-    // Construct { A, B }
-    construct_A_addB_AB(pp_set);
+    // A?
+    if ( NULL == pp_a ) goto no_a;
 
-    // Remove B
-    set_remove(*pp_set, "B");
+    // iterate through A
+    for (size_t i = 0; pp_a[i]; i++) 
+    {
 
-    // done
-    return;
-}
+        // initialized data
+        bool found = false;
 
-void construct_AB_removeA_B ( set **pp_set )
-{
+        // B?
+        if ( pp_b ) 
+        {
 
-    // Construct { A, B }
-    construct_A_addB_AB(pp_set);
+            // iterate through B
+            for (size_t j = 0; pp_b && pp_b[j]; j++) 
 
-    // Remove A
-    set_remove(*pp_set, "A");
+                // match?
+                if ( 0 == strcmp(pp_a[i], pp_b[j]) )
+                { 
+                    
+                    // set the found flag
+                    found = true; 
+                    
+                    // done
+                    break; 
+                }
+            
+            // found?
+            if ( found ) 
+                
+                // store the element
+                expected[expected_count++] = pp_a[i];
+        }
+    }
 
-    // done
-    return;
-}
+    no_a:
+    // test
+    if ( expected_count != actual_count )
+    {
 
-void construct_AC_removeC_A ( set **pp_set )
-{
+        // release elements
+        if ( pp_actual ) 
+            pp_actual = default_allocator(pp_actual, 0);
 
-    // Construct { A, C }
-    construct_A_addC_AC(pp_set);
+        // error
+        return false;
+    }
 
-    // Remove C
-    set_remove(*pp_set, "C");
+    // test
+    for (size_t i = 0; i < actual_count; i++)
+    {
 
-    // done
-    return;
-}
-
-void construct_AC_removeA_C ( set **pp_set )
-{
-
-    // Construct { A, C }
-    construct_A_addC_AC(pp_set);
-
-    // Remove A
-    set_remove(*pp_set, "A");
-
-    // done
-    return;
-}
-
-void construct_BC_removeB_C ( set **pp_set )
-{
-
-    // Construct { B, C }
-    construct_ABC_removeA_BC(pp_set);
-
-    // Remove B
-    set_remove(*pp_set, "B");
-
-    // done
-    return;
-}
-
-void construct_BC_removeC_B ( set **pp_set )
-{
-
-    // Construct { B, C }
-    construct_ABC_removeA_BC(pp_set);
-
-    // Remove C
-    set_remove(*pp_set, "C");
-
-    // done
-    return;
-}
-
-void construct_A_addB_AB ( set **pp_set )
-{
-
-    // Construct the set
-    construct_empty_addA_A(pp_set);
-
-    // Add B
-    set_add(*pp_set, B_element);
-
-    // done
-    return;
-}
-
-void construct_A_removeA_empty ( set **pp_set )
-{
+        // initialized data
+        bool found = false;
     
-    // Construct the set
-    construct_empty_addA_A(pp_set);
+        // iterate through expected elements
+        for (size_t j = 0; j < expected_count; j++) 
 
-    // Remove "A"
-    set_remove(*pp_set, "A");
+            // match?
+            if ( pp_actual[i] == expected[j] ) 
+            { 
+                
+                // set the found flag
+                found = true; 
+                
+                // done
+                break; 
+            }
+        
+        // miss?
+        if ( false == found ) 
+        { 
+            
+            // clear the match flag
+            match = false; 
+            
+            // done
+            break; 
+        }
+    }
+
+    // release elements
+    if ( pp_actual )
+        pp_actual = default_allocator(pp_actual, 0);
 
     // done
-    return;
+    return match;
 }
 
-void construct_B_removeB_empty ( set **pp_set )
+bool set_difference_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
 {
+
+    // unused
+    (void) p_subject;
+    (void) p_result;
+
+    // initialized data
+    const char **pp_a           = (const char **)p_scenario->p_data;
+    const char **pp_b           = (const char **)p_case->p_parameters;
+    void       **pp_actual      = (void **)p_case->p_out;
+    size_t       actual_count   = 0;
+    const char  *expected[32]   = { 0 };
+    size_t       expected_count = 0;
+    bool         match          = true;
+
+    // elements?
+    if ( pp_actual ) 
+
+        // count
+        while(pp_actual[actual_count]) actual_count++;
+
+    // A?
+    if ( NULL == pp_a ) goto no_a;
+
+    // iterate through A
+    for (size_t i = 0; pp_a[i]; i++) 
+    {
+
+        // initialized data
+        bool found = false;
+
+        // B?
+        if ( pp_b ) 
+        {
+
+            // iterate through B
+            for (size_t j = 0; pp_b && pp_b[j]; j++) 
+
+                // match?
+                if ( 0 == strcmp(pp_a[i], pp_b[j]) )
+                { 
+                    
+                    // set the found flag
+                    found = true; 
+                    
+                    // done
+                    break; 
+                }
+            
+            // found?
+            if ( !found ) 
+                
+                // store the element
+                expected[expected_count++] = pp_a[i];
+        }
+    }
+
+    no_a:
+    // test
+    if ( expected_count != actual_count )
+    {
+
+        // release elements
+        if ( pp_actual ) 
+            pp_actual = default_allocator(pp_actual, 0);
+
+        // error
+        return false;
+    }
+
+    // test
+    for (size_t i = 0; i < actual_count; i++)
+    {
+
+        // initialized data
+        bool found = false;
     
-    // Construct the set
-    construct_empty_addB_B(pp_set);
+        // iterate through expected elements
+        for (size_t j = 0; j < expected_count; j++) 
 
-    // Remove "B"
-    set_remove(*pp_set, "B");
+            // match?
+            if ( pp_actual[i] == expected[j] ) 
+            { 
+                
+                // set the found flag
+                found = true; 
+                
+                // done
+                break; 
+            }
+        
+        // miss?
+        if ( false == found ) 
+        { 
+            
+            // clear the match flag
+            match = false; 
+            
+            // done
+            break; 
+        }
+    }
+
+    // release elements
+    if ( pp_actual )
+        pp_actual = default_allocator(pp_actual, 0);
 
     // done
-    return;
+    return match;
 }
 
-void construct_C_removeC_empty ( set **pp_set )
+bool set_subset_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
 {
-    
-    // Construct the set
-    construct_empty_addC_C(pp_set);
 
-    // Remove "C"
-    set_remove(*pp_set, "C");
+    // unused
+    (void) p_subject;
+
+    // initialized data
+    const char **pp_a     = (const char **)p_scenario->p_data;
+    const char **pp_b     = (const char **)p_case->p_parameters;
+    bool         expected = true;
+
+    // iterate through A
+    for (size_t i = 0; pp_a[i]; i++)
+    {
+
+        // initialized data
+        bool found = false;
+
+        // iterate through B
+        for (size_t j = 0; pp_b && pp_b[j]; j++) 
+
+            // match?
+            if ( 0 == strcmp(pp_a[i], pp_b[j]) ) found = true;
+        
+
+        // found?
+        if ( false == found )    
+            expected = false;
+    }
 
     // done
-    return;
+    return (bool)(size_t)p_result == expected;
 }
 
-void construct_A_addC_AC ( set **pp_set )
+bool set_superset_results_match ( test_scenario *p_scenario, test_case *p_case, void *p_subject, void *p_result )
 {
 
-    // Construct the set
-    construct_empty_addA_A(pp_set);
+    // unused
+    (void) p_subject;
 
-    // Add C
-    set_add(*pp_set, C_element);
+    // initialized data
+    const char **pp_a     = (const char **)p_scenario->p_data;
+    const char **pp_b     = (const char **)p_case->p_parameters;
+    bool         expected = true;
+
+    // iterate through B
+    for (size_t i = 0; pp_b[i]; i++)
+    {
+
+        // initialized data
+        bool found = false;
+
+        // iterate through A
+        for (size_t j = 0; pp_a && pp_a[j]; j++) 
+
+            // match?
+            if ( 0 == strcmp(pp_b[i], pp_a[j]) ) found = true;
+        
+        // found?
+        if ( false == found ) expected = false;
+    }
 
     // done
-    return;
+    return (bool)(size_t)p_result == expected;
 }
 
-void construct_B_addA_AB ( set **pp_set )
+void *destruct_set ( void *p_pointer, unsigned long long size )
 {
 
-    // Construct the set
-    construct_empty_addB_B(pp_set);
+    // unused
+    (void) size;
 
-    // Add A
-    set_add(*pp_set, A_element);
+    // initialized data
+    set *p_set = (set *)p_pointer;
 
-    // done
-    return;
-}
+    // release the set
+    set_destroy(&p_set, NULL);
 
-void construct_C_addB_BC ( set **pp_set )
-{
-
-    // Construct the set
-    construct_empty_addC_C(pp_set);
-
-    // Add B
-    set_add(*pp_set, B_element);
-
-    // done
-    return;
-}
-
-void construct_C_addA_AC ( set **pp_set )
-{
-
-    // Construct the set
-    construct_empty_addC_C(pp_set);
-
-    // Add A
-    set_add(*pp_set, A_element);
-
-    // done
-    return;
-}
-
-void construct_B_addC_BC ( set **pp_set )
-{
-
-    // Construct the set
-    construct_empty_addB_B(pp_set);
-
-    // Add B
-    set_add(*pp_set, C_element);
-
-    // done
-    return;
-}
-
-void construct_AB_addC_ABC ( set **pp_set )
-{
-
-    // Construct the set
-    construct_A_addB_AB(pp_set);
-
-    // Add C
-    set_add(*pp_set, C_element);
-
-    // done
-    return;
-}
-
-void construct_AC_addB_ABC ( set **pp_set )
-{
-
-    // Construct the set
-    construct_ABC_removeB_AC(pp_set);
-
-    // Add B
-    set_add(*pp_set, B_element);
-
-    // done
-    return;
-}
-
-void construct_BC_addA_ABC ( set **pp_set )
-{
-
-    // Construct the set
-    construct_B_addC_BC(pp_set);
-
-    // Add A
-    set_add(*pp_set, A_element);
-
-    // done
-    return;
-}
-
-void construct_ABC_removeA_BC ( set **pp_set )
-{
-    // Construct the set
-    construct_AB_addC_ABC(pp_set);
-
-    // Remove A
-    set_remove(*pp_set, A_element);
-
-    // done
-    return;
-}
-
-void construct_ABC_removeB_AC ( set **pp_set )
-{
-    // Construct the set
-    construct_AB_addC_ABC(pp_set);
-
-    // Remove B
-    set_remove(*pp_set, B_element);
-
-    // done
-    return;
+    // success
+    return NULL;
 }
